@@ -1394,7 +1394,6 @@ static void set_room_configuration_process(struct ScriptContext *context)
     struct RoomConfigStats *roomst = &slab_conf.room_cfgstats[room_type];
     short value = context->value->shorts[2];
     short value2 = context->value->shorts[3];
-    short value3 = context->value->shorts[4];
     switch (context->value->shorts[1])
     {
         case 1: // NameTextID

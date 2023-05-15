@@ -1388,6 +1388,57 @@ static void set_trap_configuration_process(struct ScriptContext *context)
     }
 }
 
+static void set_room_configuration_process(struct ScriptContext *context)
+{
+    long room_type = context->value->shorts[0];
+    struct RoomConfigStats *roomst = &slab_conf.room_cfgstats[room_type];
+    short value = context->value->shorts[2];
+    short value2 = context->value->shorts[3];
+    short value3 = context->value->shorts[4];
+    switch (context->value->shorts[1])
+    {
+        case 1: // NameTextID
+            roomst->name_stridx = value;
+            break;
+        case 2: // TooltipTextID
+            roomst->tooltip_stridx = value;
+            update_room_tab_to_config();
+            break;
+        case 3: // SymbolSprites
+        {
+            roomst->bigsym_sprite_idx = get_icon_id(context->value->str2); // First
+            roomst->medsym_sprite_idx = get_icon_id(context->value->str2 + strlen(context->value->str2) + 1); // Second
+            if (roomst->bigsym_sprite_idx < 0)
+                roomst->bigsym_sprite_idx = bad_icon_id;
+            if (roomst->medsym_sprite_idx < 0)
+                roomst->medsym_sprite_idx = bad_icon_id;
+            update_room_tab_to_config();
+        }
+            break;
+        case 4: // PointerSprites
+            roomst->pointer_sprite_idx = get_icon_id(context->value->str2);
+            if (roomst->pointer_sprite_idx < 0)
+                roomst->pointer_sprite_idx = bad_icon_id;
+            update_room_tab_to_config();
+            break;
+        case 5: // PanelTabIndex
+            roomst->panel_tab_idx = value;
+            update_room_tab_to_config();
+            break;
+        case 6: // Cost
+            roomst->cost = value;
+            break;
+        case 7: // Health
+            roomst->health = value;
+            break;
+        //case 8: // CreatureCreation - I don't think it works that way?
+		//roomst->creature_creation_model = value;
+        //    break;
+        default:
+            WARNMSG("Unsupported Room configuration, variable %d.", context->value->shorts[1]);
+            break;
+    }
+}
 
 static void set_hand_rule_process(struct ScriptContext* context)
 {

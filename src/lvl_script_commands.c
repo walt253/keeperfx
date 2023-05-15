@@ -228,6 +228,18 @@ const struct NamedCommand trap_config_desc[] = {
   {NULL,                   0},
 };
 
+const struct NamedCommand room_config_desc[] = {
+  {"NameTextID",           1},
+  {"TooltipTextID",        2},
+  {"SymbolSprites",        3},
+  {"PointerSprites",       4},
+  {"PanelTabIndex",        5},
+  {"Cost",                 6},
+  {"Health",               7},
+  {"CreatureCreation",     8},
+  {NULL,                   0},
+};
+
 /**
  * Text names of groups of GUI Buttons.
  */

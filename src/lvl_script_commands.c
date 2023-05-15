@@ -972,6 +972,85 @@ static void set_trap_configuration_check(const struct ScriptLine* scline)
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
+static void set_room_configuration_check(const struct ScriptLine* scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+
+    const char *roomname = scline->tp[0];
+    const char *valuestring = scline->tp[2];
+    long newvalue;
+    short room_id = get_id(room_desc, roomname);
+    if (room_id == -1)
+    {
+        SCRPTERRLOG("Unknown room, '%s'", roomname);
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    }
+
+    short roomvar = get_id(room_config_desc, scline->tp[1]);
+    if (roomvar == -1)
+    {
+        SCRPTERRLOG("Unknown room variable");
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    }
+
+    value->shorts[0] = room_id;
+    value->shorts[1] = roomvar;
+    value->shorts[2] = scline->np[2];
+    value->shorts[3] = scline->np[3];
+    value->shorts[4] = scline->np[4];
+    if (roomvar == 3) // SymbolSprites
+    {
+        char *tmp = malloc(strlen(scline->tp[2]) + strlen(scline->tp[3]) + 3);
+        // Pass two vars along as one merged val like: first\nsecond\m
+        strcpy(tmp, scline->tp[2]);
+        strcat(tmp, "|");
+        strcat(tmp,scline->tp[3]);
+        value->str2 = script_strdup(tmp); // first\0second
+        value->str2[strlen(scline->tp[2])] = 0;
+        free(tmp);
+        if (value->str2 == NULL)
+        {
+            SCRPTERRLOG("Run out script strings space");
+            DEALLOCATE_SCRIPT_VALUE
+            return;
+        }
+    }
+    else if ((roomvar != 4) && (roomvar != 12))  // PointerSprites && Model
+    {
+        if (parameter_is_number(valuestring))
+        {
+            newvalue = atoi(valuestring);
+            if ((newvalue > SHRT_MAX) || (newvalue < 0))
+            {
+                SCRPTERRLOG("Value out of range: %d", newvalue);
+                DEALLOCATE_SCRIPT_VALUE
+                return;
+            }
+            value->shorts[2] = newvalue;
+        }
+        else 
+        {
+            SCRPTERRLOG("Room property %s needs a number value, '%s' is invalid.", scline->tp[1], scline->tp[2]);
+            DEALLOCATE_SCRIPT_VALUE
+            return;
+        }
+    }
+    else
+    {
+        value->str2 = script_strdup(scline->tp[2]);
+        if (value->str2 == NULL)
+        {
+            SCRPTERRLOG("Run out script strings space");
+            DEALLOCATE_SCRIPT_VALUE
+            return;
+        }
+    }
+    SCRIPTDBG(7, "Setting room %s property %s to %d", roomname, scline->tp[1], value->shorts[2]);
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
 static void set_hand_rule_check(const struct ScriptLine* scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0]);

@@ -188,7 +188,6 @@ const struct NamedCommand creature_select_criteria_desc[] = {
   {"ON_NEUTRAL_GROUND",    CSelCrit_OnNeutralGround},
   {"WANDERING",            CSelCrit_Wandering},
   {"WORKING",              CSelCrit_Working},
-  {"FIGHTING",             CSelCrit_Fighting},
   {"ANYWHERE",             CSelCrit_Any},
   {NULL,                   0},
 };

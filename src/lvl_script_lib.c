@@ -209,8 +209,6 @@ struct Thing* script_get_creature_by_criteria(PlayerNumber plyr_idx, long crmode
         return pick_up_creature_of_model_and_gui_job(crmodel, CrGUIJob_Wandering, plyr_idx, 0);
     case CSelCrit_Working:
         return pick_up_creature_of_model_and_gui_job(crmodel, CrGUIJob_Working, plyr_idx, 0);
-    case CSelCrit_Fighting:
-        return pick_up_creature_of_model_and_gui_job(crmodel, CrGUIJob_Fighting, plyr_idx, 0);
     case CSelCrit_NearOwnHeart:
     {
         const struct Coord3d* pos = dungeon_get_essential_pos(plyr_idx);

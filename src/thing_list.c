@@ -2591,6 +2591,34 @@ struct Thing *get_random_players_creature_of_model_on_territory(PlayerNumber ply
     }
 }
 
+struct Thing *get_random_players_creature_of_breed_and_gui_job(ThingModel crmodel, long job_idx, PlayerNumber plyr_idx)
+{
+    long total_count;
+    TbBool is_spec_digger = ((crmodel == CREATURE_DIGGER) || creature_kind_is_for_dungeon_diggers_list(plyr_idx, crmodel));
+    struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
+    if (is_spec_digger)
+    {
+        total_count = count_player_list_creatures_of_model(dungeon->digger_list_start, crmodel);
+    }
+    else
+    {
+        total_count = count_player_list_creatures_of_model(dungeon->creatr_list_start, crmodel);
+    }
+    if (total_count < 1)
+    {
+        return INVALID_THING;
+    }
+    long crtr_idx = PLAYER_RANDOM(plyr_idx, job_idx, total_count);
+    if (is_spec_digger)
+    {
+        return get_player_list_nth_creature_of_model(dungeon->digger_list_start, crmodel, crtr_idx);
+    }
+    else
+    {
+        return get_player_list_nth_creature_of_model(dungeon->creatr_list_start, crmodel, crtr_idx);
+    }
+}
+
 /**
  * Returns amount of filtered creatures from the players creature list starting from thing_idx.
  * Only creatures for whom the filter function will return LONG_MAX, are counted.

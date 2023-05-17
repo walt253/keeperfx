@@ -205,6 +205,12 @@ struct Thing* script_get_creature_by_criteria(PlayerNumber plyr_idx, long crmode
         return find_players_lowest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Working, plyr_idx, 0);
     case CSelCrit_LeastExpFighting:
         return find_players_lowest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Fighting, plyr_idx, 0);
+    case CSelCrit_Wandering:
+        return get_random_players_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Wandering, plyr_idx);
+    case CSelCrit_Working:
+        return get_random_players_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Working, plyr_idx);
+    case CSelCrit_Fighting:
+        return get_random_players_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Fighting, plyr_idx);
     case CSelCrit_NearOwnHeart:
     {
         const struct Coord3d* pos = dungeon_get_essential_pos(plyr_idx);

@@ -339,7 +339,7 @@ unsigned char sound_flag;
     unsigned char bloody_footsteps_turns;
     short kills_num;
     short max_speed;
-    short max_health;
+    unsigned short max_health;
     short move_speed;
     short orthogn_speed;
     short field_CC;

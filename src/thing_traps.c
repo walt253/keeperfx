@@ -984,7 +984,7 @@ TbBool can_place_trap_on(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoo
         return false;
     }
     if (((slbattr->block_flags & (SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) != 0)) {
-        return true;
+        return false;
     }
     if (slab_kind_is_liquid(slb->kind)) {
         return false;

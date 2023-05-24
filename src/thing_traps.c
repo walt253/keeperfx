@@ -981,15 +981,15 @@ TbBool can_place_trap_on(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoo
     TbBool HasTrap = true;
     TbBool HasDoor = true;
     if (!subtile_revealed(stl_x, stl_y, plyr_idx)) {
-        return true;
+        return false;
     }
     if (((slbattr->block_flags & (SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) != 0)) {
-        return true;
+        return false;
     }
     if (slab_kind_is_liquid(slb->kind)) {
-        return true;
+        return false;
     }
-    if ((slabmap_owner(slb) == plyr_idx) && ((slb->kind == SlbT_CLAIMED) || (slab_is_door(slb_x, slb_y))))
+    if ((slabmap_owner(slb) == plyr_idx) && ((slbattr->block_flags == SlbAtFlg_IsRoom) || (slb->kind == SlbT_CLAIMED) || (slab_is_door(slb_x, slb_y))))
     {
         if ((!gameadd.place_traps_on_subtiles))
         {
@@ -1029,7 +1029,7 @@ TbBool can_place_trap_on(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoo
             return true;
         }
     }
-    return true;
+    return false;
 }
 
 /******************************************************************************/

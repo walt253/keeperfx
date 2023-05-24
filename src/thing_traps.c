@@ -983,12 +983,9 @@ TbBool can_place_trap_on(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoo
     if (!subtile_revealed(stl_x, stl_y, plyr_idx)) {
         return false;
     }
-    //if (((slbattr->block_flags & (SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) != 0)) {
-        //if (gameadd.place_traps_on_rooms == false)
-        //{
-            //return false;
-        //}
-    //}
+    if (((slbattr->block_flags & (SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) != 0)) {
+        return true;
+    }
     if (slab_kind_is_liquid(slb->kind)) {
         return false;
     }

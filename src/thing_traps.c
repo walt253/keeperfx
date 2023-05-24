@@ -981,13 +981,13 @@ TbBool can_place_trap_on(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoo
     TbBool HasTrap = true;
     TbBool HasDoor = true;
     if (!subtile_revealed(stl_x, stl_y, plyr_idx)) {
-        return false;
+        return true;
     }
     if (((slbattr->block_flags & (SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) != 0)) {
-        return false;
+        return true;
     }
     if (slab_kind_is_liquid(slb->kind)) {
-        return false;
+        return true;
     }
     if ((slabmap_owner(slb) == plyr_idx) && ((slb->kind == SlbT_CLAIMED) || (slab_is_door(slb_x, slb_y))))
     {
@@ -1029,7 +1029,7 @@ TbBool can_place_trap_on(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoo
             return true;
         }
     }
-    return false;
+    return true;
 }
 
 /******************************************************************************/

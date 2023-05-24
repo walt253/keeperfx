@@ -314,6 +314,7 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
         gameadd.gem_effectiveness = 17;
         gameadd.pay_day_speed = 100;
         gameadd.place_traps_on_subtiles = false;
+        gameadd.place_traps_on_rooms = false;
         gameadd.gold_per_hoard = 2000;
     }
     // Find the block

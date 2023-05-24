@@ -1285,6 +1285,10 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
               SCRPTERRLOG("Rule '%d' value %d out of range. Max %d.", val2, val3, MAX_THINGS_IN_HAND);
           }
           break;
+      case 34: //PlaceTrapsOnRooms
+          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.place_traps_on_rooms, val3);
+          gameadd.place_traps_on_rooms = (TbBool)val3;
+          break;
       default:
           WARNMSG("Unsupported Game RULE, command %d.", val2);
           break;

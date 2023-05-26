@@ -215,7 +215,7 @@ struct SlabAttr slab_attrs[] = {
   {0, 0, 3, SlbAtFlg_None,                      SlbAtFlg_None,   SlbFillStl_Normal, SlbAtCtg_FortifiedGround,2, 1, 1, 0, 0, 0, 1}, // [11] PRETTY_PATH
   {0, 0, 2, SlbAtFlg_None,                      SlbAtFlg_None,   SlbFillStl_Lava  , SlbAtCtg_Unclaimed,      3, 1, 0, 0, 0, 1, 0}, // [12] LAVA
   {0, 0, 2, SlbAtFlg_None,                      SlbAtFlg_None,   SlbFillStl_Water , SlbAtCtg_Unclaimed,      4, 1, 1, 0, 0, 2, 0}, // [13] WATER
-  {0, 4, 4, SlbAtFlg_Blocking|SlbAtFlg_IsRoom,  SlbAtFlg_IsRoom, SlbFillStl_Normal, SlbAtCtg_RoomInterior,   5, 1, 1, 0, 0, 0, 1}, // [14] ENTRANCE_ZONE
+  {0, 4, 4, SlbAtFlg_Blocking|SlbAtFlg_IsRoom,  SlbAtFlg_IsRoom, SlbFillStl_Normal, SlbAtCtg_RoomInterior,   5, 1, 1, 0, 0, 0, 0}, // [14] ENTRANCE_ZONE
   {0, 4, 2, SlbAtFlg_Blocking|SlbAtFlg_Filled,  SlbAtFlg_None,   SlbFillStl_Normal, SlbAtCtg_FortifiedWall,  5, 1, 0, 0, 1, 0, 0}, // [15] ENTRANCE_WALL
   {0, 4, 4, SlbAtFlg_Blocking|SlbAtFlg_IsRoom,  SlbAtFlg_IsRoom, SlbFillStl_Normal, SlbAtCtg_RoomInterior,   6, 1, 1, 0, 0, 0, 1}, // [16] TREASURY_AREA
   {0, 4, 2, SlbAtFlg_Blocking|SlbAtFlg_Filled,  SlbAtFlg_None,   SlbFillStl_Normal, SlbAtCtg_FortifiedWall,  6, 1, 0, 0, 1, 0, 0}, // [17] TREASURY_WALL
@@ -243,22 +243,22 @@ struct SlabAttr slab_attrs[] = {
   {0, 4, 2, SlbAtFlg_Blocking|SlbAtFlg_Filled,  SlbAtFlg_None,   SlbFillStl_Normal, SlbAtCtg_FortifiedWall, 17, 1, 0, 0, 1, 0, 0}, // [39] LAIR_WALL
   {0, 4, 4, SlbAtFlg_Blocking|SlbAtFlg_IsRoom,  SlbAtFlg_IsRoom, SlbFillStl_Normal, SlbAtCtg_RoomInterior,  18, 1, 1, 0, 0, 0, 1}, // [40] BARRACK_AREA
   {0, 4, 2, SlbAtFlg_Blocking|SlbAtFlg_Filled,  SlbAtFlg_None,   SlbFillStl_Normal, SlbAtCtg_FortifiedWall, 18, 1, 0, 0, 1, 0, 0}, // [41] BARRACK_WALL
-  {0, 4, 5, SlbAtFlg_Blocking|SlbAtFlg_IsDoor,  SlbAtFlg_None,   SlbFillStl_Normal, SlbAtCtg_Obstacle,       2, 1, 1, 1, 0, 0, 1}, // [42] DOOR_WOODEN
-  {0, 4, 5, SlbAtFlg_Blocking|SlbAtFlg_IsDoor,  SlbAtFlg_None,   SlbFillStl_Normal, SlbAtCtg_Obstacle,       2, 1, 1, 1, 0, 0, 1}, // [43] DOOR_WOODEN2
-  {0, 4, 6, SlbAtFlg_Blocking|SlbAtFlg_IsDoor,  SlbAtFlg_None,   SlbFillStl_Normal, SlbAtCtg_Obstacle,       2, 1, 1, 1, 0, 0, 1}, // [44] DOOR_BRACE
-  {0, 4, 6, SlbAtFlg_Blocking|SlbAtFlg_IsDoor,  SlbAtFlg_None,   SlbFillStl_Normal, SlbAtCtg_Obstacle,       2, 1, 1, 1, 0, 0, 1}, // [45] DOOR_BRACE2
-  {0, 4, 7, SlbAtFlg_Blocking|SlbAtFlg_IsDoor,  SlbAtFlg_None,   SlbFillStl_Normal, SlbAtCtg_Obstacle,       2, 1, 1, 1, 0, 0, 1}, // [46] DOOR_STEEL
-  {0, 4, 7, SlbAtFlg_Blocking|SlbAtFlg_IsDoor,  SlbAtFlg_None,   SlbFillStl_Normal, SlbAtCtg_Obstacle,       2, 1, 1, 1, 0, 0, 1}, // [47] DOOR_STEEL2
-  {0, 4, 8, SlbAtFlg_Blocking|SlbAtFlg_IsDoor,  SlbAtFlg_None,   SlbFillStl_Normal, SlbAtCtg_Obstacle,       2, 1, 1, 1, 0, 0, 1}, // [48] DOOR_MAGIC
-  {0, 4, 8, SlbAtFlg_Blocking|SlbAtFlg_IsDoor,  SlbAtFlg_None,   SlbFillStl_Normal, SlbAtCtg_Obstacle,       2, 1, 1, 1, 0, 0, 1}, // [49] DOOR_MAGIC2
+  {0, 4, 5, SlbAtFlg_Blocking|SlbAtFlg_IsDoor,  SlbAtFlg_None,   SlbFillStl_Normal, SlbAtCtg_Obstacle,       2, 1, 1, 1, 0, 0, 0}, // [42] DOOR_WOODEN
+  {0, 4, 5, SlbAtFlg_Blocking|SlbAtFlg_IsDoor,  SlbAtFlg_None,   SlbFillStl_Normal, SlbAtCtg_Obstacle,       2, 1, 1, 1, 0, 0, 0}, // [43] DOOR_WOODEN2
+  {0, 4, 6, SlbAtFlg_Blocking|SlbAtFlg_IsDoor,  SlbAtFlg_None,   SlbFillStl_Normal, SlbAtCtg_Obstacle,       2, 1, 1, 1, 0, 0, 0}, // [44] DOOR_BRACE
+  {0, 4, 6, SlbAtFlg_Blocking|SlbAtFlg_IsDoor,  SlbAtFlg_None,   SlbFillStl_Normal, SlbAtCtg_Obstacle,       2, 1, 1, 1, 0, 0, 0}, // [45] DOOR_BRACE2
+  {0, 4, 7, SlbAtFlg_Blocking|SlbAtFlg_IsDoor,  SlbAtFlg_None,   SlbFillStl_Normal, SlbAtCtg_Obstacle,       2, 1, 1, 1, 0, 0, 0}, // [46] DOOR_STEEL
+  {0, 4, 7, SlbAtFlg_Blocking|SlbAtFlg_IsDoor,  SlbAtFlg_None,   SlbFillStl_Normal, SlbAtCtg_Obstacle,       2, 1, 1, 1, 0, 0, 0}, // [47] DOOR_STEEL2
+  {0, 4, 8, SlbAtFlg_Blocking|SlbAtFlg_IsDoor,  SlbAtFlg_None,   SlbFillStl_Normal, SlbAtCtg_Obstacle,       2, 1, 1, 1, 0, 0, 0}, // [48] DOOR_MAGIC
+  {0, 4, 8, SlbAtFlg_Blocking|SlbAtFlg_IsDoor,  SlbAtFlg_None,   SlbFillStl_Normal, SlbAtCtg_Obstacle,       2, 1, 1, 1, 0, 0, 0}, // [49] DOOR_MAGIC2
   {0, 4, 2, SlbAtFlg_None,                      SlbAtFlg_None,   SlbFillStl_Normal, SlbAtCtg_Obstacle,       0, 1, 0, 1, 0, 0, 0}, // [50] SLAB50
   {0, 4, 4, SlbAtFlg_Blocking|SlbAtFlg_IsRoom,  SlbAtFlg_IsRoom, SlbFillStl_Normal, SlbAtCtg_Obstacle,       1, 1, 1, 1, 0, 3, 1}, // [51] BRIDGE_FRAME
   {0, 4, 1, SlbAtFlg_Blocking|SlbAtFlg_Valuable,SlbAtFlg_None,   SlbFillStl_Normal, SlbAtCtg_Unclaimed,      0, 1, 0, 1, 1, 0, 0}, // [52] GEMS
   {0, 4, 4, SlbAtFlg_Blocking|SlbAtFlg_IsRoom,  SlbAtFlg_IsRoom, SlbFillStl_Normal, SlbAtCtg_Obstacle,       1, 1, 1, 1, 0, 0, 1}, // [53] GUARD_AREA
   {0, 4, 2, SlbAtFlg_Blocking|SlbAtFlg_Filled,  SlbAtFlg_None,   SlbFillStl_Normal, SlbAtCtg_Obstacle,       0, 1, 0, 1, 0, 0, 1}, // [54] PURPLE_PATH
-  {0, 4, 2, SlbAtFlg_Blocking|SlbAtFlg_Filled,  SlbAtFlg_None,   SlbFillStl_Normal, SlbAtCtg_Obstacle,       0, 1, 0, 1, 0, 0, 0}, // [55] To Be Determined
-  {0, 4, 2, SlbAtFlg_Blocking|SlbAtFlg_Filled,  SlbAtFlg_None,   SlbFillStl_Normal, SlbAtCtg_Obstacle,       0, 1, 0, 1, 0, 0, 0}, // [56] To Be Determined
-  {0, 4, 2, SlbAtFlg_Blocking|SlbAtFlg_Filled,  SlbAtFlg_None,   SlbFillStl_Normal, SlbAtCtg_Obstacle,       0, 1, 0, 1, 0, 0, 0}, // [57] To Be Determined
+  {0, 4, 2, SlbAtFlg_Blocking|SlbAtFlg_Filled,  SlbAtFlg_None,   SlbFillStl_Normal, SlbAtCtg_Obstacle,       0, 1, 0, 1, 0, 0, 1}, // [55] To Be Determined
+  {0, 4, 2, SlbAtFlg_Blocking|SlbAtFlg_Filled,  SlbAtFlg_None,   SlbFillStl_Normal, SlbAtCtg_Obstacle,       0, 1, 0, 1, 0, 0, 1}, // [56] To Be Determined
+  {0, 4, 2, SlbAtFlg_Blocking|SlbAtFlg_Filled,  SlbAtFlg_None,   SlbFillStl_Normal, SlbAtCtg_Obstacle,       0, 1, 0, 1, 0, 0, 1}, // [57] To Be Determined
 };
 
 const struct NamedCommand terrain_flags[] = {

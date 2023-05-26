@@ -110,7 +110,6 @@ short thing_is_destructible_trap(const struct Thing* thing);
 TbBool thing_is_sellable_trap(const struct Thing* thing);
 TbBool trap_on_bridge(ThingModel trpkind);
 TbBool trap_on_room(ThingModel trpkind);
-TbBool blocking_thing_on_map_block(struct Map* mapblk);
 TbBool rearm_trap(struct Thing *traptng);
 TngUpdateRet update_trap(struct Thing *thing);
 void init_traps(void);

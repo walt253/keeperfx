@@ -119,6 +119,7 @@ struct SlabAttr {
     unsigned char animated;
     unsigned char is_diggable;
     unsigned char wlb_type;
+    unsigned char trappable;
 };
 
 #pragma pack()

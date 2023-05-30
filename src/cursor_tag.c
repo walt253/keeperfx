@@ -147,6 +147,12 @@ TbBool tag_cursor_blocks_sell_area(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
     return (colour != SLC_RED);
 }
 
+TbBool place_traps_on_subtiles(ThingModel trpkind)
+{
+    struct TrapConfigStats* trapst = &gameadd.trapdoor_conf.trap_cfgstats[trpkind];
+    return trapst->placeonsubtile;
+}
+
 TbBool tag_cursor_blocks_place_door(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
     SYNCDBG(7,"Starting");
@@ -161,7 +167,7 @@ TbBool tag_cursor_blocks_place_door(PlayerNumber plyr_idx, MapSubtlCoord stl_x, 
     if (floor_height_z == 1)
     {
         Orientation = find_door_angle(stl_x, stl_y, plyr_idx);
-        if (gameadd.place_traps_on_subtiles)
+        if (place_traps_on_subtiles(trpkind))
         {
             switch(Orientation)
             {
@@ -179,7 +185,7 @@ TbBool tag_cursor_blocks_place_door(PlayerNumber plyr_idx, MapSubtlCoord stl_x, 
         }
         if ( ( (slabmap_owner(slb) == plyr_idx) && (slb->kind == SlbT_CLAIMED) )
             && (Orientation != -1)
-            && ( ( (gameadd.place_traps_on_subtiles) ? (Check) : (!slab_has_trap_on(slb_x, slb_y) ) ) && (!slab_has_door_thing_on(slb_x, slb_y) ) )
+            && ( ( (place_traps_on_subtiles(trpkind) ) ? (Check) : (!slab_has_trap_on(slb_x, slb_y) ) ) && (!slab_has_door_thing_on(slb_x, slb_y) ) )
             )
         {
             allowed = true;

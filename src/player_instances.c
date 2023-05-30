@@ -1179,6 +1179,12 @@ struct Room *player_build_room_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, Play
     return room;
 }
 
+TbBool get_traps_on_subtiles(ThingModel tngmodel)
+{
+    struct TrapConfigStats* trapst = &gameadd.trapdoor_conf.trap_cfgstats[tngmodel];
+    return trapst->placeonsubtile;
+}
+
 TbBool player_place_trap_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, ThingModel tngmodel)
 {
     if (!is_trap_placeable(plyr_idx, tngmodel)) {
@@ -1187,7 +1193,7 @@ TbBool player_place_trap_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumb
     }
     struct Coord3d pos;
     struct PlayerInfo* player = get_player(plyr_idx);
-    if ((player->chosen_trap_kind == TngTrp_Boulder) || (!gameadd.place_traps_on_subtiles))
+    if (!get_traps_on_subtiles(tngmodel))
     {
         set_coords_to_slab_center(&pos,subtile_slab(stl_x),subtile_slab(stl_y));
     }

@@ -153,7 +153,7 @@ TbBool place_traps_on_subtiles(ThingModel trpkind)
     return trapst->placeonsubtile;
 }
 
-TbBool tag_cursor_blocks_place_door(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+TbBool tag_cursor_blocks_place_door(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, ThingModel trpkind)
 {
     SYNCDBG(7,"Starting");
     MapSlabCoord slb_x = subtile_slab(stl_x);

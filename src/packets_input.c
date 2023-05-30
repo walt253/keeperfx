@@ -865,7 +865,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
             }
             break;
         case PSt_PlaceTrap:
-            process_dungeon_control_packet_dungeon_place_trap(plyr_idx);
+            process_dungeon_control_packet_dungeon_place_trap(plyr_idx, trpkind);
             break;
         case PSt_Lightning:
             player->thing_under_hand = 0;

@@ -667,7 +667,7 @@ TbBool process_dungeon_control_packet_dungeon_place_trap(long plyr_idx, ThingMod
     return true;
 }
 
-TbBool process_dungeon_control_packet_clicks(long plyr_idx)
+TbBool process_dungeon_control_packet_clicks(long plyr_idx, ThingModel trpkind)
 {
     struct Thing *thing;
     PowerKind pwkind;

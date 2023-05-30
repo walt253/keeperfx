@@ -1192,7 +1192,7 @@ TbBool player_place_trap_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumb
         return false;
     }
     struct Coord3d pos;
-    struct PlayerInfo* player = get_player(plyr_idx);
+    //struct PlayerInfo* player = get_player(plyr_idx);
     if (!get_traps_on_subtiles(tngmodel))
     {
         set_coords_to_slab_center(&pos,subtile_slab(stl_x),subtile_slab(stl_y));

@@ -185,7 +185,6 @@ struct GameAdd {
     long trap_sale_percent;
     unsigned long pay_day_speed;
     unsigned short disease_to_temple_pct;
-    TbBool place_traps_on_subtiles;
     unsigned long gold_per_hoard;
     struct CubeAttribs cubes_data[CUBE_ITEMS_MAX];
 

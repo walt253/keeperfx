@@ -147,12 +147,6 @@ TbBool tag_cursor_blocks_sell_area(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
     return (colour != SLC_RED);
 }
 
-TbBool place_traps_on_subtiles(ThingModel trpkind)
-{
-    struct TrapConfigStats* trapst = &gameadd.trapdoor_conf.trap_cfgstats[trpkind];
-    return trapst->placeonsubtile;
-}
-
 TbBool tag_cursor_blocks_place_door(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, ThingModel trpkind)
 {
     SYNCDBG(7,"Starting");
@@ -167,7 +161,7 @@ TbBool tag_cursor_blocks_place_door(PlayerNumber plyr_idx, MapSubtlCoord stl_x, 
     if (floor_height_z == 1)
     {
         Orientation = find_door_angle(stl_x, stl_y, plyr_idx);
-        if (place_traps_on_subtiles(trpkind))
+        if (trap_on_subtile(trpkind))
         {
             switch(Orientation)
             {

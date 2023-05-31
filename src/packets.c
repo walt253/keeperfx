@@ -319,7 +319,7 @@ void process_pause_packet(long curr_pause, long new_pause)
   }
 }
 
-void process_players_dungeon_control_packet_control(long plyr_idx)
+void process_players_dungeon_control_packet_control(long plyr_idx, ThingModel trpkind)
 {
     struct PlayerInfo* player = get_player(plyr_idx);
     struct PlayerInfoAdd* playeradd = get_playeradd(plyr_idx);
@@ -442,7 +442,7 @@ void process_players_dungeon_control_packet_control(long plyr_idx)
             break;
         }
     }
-    process_dungeon_control_packet_clicks(plyr_idx, ThingModel trpkind);
+    process_dungeon_control_packet_clicks(plyr_idx, trpkind);
     set_mouse_light(player);
 }
 

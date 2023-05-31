@@ -1179,21 +1179,15 @@ struct Room *player_build_room_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, Play
     return room;
 }
 
-TbBool get_traps_on_subtiles(ThingModel tngmodel)
+TbBool player_place_trap_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, ThingModel trpkind)
 {
-    struct TrapConfigStats* trapst = &gameadd.trapdoor_conf.trap_cfgstats[tngmodel];
-    return trapst->placeonsubtile;
-}
-
-TbBool player_place_trap_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, ThingModel tngmodel)
-{
-    if (!is_trap_placeable(plyr_idx, tngmodel)) {
-        WARNLOG("Player %d tried to build %s but has none to place",(int)plyr_idx,trap_code_name(tngmodel));
+    if (!is_trap_placeable(plyr_idx, trpkind)) {
+        WARNLOG("Player %d tried to build %s but has none to place",(int)plyr_idx,trap_code_name(trpkind));
         return false;
     }
     struct Coord3d pos;
     //struct PlayerInfo* player = get_player(plyr_idx);
-    if (!get_traps_on_subtiles(tngmodel))
+    if (!trap_on_subtile(trpkind))
     {
         set_coords_to_slab_center(&pos,subtile_slab(stl_x),subtile_slab(stl_y));
     }
@@ -1202,7 +1196,7 @@ TbBool player_place_trap_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumb
         set_coords_to_subtile_center(&pos,stl_x,stl_y,1);
     }
     delete_room_slabbed_objects(get_slab_number(subtile_slab(stl_x),subtile_slab(stl_y)));
-    struct Thing* traptng = create_trap(&pos, tngmodel, plyr_idx);
+    struct Thing* traptng = create_trap(&pos, trpkind, plyr_idx);
     if (thing_is_invalid(traptng)) {
         return false;
     }
@@ -1210,9 +1204,9 @@ TbBool player_place_trap_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumb
     traptng->trap.revealed = 0;
     struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
 
-    remove_workshop_item_from_amount_placeable(plyr_idx, TCls_Trap, tngmodel);
-    if (placing_offmap_workshop_item(plyr_idx, TCls_Trap, tngmodel)) {
-        remove_workshop_item_from_amount_stored(plyr_idx, TCls_Trap, tngmodel, WrkCrtF_NoStored);
+    remove_workshop_item_from_amount_placeable(plyr_idx, TCls_Trap, trpkind);
+    if (placing_offmap_workshop_item(plyr_idx, TCls_Trap, trpkind)) {
+        remove_workshop_item_from_amount_stored(plyr_idx, TCls_Trap, trpkind, WrkCrtF_NoStored);
         rearm_trap(traptng);
         dungeon->lvstats.traps_armed++;
     }

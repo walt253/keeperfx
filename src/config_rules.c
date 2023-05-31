@@ -73,12 +73,11 @@ const struct NamedCommand rules_game_commands[] = {
   {"ROOMSELLGOLDBACKPERCENT",    29},
   {"DOORSELLVALUEPERCENT",       30},
   {"TRAPSELLVALUEPERCENT",       31},
-  {"PLACETRAPSONSUBTILES",       32},
-  {"BAGGOLDHOLD",                33},
-  {"ALLIESSHAREVISION",          34},
-  {"ALLIESSHAREDROP",            35},
-  {"ALLIESSHARECTA",             36},
-  {"MAXTHINGSINHAND",            37},
+  {"BAGGOLDHOLD",                32},
+  {"ALLIESSHAREVISION",          33},
+  {"ALLIESSHAREDROP",            34},
+  {"ALLIESSHARECTA",             35},
+  {"MAXTHINGSINHAND",            36},
   {NULL,                          0},
   };
 
@@ -312,7 +311,7 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
         gameadd.trap_sale_percent = 100;
         gameadd.gem_effectiveness = 17;
         gameadd.pay_day_speed = 100;
-        gameadd.place_traps_on_subtiles = false;
+        gameadd.place_traps_on_subtiles = true;
         gameadd.gold_per_hoard = 2000;
     }
     // Find the block
@@ -685,20 +684,7 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
                     COMMAND_TEXT(cmd_num), block_buf, config_textname);
             }
             break;
-        case 32: // PLACETRAPSONSUBTILES
-            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-            {
-                k = atoi(word_buf);
-                gameadd.place_traps_on_subtiles = (TbBool)k;
-                n++;
-            }
-            if (n < 1)
-            {
-                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                    COMMAND_TEXT(cmd_num), block_buf, config_textname);
-            }
-            break;
-        case 33: // BAGGOLDHOLD
+        case 32: // BAGGOLDHOLD
             if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
@@ -711,7 +697,7 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
                     COMMAND_TEXT(cmd_num), block_buf, config_textname);
             }
             break;
-        case 34: // ALLIESSHAREVISION
+        case 33: // ALLIESSHAREVISION
             if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
@@ -724,7 +710,7 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
                     COMMAND_TEXT(cmd_num), block_buf, config_textname);
             }
             break;
-        case 35: // ALLIESSHAREDROP
+        case 34: // ALLIESSHAREDROP
             if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
@@ -737,7 +723,7 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
                     COMMAND_TEXT(cmd_num), block_buf, config_textname);
             }
             break;
-        case 36: // ALLIESSHARECTA
+        case 35: // ALLIESSHARECTA
             if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
@@ -750,7 +736,7 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
                     COMMAND_TEXT(cmd_num), block_buf, config_textname);
             }
             break;
-        case 37: // MAXTHINGSINHAND
+        case 36: // MAXTHINGSINHAND
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);

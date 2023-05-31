@@ -442,7 +442,7 @@ void process_players_dungeon_control_packet_control(long plyr_idx)
             break;
         }
     }
-    process_dungeon_control_packet_clicks(plyr_idx);
+    process_dungeon_control_packet_clicks(plyr_idx, ThingModel trpkind);
     set_mouse_light(player);
 }
 

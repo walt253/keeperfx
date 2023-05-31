@@ -616,12 +616,6 @@ TbBool process_dungeon_control_packet_sell_operation(long plyr_idx)
     return true;
 }
 
-TbBool check_traps_on_subtiles(ThingModel trpkind)
-{
-    struct TrapConfigStats* trapst = &gameadd.trapdoor_conf.trap_cfgstats[trpkind];
-    return trapst->placeonsubtile;
-}
-
 TbBool process_dungeon_control_packet_dungeon_place_trap(long plyr_idx, ThingModel trpkind)
 {
     struct PlayerInfo* player = get_player(plyr_idx);
@@ -640,7 +634,7 @@ TbBool process_dungeon_control_packet_dungeon_place_trap(long plyr_idx, ThingMod
         }
         return false;
     }
-    player->full_slab_cursor = (!check_traps_on_subtiles(trpkind));
+    player->full_slab_cursor = (!trap_on_subtile(trpkind));
     long i = tag_cursor_blocks_place_trap(player->id_number, stl_x, stl_y, player->full_slab_cursor, player->chosen_trap_kind);
     if ((pckt->control_flags & PCtr_LBtnClick) == 0)
     {

@@ -1041,7 +1041,7 @@ void process_map_packet_clicks(long plyr_idx)
  * Process packet with input commands for given player.
  * @param plyr_idx Player to process packet for.
  */
-void process_players_packet(long plyr_idx)
+void process_players_packet(long plyr_idx, ThingModel trpkind)
 {
     struct PlayerInfo* player = get_player(plyr_idx);
     struct Packet* pckt = get_packet_direct(player->packet_num);
@@ -1060,7 +1060,7 @@ void process_players_packet(long plyr_idx)
       switch (player->view_type)
       {
       case PVT_DungeonTop:
-        process_players_dungeon_control_packet_control(plyr_idx);
+        process_players_dungeon_control_packet_control(plyr_idx, trpkind);
         process_players_dungeon_control_packet_action(plyr_idx);
         break;
       case PVT_CreatureContrl:

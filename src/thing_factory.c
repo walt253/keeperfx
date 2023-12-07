@@ -155,7 +155,7 @@ TbBool thing_create_thing(struct InitThing *itng)
             {
                 thing->hero_gate.number = itng->params[1];
             }
-            else if (thing->model == ObjMdl_SpecboxCustom)
+            else if (thing_is_custom_special_box(thing))
             {
                 thing->custom_box.box_kind = itng->params[1];
                 if (itng->params[1] > gameadd.max_custom_box_kind)
@@ -275,7 +275,7 @@ TbBool thing_create_thing_adv(VALUE *init_data)
                         thing->hero_gate.number = value_int32(gate);
                     }
                 }
-                else if (thing->model == ObjMdl_SpecboxCustom)
+                else if (thing_is_custom_special_box(thing))
                 {
                     int box_kind = value_int32(value_dict_get(init_data, "CustomBox"));
                     if (box_kind == -1)
@@ -291,7 +291,7 @@ TbBool thing_create_thing_adv(VALUE *init_data)
                     VALUE* value = value_dict_get(init_data, "GoldValue");
                     if (value != NULL)
                     {
-                        thing->valuable.gold_stored = value_int32(value);
+                        add_gold_to_pile(thing, value_int32(value));
                     }
                 }
                 check_and_asimilate_thing_by_room(thing);

@@ -43,7 +43,7 @@ void remove_thing_from_limbo(struct Thing *thing);
 unsigned long object_is_pickable_by_hand_for_use(const struct Thing *thing, long a2);
 TbBool thing_is_pickable_by_hand(struct PlayerInfo *player, const struct Thing *thing);
 struct Thing *process_object_being_picked_up(struct Thing *thing, long a2);
-void set_power_hand_graphic(unsigned char plyr_idx, long AnimationID, long AnimationSpeed);
+void set_power_hand_graphic(unsigned char plyr_idx, long HandAnimationID);
 TbBool power_hand_is_empty(const struct PlayerInfo *player);
 TbBool power_hand_is_full(const struct PlayerInfo *player);
 struct Thing *get_first_thing_in_power_hand(struct PlayerInfo *player);
@@ -64,6 +64,7 @@ TbBool thing_is_picked_up(const struct Thing *thing);
 TbBool thing_is_picked_up_by_owner(const struct Thing *thing);
 TbBool thing_is_picked_up_by_enemy(const struct Thing *thing);
 TbBool thing_is_picked_up_by_player(const struct Thing *thing, PlayerNumber plyr_idx);
+long get_thing_in_hand_id(const struct Thing* thing, PlayerNumber plyr_idx);
 
 TbBool slap_object(struct Thing *thing);
 TbBool object_is_slappable(const struct Thing *thing, long plyr_idx);

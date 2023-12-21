@@ -52,9 +52,10 @@ struct SpellData spell_data[] = {
   {PckA_SetPlyrState,PSt_DestroyWalls, 0, 308, 317, 643, 660, 839,  4, general_expand_check, PwCast_Anywhere}, //[16] Destroy Walls
   {PckA_SetPlyrState,    PSt_TimeBomb, 0, 105, 128, 645, 662,   0,  0, NULL,                 PwCast_Anywhere}, //[17] Time Bomb
   {PckA_SetPlyrState,  PSt_CtrlDirect, 0,  91, 114, 630, 647, 836,  7, NULL,                 PwCast_Anywhere}, //[18] Possession
-  { PckA_UsePwrArmageddon,   PSt_None, 0, 312, 321, 646, 663, 824,  0, NULL,                 PwCast_Anywhere}, //[19] Armageddon
+  {PckA_UsePwrArmageddon,    PSt_None, 0, 312, 321, 646, 663, 824,  0, NULL,                 PwCast_Anywhere}, //[19] Armageddon
   {PckA_SetPlyrState,     PSt_Rebound, 0, 556, 412, 230, 230,   0,  0, general_expand_check, PwCast_Anywhere}, //[20] Rebound
-  {        PckA_None,        PSt_None, 0,   0,   0,   0,   0,   0,  0, NULL,                 PwCast_None},      //[21]
+  {PckA_SetPlyrState,      PSt_Freeze, 0, 523, 406, 227, 227,   0,  0, general_expand_check, PwCast_Anywhere}, //[21] Freeze
+  {        PckA_None,        PSt_None, 0,   0,   0,   0,   0,   0,  0, NULL,                 PwCast_None},      //end of struct
 };
 
 /******************************************************************************/

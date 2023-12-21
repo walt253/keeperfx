@@ -983,9 +983,6 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
     case PSt_TimeBomb:
         draw_spell_cursor(player->work_state, 0, game.mouse_light_pos.x.stl.num, game.mouse_light_pos.y.stl.num);
         break;
-    case PSt_Rebound:
-        draw_spell_cursor(player->work_state, 0, game.mouse_light_pos.x.stl.num, game.mouse_light_pos.y.stl.num);
-        break;
     case PSt_CreatrQuery:
     case PSt_CreatrInfo:
     case PSt_CreatrInfoAll:

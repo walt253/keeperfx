@@ -114,6 +114,7 @@ const struct NamedCommand creatmodel_properties_commands[] = {
   {"IMMUNE_TO_DISEASE", 25},
   {"ILLUMINATED",       26},
   {"ALLURING_SCVNGR",   27},
+  {"IMMUNE_TO_FREEZE",  28},
   {NULL,                 0},
   };
 

@@ -740,6 +740,10 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
                 crstat->entrance_force = true;
                 n++;
                 break;
+            case 28: // IMMUNE_TO_FREEZE
+                crconf->model_flags |= CMF_NeverFrozen;
+                n++;
+                break;
             default:
               CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in [%s] block of %s %s file.",
                   COMMAND_TEXT(cmd_num),word_buf,block_buf, creature_code_name(crtr_model), config_textname);

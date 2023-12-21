@@ -116,6 +116,7 @@ enum PowerKinds {
     PwrK_PICKUPGOLD,
     PwrK_PICKUPFOOD,
     PwrK_REBOUND, // 23
+    PwrK_FREEZE, // 24
 };
 
 /** Contains properties of a shot model, to be stored in ShotConfigStats.

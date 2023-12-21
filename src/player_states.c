@@ -85,6 +85,7 @@ PowerKind const player_state_to_power_kind[PLAYER_STATES_COUNT] = {
   PwrK_None, // PSt_DestroyThing
   PwrK_None, // PSt_CreatrInfoAll
   PwrK_REBOUND, // PSt_Rebound
+  PwrK_FREEZE, // PSt_Freeze
 };
 /******************************************************************************/
 

@@ -1096,6 +1096,32 @@ TbResult magic_use_power_chicken(PlayerNumber plyr_idx, struct Thing *thing, Map
     return Lb_SUCCESS;
 }
 
+TbResult magic_use_power_freeze(PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel, unsigned long mod_flags)
+{
+    // If this spell is already casted at that creature, do nothing
+    if (thing_affected_by_spell(thing, SplK_Freeze)) {
+        return Lb_OK;
+    }
+    if ((mod_flags & PwMod_CastForFree) == 0)
+    {
+        // If we can't afford the spell, fail
+        if (!pay_for_spell(plyr_idx, PwrK_FREEZE, splevel)) {
+            return Lb_FAIL;
+        }
+    }
+    // Check if the creature kind isn't affected by that spell
+    if ((get_creature_model_flags(thing) & CMF_NeverFrozen) != 0)
+    {
+        thing_play_sample(thing, 58, 20, 0, 3, 0, 2, 128);
+        return Lb_SUCCESS;
+    }
+    struct PowerConfigStats *powerst;
+    powerst = get_power_model_stats(PwrK_FREEZE);
+    thing_play_sample(thing, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+    apply_spell_effect_to_thing(thing, SplK_Freeze, splevel);
+    return Lb_SUCCESS;
+}
+
 TbResult magic_use_power_disease(PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel, unsigned long mod_flags)
 {
     // If this spell is already casted at that creature, do nothing
@@ -2088,6 +2114,9 @@ TbResult magic_use_power_on_thing(PlayerNumber plyr_idx, PowerKind pwkind,
             break;
         case PwrK_CHICKEN:
             ret = magic_use_power_chicken(plyr_idx, thing, stl_x, stl_y, splevel, allow_flags);
+            break;
+        case PwrK_FREEZE:
+            ret = magic_use_power_freeze(plyr_idx, thing, stl_x, stl_y, splevel, allow_flags);
             break;
         case PwrK_SLAP:
             ret = magic_use_power_slap_thing(plyr_idx, thing, allow_flags);

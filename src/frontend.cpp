@@ -1029,6 +1029,8 @@ long player_state_to_packet(long work_state, PowerKind pwkind, TbBool already_in
     case PSt_CastDisease:
     case PSt_TurnChicken:
     case PSt_DestroyWalls:
+    case PSt_Rebound:
+    case PSt_Freeze:
     case PSt_TimeBomb:
     case PSt_Rebound:
         return PckA_SetPlyrState;

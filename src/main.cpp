@@ -215,7 +215,7 @@ TbBool TimerFreeze = false;
 
 TbPixel get_player_path_colour(unsigned short owner)
 {
-  return player_path_colours[player_colors_map[owner % PLAYERS_EXT_COUNT]];
+  return player_path_colours[get_player_color_idx(owner % PLAYERS_EXT_COUNT)];
 }
 
 void setup_stuff(void)
@@ -1818,7 +1818,6 @@ void clear_game(void)
     clear_things_and_persons_data();
     ceiling_set_info(12, 4, 1);
     init_animating_texture_maps();
-    init_thing_objects();
     clear_slabsets();
 }
 

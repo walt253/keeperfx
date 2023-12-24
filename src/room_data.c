@@ -105,7 +105,7 @@ unsigned char const slabs_to_centre_pieces[] = {
  21, 22, 23, 24, 25,
 };
 
-unsigned short const room_effect_elements[] = { TngEffElm_RedFlame, TngEffElm_BlueFlame, TngEffElm_GreenFlame, TngEffElm_YellowFlame, TngEffElm_None, TngEffElm_None };
+unsigned short const room_effect_elements[] = { TngEffElm_RedFlame, TngEffElm_BlueFlame, TngEffElm_GreenFlame, TngEffElm_YellowFlame, TngEffElm_WhiteFlame, TngEffElm_None };
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -1573,7 +1573,7 @@ void count_lair_occupants_on_slab(struct Room *room,MapSlabCoord slb_x, MapSlabC
             int required_cap = get_required_room_capacity_for_object(RoRoF_LairStorage, 0, creatng->model);
             if (room->used_capacity + required_cap > room->total_capacity)
             {
-                create_effect(&lairtng->mappos, imp_spangle_effects[lairtng->owner], lairtng->owner);
+                create_effect(&lairtng->mappos, imp_spangle_effects[get_player_color_idx(lairtng->owner)], lairtng->owner);
                 delete_lair_totem(lairtng);
             } else
             {
@@ -4711,7 +4711,6 @@ TbBool add_item_to_room_capacity(struct Room *room, TbBool force)
 static void change_ownership_or_delete_object_thing_in_room(struct Room *room, struct Thing *thing, long parent_idx, PlayerNumber newowner)
 {
     struct ObjectConfigStats* objst = get_object_model_stats(thing->model);
-    struct Objects* objdat = get_objects_data_for_thing(thing);
     // If thing is only dragged through the room, do not interrupt
     if (thing_is_dragged_or_pulled(thing)) {
         return;
@@ -4778,7 +4777,7 @@ static void change_ownership_or_delete_object_thing_in_room(struct Room *room, s
     else if(room_role_matches(room->kind,RoRoF_LairStorage) && thing_is_lair_totem(thing))
     {
         // Lair - owns creature lairs
-        if (objdat->related_creatr_model)
+        if (objst->related_creatr_model)
         {
             if (thing->lair.belongs_to)
             {

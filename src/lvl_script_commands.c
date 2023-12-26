@@ -32,6 +32,7 @@
 #include "config_trapdoor.h"
 #include "config_powerhands.h"
 #include "config_players.h"
+#include "frontmenu_ingame_map.h"
 #include "thing_effects.h"
 #include "thing_physics.h"
 #include "thing_navigate.h"
@@ -3187,7 +3188,7 @@ static void set_sacrifice_recipe_process(struct ScriptContext *context)
     }
     for (int i = 1; i < MAX_SACRIFICE_RECIPES; i++)
     {
-        struct SacrificeRecipe* sac = &gameadd.sacrifice_recipes[i];
+        struct SacrificeRecipe* sac = &game.conf.rules.sacrifices.sacrifice_recipes[i];
         if (sac->action == (long)SacA_None)
         {
             break;
@@ -3199,7 +3200,7 @@ static void set_sacrifice_recipe_process(struct ScriptContext *context)
             if (action == (long)SacA_None)
             {
                 // remove empty space
-                memmove(sac, sac + 1, (MAX_SACRIFICE_RECIPES - 1 - (sac - &gameadd.sacrifice_recipes[0])) * sizeof(*sac));
+                memmove(sac, sac + 1, (MAX_SACRIFICE_RECIPES - 1 - (sac - &game.conf.rules.sacrifices.sacrifice_recipes[0])) * sizeof(*sac));
             }
             return;
         }
@@ -3210,7 +3211,7 @@ static void set_sacrifice_recipe_process(struct ScriptContext *context)
         return;
     }
     struct SacrificeRecipe* sac = get_unused_sacrifice_recipe_slot();
-    if (sac == &gameadd.sacrifice_recipes[0])
+    if (sac == &game.conf.rules.sacrifices.sacrifice_recipes[0])
     {
         ERRORLOG("No free sacrifice rules");
         return;
@@ -4664,36 +4665,39 @@ static void set_player_color_process(struct ScriptContext *context)
     long color_idx = context->value->shorts[0];
     struct Dungeon* dungeon;
 
-    // skip this step in the preload
-    if(game.loaded_level_number != 0)
+    for (int plyr_idx = context->plr_start; plyr_idx < context->plr_end; plyr_idx++)
     {
-        for (int plyr_idx = context->plr_start; plyr_idx < context->plr_end; plyr_idx++)
+        dungeon = get_dungeon(plyr_idx);
+
+        if(dungeon->color_idx == color_idx)
         {
-            dungeon = get_dungeon(plyr_idx);
-            dungeon->color_idx = color_idx;
+            continue;
+        }
 
-            for (MapSlabCoord slb_y=0; slb_y < gameadd.map_tiles_y; slb_y++)
+        dungeon->color_idx = color_idx;
+        
+        update_panel_color_player_color(plyr_idx,color_idx);
+
+        for (MapSlabCoord slb_y=0; slb_y < gameadd.map_tiles_y; slb_y++)
+        {
+            for (MapSlabCoord slb_x=0; slb_x < gameadd.map_tiles_x; slb_x++)
             {
-                for (MapSlabCoord slb_x=0; slb_x < gameadd.map_tiles_x; slb_x++)
+                struct SlabMap* slb = get_slabmap_block(slb_x,slb_y);
+                if (slabmap_owner(slb) == plyr_idx)
                 {
-                    struct SlabMap* slb = get_slabmap_block(slb_x,slb_y);
-                    if (slabmap_owner(slb) == plyr_idx)
-                    {
-                        if (slab_kind_is_animated(slb->kind))
-                        {
-                            place_animating_slab_type_on_map(slb->kind, 0, slab_subtile(slb_x, 0), slab_subtile(slb_y, 0), plyr_idx);
-                        }
-                        else
-                        {
-                            place_slab_type_on_map(slb->kind, slab_subtile(slb_x, 0), slab_subtile(slb_y, 0), plyr_idx, 0);
-                        }
 
+                    if (slab_kind_is_animated(slb->kind))
+                    {
+                        place_animating_slab_type_on_map(slb->kind, 0, slab_subtile(slb_x, 0), slab_subtile(slb_y, 0), plyr_idx);
+                    }
+                    else
+                    {
+                        place_slab_type_on_map(slb->kind, slab_subtile(slb_x, 0), slab_subtile(slb_y, 0), plyr_idx, 0);
                     }
                 }
             }
         }
-
-    }
+    }  
 }
 
 /**

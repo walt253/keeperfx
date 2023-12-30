@@ -35,7 +35,7 @@ extern "C" {
 #define BUCKETS_COUNT 4098 // Originally 704, adjusted for view distance. (65536/16)+2
 
 #define KEEPSPRITE_LENGTH 9149
-#define KEEPERSPRITE_ADD_OFFSET 16384
+#define KEEPERSPRITE_ADD_OFFSET 32768
 #define KEEPERSPRITE_ADD_NUM 16384
 
 struct EngineCoord { // sizeof = 28

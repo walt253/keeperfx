@@ -169,6 +169,7 @@ long project_melee_damage(const struct Thing *thing);
 long calculate_shot_damage(struct Thing *thing, ThingModel shot_model);
 long project_creature_shot_damage(const struct Thing *thing, ThingModel shot_model);
 
+void decrease_level(struct PlayerInfo *player, int count);
 long update_creature_levels(struct Thing *thing);
 TngUpdateRet update_creature(struct Thing *thing);
 TbBool creature_stats_debug_dump(void);

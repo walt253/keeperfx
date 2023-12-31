@@ -3982,8 +3982,8 @@ void decrease_level(struct PlayerInfo *player, int count)
         }
         i = cctrl->players_next_creature_idx;
         // Thing list loop body
-        if (count != 1) creature_decrease_multiple_levels(thing, count);
-        else creature_decrease_level(thing);
+        if (count != 1) set_creature_level(thing, cctrl->explevel - count);
+        else set_creature_level(thing, cctrl->explevel - 1);
         // Thing list loop body ends
         k++;
         if (k > CREATURES_COUNT)
@@ -4006,8 +4006,8 @@ void decrease_level(struct PlayerInfo *player, int count)
         }
         i = cctrl->players_next_creature_idx;
         // Thing list loop body
-        if (count > 1) creature_decrease_multiple_levels(thing, count);
-        else creature_decrease_level(thing);
+        if (count > 1) set_creature_level(thing, cctrl->explevel - count);
+        else set_creature_level(thing, cctrl->explevel - 1);
         // Thing list loop body ends
         k++;
         if (k > CREATURES_COUNT)

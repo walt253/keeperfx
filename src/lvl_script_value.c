@@ -360,6 +360,16 @@ TbResult script_use_power(PlayerNumber plyr_idx, PowerKind power_kind, char free
 }
 
 /**
+ * Decreases creatures' levels for player.
+ * @param plyr_idx target player
+ * @param count how many times should the level be decreased
+ */
+void script_decrease_level(PlayerNumber plyr_idx, int count)
+{
+    decrease_level(get_player(plyr_idx), count);
+}
+
+/**
  * Increases creatures' levels for player.
  * @param plyr_idx target player
  * @param count how many times should the level be increased
@@ -908,6 +918,12 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       for (i=plr_start; i < plr_end; i++)
       {
           script_use_power(i, val2, val3);
+      }
+      break;
+    case Cmd_DECREASE_LEVEL:
+      for (i=plr_start; i < plr_end; i++)
+      {
+          script_decrease_level(i, val2);
       }
       break;
     case Cmd_USE_SPECIAL_INCREASE_LEVEL:

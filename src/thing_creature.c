@@ -3992,7 +3992,7 @@ void decrease_level(struct PlayerInfo *player, int count)
           break;
         }
     }
-    // Increase level of special diggers
+    // Decrease level of special diggers
     k = 0;
     i = dungeon->digger_list_start;
     while (i != 0)

@@ -94,8 +94,6 @@ struct Thing *create_owned_special_digger(MapCoord x, MapCoord y, PlayerNumber o
 TbBool creature_increase_level(struct Thing *thing);
 TbBool creature_change_multiple_levels(struct Thing *thing, int count);
 void decrease_level(struct PlayerInfo *player, int count);
-TbBool creature_decrease_level(struct Thing *thing);
-TbBool creature_decrease_multiple_levels(struct Thing *thing, int count);
 void set_creature_level(struct Thing *thing, long nlvl);
 void init_creature_level(struct Thing *thing, long nlev);
 long get_creature_speed(const struct Thing *thing);

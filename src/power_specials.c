@@ -383,7 +383,7 @@ void make_safe(struct PlayerInfo *player)
     panel_map_update(0, 0, gameadd.map_subtiles_x+1, gameadd.map_subtiles_y+1);
 }
 
-void make_unsafe(PlayerNumber plyr_idx)
+void make_unsafe(struct PlayerInfo *player)
 {
     MapSlabCoord slb_x;
     MapSlabCoord slb_y;
@@ -399,13 +399,13 @@ void make_unsafe(PlayerNumber plyr_idx)
         {
             slb_num = get_slab_number(slb_x, slb_y);
             slb = get_slabmap_direct(slb_num);
-            if (slabmap_owner(slb) == plyr_idx)
+            if (slabmap_owner(slb) == player)
             {
                 slbattr = get_slab_attrs(slb);
                 if ((slbattr->category == SlbAtCtg_FortifiedWall))
                 {
-                    SlabKind newslab = choose_rock_type(plyr_idx, slb_x, slb_y);
-                    dungeon = get_dungeon(plyr_idx);
+                    SlabKind newslab = choose_rock_type(player, slb_x, slb_y);
+                    dungeon = get_dungeon(player);
                     dungeon->camera_deviate_jump = dungeon->camera_deviate_jump + 3; //Bigger jump on more slabs changed
                     dungeon->camera_deviate_quake = 30; //30 frames of camera shaking
 

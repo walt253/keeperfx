@@ -76,8 +76,9 @@ const struct NamedCommand game_rule_desc[] = {
   {"BarrackMaxPartySize",           32},
   {"MaxThingsInHand",               33},
   {"TrainingRoomMaxLevel",          34},
-  {"TortureTrainingCost",           35},
-  {"TortureScavengingCost",         36},
+  {"TorturePayday",                 35},
+  {"TortureTrainingCost",           36},
+  {"TortureScavengingCost",         37},
   {NULL,                             0},
 };
 

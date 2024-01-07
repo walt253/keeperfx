@@ -68,7 +68,7 @@ TbBool player_can_afford_to_train_creature(const struct Thing *thing)
 {
     struct Dungeon* dungeon = get_dungeon(thing->owner);
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-    return (dungeon->total_money_owned >= crstat->training_cost);
+    return (dungeon->total_money_owned >= crstat->calculate_correct_creature_training_cost(thing));
 }
 
 void setup_training_move(struct Thing *creatng, SubtlCodedCoords stl_num)
@@ -579,10 +579,10 @@ CrStateRet training(struct Thing *thing)
     if (cctrl->turns_at_job >= game.conf.rules.rooms.train_cost_frequency)
     {
         cctrl->turns_at_job -= game.conf.rules.rooms.train_cost_frequency;
-        if (take_money_from_dungeon(thing->owner, crstat->training_cost, 1) < 0) {
-            ERRORLOG("Cannot take %d gold from dungeon %d",(int)crstat->training_cost,(int)thing->owner);
+        if (take_money_from_dungeon(thing->owner, crstat->calculate_correct_creature_training_cost(thing), 1) < 0) {
+            ERRORLOG("Cannot take %d gold from dungeon %d",(int)crstat->calculate_correct_creature_training_cost(thing),(int)thing->owner);
         }
-        create_price_effect(&thing->mappos, thing->owner, crstat->training_cost);
+        create_price_effect(&thing->mappos, thing->owner, crstat->calculate_correct_creature_training_cost(thing));
     }
     if ((cctrl->instance_id != CrInst_NULL) || !check_experience_upgrade(thing))
     {

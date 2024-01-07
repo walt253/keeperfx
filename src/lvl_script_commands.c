@@ -4844,6 +4844,8 @@ const struct CommandDesc command_desc[] = {
   {"SET_POWER_CONFIGURATION",           "AAAa    ", Cmd_SET_POWER_CONFIGURATION, &set_power_configuration_check, &set_power_configuration_process},
   {"SET_PLAYER_COLOR",                  "PA      ", Cmd_SET_PLAYER_COLOR, &set_player_color_check, &set_player_color_process },
   {"MAKE_UNSAFE",                       "P       ", Cmd_MAKE_UNSAFE, NULL, NULL},
+  {"SET_HANDICAP_WEAKER",               "PN      ", Cmd_SET_HANDICAP_WEAKER, NULL, NULL},
+  {"SET_HANDICAP_STRONGER",             "PN      ", Cmd_SET_HANDICAP_STRONGER, NULL, NULL},
   {NULL,                                "        ", Cmd_NONE, NULL, NULL},
 };
 

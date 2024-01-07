@@ -1548,6 +1548,16 @@ static void command_creature_entrance_level(long plr_range_id, unsigned char val
   command_add_value(Cmd_CREATURE_ENTRANCE_LEVEL, plr_range_id, val, 0, 0);
 }
 
+static void command_set_handicap_weaker(long plr_range_id, unsigned char val)
+{
+  command_add_value(Cmd_SET_HANDICAP_WEAKER, plr_range_id, val, 0, 0);
+}
+
+static void command_set_handicap_stronger(long plr_range_id, unsigned char val)
+{
+  command_add_value(Cmd_SET_HANDICAP_STRONGER, plr_range_id, val, 0, 0);
+}
+
 static void command_make_unsafe(long plr_range_id)
 {
     command_add_value(Cmd_MAKE_UNSAFE, plr_range_id, 0, 0, 0);
@@ -1914,6 +1924,12 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
         break;
     case Cmd_CREATURE_ENTRANCE_LEVEL:
         command_creature_entrance_level(scline->np[0], scline->np[1]);
+        break;
+    case Cmd_SET_HANDICAP_WEAKER:
+        command_set_handicap_weaker(scline->np[0], scline->np[1]);
+        break;
+    case Cmd_SET_HANDICAP_STRONGER:
+        command_set_handicap_stronger(scline->np[0], scline->np[1]);
         break;
     case Cmd_MAKE_UNSAFE:
         command_make_unsafe(scline->np[0]);

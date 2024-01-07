@@ -256,6 +256,9 @@ unsigned int packet_file_pos;
     TbBool creatures_tend_imprison;
     /** Flee tendency variable. Used for GUI only; the real tendency is a flag inside Dungeon. */
     TbBool creatures_tend_flee;
+    /** Boolean to set handicap. */
+    TbBool set_handicap_weaker;
+    TbBool set_handicap_stronger;
     MapSubtlCoord hand_over_subtile_x;
     MapSubtlCoord hand_over_subtile_y;
     int chosen_room_kind;

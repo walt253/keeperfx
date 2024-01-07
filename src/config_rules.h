@@ -95,6 +95,7 @@ struct GameRulesConfig {
     TbBool allies_share_drop;
     TbBool allies_share_cta;
     unsigned char max_things_in_hand;
+    TbBool torture_payday;
     TbBool torture_training_cost;
     TbBool torture_scavenging_cost;
 };

@@ -73,6 +73,8 @@ const struct NamedCommand creaturetype_experience_commands[] = {
   {"ARMOURINCREASEONEXP",        10},
   {"SIZEINCREASEONEXP",          11},
   {"EXPFORHITTINGINCREASEONEXP", 12},
+  {"TRAININGCOSTINCREASEONEXP",  13},
+  {"SCAVENGECOSTINCREASEONEXP",  14},
   {NULL,                          0},
   };
 
@@ -804,6 +806,32 @@ TbBool parse_creaturetype_experience_blocks(char *buf, long len, const char *con
             {
                 CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
                     COMMAND_TEXT(cmd_num), block_buf, config_textname);
+            }
+            break;
+        case 13: // TRAININGINCREASEONEXP
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                game.conf.crtr_conf.exp.training_cost_increase_on_exp = k;
+                n++;
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            }
+            break;
+        case 14: // SCAVENGEINCREASEONEXP
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                game.conf.crtr_conf.exp.scavenge_cost_increase_on_exp = k;
+                n++;
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
         case 0: // comment

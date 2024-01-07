@@ -1013,6 +1013,58 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
     }
     break;
   }
+  case Cmd_SET_HANDICAP_WEAKER:
+  {
+    if (val2 > 0)
+    {
+        if (plr_range_id == ALL_PLAYERS)
+        {
+            for (i = PLAYER3; i >= PLAYER0; i--)
+            {
+                dungeon = get_dungeon(i);
+                if (!dungeon_invalid(dungeon))
+                {
+                    dungeon->set_handicap_weaker = 1;
+                }
+            }
+        }
+        else
+        {
+            dungeon = get_dungeon(plr_range_id);
+            if (!dungeon_invalid(dungeon))
+            {
+                dungeon->set_handicap_weaker = 0;
+            }
+        }
+    }
+    break;
+  }
+  case Cmd_SET_HANDICAP_STRONGER:
+  {
+    if (val2 > 0)
+    {
+        if (plr_range_id == ALL_PLAYERS)
+        {
+            for (i = PLAYER3; i >= PLAYER0; i--)
+            {
+                dungeon = get_dungeon(i);
+                if (!dungeon_invalid(dungeon))
+                {
+                    dungeon->set_handicap_stronger = 1;
+                }
+            }
+        }
+        else
+        {
+            dungeon = get_dungeon(plr_range_id);
+            if (!dungeon_invalid(dungeon))
+            {
+                dungeon->set_handicap_stronger = 0;
+            }
+        }
+    }
+    break;
+  }
   case Cmd_RANDOMISE_FLAG:
       for (i=plr_start; i < plr_end; i++)
       {

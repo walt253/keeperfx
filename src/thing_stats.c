@@ -294,7 +294,7 @@ long compute_creature_kind_score(ThingModel crkind,unsigned short crlevel)
 /**
  * Computes max health of a creature on given level.
  */
-long compute_creature_max_health(long base_health,unsigned short crlevel)
+long compute_creature_max_health(long base_health,unsigned short crlevel, struct Thing* thing)
 {
   if (base_health < -100000)
     base_health = -100000;
@@ -314,7 +314,7 @@ long compute_creature_max_health(long base_health,unsigned short crlevel)
 /**
  * Computes gold pay of a creature on given level.
  */
-long compute_creature_max_pay(long base_param,unsigned short crlevel)
+long compute_creature_max_pay(long base_param,unsigned short crlevel, struct Thing* thing)
 {
   if (base_param <= 0)
     return 0;
@@ -334,7 +334,7 @@ long compute_creature_max_pay(long base_param,unsigned short crlevel)
 /**
  * Computes defense of a creature on given level.
  */
-long compute_creature_max_defense(long base_param,unsigned short crlevel)
+long compute_creature_max_defense(long base_param,unsigned short crlevel, struct Thing* thing)
 {
     if (base_param <= 0)
       return 0;
@@ -354,7 +354,7 @@ long compute_creature_max_defense(long base_param,unsigned short crlevel)
 /**
  * Computes dexterity of a creature on given level.
  */
-long compute_creature_max_dexterity(long base_param,unsigned short crlevel)
+long compute_creature_max_dexterity(long base_param,unsigned short crlevel, struct Thing* thing)
 {
   if (base_param <= 0)
     return 0;
@@ -374,7 +374,7 @@ long compute_creature_max_dexterity(long base_param,unsigned short crlevel)
 /**
  * Computes strength of a creature on given level.
  */
-long compute_creature_max_strength(long base_param,unsigned short crlevel)
+long compute_creature_max_strength(long base_param,unsigned short crlevel, struct Thing* thing)
 {
   if (base_param <= 0)
       return 0;
@@ -394,7 +394,7 @@ long compute_creature_max_strength(long base_param,unsigned short crlevel)
 /**
  * Computes loyalty of a creature on given level.
  */
-long compute_creature_max_loyalty(long base_param,unsigned short crlevel)
+long compute_creature_max_loyalty(long base_param,unsigned short crlevel, struct Thing* thing)
 {
   if (base_param <= 0)
       return 0;
@@ -414,7 +414,7 @@ long compute_creature_max_loyalty(long base_param,unsigned short crlevel)
 /**
  * Computes armour of a creature on given level.
  */
-long compute_creature_max_armour(long base_param, unsigned short crlevel, TbBool armour_spell)
+long compute_creature_max_armour(long base_param, unsigned short crlevel, TbBool armour_spell, struct Thing* thing)
 {
   if (base_param <= 0)
      return 0;
@@ -441,7 +441,7 @@ long compute_creature_max_armour(long base_param, unsigned short crlevel, TbBool
 /**
  * Computes training cost of a creature on given level.
  */
-long compute_creature_max_training_cost(long base_param,unsigned short crlevel)
+long compute_creature_max_training_cost(long base_param,unsigned short crlevel, struct Thing* thing)
 {
   if (base_param <= 0)
     return 0;
@@ -461,7 +461,7 @@ long compute_creature_max_training_cost(long base_param,unsigned short crlevel)
 /**
  * Computes training cost of a creature on given level.
  */
-long compute_creature_max_scavenging_cost(long base_param,unsigned short crlevel)
+long compute_creature_max_scavenging_cost(long base_param,unsigned short crlevel, struct Thing* thing)
 {
   if (base_param <= 0)
     return 0;
@@ -580,7 +580,7 @@ long compute_creature_attack_spell_damage(long base_param, long luck, unsigned s
 /**
  * Computes spell range/area of effect for a creature on given level.
  */
-long compute_creature_attack_range(long base_param, long luck, unsigned short crlevel)
+long compute_creature_attack_range(long base_param, long luck, unsigned short crlevel, struct Thing* thing)
 {
   if (base_param <= 0)
     return 0;

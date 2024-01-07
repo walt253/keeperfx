@@ -303,6 +303,11 @@ long compute_creature_max_health(long base_health,unsigned short crlevel)
   if (crlevel >= CREATURE_MAX_LEVEL)
     crlevel = CREATURE_MAX_LEVEL-1;
   long max_health = base_health + (game.conf.crtr_conf.exp.health_increase_on_exp * base_health * (long)crlevel) / 100;
+  struct Dungeon* dungeon = get_dungeon(thing->owner);
+  if (dungeon->set_handicap_weaker > 0)
+    max_health /= 2;
+  if (dungeon->set_handicap_stronger > 0)
+    max_health *= 2;
   return saturate_set_signed(max_health, 16);
 }
 
@@ -318,6 +323,11 @@ long compute_creature_max_pay(long base_param,unsigned short crlevel)
   if (crlevel >= CREATURE_MAX_LEVEL)
     crlevel = CREATURE_MAX_LEVEL-1;
   long max_param = base_param + (game.conf.crtr_conf.exp.pay_increase_on_exp * base_param * (long)crlevel) / 100;
+  struct Dungeon* dungeon = get_dungeon(thing->owner);
+  if (dungeon->set_handicap_weaker > 0)
+    max_param *= 2;
+  if (dungeon->set_handicap_stronger > 0)
+    max_param /= 2;
   return saturate_set_signed(max_param, 16);
 }
 
@@ -333,6 +343,11 @@ long compute_creature_max_defense(long base_param,unsigned short crlevel)
     if (crlevel >= CREATURE_MAX_LEVEL)
       crlevel = CREATURE_MAX_LEVEL-1;
     long max_param = base_param + (game.conf.crtr_conf.exp.defense_increase_on_exp * base_param * (long)crlevel) / 100;
+    struct Dungeon* dungeon = get_dungeon(thing->owner);
+    if (dungeon->set_handicap_weaker > 0)
+      max_param /= 2;
+    if (dungeon->set_handicap_stronger > 0)
+      max_param *= 2;
     return saturate_set_unsigned(max_param, 8);
 }
 
@@ -348,6 +363,11 @@ long compute_creature_max_dexterity(long base_param,unsigned short crlevel)
   if (crlevel >= CREATURE_MAX_LEVEL)
     crlevel = CREATURE_MAX_LEVEL-1;
   long max_param = base_param + (game.conf.crtr_conf.exp.dexterity_increase_on_exp * base_param * (long)crlevel) / 100;
+  struct Dungeon* dungeon = get_dungeon(thing->owner);
+  if (dungeon->set_handicap_weaker > 0)
+    max_param /= 2;
+  if (dungeon->set_handicap_stronger > 0)
+    max_param *= 2;
   return saturate_set_unsigned(max_param, 8);
 }
 
@@ -363,6 +383,11 @@ long compute_creature_max_strength(long base_param,unsigned short crlevel)
   if (crlevel >= CREATURE_MAX_LEVEL)
     crlevel = CREATURE_MAX_LEVEL-1;
   long max_param = base_param + (game.conf.crtr_conf.exp.strength_increase_on_exp * base_param * (long)crlevel) / 100;
+  struct Dungeon* dungeon = get_dungeon(thing->owner);
+  if (dungeon->set_handicap_weaker > 0)
+    max_param /= 2;
+  if (dungeon->set_handicap_stronger > 0)
+    max_param *= 2;
   return saturate_set_unsigned(max_param, 15);
 }
 
@@ -378,6 +403,11 @@ long compute_creature_max_loyalty(long base_param,unsigned short crlevel)
   if (crlevel >= CREATURE_MAX_LEVEL)
     crlevel = CREATURE_MAX_LEVEL-1;
   long max_param = base_param + (game.conf.crtr_conf.exp.loyalty_increase_on_exp * base_param * (long)crlevel) / 100;
+  struct Dungeon* dungeon = get_dungeon(thing->owner);
+  if (dungeon->set_handicap_weaker > 0)
+    max_param /= 2;
+  if (dungeon->set_handicap_stronger > 0)
+    max_param *= 2;
   return saturate_set_unsigned(max_param, 24);
 }
 
@@ -393,6 +423,11 @@ long compute_creature_max_armour(long base_param, unsigned short crlevel, TbBool
   if (crlevel >= CREATURE_MAX_LEVEL)
     crlevel = CREATURE_MAX_LEVEL-1;
   long max_param = base_param + (game.conf.crtr_conf.exp.armour_increase_on_exp * base_param * (long)crlevel) / 100;
+  struct Dungeon* dungeon = get_dungeon(thing->owner);
+  if (dungeon->set_handicap_weaker > 0)
+    max_param /= 2;
+  if (dungeon->set_handicap_stronger > 0)
+    max_param *= 2;
   if (armour_spell)
       max_param = (320 * max_param) / 256;
   // This limit makes armor absorb up to 80% of damage, never more
@@ -415,6 +450,11 @@ long compute_creature_max_training_cost(long base_param,unsigned short crlevel)
   if (crlevel >= CREATURE_MAX_LEVEL)
     crlevel = CREATURE_MAX_LEVEL-1;
   long max_param = base_param + (game.conf.crtr_conf.exp.training_cost_increase_on_exp * base_param * (long)crlevel) / 100;
+  struct Dungeon* dungeon = get_dungeon(thing->owner);
+  if (dungeon->set_handicap_weaker > 0)
+    max_param *= 2;
+  if (dungeon->set_handicap_stronger > 0)
+    max_param /= 2;
   return saturate_set_signed(max_param, 16);
 }
 
@@ -430,6 +470,11 @@ long compute_creature_max_scavenging_cost(long base_param,unsigned short crlevel
   if (crlevel >= CREATURE_MAX_LEVEL)
     crlevel = CREATURE_MAX_LEVEL-1;
   long max_param = base_param + (game.conf.crtr_conf.exp.scavenging_cost_increase_on_exp * base_param * (long)crlevel) / 100;
+  struct Dungeon* dungeon = get_dungeon(thing->owner);
+  if (dungeon->set_handicap_weaker > 0)
+    max_param *= 2;
+  if (dungeon->set_handicap_stronger > 0)
+    max_param /= 2;
   return saturate_set_signed(max_param, 16);
 }
 
@@ -524,6 +569,11 @@ long compute_creature_attack_spell_damage(long base_param, long luck, unsigned s
         if (CREATURE_RANDOM(thing, 100) < luck)
           max_param *= 2;
     }
+    struct Dungeon* dungeon = get_dungeon(thing->owner);
+    if (dungeon->set_handicap_weaker > 0)
+      max_param /= 2;
+    if (dungeon->set_handicap_stronger > 0)
+      max_param *= 2;
     return saturate_set_signed(max_param, 16);
 }
 
@@ -539,6 +589,11 @@ long compute_creature_attack_range(long base_param, long luck, unsigned short cr
   if (crlevel >= CREATURE_MAX_LEVEL)
     crlevel = CREATURE_MAX_LEVEL-1;
   long max_param = base_param + (game.conf.crtr_conf.exp.range_increase_on_exp * base_param * (long)crlevel) / 100;
+  struct Dungeon* dungeon = get_dungeon(thing->owner);
+  if (dungeon->set_handicap_weaker > 0)
+    max_param /= 2;
+  if (dungeon->set_handicap_stronger > 0)
+    max_param *= 2;
   return saturate_set_signed(max_param, 16);
 }
 

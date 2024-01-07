@@ -645,7 +645,7 @@ long calculate_correct_creature_pay(const struct Thing *thing)
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     long pay = compute_creature_max_pay(crstat->pay, cctrl->explevel);
-    // If torturing creature of that model, halve the salary
+    // If torturing creature of that model, halve the salary.
     if (dungeon->tortured_creatures[thing->model] > 0)
         pay /= 2;
     return pay;
@@ -657,9 +657,9 @@ long calculate_correct_creature_training_cost(const struct Thing *thing)
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     long training_cost = compute_creature_max_training_cost(crstat->training_cost, cctrl->explevel);
-    // If torturing creature of that model, halve the training cost if rule is enabled
-    // if (dungeon->tortured_creatures[thing->model] > 0)
-    //    training_cost /= 2;
+    // If torturing creature of that model, halve the training cost if rule is enabled.
+    if ((dungeon->tortured_creatures[thing->model] > 0) && (game.conf.rules.game.torture_training_cost == 1))
+        training_cost /= 2;
     return training_cost;
 }
 
@@ -669,9 +669,9 @@ long calculate_correct_creature_scavenging_cost(const struct Thing *thing)
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     long scavenger_cost = compute_creature_max_scavenging_cost(crstat->scavenger_cost, cctrl->explevel);
-    // If torturing creature of that model, halve the scavenging cost if rule is enabled
-    // if (dungeon->tortured_creatures[thing->model] > 0)
-    //    scavenger_cost /= 2;
+    // If torturing creature of that model, halve the scavenging cost if rule is enabled.
+    if ((dungeon->tortured_creatures[thing->model] > 0) && (game.conf.rules.game.torture_scavenging_cost == 1))
+        scavenger_cost /= 2;
     return scavenger_cost;
 }
 

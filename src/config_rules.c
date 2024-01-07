@@ -79,8 +79,9 @@ const struct NamedCommand rules_game_commands[] = {
   {"ALLIESSHAREDROP",            35},
   {"ALLIESSHARECTA",             36},
   {"MAXTHINGSINHAND",            37},
-  {"TORTURETRAININGCOST",        38},
-  {"TORTURESCAVENGINGCOST",      39},
+  {"TORTUREPAYDAY",              38},
+  {"TORTURETRAININGCOST",        39},
+  {"TORTURESCAVENGINGCOST",      40},
   {NULL,                          0},
   };
 
@@ -761,7 +762,20 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
                   COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
-        case 38: // TORTURETRAININGCOST
+        case 38: // TORTUREPAYDAY
+            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                game.conf.rules.game.torture_payday = (TbBool)k;
+                n++;
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num), block_buf, config_textname);
+            }
+            break;
+        case 39: // TORTURETRAININGCOST
             if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
@@ -774,7 +788,7 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
                     COMMAND_TEXT(cmd_num), block_buf, config_textname);
             }
             break;
-        case 39: // TORTURESCAVENGINGCOST
+        case 40: // TORTURESCAVENGINGCOST
             if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);

@@ -256,14 +256,16 @@ struct Dungeon {
     unsigned char devastation_centr_y;
     unsigned long devastation_turn;
     long creatures_total_pay;
-unsigned short gold_hoard_for_pickup;
-unsigned long gold_pickup_amount;
+    unsigned short gold_hoard_for_pickup;
+    unsigned long gold_pickup_amount;
     /** Index of last creature picked up of given model. */
     unsigned short selected_creatures_of_model[CREATURE_TYPES_MAX];
     /** Index of last creature picked up of given GUI Job. */
     unsigned short selected_creatures_of_gui_job[CREATURE_GUI_JOBS_COUNT];
     unsigned char texture_pack;
     unsigned char color_idx;
+    TbBool set_handicap_weaker;
+    TbBool set_handicap_stronger;
     struct TrapInfo       mnfct_info;
     struct BoxInfo        box_info;
     struct Coord3d        last_combat_location;

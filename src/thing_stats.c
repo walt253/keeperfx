@@ -281,14 +281,14 @@ long get_radially_growing_value(long magnitude, long decay_start, long decay_len
     return magnitude ;
 }
 
-long compute_creature_kind_score(ThingModel crkind,unsigned short crlevel)
+long compute_creature_kind_score(struct Thing* thing,unsigned short crlevel)
 {
-    struct CreatureStats* crstat = creature_stats_get(crkind);
+    struct CreatureStats* crstat = creature_stats_get(thing);
     return compute_creature_max_health(crstat->health,crlevel)
         + compute_creature_max_defense(crstat->defense,crlevel)
         + compute_creature_max_dexterity(crstat->dexterity,crlevel)
         + compute_creature_max_armour(crstat->armour,crlevel,false)
-        + compute_creature_max_strength(crstat->strength,crlevel,crkind);
+        + compute_creature_max_strength(crstat->strength,crlevel,thing);
 }
 
 /**

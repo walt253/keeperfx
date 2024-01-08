@@ -80,7 +80,7 @@ TbBool is_neutral_thing(const struct Thing *thing);
 TbBool is_hero_thing(const struct Thing *thing);
 /******************************************************************************/
 long compute_creature_kind_score(ThingModel crkind,unsigned short crlevel);
-long compute_creature_max_pay(long base_pay,unsigned short crlevel);
+long compute_creature_max_pay(GoldAmount base_pay,unsigned short crlevel);
 long compute_creature_max_health(long base_health,unsigned short crlevel);
 long compute_creature_attack_melee_damage(long base_param,long luck,unsigned short crlevel, struct Thing* thing);
 long compute_creature_attack_spell_damage(long base_param,long luck,unsigned short crlevel, struct Thing* thing);
@@ -93,8 +93,8 @@ long compute_creature_max_defense(long base_param,unsigned short crlevel);
 long compute_creature_max_strength(long base_param,unsigned short crlevel);
 long compute_creature_max_loyalty(long base_param,unsigned short crlevel);
 long compute_creature_max_armour(long base_param,unsigned short crlevel, TbBool armour_spell);
-long compute_creature_max_training_cost(long base_training_cost,unsigned short crlevel);
-long compute_creature_max_scavenging_cost(long base_scavenging_cost,unsigned short crlevel);
+long compute_creature_max_training_cost(GoldAmount base_training_cost,unsigned short crlevel);
+long compute_creature_max_scavenging_cost(GoldAmount base_scavenging_cost,unsigned short crlevel);
 long compute_creature_max_unaffected(long base_param,unsigned short crlevel);
 #define compute_creature_max_luck compute_creature_max_unaffected
 long compute_controlled_speed_increase(long prev_speed, long speed_limit);

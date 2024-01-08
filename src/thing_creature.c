@@ -5283,11 +5283,12 @@ void init_creature_scores(void)
     SYNCDBG(8, "Starting");
     long i;
     long score;
+    struct Thing* thing;
     // compute maximum score
     long max_score = 0;
     for (i=0; i < game.conf.crtr_conf.model_count; i++)
     {
-        score = compute_creature_kind_score(i,CREATURE_MAX_LEVEL-1);
+        score = compute_creature_kind_score(i,CREATURE_MAX_LEVEL-1,thing);
         if ((score <= 0) && (i != 0) && (i != game.conf.crtr_conf.model_count -1))
         {
           ERRORLOG("Couldn't get creature %d score value", (int)i);
@@ -5308,7 +5309,7 @@ void init_creature_scores(void)
     {
         for (long k = 0; k < CREATURE_MAX_LEVEL; k++)
         {
-          score = compute_creature_kind_score(i,k);
+          score = compute_creature_kind_score(i,k,thing);
           score = saturate_set_unsigned(200*score / max_score, 8);
           if ((score <= 0) && (i != 0) && (i != 31))
           {

@@ -281,9 +281,9 @@ long get_radially_growing_value(long magnitude, long decay_start, long decay_len
     return magnitude ;
 }
 
-long compute_creature_kind_score(struct Thing* thing,unsigned short crlevel)
+long compute_creature_kind_score(ThingModel crkind,unsigned short crlevel, const struct Thing* thing)
 {
-    struct CreatureStats* crstat = creature_stats_get(thing);
+    struct CreatureStats* crstat = creature_stats_get(crkind);
     return compute_creature_max_health(crstat->health,crlevel)
         + compute_creature_max_defense(crstat->defense,crlevel)
         + compute_creature_max_dexterity(crstat->dexterity,crlevel)
@@ -1075,7 +1075,7 @@ const char *creature_statistic_text(const struct Thing *creatng, CreatureLiveSta
         text = loc_text;
         break;
     case CrLStat_Score:
-        i = compute_creature_kind_score(creatng->model,cctrl->explevel);
+        i = compute_creature_kind_score(creatng->model,cctrl->explevel,creatng);
         snprintf(loc_text,sizeof(loc_text),"%ld", i);
         text = loc_text;
         break;

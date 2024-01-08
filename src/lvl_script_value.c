@@ -1327,6 +1327,46 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           break;
       }
       break;
+  case Cmd_SET_PLAYER_HANDICAP:
+      switch (val2)
+      {
+      case 1: //HEALTH
+          if (val3 >= 0 && val3 <= SHRT_MAX)
+          {
+            for (i=plr_start; i < plr_end; i++)
+            {
+              dungeon = get_dungeon(i);
+              if (!dungeon_invalid(dungeon))
+              {
+                WARNMSG("Unsupported player handicap, command %d.", val2);
+              }
+            }
+          } else
+          {
+            SCRPTERRLOG("Handicap '%d' value %d out of range", val2, val3);
+          }
+          break;
+      case 2: //STRENGTH
+          if (val3 >= 0 && val3 <= SHRT_MAX)
+          {
+            for (i=plr_start; i < plr_end; i++)
+            {
+              dungeon = get_dungeon(i);
+              if (!dungeon_invalid(dungeon))
+              {
+                dungeon->handicap_strength = val3;
+              }
+            }
+          } else
+          {
+            SCRPTERRLOG("Handicap '%d' value %d out of range", val2, val3);
+          }
+          break;
+      default:
+          WARNMSG("Unsupported player handicap, command %d.", val2);
+          break;
+      }
+      break;
   default:
       WARNMSG("Unsupported Game VALUE, command %d.",var_index);
       break;

@@ -5281,7 +5281,7 @@ TbBool remove_creature_score_from_owner(struct Thing *thing)
 void init_creature_scores(void)
 {
     SYNCDBG(8, "Starting");
-    struct Thing* thing = thing_get(void);
+    struct Thing* thing = INVALID_THING;
     long i;
     long score;
     // compute maximum score

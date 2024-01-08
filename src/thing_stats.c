@@ -639,7 +639,7 @@ long calculate_correct_creature_maxspeed(const struct Thing *thing)
     return speed;
 }
 
-long calculate_correct_creature_pay(const struct Thing *thing)
+GoldAmount calculate_correct_creature_pay(const struct Thing *thing)
 {
     struct Dungeon* dungeon = get_dungeon(thing->owner);
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);

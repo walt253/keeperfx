@@ -264,6 +264,8 @@ unsigned long gold_pickup_amount;
     unsigned short selected_creatures_of_gui_job[CREATURE_GUI_JOBS_COUNT];
     unsigned char texture_pack;
     unsigned char color_idx;
+    /** Used to set player handicap with script command. */
+    short handicap_strength = 100;
     struct TrapInfo       mnfct_info;
     struct BoxInfo        box_info;
     struct Coord3d        last_combat_location;

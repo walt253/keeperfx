@@ -1945,6 +1945,9 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
     case Cmd_MAKE_UNSAFE:
         command_make_unsafe(scline->np[0]);
         break;
+    case Cmd_SET_PLAYER_HANDICAP:
+        command_set_player_handicap(scline->np[0], scline->tp[1], scline->np[2]);
+        break;
     case Cmd_RANDOMISE_FLAG:
         command_randomise_flag(scline->np[0], scline->tp[1], scline->np[2]);
         break;

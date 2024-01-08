@@ -288,7 +288,7 @@ long compute_creature_kind_score(ThingModel crkind,unsigned short crlevel)
         + compute_creature_max_defense(crstat->defense,crlevel)
         + compute_creature_max_dexterity(crstat->dexterity,crlevel)
         + compute_creature_max_armour(crstat->armour,crlevel,false)
-        + compute_creature_max_strength(crstat->strength,crlevel);
+        + compute_creature_max_strength(crstat->strength,crlevel,crkind);
 }
 
 /**
@@ -1018,7 +1018,7 @@ const char *creature_statistic_text(const struct Thing *creatng, CreatureLiveSta
         text = loc_text;
         break;
     case CrLStat_Strength:
-        i = compute_creature_max_strength(crstat->strength,cctrl->explevel);
+        i = compute_creature_max_strength(crstat->strength,cctrl->explevel,creatng);
         snprintf(loc_text,sizeof(loc_text),"%ld", i);
         text = loc_text;
         break;

@@ -265,6 +265,7 @@ struct Dungeon {
     unsigned char texture_pack;
     unsigned char color_idx;
     /** Used to set player handicap with script command. */
+    TbBool hndcp_str;
     short handicap_strength;
     struct TrapInfo       mnfct_info;
     struct BoxInfo        box_info;

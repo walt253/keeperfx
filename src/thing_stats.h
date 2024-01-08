@@ -79,7 +79,7 @@ TbBool things_stats_debug_dump(void);
 TbBool is_neutral_thing(const struct Thing *thing);
 TbBool is_hero_thing(const struct Thing *thing);
 /******************************************************************************/
-long compute_creature_kind_score(ThingModel crkind,unsigned short crlevel);
+long compute_creature_kind_score(struct Thing* thing,unsigned short crlevel);
 GoldAmount compute_creature_max_pay(GoldAmount base_pay,unsigned short crlevel);
 GoldAmount compute_creature_max_training_cost(GoldAmount base_training_cost,unsigned short crlevel);
 GoldAmount compute_creature_max_scavenging_cost(GoldAmount base_scavenging_cost,unsigned short crlevel);

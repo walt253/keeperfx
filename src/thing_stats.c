@@ -363,6 +363,13 @@ long compute_creature_max_strength(long base_param,unsigned short crlevel)
   if (crlevel >= CREATURE_MAX_LEVEL)
     crlevel = CREATURE_MAX_LEVEL-1;
   long max_param = base_param + (game.conf.crtr_conf.exp.strength_increase_on_exp * base_param * (long)crlevel) / 100;
+  struct Thing* thing;
+  struct Dungeon* dungeon = get_dungeon(thing->owner);
+  if (dungeon->handicap_strength_toggle > 0)
+  {
+    short handicap = dungeon->handicap_strength_percent;
+    max_param = (max_param * handicap) / 100;
+  }
   return saturate_set_unsigned(max_param, 15);
 }
 

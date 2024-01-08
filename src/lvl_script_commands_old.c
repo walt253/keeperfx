@@ -82,6 +82,22 @@ const struct NamedCommand game_rule_desc[] = {
   {NULL,                             0},
 };
 
+const struct NamedCommand handicap_desc[] = {
+  {"HEALTH",           1},
+  {"STRENGTH",         2},
+  {"ARMOUR",           3},
+  {"DEXTERITY",        4},
+  {"DEFENSE",          5},
+  {"LUCK",             6},
+  {"SALARY",           7},
+  {"LOYALTY",          8},
+  {"SPELL_DAMAGE",     9},
+  {"SPELL_RANGE",     10},
+  {"TRAINING_COST",   11},
+  {"SCAVENGING_COST", 12},
+  {NULL,               0},
+};
+
 
 #define CONDITION_ALWAYS (CONDITIONS_COUNT)
 
@@ -1551,6 +1567,17 @@ static void command_creature_entrance_level(long plr_range_id, unsigned char val
 static void command_make_unsafe(long plr_range_id)
 {
     command_add_value(Cmd_MAKE_UNSAFE, plr_range_id, 0, 0, 0);
+}
+
+static void command_set_player_handicap(long plr_range_id, const char* handicap_var, short value)
+{
+    long handicap_src = get_id(handicap_desc, handicap_var);
+    if (handicap_src == -1)
+    {
+        SCRPTERRLOG("Unknown handicap variable");
+        return;
+    }
+    command_add_value(Cmd_SET_PLAYER_HANDICAP, plr_range_id, handicap_src, value, 0);
 }
 
 static void command_randomise_flag(long plr_range_id, const char *flgname, long val)

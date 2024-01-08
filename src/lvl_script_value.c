@@ -1354,7 +1354,8 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
               dungeon = get_dungeon(i);
               if (!dungeon_invalid(dungeon))
               {
-                dungeon->handicap_strength = val3;
+                dungeon->handicap_strength_toggle = (TbBool)val3;
+                dungeon->handicap_strength_percent = val3;
               }
             }
           } else

@@ -79,6 +79,20 @@ const struct NamedCommand game_rule_desc[] = {
   {NULL,                             0},
 };
 
+const struct NamedCommand on_experience_desc[] = {
+  {"PayIncreaseOnExp",            1},
+  {"SpellDamageIncreaseOnExp",    2},
+  {"RangeIncreaseOnExp",          3},
+  {"JobValueIncreaseOnExp",       4},
+  {"HealthIncreaseOnExp",         5},
+  {"StrengthIncreaseOnExp",       6},
+  {"DexterityIncreaseOnExp",      7},
+  {"DefenseIncreaseOnExp",        8},
+  {"LoyaltyIncreaseOnExp",        9},
+  {"ExpForHittingIncreaseOnExp", 10},
+  {NULL,                          0},
+};
+
 
 #define CONDITION_ALWAYS (CONDITIONS_COUNT)
 
@@ -1497,6 +1511,17 @@ static void command_set_game_rule(const char* objectv, unsigned long roomvar)
     command_add_value(Cmd_SET_GAME_RULE, 0, ruledesc, roomvar, 0);
 }
 
+static void command_set_increase_on_experience(const char* objectx, unsigned long onexpvar)
+{
+    long onexpdesc = get_id(on_experience_desc, objectx);
+    if (onexpdesc == -1)
+    {
+        SCRPTERRLOG("Unknown increase on experience variable");
+        return;
+    }
+    command_add_value(Cmd_SET_INCREASE_ON_EXPERIENCE, 0, onexpdesc, onexpvar, 0);
+}
+
 static void command_use_spell_on_creature(long plr_range_id, const char *crtr_name, const char *criteria, const char *magname, int splevel)
 {
   SCRIPTDBG(11, "Starting");
@@ -1905,6 +1930,9 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
         break;
     case Cmd_SET_GAME_RULE:
         command_set_game_rule(scline->tp[0], scline->np[1]);
+        break;
+    case Cmd_SET_INCREASE_ON_EXPERIENCE:
+        command_set_increase_on_experience(scline->tp[0], scline->np[1]);
         break;
     case Cmd_COMPUTER_DIG_TO_LOCATION:
         command_computer_dig_to_location(scline->np[0], scline->tp[1], scline->tp[2]);

@@ -4889,16 +4889,15 @@ static void set_increase_on_experience_process(struct ScriptContext* context)
 
 static void set_player_handicap_check(const struct ScriptLine *scline)
 {
-    const char *hndcpname = scline->tp[1];
-    long hndcp_id = get_id(handicap_desc, hndcpname);
-    if (hndcp_id == -1)
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+    long hndcpdesc = get_id(handicap_desc, scline->tp[1]);
+    if (hndcpdesc == -1)
     {
-        SCRPTERRLOG("Unknown handicap, '%s'", hndcpname);
+        SCRPTERRLOG("Unknown player handicap, '%s'", scline->tp[1]);
         DEALLOCATE_SCRIPT_VALUE
     }
-    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
     value->arg0 = scline->np[0];
-    value->arg1 = hndcp_id;
+    value->arg1 = hndcpdesc;
     value->arg2 = scline->np[2];
     PROCESS_SCRIPT_VALUE(scline->command);
 }

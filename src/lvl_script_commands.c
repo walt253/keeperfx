@@ -279,6 +279,17 @@ const struct NamedCommand on_experience_desc[] = {
   {NULL,                           0},
 };
 
+const struct NamedCommand handicap_desc[] = {
+  {"MELEE_DAMAGE",    1},
+  {"SPELL_DAMAGE",    2},
+  {"SPEED",           3},
+  {"SALARY",          4},
+  {"TRAINING_COST",   5},
+  {"SCAVENGING_COST", 6},
+  {"LOYALTY",         7},
+  {NULL,              0},
+};
+
 /**
  * Text names of groups of GUI Buttons.
  */
@@ -4876,6 +4887,73 @@ static void set_increase_on_experience_process(struct ScriptContext* context)
     }
 }
 
+static void set_player_handicap_check(const struct ScriptLine *scline)
+{
+    const char *hndcpname = scline->tp[1];
+    long hndcp_id = get_id(handicap_desc, hndcpname);
+    if (hndcp_id == -1)
+    {
+        SCRPTERRLOG("Unknown handicap, '%s'", hndcpname);
+        DEALLOCATE_SCRIPT_VALUE
+    }
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+    value->arg0 = scline->np[0];
+    value->arg1 = hndcp_id;
+    value->arg2 = scline->np[2];
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void set_player_handicap_process(struct ScriptContext *context)
+{
+    if (hndcp_val >= 0)
+    {
+        struct Dungeon* dungeon = get_dungeon(context->value->arg0);
+        if (!dungeon_invalid(dungeon))
+        {
+            switch (context->value->arg1)
+            {
+                case 1: // MELEE_DAMAGE
+                    dungeon->handicap_melee_damage_toggle = (TbBool)context->value->arg2;
+                    dungeon->handicap_melee_damage_percent = context->value->arg2;
+                break;
+                case 2: // SPELL_DAMAGE
+                    dungeon->handicap_spell_damage_toggle = (TbBool)context->value->arg2;
+                    dungeon->handicap_spell_damage_percent = context->value->arg2;
+                break;
+                case 3: // SPEED
+                    dungeon->handicap_speed_toggle = (TbBool)context->value->arg2;
+                    dungeon->handicap_speed_percent = context->value->arg2;
+                break;
+                case 4: // SALARY
+                    dungeon->handicap_pay_toggle = (TbBool)context->value->arg2;
+                    dungeon->handicap_pay_percent = context->value->arg2;
+                break;
+                case 5: // TRAINING_COST
+                    dungeon->handicap_training_cost_toggle = (TbBool)context->value->arg2;
+                    dungeon->handicap_training_cost_percent = context->value->arg2;
+                break;
+                case 6: // SCAVENGING_COST
+                    dungeon->handicap_scavenging_cost_toggle = (TbBool)context->value->arg2;
+                    dungeon->handicap_scavenging_cost_percent = context->value->arg2;
+                break;
+                case 7: // LOYALTY
+                    dungeon->handicap_loyalty_toggle = (TbBool)context->value->arg2;
+                    dungeon->handicap_loyalty_percent = context->value->arg2;
+                break;
+                default:
+                    WARNMSG("Unsupported player handicap, command %d.", context->value->arg1);
+                break;
+            }
+        } else
+        {
+            SCRPTERRLOG("Can't manipulate handicap, player %d has no dungeon.", (int)context->value->arg0);
+        }
+    } else
+    {
+        SCRPTERRLOG("Handicap '%d' value %d out of range.", context->value->arg1, context->value->arg2);
+    }
+}
+
 /**
  * Descriptions of script commands for parser.
  * Arguments are: A-string, N-integer, C-creature model, P- player, R- room kind, L- location, O- operator, S- slab kind
@@ -5028,6 +5106,7 @@ const struct CommandDesc command_desc[] = {
   {"SET_PLAYER_COLOR",                  "PA      ", Cmd_SET_PLAYER_COLOR, &set_player_color_check, &set_player_color_process },
   {"MAKE_UNSAFE",                       "P       ", Cmd_MAKE_UNSAFE, NULL, NULL},
   {"SET_INCREASE_ON_EXPERIENCE",        "AN      ", Cmd_SET_INCREASE_ON_EXPERIENCE, &set_increase_on_experience_check, &set_increase_on_experience_process},
+  {"SET_PLAYER_HANDICAP",               "PAN     ", Cmd_SET_PLAYER_HANDICAP, &set_player_handicap_check, &set_player_handicap_process},
   {NULL,                                "        ", Cmd_NONE, NULL, NULL},
 };
 

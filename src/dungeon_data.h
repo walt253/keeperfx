@@ -256,14 +256,29 @@ struct Dungeon {
     unsigned char devastation_centr_y;
     unsigned long devastation_turn;
     long creatures_total_pay;
-unsigned short gold_hoard_for_pickup;
-unsigned long gold_pickup_amount;
+    unsigned short gold_hoard_for_pickup;
+    unsigned long gold_pickup_amount;
     /** Index of last creature picked up of given model. */
     unsigned short selected_creatures_of_model[CREATURE_TYPES_MAX];
     /** Index of last creature picked up of given GUI Job. */
     unsigned short selected_creatures_of_gui_job[CREATURE_GUI_JOBS_COUNT];
     unsigned char texture_pack;
     unsigned char color_idx;
+    /** Used to set player handicap with script command, first a TbBool to check if enabled or disabled then a short for the handicap percentage. */
+    TbBool handicap_melee_damage_toggle;
+    TbBool handicap_spell_damage_toggle;
+    TbBool handicap_speed_toggle;
+    TbBool handicap_pay_toggle;
+    TbBool handicap_training_cost_toggle;
+    TbBool handicap_scavenging_cost_toggle;
+    TbBool handicap_loyalty_toggle;
+    short handicap_melee_damage_percent;
+    short handicap_spell_damage_percent;
+    short handicap_speed_percent;
+    short handicap_pay_percent;
+    short handicap_training_cost_percent;
+    short handicap_scavenging_cost_percent;
+    short handicap_loyalty_percent;
     struct TrapInfo       mnfct_info;
     struct BoxInfo        box_info;
     struct Coord3d        last_combat_location;

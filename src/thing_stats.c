@@ -496,6 +496,12 @@ long compute_creature_attack_melee_damage(long base_param, long luck, unsigned s
     if (base_param > 60000)
         base_param = 60000;
     long max_param = base_param;
+    struct Dungeon* dungeon = get_dungeon(thing->owner);
+    if (dungeon->handicap_melee_damage_toggle > 0)
+    {
+        short handicap = dungeon->handicap_melee_damage_percent;
+        max_param = (max_param * handicap) / 100;
+    }
     if (luck > 0)
     {
         if (CREATURE_RANDOM(thing, 100) < luck)
@@ -519,6 +525,12 @@ long compute_creature_attack_spell_damage(long base_param, long luck, unsigned s
     if (crlevel >= CREATURE_MAX_LEVEL)
         crlevel = CREATURE_MAX_LEVEL-1;
     long max_param = base_param + (game.conf.crtr_conf.exp.spell_damage_increase_on_exp * base_param * (long)crlevel) / 100;
+    struct Dungeon* dungeon = get_dungeon(thing->owner);
+    if (dungeon->handicap_spell_damage_toggle > 0)
+    {
+        short handicap = dungeon->handicap_spell_damage_percent;
+        max_param = (max_param * handicap) / 100;
+    }
     if (luck > 0)
     {
         if (CREATURE_RANDOM(thing, 100) < luck)
@@ -622,6 +634,12 @@ long calculate_correct_creature_maxspeed(const struct Thing *thing)
 {
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     long speed = crstat->base_speed;
+    struct Dungeon* dungeon = get_dungeon(thing->owner);
+    if (dungeon->handicap_speed_toggle > 0)
+    {
+        short handicap = dungeon->handicap_speed_percent;
+        speed = (speed * handicap) / 100;
+    }
     if ( (creature_affected_by_slap(thing)) || (creature_affected_by_spell(thing, SplK_TimeBomb)) )
         speed *= 2;
     if (creature_affected_by_spell(thing, SplK_Speed))
@@ -630,7 +648,6 @@ long calculate_correct_creature_maxspeed(const struct Thing *thing)
         speed /= 2;
     if (!is_neutral_thing(thing))
     {
-        struct Dungeon* dungeon = get_dungeon(thing->owner);
         if (dungeon->tortured_creatures[thing->model] > 0)
             speed = 5 * speed / 4;
         if (player_uses_power_obey(thing->owner))
@@ -645,6 +662,11 @@ GoldAmount calculate_correct_creature_pay(const struct Thing *thing)
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     GoldAmount pay = compute_creature_max_pay(crstat->pay, cctrl->explevel);
+    if (dungeon->handicap_pay_toggle > 0)
+    {
+        short handicap = dungeon->handicap_pay_percent;
+        pay = (pay * handicap) / 100;
+    }
     // If torturing creature of that model, changes the salary with a percentage set in rules.cfg.
     if (dungeon->tortured_creatures[thing->model] > 0)
         pay = (pay * game.conf.rules.game.torture_payday) / 100;
@@ -657,6 +679,11 @@ GoldAmount calculate_correct_creature_training_cost(const struct Thing *thing)
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     GoldAmount training_cost = compute_creature_max_training_cost(crstat->training_cost, cctrl->explevel);
+    if (dungeon->handicap_training_cost_toggle > 0)
+    {
+        short handicap = dungeon->handicap_training_cost_percent;
+        training_cost = (training_cost * handicap) / 100;
+    }
     // If torturing creature of that model, changes the training cost with a percentage set in rules.cfg.
     if (dungeon->tortured_creatures[thing->model] > 0)
         training_cost = (training_cost * game.conf.rules.game.torture_training_cost) / 100;
@@ -669,6 +696,11 @@ GoldAmount calculate_correct_creature_scavenging_cost(const struct Thing *thing)
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     GoldAmount scavenger_cost = compute_creature_max_scavenging_cost(crstat->scavenger_cost, cctrl->explevel);
+    if (dungeon->handicap_scavenging_cost_toggle > 0)
+    {
+        short handicap = dungeon->handicap_scavenging_cost_percent;
+        scavenger_cost = (scavenger_cost * handicap) / 100;
+    }
     // If torturing creature of that model, changes the scavenging cost with a percentage set in rules.cfg.
     if (dungeon->tortured_creatures[thing->model] > 0)
         scavenger_cost = (scavenger_cost * game.conf.rules.game.torture_scavenging_cost) / 100;
@@ -682,6 +714,11 @@ long calculate_correct_creature_scavenge_required(const struct Thing *thing, Pla
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     long scavngpts = (dungeon->creatures_scavenged[thing->model] + 1) *
         compute_creature_max_loyalty(crstat->scavenge_require, cctrl->explevel);
+    if (dungeon->handicap_loyalty_toggle > 0)
+    {
+        short handicap = dungeon->handicap_loyalty_percent;
+        scavngpts = (scavngpts * handicap) / 100;
+    }
     return scavngpts;
 }
 

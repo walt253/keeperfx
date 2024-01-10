@@ -4905,7 +4905,7 @@ static void set_player_handicap_check(const struct ScriptLine *scline)
 
 static void set_player_handicap_process(struct ScriptContext *context)
 {
-    if (hndcp_val >= 0)
+    if ((context->value->arg2 >= 0) && (context->value->arg2 <= 300))
     {
         struct Dungeon* dungeon = get_dungeon(context->value->arg0);
         if (!dungeon_invalid(dungeon))

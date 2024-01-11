@@ -280,14 +280,14 @@ const struct NamedCommand on_experience_desc[] = {
 };
 
 const struct NamedCommand modifier_desc[] = {
-  {"MELEE_DAMAGE",    1},
-  {"SPELL_DAMAGE",    2},
-  {"SPEED",           3},
-  {"SALARY",          4},
-  {"TRAINING_COST",   5},
-  {"SCAVENGING_COST", 6},
-  {"LOYALTY",         7},
-  {NULL,              0},
+  {"MeleeDamage",    1},
+  {"SpellDamage",    2},
+  {"Speed",          3},
+  {"Salary",         4},
+  {"TrainingCost",   5},
+  {"ScavengingCost", 6},
+  {"Loyalty",        7},
+  {NULL,             0},
 };
 
 /**
@@ -4920,31 +4920,31 @@ static void set_player_modifier_process(struct ScriptContext *context)
         short mdfr = context->value->shorts[1];
         switch (mdfr)
         {
-            case 1: // MELEE_DAMAGE
+            case 1: // MeleeDamage
                 SCRIPTDBG(7,"Changing modifier %s from %d to %d.", modifier_desc[mdfr].name, dungeon->modifier_melee_damage, context->value->shorts[2]);
                 dungeon->modifier_melee_damage = context->value->shorts[2];
                 break;
-            case 2: // SPELL_DAMAGE
+            case 2: // SpellDamage
                 SCRIPTDBG(7,"Changing modifier %s from %d to %d.", modifier_desc[mdfr].name, dungeon->modifier_spell_damage, context->value->shorts[2]);
                 dungeon->modifier_spell_damage = context->value->shorts[2];
                 break;
-            case 3: // SPEED
+            case 3: // Speed
                 SCRIPTDBG(7,"Changing modifier %s from %d to %d.", modifier_desc[mdfr].name, dungeon->modifier_speed, context->value->shorts[2]);
                 dungeon->modifier_speed = context->value->shorts[2];
                 break;
-            case 4: // SALARY
+            case 4: // Salary
                 SCRIPTDBG(7,"Changing modifier %s from %d to %d.", modifier_desc[mdfr].name, dungeon->modifier_pay, context->value->shorts[2]);
                 dungeon->modifier_pay = context->value->shorts[2];
                 break;
-            case 5: // TRAINING_COST
+            case 5: // TrainingCost
                 SCRIPTDBG(7,"Changing modifier %s from %d to %d.", modifier_desc[mdfr].name, dungeon->modifier_training_cost, context->value->shorts[2]);
                 dungeon->modifier_training_cost = context->value->shorts[2];
                 break;
-            case 6: // SCAVENGING_COST
+            case 6: // ScavengingCost
                 SCRIPTDBG(7,"Changing modifier %s from %d to %d.", modifier_desc[mdfr].name, dungeon->modifier_scavenging_cost, context->value->shorts[2]);
                 dungeon->modifier_scavenging_cost = context->value->shorts[2];
                 break;
-            case 7: // LOYALTY
+            case 7: // Loyalty
                 SCRIPTDBG(7,"Changing modifier %s from %d to %d.", modifier_desc[mdfr].name, dungeon->modifier_loyalty, context->value->shorts[2]);
                 dungeon->modifier_loyalty = context->value->shorts[2];
                 break;

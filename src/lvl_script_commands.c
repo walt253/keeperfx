@@ -4949,7 +4949,7 @@ static void set_player_modifier_process(struct ScriptContext *context)
                 dungeon->modifier_loyalty = context->value->shorts[2];
                 break;
             default:
-                WARNMSG("Unsupported variable, command %d.", context->value->shorts[0]);
+                WARNMSG("Unsupported modifier, command %d.", context->value->shorts[1]);
                 break;
         }
     } else

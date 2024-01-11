@@ -4907,8 +4907,8 @@ static void set_player_modifier_check(const struct ScriptLine* scline)
         return;
     }
     value->shorts[0] = scline->np[0];
-    value->shorts[1] = mdfrdesc;
     value->shorts[2] = scline->np[2];
+    value->shorts[3] = mdfrdesc;
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
@@ -4917,39 +4917,39 @@ static void set_player_modifier_process(struct ScriptContext *context)
     struct Dungeon* dungeon = get_dungeon(context->value->shorts[0]);
     if (!dungeon_invalid(dungeon))
     {
-        short mdfr = context->value->shorts[1];
-        switch (mdfr)
+        short mdfrdesc = context->value->shorts[3];
+        switch (mdfrdesc)
         {
             case 1: // MeleeDamage
-                SCRIPTDBG(7,"Changing modifier %s from %d to %d.", modifier_desc[mdfr].name, dungeon->modifier_melee_damage, context->value->shorts[2]);
+                SCRIPTDBG(7,"Changing modifier %s from %d to %d.", modifier_desc[mdfrdesc].name, dungeon->modifier_melee_damage, context->value->shorts[2]);
                 dungeon->modifier_melee_damage = context->value->shorts[2];
                 break;
             case 2: // SpellDamage
-                SCRIPTDBG(7,"Changing modifier %s from %d to %d.", modifier_desc[mdfr].name, dungeon->modifier_spell_damage, context->value->shorts[2]);
+                SCRIPTDBG(7,"Changing modifier %s from %d to %d.", modifier_desc[mdfrdesc].name, dungeon->modifier_spell_damage, context->value->shorts[2]);
                 dungeon->modifier_spell_damage = context->value->shorts[2];
                 break;
             case 3: // Speed
-                SCRIPTDBG(7,"Changing modifier %s from %d to %d.", modifier_desc[mdfr].name, dungeon->modifier_speed, context->value->shorts[2]);
+                SCRIPTDBG(7,"Changing modifier %s from %d to %d.", modifier_desc[mdfrdesc].name, dungeon->modifier_speed, context->value->shorts[2]);
                 dungeon->modifier_speed = context->value->shorts[2];
                 break;
             case 4: // Salary
-                SCRIPTDBG(7,"Changing modifier %s from %d to %d.", modifier_desc[mdfr].name, dungeon->modifier_pay, context->value->shorts[2]);
+                SCRIPTDBG(7,"Changing modifier %s from %d to %d.", modifier_desc[mdfrdesc].name, dungeon->modifier_pay, context->value->shorts[2]);
                 dungeon->modifier_pay = context->value->shorts[2];
                 break;
             case 5: // TrainingCost
-                SCRIPTDBG(7,"Changing modifier %s from %d to %d.", modifier_desc[mdfr].name, dungeon->modifier_training_cost, context->value->shorts[2]);
+                SCRIPTDBG(7,"Changing modifier %s from %d to %d.", modifier_desc[mdfrdesc].name, dungeon->modifier_training_cost, context->value->shorts[2]);
                 dungeon->modifier_training_cost = context->value->shorts[2];
                 break;
             case 6: // ScavengingCost
-                SCRIPTDBG(7,"Changing modifier %s from %d to %d.", modifier_desc[mdfr].name, dungeon->modifier_scavenging_cost, context->value->shorts[2]);
+                SCRIPTDBG(7,"Changing modifier %s from %d to %d.", modifier_desc[mdfrdesc].name, dungeon->modifier_scavenging_cost, context->value->shorts[2]);
                 dungeon->modifier_scavenging_cost = context->value->shorts[2];
                 break;
             case 7: // Loyalty
-                SCRIPTDBG(7,"Changing modifier %s from %d to %d.", modifier_desc[mdfr].name, dungeon->modifier_loyalty, context->value->shorts[2]);
+                SCRIPTDBG(7,"Changing modifier %s from %d to %d.", modifier_desc[mdfrdesc].name, dungeon->modifier_loyalty, context->value->shorts[2]);
                 dungeon->modifier_loyalty = context->value->shorts[2];
                 break;
             default:
-                WARNMSG("Unsupported modifier, command %d.", context->value->shorts[1]);
+                WARNMSG("Unsupported modifier, command %d.", context->value->shorts[3]);
                 break;
         }
     } else

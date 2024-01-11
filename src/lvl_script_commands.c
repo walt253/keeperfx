@@ -5066,7 +5066,7 @@ static void set_game_rule_process(struct ScriptContext* context)
         if (context->value->shorts[1] >= 0)
         {
             SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", game_rule_desc[ruledesc].name, game.conf.rules.game.place_traps_on_subtiles, context->value->shorts[1]);
-            game.conf.game.rooms.place_traps_on_subtiles = (TbBool)context->value->shorts[1];
+            game.conf.rules.game.place_traps_on_subtiles = (TbBool)context->value->shorts[1];
         }
         else
         {

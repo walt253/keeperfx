@@ -279,6 +279,17 @@ const struct NamedCommand on_experience_desc[] = {
   {NULL,                           0},
 };
 
+const struct NamedCommand modifier_desc[] = {
+  {"MELEE_DAMAGE",    1},
+  {"SPELL_DAMAGE",    2},
+  {"SPEED",           3},
+  {"SALARY",          4},
+  {"TRAINING_COST",   5},
+  {"SCAVENGING_COST", 6},
+  {"LOYALTY",         7},
+  {NULL,              0},
+};
+
 /**
  * Text names of groups of GUI Buttons.
  */
@@ -4879,6 +4890,74 @@ static void set_increase_on_experience_process(struct ScriptContext* context)
     }
 }
 
+static void set_player_modifier_check(const struct ScriptLine* scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+    long mdfrdesc = get_id(modifier_desc, scline->tp[1]);
+    if (mdfrdesc == -1)
+    {
+        SCRPTERRLOG("Unknown modifier '%s'.", scline->tp[1]);
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    }
+    if ((scline->np[2] > SHRT_MAX) || (scline->np[2] < 0))
+    {
+        SCRPTERRLOG("Value %d out of range for modifier '%s'.", scline->np[2], scline->tp[1]);
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    }
+    value->shorts[0] = scline->np[0];
+    value->shorts[1] = mdfrdesc;
+    value->shorts[2] = scline->np[2];
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void set_player_modifier_process(struct ScriptContext *context)
+{
+    struct Dungeon* dungeon = get_dungeon(context->value->shorts[0]);
+    if (!dungeon_invalid(dungeon))
+    {
+        short mdfr = context->value->shorts[1];
+        switch (mdfr)
+        {
+            case 1: // MELEE_DAMAGE
+                SCRIPTDBG(7,"Changing modifier %s from %d to %d.", modifier_desc[mdfr].name, dungeon->modifier_melee_damage, context->value->shorts[2]);
+                dungeon->modifier_melee_damage = context->value->shorts[2];
+                break;
+            case 2: // SPELL_DAMAGE
+                SCRIPTDBG(7,"Changing modifier %s from %d to %d.", modifier_desc[mdfr].name, dungeon->modifier_spell_damage, context->value->shorts[2]);
+                dungeon->modifier_spell_damage = context->value->shorts[2];
+                break;
+            case 3: // SPEED
+                SCRIPTDBG(7,"Changing modifier %s from %d to %d.", modifier_desc[mdfr].name, dungeon->modifier_speed, context->value->shorts[2]);
+                dungeon->modifier_speed = context->value->shorts[2];
+                break;
+            case 4: // SALARY
+                SCRIPTDBG(7,"Changing modifier %s from %d to %d.", modifier_desc[mdfr].name, dungeon->modifier_pay, context->value->shorts[2]);
+                dungeon->modifier_pay = context->value->shorts[2];
+                break;
+            case 5: // TRAINING_COST
+                SCRIPTDBG(7,"Changing modifier %s from %d to %d.", modifier_desc[mdfr].name, dungeon->modifier_training_cost, context->value->shorts[2]);
+                dungeon->modifier_training_cost = context->value->shorts[2];
+                break;
+            case 6: // SCAVENGING_COST
+                SCRIPTDBG(7,"Changing modifier %s from %d to %d.", modifier_desc[mdfr].name, dungeon->modifier_scavenging_cost, context->value->shorts[2]);
+                dungeon->modifier_scavenging_cost = context->value->shorts[2];
+                break;
+            case 7: // LOYALTY
+                SCRIPTDBG(7,"Changing modifier %s from %d to %d.", modifier_desc[mdfr].name, dungeon->modifier_loyalty, context->value->shorts[2]);
+                dungeon->modifier_loyalty = context->value->shorts[2];
+                break;
+            default:
+                WARNMSG("Unsupported variable, command %d.", context->value->shorts[0]);
+                break;
+        }
+    } else
+    {
+        SCRPTERRLOG("Can't manipulate modifier, player %d has no dungeon.", (int)context->value->shorts[0]);
+    }
+}
+
 /**
  * Descriptions of script commands for parser.
  * Arguments are: A-string, N-integer, C-creature model, P- player, R- room kind, L- location, O- operator, S- slab kind
@@ -5031,6 +5110,7 @@ const struct CommandDesc command_desc[] = {
   {"SET_PLAYER_COLOR",                  "PA      ", Cmd_SET_PLAYER_COLOR, &set_player_color_check, &set_player_color_process },
   {"MAKE_UNSAFE",                       "P       ", Cmd_MAKE_UNSAFE, NULL, NULL},
   {"SET_INCREASE_ON_EXPERIENCE",        "AN      ", Cmd_SET_INCREASE_ON_EXPERIENCE, &set_increase_on_experience_check, &set_increase_on_experience_process},
+  {"SET_PLAYER_MODIFIER",               "PAN     ", Cmd_SET_PLAYER_MODIFIER, &set_player_modifier_check, &set_player_modifier_process},
   {NULL,                                "        ", Cmd_NONE, NULL, NULL},
 };
 

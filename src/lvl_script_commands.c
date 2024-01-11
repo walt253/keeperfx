@@ -4907,17 +4907,17 @@ static void set_player_modifier_check(const struct ScriptLine* scline)
         return;
     }
     value->shorts[0] = scline->np[0];
+    value->shorts[1] = mdfrdesc;
     value->shorts[2] = scline->np[2];
-    value->shorts[3] = mdfrdesc;
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
 static void set_player_modifier_process(struct ScriptContext *context)
 {
     struct Dungeon* dungeon = get_dungeon(context->value->shorts[0]);
+    short mdfrdesc = context->value->shorts[1];
     if (!dungeon_invalid(dungeon))
     {
-        short mdfrdesc = context->value->shorts[3];
         switch (mdfrdesc)
         {
             case 1: // MeleeDamage
@@ -4949,7 +4949,7 @@ static void set_player_modifier_process(struct ScriptContext *context)
                 dungeon->modifier_loyalty = context->value->shorts[2];
                 break;
             default:
-                WARNMSG("Unsupported modifier, command %d.", context->value->shorts[3]);
+                WARNMSG("Unsupported modifier, command %d.", context->value->shorts[1]);
                 break;
         }
     } else

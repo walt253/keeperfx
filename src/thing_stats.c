@@ -442,7 +442,7 @@ GoldAmount compute_creature_max_scavenging_cost(GoldAmount base_param,unsigned s
  * @param luck Creature luck, scaled 0..100.
  * @param crlevel Creature level, 0..9.
  */
-long project_creature_attack_melee_damage(long base_param,long luck,unsigned short crlevel, struct Thing* thing)
+long project_creature_attack_melee_damage(long base_param,long luck,unsigned short crlevel, const struct Thing* thing)
 {
     struct Dungeon* dungeon = get_dungeon(thing->owner);
     short modifier = dungeon->modifier_melee_damage;
@@ -469,7 +469,7 @@ long project_creature_attack_melee_damage(long base_param,long luck,unsigned sho
  * @param luck Creature luck, scaled 0..100.
  * @param crlevel Creature level, 0..9.
  */
-long project_creature_attack_spell_damage(long base_param,long luck,unsigned short crlevel, struct Thing* thing)
+long project_creature_attack_spell_damage(long base_param,long luck,unsigned short crlevel, const struct Thing* thing)
 {
     struct Dungeon* dungeon = get_dungeon(thing->owner);
     short modifier = dungeon->modifier_spell_damage;
@@ -645,7 +645,6 @@ long calculate_correct_creature_maxspeed(const struct Thing *thing)
         speed /= 2;
     if (!is_neutral_thing(thing))
     {
-        struct Dungeon* dungeon = get_dungeon(thing->owner);
         if (dungeon->tortured_creatures[thing->model] > 0)
             speed = 5 * speed / 4;
         if (player_uses_power_obey(thing->owner))

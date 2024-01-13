@@ -324,12 +324,11 @@ const struct NamedCommand modifier_desc[] = {
   {"MeleeDamage",     1},
   {"SpellDamage",     2},
   {"DamageReduction", 3},
-  {"Range",           4},
-  {"Speed",           5},
-  {"Salary",          6},
-  {"TrainingCost",    7},
-  {"ScavengingCost",  8},
-  {"Loyalty",         9},
+  {"Speed",           4},
+  {"Salary",          5},
+  {"TrainingCost",    6},
+  {"ScavengingCost",  7},
+  {"Loyalty",         8},
   {NULL,              0},
 };
 
@@ -5249,27 +5248,23 @@ static void set_player_modifier_process(struct ScriptContext* context)
             SCRIPTDBG(7,"Changing Player Modifier '%s' of player %d from %d to %d.", mdfrname, (int)plyr_idx, dungeon->modifier_damage_reduction, mdfrval);
             dungeon->modifier_damage_reduction = mdfrval;
             break;
-        case 4: // Range
-            SCRIPTDBG(7,"Changing Player Modifier '%s' of player %d from %d to %d.", mdfrname, (int)plyr_idx, dungeon->modifier_range, mdfrval);
-            dungeon->modifier_range = mdfrval;
-            break;
-        case 5: // Speed
+        case 4: // Speed
             SCRIPTDBG(7,"Changing Player Modifier '%s' of player %d from %d to %d.", mdfrname, (int)plyr_idx, dungeon->modifier_speed, mdfrval);
             dungeon->modifier_speed = mdfrval;
             break;
-        case 6: // Salary
+        case 5: // Salary
             SCRIPTDBG(7,"Changing Player Modifier '%s' of player %d from %d to %d.", mdfrname, (int)plyr_idx, dungeon->modifier_pay, mdfrval);
             dungeon->modifier_pay = mdfrval;
             break;
-        case 7: // TrainingCost
+        case 6: // TrainingCost
             SCRIPTDBG(7,"Changing Player Modifier '%s' of player %d from %d to %d.", mdfrname, (int)plyr_idx, dungeon->modifier_training_cost, mdfrval);
             dungeon->modifier_training_cost = mdfrval;
             break;
-        case 8: // ScavengingCost
+        case 7: // ScavengingCost
             SCRIPTDBG(7,"Changing Player Modifier '%s' of player %d from %d to %d.", mdfrname, (int)plyr_idx, dungeon->modifier_scavenging_cost, mdfrval);
             dungeon->modifier_scavenging_cost = mdfrval;
             break;
-        case 9: // Loyalty
+        case 8: // Loyalty
             SCRIPTDBG(7,"Changing Player Modifier '%s' of player %d from %d to %d.", mdfrname, (int)plyr_idx, dungeon->modifier_loyalty, mdfrval);
             dungeon->modifier_loyalty = mdfrval;
             break;

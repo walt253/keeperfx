@@ -5195,68 +5195,77 @@ static void set_increase_on_experience_process(struct ScriptContext* context)
 static void set_player_modifier_check(const struct ScriptLine* scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
-    long mdfrdesc = get_id(modifier_desc, scline->tp[1]);
+    PlayerNumber plyr_idx = scline->np[0];
+    short mdfrdesc = get_id(modifier_desc, scline->tp[1]);
+    short mdfrval = scline->np[2];
+    const char *mdfrname = modifier_desc[mdfrdesc - 1].name;
     if (mdfrdesc == -1)
     {
-        SCRPTERRLOG("Unknown modifier '%s'.", scline->tp[1]);
+        SCRPTERRLOG("Unknown Player Modifier '%s'.", mdfrname);
         DEALLOCATE_SCRIPT_VALUE
         return;
     }
-    if ((scline->np[2] > SHRT_MAX) || (scline->np[2] < 0))
+    if (mdfrval < 0)
     {
-        SCRPTERRLOG("Value %d out of range for modifier '%s'.", scline->np[2], scline->tp[1]);
+        SCRPTERRLOG("Value %d out of range for Player Modifier '%s'.", mdfrval, mdfrname);
         DEALLOCATE_SCRIPT_VALUE
         return;
     }
-    value->shorts[0] = scline->np[0];
+    struct Dungeon* dungeon = get_dungeon(plyr_idx);
+    if (dungeon_invalid(dungeon))
+    {
+        SCRPTERRLOG("Can't manipulate Player Modifier '%s', player %d has no dungeon.", mdfrname, (int)plyr_idx);
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    }
+    value->shorts[0] = plyr_idx;
     value->shorts[1] = mdfrdesc;
-    value->shorts[2] = scline->np[2];
+    value->shorts[2] = mdfrval;
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
-static void set_player_modifier_process(struct ScriptContext *context)
+static void set_player_modifier_process(struct ScriptContext* context)
 {
-    struct Dungeon* dungeon = get_dungeon(context->value->shorts[0]);
+    PlayerNumber plyr_idx = context->value->shorts[0];
     short mdfrdesc = context->value->shorts[1];
-    if (!dungeon_invalid(dungeon))
+    short mdfrval = context->value->shorts[2];
+  #if (BFDEBUG_LEVEL >= 7)
+    const char *mdfrname = modifier_desc[mdfrdesc - 1].name;
+  #endif
+    struct Dungeon* dungeon = get_dungeon(plyr_idx);
+    switch (mdfrdesc)
     {
-        switch (mdfrdesc)
-        {
-            case 1: // MeleeDamage
-                SCRIPTDBG(7,"Changing modifier %s from %d to %d.", modifier_desc[mdfrdesc].name, dungeon->modifier_melee_damage, context->value->shorts[2]);
-                dungeon->modifier_melee_damage = context->value->shorts[2];
-                break;
-            case 2: // SpellDamage
-                SCRIPTDBG(7,"Changing modifier %s from %d to %d.", modifier_desc[mdfrdesc].name, dungeon->modifier_spell_damage, context->value->shorts[2]);
-                dungeon->modifier_spell_damage = context->value->shorts[2];
-                break;
-            case 3: // Speed
-                SCRIPTDBG(7,"Changing modifier %s from %d to %d.", modifier_desc[mdfrdesc].name, dungeon->modifier_speed, context->value->shorts[2]);
-                dungeon->modifier_speed = context->value->shorts[2];
-                break;
-            case 4: // Salary
-                SCRIPTDBG(7,"Changing modifier %s from %d to %d.", modifier_desc[mdfrdesc].name, dungeon->modifier_pay, context->value->shorts[2]);
-                dungeon->modifier_pay = context->value->shorts[2];
-                break;
-            case 5: // TrainingCost
-                SCRIPTDBG(7,"Changing modifier %s from %d to %d.", modifier_desc[mdfrdesc].name, dungeon->modifier_training_cost, context->value->shorts[2]);
-                dungeon->modifier_training_cost = context->value->shorts[2];
-                break;
-            case 6: // ScavengingCost
-                SCRIPTDBG(7,"Changing modifier %s from %d to %d.", modifier_desc[mdfrdesc].name, dungeon->modifier_scavenging_cost, context->value->shorts[2]);
-                dungeon->modifier_scavenging_cost = context->value->shorts[2];
-                break;
-            case 7: // Loyalty
-                SCRIPTDBG(7,"Changing modifier %s from %d to %d.", modifier_desc[mdfrdesc].name, dungeon->modifier_loyalty, context->value->shorts[2]);
-                dungeon->modifier_loyalty = context->value->shorts[2];
-                break;
-            default:
-                WARNMSG("Unsupported modifier, command %d.", context->value->shorts[1]);
-                break;
-        }
-    } else
-    {
-        SCRPTERRLOG("Can't manipulate modifier, player %d has no dungeon.", (int)context->value->shorts[0]);
+        case 1: // MeleeDamage
+            SCRIPTDBG(7,"Changing Player Modifier '%s' of player %d from %d to %d.", mdfrname, (int)plyr_idx, dungeon->modifier_melee_damage, mdfrval);
+            dungeon->modifier_melee_damage = mdfrval;
+            break;
+        case 2: // SpellDamage
+            SCRIPTDBG(7,"Changing Player Modifier '%s' of player %d from %d to %d.", mdfrname, (int)plyr_idx, dungeon->modifier_spell_damage, mdfrval);
+            dungeon->modifier_spell_damage = mdfrval;
+            break;
+        case 3: // Speed
+            SCRIPTDBG(7,"Changing Player Modifier '%s' of player %d from %d to %d.", mdfrname, (int)plyr_idx, dungeon->modifier_speed, mdfrval);
+            dungeon->modifier_speed = mdfrval;
+            break;
+        case 4: // Salary
+            SCRIPTDBG(7,"Changing Player Modifier '%s' of player %d from %d to %d.", mdfrname, (int)plyr_idx, dungeon->modifier_pay, mdfrval);
+            dungeon->modifier_pay = mdfrval;
+            break;
+        case 5: // TrainingCost
+            SCRIPTDBG(7,"Changing Player Modifier '%s' of player %d from %d to %d.", mdfrname, (int)plyr_idx, dungeon->modifier_training_cost, mdfrval);
+            dungeon->modifier_training_cost = mdfrval;
+            break;
+        case 6: // ScavengingCost
+            SCRIPTDBG(7,"Changing Player Modifier '%s' of player %d from %d to %d.", mdfrname, (int)plyr_idx, dungeon->modifier_scavenging_cost, mdfrval);
+            dungeon->modifier_scavenging_cost = mdfrval;
+            break;
+        case 7: // Loyalty
+            SCRIPTDBG(7,"Changing Player Modifier '%s' of player %d from %d to %d.", mdfrname, (int)plyr_idx, dungeon->modifier_loyalty, mdfrval);
+            dungeon->modifier_loyalty = mdfrval;
+            break;
+        default:
+            WARNMSG("Unsupported Player Modifier, command %d.", mdfrdesc);
+            break;
     }
 }
 

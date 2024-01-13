@@ -841,7 +841,7 @@ static HitPoints apply_damage_to_creature(struct Thing *thing, HitPoints dmg)
     long carmor = compute_creature_max_armour(crstat->armour, cctrl->explevel, creature_affected_by_spell(thing, SplK_Armour));
     if(!dungeon_invalid(dungeon))
         carmor = (carmor * modifier) / 100;
-    if(carmor > 255)
+    if(carmor >= 255)
         carmor = 255;
     // Now compute damage
     HitPoints cdamage = (dmg * (256 - carmor)) / 256;

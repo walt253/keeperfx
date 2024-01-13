@@ -548,7 +548,7 @@ long compute_creature_attack_spell_damage(long base_param, long luck, unsigned s
  */
 long compute_creature_attack_range(long base_param, long luck, unsigned short crlevel)
 {
-    if (base_param <= 0)       
+    if (base_param <= 0)
         return 0;
     if (base_param > 100000)
         base_param = 100000;

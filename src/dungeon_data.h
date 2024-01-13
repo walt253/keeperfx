@@ -265,6 +265,8 @@ struct Dungeon {
     /** Used to set player modifier with script command. */
     short modifier_melee_damage;
     short modifier_spell_damage;
+    short modifier_damage_reduction;
+    short modifier_range;
     short modifier_speed;
     short modifier_pay;
     short modifier_training_cost;

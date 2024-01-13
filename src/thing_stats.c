@@ -546,10 +546,8 @@ long compute_creature_attack_spell_damage(long base_param, long luck, unsigned s
 /**
  * Computes spell range/area of effect for a creature on given level.
  */
-long compute_creature_attack_range(long base_param, long luck, unsigned short crlevel, struct Thing* thing)
+long compute_creature_attack_range(long base_param, long luck, unsigned short crlevel)
 {
-    struct Dungeon* dungeon = get_dungeon(thing->owner);
-    short modifier = dungeon->modifier_range;
     if (base_param <= 0)       
         return 0;
     if (base_param > 100000)
@@ -557,8 +555,6 @@ long compute_creature_attack_range(long base_param, long luck, unsigned short cr
     if (crlevel >= CREATURE_MAX_LEVEL)
         crlevel = CREATURE_MAX_LEVEL-1;
     long max_param = base_param + (game.conf.crtr_conf.exp.range_increase_on_exp * base_param * (long)crlevel) / 100;
-    if(!dungeon_invalid(dungeon))
-        max_param = (max_param * modifier) / 100;
     return saturate_set_signed(max_param, 16);
 }
 

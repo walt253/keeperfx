@@ -530,6 +530,8 @@ void init_dungeons(void)
         }
         dungeon->modifier_melee_damage = 100;
         dungeon->modifier_spell_damage = 100;
+        dungeon->modifier_damage_reduction = 100;
+        dungeon->modifier_range = 100;
         dungeon->modifier_speed = 100;
         dungeon->modifier_pay = 100;
         dungeon->modifier_training_cost = 100;

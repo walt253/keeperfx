@@ -263,15 +263,14 @@ struct Dungeon {
     /** Index of last creature picked up of given GUI Job. */
     unsigned short selected_creatures_of_gui_job[CREATURE_GUI_JOBS_COUNT];
     /** Used to set player modifier with script command. */
-    short modifier_melee_damage;
-    short modifier_spell_damage;
-    short modifier_damage_reduction;
-    short modifier_range;
-    short modifier_speed;
-    short modifier_pay;
-    short modifier_training_cost;
-    short modifier_scavenging_cost;
-    short modifier_loyalty;
+    unsigned short modifier_melee_damage;
+    unsigned short modifier_spell_damage;
+    unsigned short modifier_damage_reduction;
+    unsigned short modifier_speed;
+    unsigned short modifier_pay;
+    unsigned short modifier_training_cost;
+    unsigned short modifier_scavenging_cost;
+    unsigned short modifier_loyalty;
     unsigned char texture_pack;
     unsigned char color_idx;
     struct TrapInfo       mnfct_info;

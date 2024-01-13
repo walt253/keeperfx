@@ -546,16 +546,20 @@ long compute_creature_attack_spell_damage(long base_param, long luck, unsigned s
 /**
  * Computes spell range/area of effect for a creature on given level.
  */
-long compute_creature_attack_range(long base_param, long luck, unsigned short crlevel)
+long compute_creature_attack_range(long base_param, long luck, unsigned short crlevel, struct Thing* thing)
 {
-  if (base_param <= 0)
-    return 0;
-  if (base_param > 100000)
-    base_param = 100000;
-  if (crlevel >= CREATURE_MAX_LEVEL)
-    crlevel = CREATURE_MAX_LEVEL-1;
-  long max_param = base_param + (game.conf.crtr_conf.exp.range_increase_on_exp * base_param * (long)crlevel) / 100;
-  return saturate_set_signed(max_param, 16);
+    struct Dungeon* dungeon = get_dungeon(thing->owner);
+    short modifier = dungeon->modifier_range;
+    if (base_param <= 0)       
+        return 0;
+    if (base_param > 100000)
+        base_param = 100000;
+    if (crlevel >= CREATURE_MAX_LEVEL)
+        crlevel = CREATURE_MAX_LEVEL-1;
+    long max_param = base_param + (game.conf.crtr_conf.exp.range_increase_on_exp * base_param * (long)crlevel) / 100;
+    if(!dungeon_invalid(dungeon))
+        max_param = (max_param * modifier) / 100;
+    return saturate_set_signed(max_param, 16);
 }
 
 /**
@@ -826,13 +830,17 @@ void apply_health_to_thing_and_display_health(struct Thing *thing, long amount)
  */
 static HitPoints apply_damage_to_creature(struct Thing *thing, HitPoints dmg)
 {
+    struct Dungeon* dungeon = get_dungeon(thing->owner);
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    short modifier = dungeon->modifier_damage_reduction;
     if ((cctrl->flgfield_1 & CCFlg_PreventDamage) != 0) {
         return 0;
     }
     // Compute armor value
     long carmor = compute_creature_max_armour(crstat->armour, cctrl->explevel, creature_affected_by_spell(thing, SplK_Armour));
+    if(!dungeon_invalid(dungeon))
+        carmor = (carmor * modifier) / 100;
     // Now compute damage
     HitPoints cdamage = (dmg * (256 - carmor)) / 256;
     if (cdamage <= 0)

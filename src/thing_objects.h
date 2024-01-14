@@ -129,7 +129,6 @@ enum ObjectModels
     ObjMdl_SpecboxGetGold = 171,
     ObjMdl_SpecboxMakeAngry = 172,
     ObjMdl_SpecboxMakeUnsafe = 173,
-    ObjMdl_PowerMeteor = 179,
 };
 
 /**

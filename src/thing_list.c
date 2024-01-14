@@ -2130,6 +2130,78 @@ long electricity_affecting_area(const struct Coord3d *pos, PlayerNumber immune_p
     return naffected;
 }
 
+TbBool meteor_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, const struct Coord3d *pos,
+    MapCoord max_dist, HitPoints max_damage, PlayerNumber owner)
+{
+    TbBool affected = false;
+    if (!line_of_sight_3d(pos, &tngdst->mappos)) {
+        max_dist /= 3;
+    }
+    // Friendly fire usually causes less damage and at smaller distance
+    if ((tngdst->class_id == TCls_Creature) && (tngdst->owner == owner)) {
+        max_dist = max_dist * gameadd.friendly_fight_area_range_permil / 1000;
+        max_damage = max_damage * gameadd.friendly_fight_area_damage_permil / 1000;
+    }
+    MapCoordDelta distance = get_2d_box_distance(pos, &tngdst->mappos);
+    if (distance < max_dist)
+    {
+        if (tngdst->class_id == TCls_Creature)
+        {
+            HitPoints damage = get_radially_decaying_value(max_damage, max_dist / 2, max_dist / 2, distance);
+            if (damage != 0)
+            {
+                apply_damage_to_thing_and_display_health(tngdst, damage, DmgT_Combustion, owner);
+                affected = true;
+            }
+        }
+        // If the thing is a dying creature
+        if ((tngdst->class_id == TCls_Creature) && (tngdst->health < 0))
+        {
+            kill_creature(tngdst, tngsrc, owner, CrDed_DiedInBattle);
+            affected = true;
+        }
+    }
+    return affected;
+}
+
+long meteor_affecting_area(const struct Coord3d *pos, PlayerNumber immune_plyr_idx, long range, long max_damage)
+{
+    long naffected = 0;
+    const struct StructureList* slist = get_list_for_thing_class(TCls_Creature);
+    long i = slist->index;
+    unsigned long k = 0;
+    while (i != 0)
+    {
+        struct Thing* thing = thing_get(i);
+        if (thing_is_invalid(thing))
+        {
+          ERRORLOG("Jump to invalid thing detected");
+          break;
+        }
+        i = thing->next_of_class;
+        // Per-thing code
+        if (!thing_is_picked_up(thing))
+        {
+            if (thing->owner != immune_plyr_idx)
+            {
+              // if (!creature_affected_by_spell(thing, SplK_Armour))
+              // {
+                  if (meteor_affecting_thing(INVALID_THING, thing, pos, range, max_damage, immune_plyr_idx))
+                      naffected++;
+              // }
+            }
+        }
+        // Per-thing code ends
+        k++;
+        if (k > THINGS_COUNT)
+        {
+          ERRORLOG("Infinite loop detected when sweeping things list");
+          break;
+        }
+    }
+    return naffected;
+}
+
 long get_free_hero_gate_number(void)
 {
     for (long n = 1; n < 256; n++)

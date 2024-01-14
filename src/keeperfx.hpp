@@ -269,6 +269,7 @@ void affect_nearby_friends_with_alarm(struct Thing *thing);
 long apply_wallhug_force_to_boulder(struct Thing *thing);
 long process_boulder_collision(struct Thing *boulder, struct Coord3d *pos, int direction_x, int direction_y);
 void lightning_modify_palette(struct Thing *thing);
+void meteor_modify_palette(struct Thing *thing);
 unsigned long lightning_is_close_to_player(struct PlayerInfo *player, struct Coord3d *pos);
 
 unsigned long seed_check_random(unsigned long range, unsigned long *seed, const char *func_name, unsigned long place);

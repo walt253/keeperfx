@@ -55,6 +55,7 @@ void teleport_armageddon_influenced_creature(struct Thing *creatng);
 void update_god_lightning_ball(struct Thing *thing);
 void god_lightning_choose_next_creature(struct Thing *thing);
 void draw_god_lightning(struct Thing *thing);
+void draw_god_meteor(struct Thing *thing);
 
 TbBool player_uses_power_sight(PlayerNumber plyr_idx);
 void update_explored_flags_for_power_sight(struct PlayerInfo *player);

@@ -133,6 +133,13 @@ TbBool detonate_shot(struct Thing *shotng, TbBool destroy)
             PaletteSetPlayerPalette(myplyr, engine_palette);
         }
         break;
+    case ShM_GodMeteor:
+        spell_level = SPELL_MAX_LEVEL;
+        magic_use_power_destroy_walls(shotng->owner, shotng->mappos.x.stl.num, shotng->mappos.y.stl.num, spell_level, PwMod_CastForFree);
+        if (lens_mode != 0) {
+            PaletteSetPlayerPalette(myplyr, engine_palette);
+        }
+        break;
     case ShM_TrapTNT:
         spell_level = shotng->shot.damage;
         if (spell_level > SPELL_MAX_LEVEL)
@@ -1665,6 +1672,9 @@ TngUpdateRet update_shot(struct Thing *thing)
                   apply_damage_to_thing_and_display_health(target, shotst->damage, shotst->damage_type, thing->owner);
               }
             }
+            break;
+        case ShUL_GodMeteor:
+            draw_god_meteor(thing);
             break;
         default:
             // All shots that do not require special processing

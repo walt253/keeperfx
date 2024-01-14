@@ -134,8 +134,17 @@ TbBool detonate_shot(struct Thing *shotng, TbBool destroy)
         }
         break;
     case ShM_GodMeteor:
-        spell_level = SPELL_MAX_LEVEL;
-        magic_use_power_destroy_walls(shotng->owner, shotng->mappos.x.stl.num, shotng->mappos.y.stl.num, spell_level, PwMod_CastForFree);
+        short x = mappos.x.stl.num;
+        short y = mappos.y.stl.num;
+        magic_use_power_destroy_walls(shotng->owner, shotng->x, shotng->y, 8, PwMod_CastForFree);
+        for (int i = 0; i < 8; i++) {
+            x = mappos.x.stl.num + i;
+            y = mappos.y.stl.num + i;
+            magic_use_power_meteor_shower(shotng->owner, shotng->x, shotng->y, 1, PwMod_CastForFree);
+            x = mappos.x.stl.num - i;
+            y = mappos.y.stl.num - i;
+            magic_use_power_meteor_shower(shotng->owner, shotng->x, shotng->y, 1, PwMod_CastForFree);
+        }
         break;
     case ShM_TrapTNT:
         spell_level = shotng->shot.damage;

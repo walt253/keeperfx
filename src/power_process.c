@@ -402,7 +402,7 @@ void draw_god_meteor(struct Thing *shotng)
         locpos.y.val = (shotng->mappos.y.val - (LbCosL(i + cam->orient_a) >> (LbFPMath_TrigmBits - 10))) + 128;
         locpos.z.val = shotng->mappos.z.val + subtile_coord(12,0);
         struct ShotConfigStats* shotst = get_shot_model_stats(ShM_GodMeteor);
-        draw_lightning(&locpos, &shotng->mappos, 256, shotst->effect_id);
+        draw_lightning(&locpos, &shotng->mappos, shotst->effect_spacing, shotst->effect_id);
     }
 }
 

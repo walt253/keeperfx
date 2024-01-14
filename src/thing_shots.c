@@ -138,7 +138,7 @@ TbBool detonate_shot(struct Thing *shotng, TbBool destroy)
         for(int i = 0; i < 8; i++) {
             magic_use_power_meteor_shower(shotng->owner, (shotng->mappos.x.stl.num)+i, (shotng->mappos.y.stl.num)+i, 1, PwMod_CastForFree);
             magic_use_power_meteor_shower(shotng->owner, (shotng->mappos.x.stl.num)+i, (shotng->mappos.y.stl.num)-i, 1, PwMod_CastForFree);
-            magic_use_power_meteor_shower(shotng->owner, (shotng->mappos.x.stl.num)-i, (shotng->(mappos.y.stl.num)-i, 1, PwMod_CastForFree);
+            magic_use_power_meteor_shower(shotng->owner, (shotng->mappos.x.stl.num)-i, (shotng->mappos.y.stl.num)-i, 1, PwMod_CastForFree);
             magic_use_power_meteor_shower(shotng->owner, (shotng->mappos.x.stl.num)-i, (shotng->mappos.y.stl.num)+i, 1, PwMod_CastForFree);
         }
         break;

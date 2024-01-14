@@ -388,6 +388,24 @@ void draw_god_lightning(struct Thing *shotng)
     }
 }
 
+void draw_god_meteor(struct Thing *shotng)
+{
+    struct PlayerInfo* player = get_player(shotng->owner);
+    const struct Camera* cam = player->acamera;
+    if (cam == NULL) {
+        return;
+    }
+    for (int i = LbFPMath_PI / 4; i < 2 * LbFPMath_PI; i += LbFPMath_PI / 2)
+    {
+        struct Coord3d locpos;
+        locpos.x.val = (shotng->mappos.x.val + (LbSinL(i + cam->orient_a) >> (LbFPMath_TrigmBits - 10))) + 128;
+        locpos.y.val = (shotng->mappos.y.val - (LbCosL(i + cam->orient_a) >> (LbFPMath_TrigmBits - 10))) + 128;
+        locpos.z.val = shotng->mappos.z.val + subtile_coord(12,0);
+        struct ShotConfigStats* shotst = get_shot_model_stats(ShM_GodMeteor);
+        draw_lightning(&locpos, &shotng->mappos, 256, shotst->effect_id);
+    }
+}
+
 TbBool player_uses_power_call_to_arms(PlayerNumber plyr_idx)
 {
     struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);

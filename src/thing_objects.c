@@ -66,6 +66,7 @@ static TngUpdateRet object_update_armour(struct Thing *objtng);
 static TngUpdateRet object_update_object_scale(struct Thing *objtng);
 static TngUpdateRet object_update_power_sight(struct Thing *objtng);
 static TngUpdateRet object_update_power_lightning(struct Thing *objtng);
+static TngUpdateRet object_update_power_meteor(struct Thing *objtng);
 
 static Thing_State_Func object_state_functions[] = {
     NULL,
@@ -83,7 +84,8 @@ const struct NamedCommand object_update_functions_desc[] = {
   {"UPDATE_OBJECT_SCALE",    4},
   {"UPDATE_POWER_SIGHT",     5},
   {"UPDATE_POWER_LIGHTNING", 6},
-  {NULL,                  0},
+  {"UPDATE_POWER_METEOR",    7},
+  {NULL,                     0},
   };
 
 static Thing_Class_Func object_update_functions[] = {
@@ -94,6 +96,7 @@ static Thing_Class_Func object_update_functions[] = {
     object_update_object_scale,
     object_update_power_sight,
     object_update_power_lightning,
+    object_update_power_meteor,
 };
 
 /** Guard flag objects model per player index. Originally named guard_post_objects.
@@ -106,6 +109,7 @@ unsigned short dungeon_flame_objects[] =    {ObjMdl_HeartFlameRed, ObjMdl_HeartF
                                              ObjMdl_HeartFlamePurple, ObjMdl_HeartFlameBlack, ObjMdl_HeartFlameOrange};
 unsigned short lightning_spangles[] =   {TngEffElm_RedTwinkle3, TngEffElm_BlueTwinke2, TngEffElm_GreenTwinkle2, TngEffElm_YellowTwinkle2, TngEffElm_WhiteTwinkle2, TngEffElm_None,TngEffElm_PurpleTwinkle2,TngEffElm_BlackTwinkle2,TngEffElm_OrangeTwinkle2,};
 unsigned short twinkle_eff_elements[] = {TngEffElm_RedTwinkle,  TngEffElm_BlueTwinkle, TngEffElm_GreenTwinkle,  TngEffElm_YellowTwinkle,  TngEffElm_WhiteTwinkle,  TngEffElm_None,TngEffElm_PurpleTwinkle, TngEffElm_BlackTwinkle, TngEffElm_OrangeTwinkle, };
+unsigned short meteor_smoke_puff[] =   {TngEffElm_RedSmokePuff, TngEffElm_BlueSmokePuff, TngEffElm_GreenSmokePuff, TngEffElm_YellowSmokePuff, TngEffElm_WhiteSmokePuff, TngEffElm_None,TngEffElm_PurpleSmokePuff,TngEffElm_BlackSmokePuff,TngEffElm_OrangeSmokePuff,};
 
 unsigned short gold_hoard_objects[] = {ObjMdl_GoldPile, ObjMdl_GoldPile, ObjMdl_GoldHorde1, ObjMdl_GoldHorde2, ObjMdl_GoldHorde3, ObjMdl_GoldHorde4};
 unsigned short food_grow_objects[] = {ObjMdl_ChickenStb, ObjMdl_ChickenWob, ObjMdl_ChickenCrk};
@@ -1689,6 +1693,35 @@ static TngUpdateRet object_update_power_lightning(struct Thing *objtng)
     return TUFRet_Modified;
 }
 #undef NUM_ANGLES
+
+static TngUpdateRet object_update_power_meteor(struct Thing *objtng)
+{
+    objtng->health = 2;
+    unsigned long exist_turns = game.play_gameturn - objtng->creation_turn;
+    long variation = 16 * exist_turns;
+    for (long i = 0; i < 16; i++)
+    {
+        int angle = (variation % 16) * 2 * LbFPMath_PI / 16;
+        struct Coord3d pos;
+        if (set_coords_to_cylindric_shift(&pos, &objtng->mappos, 8 * variation, angle, 0))
+        {
+            struct Map* mapblk = get_map_block_at(pos.x.stl.num, pos.y.stl.num);
+            if ((mapblk->flags & SlbAtFlg_Blocking) == 0)
+            {
+                pos.z.val = get_floor_height_at(&pos) + 128;
+                create_effect_element(&pos, meteor_smoke_puff[get_player_color_idx(objtng->owner)], objtng->owner);
+            }
+        }
+        variation++;
+    }
+    const struct MagicStats* pwrdynst = get_power_dynamic_stats(PwrK_METEOR);
+    if (exist_turns > abs(pwrdynst->strength[objtng->lightning.spell_level]))
+    {
+        delete_thing_structure(objtng, 0);
+        return TUFRet_Deleted;
+    }
+    return TUFRet_Modified;
+}
 
 /**
  * Finds an empty safe adjacent position on slab.

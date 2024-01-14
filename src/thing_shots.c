@@ -136,9 +136,6 @@ TbBool detonate_shot(struct Thing *shotng, TbBool destroy)
     case ShM_GodMeteor:
         spell_level = SPELL_MAX_LEVEL;
         magic_use_power_destroy_walls(shotng->owner, shotng->mappos.x.stl.num, shotng->mappos.y.stl.num, spell_level, PwMod_CastForFree);
-        if (lens_mode != 0) {
-            PaletteSetPlayerPalette(myplyr, engine_palette);
-        }
         break;
     case ShM_TrapTNT:
         spell_level = shotng->shot.damage;

@@ -1581,7 +1581,7 @@ TbResult magic_use_power_meteor(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapS
         }
     }
     // And cast it
-    shtng = create_shot(&pos, ShM_Firebomb, plyr_idx);
+    shtng = create_shot(&pos, ShM_GodMeteor, plyr_idx);
     if (!thing_is_invalid(shtng))
     {
         shtng->mappos.z.val = get_thing_height_at(shtng, &shtng->mappos) + COORD_PER_STL/2;
@@ -1589,7 +1589,7 @@ TbResult magic_use_power_meteor(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapS
         shtng->shot.spell_level = splevel;
     }
     pwrdynst = get_power_dynamic_stats(PwrK_METEOR);
-    shotst = get_shot_model_stats(ShM_Firebomb);
+    shotst = get_shot_model_stats(ShM_GodMeteor);
     dungeon->camera_deviate_jump = 256;
     i = pwrdynst->strength[splevel];
     max_damage = i * shotst->damage;

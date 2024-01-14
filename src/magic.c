@@ -1550,14 +1550,13 @@ TbResult magic_use_power_lightning(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
     return Lb_SUCCESS;
 }
 
-TbResult magic_use_power_meteor(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel, unsigned long mod_flags)
+TbResult magic_use_power_meteor_strike(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel, unsigned long mod_flags)
 {
     struct PlayerInfo *player;
     struct Dungeon *dungeon;
     const struct MagicStats *pwrdynst;
     struct ShotConfigStats *shotst;
     struct Thing *shtng;
-    struct Thing *obtng;
     struct Thing *efftng;
     struct Coord3d pos;
     long range;
@@ -1596,17 +1595,57 @@ TbResult magic_use_power_meteor(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapS
     range = (i << 8) / 2;
     if (power_sight_explored(stl_x, stl_y, plyr_idx))
         max_damage /= 4;
-    struct Coord3d objpos;
-    // Compensate for effect element position offset
-    objpos.x.val = pos.x.val + 128;
-    objpos.y.val = pos.y.val + 128;
-    objpos.z.val = 0;
-    obtng = create_object(&objpos, ObjMdl_PowerMeteor, plyr_idx, -1);
-    if (!thing_is_invalid(obtng))
+    i = meteor_affecting_area(&pos, plyr_idx, range, max_damage);
+    SYNCDBG(9,"Affected %ld targets within range %ld, damage %ld",i,range,max_damage);
+    if (!thing_is_invalid(shtng))
     {
-        obtng->lightning.spell_level = splevel;
-        obtng->rendering_flags |= TRF_Unknown01;
+        efftng = create_effect(&shtng->mappos, TngEff_Explosion5, shtng->owner);
+        if (!thing_is_invalid(efftng))
+        {
+            struct PowerConfigStats *powerst;
+            powerst = get_power_model_stats(PwrK_METEOR);
+            thing_play_sample(efftng, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+        }
     }
+    return Lb_SUCCESS;
+}
+
+TbResult magic_use_power_meteor_shower(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel, unsigned long mod_flags)
+{
+    struct PlayerInfo *player;
+    struct Dungeon *dungeon;
+    const struct MagicStats *pwrdynst;
+    struct ShotConfigStats *shotst;
+    struct Thing *shtng;
+    struct Thing *efftng;
+    struct Coord3d pos;
+    long range;
+    long max_damage;
+    long i;
+    player = get_player(plyr_idx);
+    dungeon = get_dungeon(player->id_number);
+    //pos.x.val = subtile_coord_center(stl_x);
+    //pos.y.val = subtile_coord_center(stl_y);
+    //pos.z.val = 0;
+    if (splevel >= MAGIC_OVERCHARGE_LEVELS)
+        splevel = MAGIC_OVERCHARGE_LEVELS-1;
+    if (splevel < 0)
+        splevel = 0;
+    shtng = create_shot(&pos, ShM_Firebomb, plyr_idx);
+    if (!thing_is_invalid(shtng))
+    {
+        shtng->mappos.z.val = get_thing_height_at(shtng, &shtng->mappos) + COORD_PER_STL/2;
+        shtng->shot.hit_type = THit_CrtrsOnly;
+        shtng->shot.spell_level = splevel;
+    }
+    pwrdynst = get_power_dynamic_stats(PwrK_METEOR);
+    shotst = get_shot_model_stats(ShM_Firebomb);
+    dungeon->camera_deviate_jump = 256;
+    i = pwrdynst->strength[splevel];
+    max_damage = i * shotst->damage;
+    range = (i << 8) / 2;
+    if (power_sight_explored(stl_x, stl_y, plyr_idx))
+        max_damage /= 4;
     i = meteor_affecting_area(&pos, plyr_idx, range, max_damage);
     SYNCDBG(9,"Affected %ld targets within range %ld, damage %ld",i,range,max_damage);
     if (!thing_is_invalid(shtng))
@@ -2275,7 +2314,7 @@ TbResult magic_use_power_on_thing(PlayerNumber plyr_idx, PowerKind pwkind,
             ret = magic_use_power_lightning(plyr_idx, stl_x, stl_y, splevel, allow_flags);
             break;
         case PwrK_METEOR:
-            ret = magic_use_power_meteor(plyr_idx, stl_x, stl_y, splevel, allow_flags);
+            ret = magic_use_power_meteor_strike(plyr_idx, stl_x, stl_y, splevel, allow_flags);
             break;
         case PwrK_TIMEBOMB:
             ret = magic_use_power_time_bomb(plyr_idx, thing, splevel, allow_flags);
@@ -2368,7 +2407,7 @@ TbResult magic_use_power_on_subtile(PlayerNumber plyr_idx, PowerKind pwkind,
             ret = magic_use_power_lightning(plyr_idx, stl_x, stl_y, splevel, allow_flags);
             break;
         case PwrK_METEOR:
-            ret = magic_use_power_meteor(plyr_idx, stl_x, stl_y, splevel, allow_flags);
+            ret = magic_use_power_meteor_strike(plyr_idx, stl_x, stl_y, splevel, allow_flags);
             break;
         case PwrK_DESTRWALLS:
             ret = magic_use_power_destroy_walls(plyr_idx, stl_x, stl_y, splevel, allow_flags);

@@ -1597,7 +1597,7 @@ TbResult magic_use_power_meteor(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapS
     if (power_sight_explored(stl_x, stl_y, plyr_idx))
         max_damage /= 4;
     struct Coord3d objpos;
-    Compensate for effect element position offset
+    // Compensate for effect element position offset
     objpos.x.val = pos.x.val + 128;
     objpos.y.val = pos.y.val + 128;
     objpos.z.val = 0;

@@ -83,7 +83,7 @@ const struct NamedCommand object_update_functions_desc[] = {
   {"UPDATE_OBJECT_SCALE",    4},
   {"UPDATE_POWER_SIGHT",     5},
   {"UPDATE_POWER_LIGHTNING", 6},
-  {NULL,                     0},
+  {NULL,                  0},
   };
 
 static Thing_Class_Func object_update_functions[] = {

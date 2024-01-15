@@ -21,6 +21,7 @@
 #include "thing_list.h"
 #include "player_computer.h"
 #include "thing_effects.h"
+#include "thing_shots.h"
 #include "room_data.h"
 #include "room_library.h"
 #include "room_workshop.h"

@@ -62,7 +62,7 @@ enum ShotModels {
     ShM_WordOfPower, // 30
     ShM_TrapWordOfPower,
     ShM_TrapTNT = 32,
-    ShM_GodMeteor = 33,
+    ShM_GodMeteorStorm = 33,
 };
 
 enum ShotFireLogics {

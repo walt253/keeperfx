@@ -88,7 +88,7 @@ enum PlayerStates {
     PSt_Slow,
     PSt_Flight,
     PSt_Vision,
-    PSt_Meteor,
+    PSt_MeteorStorm,
     PSt_ListEnd
 };
 

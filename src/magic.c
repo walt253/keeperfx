@@ -1550,18 +1550,22 @@ TbResult magic_use_power_lightning(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
     return Lb_SUCCESS;
 }
 
-TbResult magic_use_power_meteor_strike(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel, unsigned long mod_flags)
+TbResult magic_use_power_meteor_storm(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel, unsigned long mod_flags)
 {
     struct PlayerInfo *player;
     struct Dungeon *dungeon;
+    struct PowerConfigStats *powerst;
     const struct MagicStats *pwrdynst;
     struct ShotConfigStats *shotst;
     struct Thing *shtng;
-    struct Thing *efftng;
+    //struct Thing *efftng;
     struct Coord3d pos;
-    long range;
+    long power_level;
+    long interval;
+    long interval2;
+    long max_amount;
     long max_damage;
-    long i;
+    long range;
     player = get_player(plyr_idx);
     dungeon = get_dungeon(player->id_number);
     pos.x.val = subtile_coord_center(stl_x);
@@ -1575,87 +1579,43 @@ TbResult magic_use_power_meteor_strike(PlayerNumber plyr_idx, MapSubtlCoord stl_
     if ((mod_flags & PwMod_CastForFree) == 0)
     {
         // If we can't afford the spell, fail
-        if (!pay_for_spell(plyr_idx, PwrK_METEOR, splevel)) {
+        if (!pay_for_spell(plyr_idx, PwrK_METEORSTORM, splevel)) {
             return Lb_FAIL;
         }
     }
     // And cast it
-    shtng = create_shot(&pos, ShM_GodMeteor, plyr_idx);
-    if (!thing_is_invalid(shtng))
+    powerst = get_power_model_stats(PwrK_METEORSTORM);
+    pwrdynst = get_power_dynamic_stats(PwrK_METEORSTORM);
+    shotst = get_shot_model_stats(ShM_GodMeteorStorm);
+    power_level = pwrdynst->strength[splevel];
+    interval = shotst->effect_amount;
+    interval2 = shotst->effect_amount;
+    max_amount = power_level * interval;
+    range = (power_level << 8) / 2;
+    for(int loop = 0; loop < max_amount; loop++)
     {
-        shtng->mappos.z.val = get_thing_height_at(shtng, &shtng->mappos) + COORD_PER_STL/2;
-        shtng->shot.hit_type = THit_CrtrsOnly;
-        shtng->shot.spell_level = splevel;
-    }
-    pwrdynst = get_power_dynamic_stats(PwrK_METEOR);
-    shotst = get_shot_model_stats(ShM_GodMeteor);
-    dungeon->camera_deviate_jump = 256;
-    i = pwrdynst->strength[splevel];
-    max_damage = i * shotst->damage;
-    range = (i << 8) / 2;
-    if (power_sight_explored(stl_x, stl_y, plyr_idx))
-        max_damage /= 4;
-    i = meteor_affecting_area(&pos, plyr_idx, range, max_damage);
-    SYNCDBG(9,"Affected %ld targets within range %ld, damage %ld",i,range,max_damage);
-    if (!thing_is_invalid(shtng))
-    {
-        efftng = create_effect(&shtng->mappos, TngEff_Explosion5, shtng->owner);
-        if (!thing_is_invalid(efftng))
+        if (loop >= interval)
         {
-            struct PowerConfigStats *powerst;
-            powerst = get_power_model_stats(PwrK_METEOR);
-            thing_play_sample(efftng, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
-        }
-    }
-    return Lb_SUCCESS;
-}
-
-TbResult magic_use_power_meteor_shower(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel, unsigned long mod_flags)
-{
-    struct PlayerInfo *player;
-    struct Dungeon *dungeon;
-    const struct MagicStats *pwrdynst;
-    struct ShotConfigStats *shotst;
-    struct Thing *shtng;
-    struct Thing *efftng;
-    struct Coord3d pos;
-    long range;
-    long max_damage;
-    long i;
-    player = get_player(plyr_idx);
-    dungeon = get_dungeon(player->id_number);
-    //pos.x.val = subtile_coord_center(stl_x);
-    //pos.y.val = subtile_coord_center(stl_y);
-    //pos.z.val = 0;
-    if (splevel >= MAGIC_OVERCHARGE_LEVELS)
-        splevel = MAGIC_OVERCHARGE_LEVELS-1;
-    if (splevel < 0)
-        splevel = 0;
-    shtng = create_shot(&pos, ShM_Firebomb, plyr_idx);
-    if (!thing_is_invalid(shtng))
-    {
-        shtng->mappos.z.val = get_thing_height_at(shtng, &shtng->mappos) + COORD_PER_STL/2;
-        shtng->shot.hit_type = THit_CrtrsOnly;
-        shtng->shot.spell_level = splevel;
-    }
-    pwrdynst = get_power_dynamic_stats(PwrK_METEOR);
-    shotst = get_shot_model_stats(ShM_Firebomb);
-    dungeon->camera_deviate_jump = 256;
-    i = pwrdynst->strength[splevel];
-    max_damage = i * shotst->damage;
-    range = (i << 8) / 2;
-    if (power_sight_explored(stl_x, stl_y, plyr_idx))
-        max_damage /= 4;
-    i = meteor_affecting_area(&pos, plyr_idx, range, max_damage);
-    SYNCDBG(9,"Affected %ld targets within range %ld, damage %ld",i,range,max_damage);
-    if (!thing_is_invalid(shtng))
-    {
-        efftng = create_effect(&shtng->mappos, TngEff_Explosion5, shtng->owner);
-        if (!thing_is_invalid(efftng))
-        {
-            struct PowerConfigStats *powerst;
-            powerst = get_power_model_stats(PwrK_METEOR);
-            thing_play_sample(efftng, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+            interval += interval2;
+            max_damage = power_level * shotst->damage;
+            if (power_sight_explored(stl_x, stl_y, plyr_idx))
+                max_damage /= 4;
+            shtng = create_shot(&pos, ShM_GodMeteorStorm, plyr_idx);
+            if (!thing_is_invalid(shtng))
+            {
+                shtng->mappos.z.val = get_thing_height_at(shtng, &shtng->mappos) + COORD_PER_STL/2;
+                shtng->shot.hit_type = THit_CrtrsOnly;
+                shtng->shot.spell_level = splevel;
+            }
+            dungeon->camera_deviate_jump = 256;
+            i = meteor_affecting_area(&pos, plyr_idx, range, max_damage);
+            SYNCDBG(9,"Affected %ld targets within range %ld, damage %ld",power_level,range,max_damage);
+            //if (!thing_is_invalid(shtng))
+            //{
+                //efftng = create_effect(&shtng->mappos, TngEff_Explosion5, shtng->owner);
+                //if (!thing_is_invalid(efftng))
+                //thing_play_sample(efftng, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+            //}
         }
     }
     return Lb_SUCCESS;
@@ -2313,8 +2273,8 @@ TbResult magic_use_power_on_thing(PlayerNumber plyr_idx, PowerKind pwkind,
         case PwrK_LIGHTNING:
             ret = magic_use_power_lightning(plyr_idx, stl_x, stl_y, splevel, allow_flags);
             break;
-        case PwrK_METEOR:
-            ret = magic_use_power_meteor_strike(plyr_idx, stl_x, stl_y, splevel, allow_flags);
+        case PwrK_METEORSTORM:
+            ret = magic_use_power_meteor_storm(plyr_idx, stl_x, stl_y, splevel, allow_flags);
             break;
         case PwrK_TIMEBOMB:
             ret = magic_use_power_time_bomb(plyr_idx, thing, splevel, allow_flags);
@@ -2406,8 +2366,8 @@ TbResult magic_use_power_on_subtile(PlayerNumber plyr_idx, PowerKind pwkind,
         case PwrK_LIGHTNING:
             ret = magic_use_power_lightning(plyr_idx, stl_x, stl_y, splevel, allow_flags);
             break;
-        case PwrK_METEOR:
-            ret = magic_use_power_meteor_strike(plyr_idx, stl_x, stl_y, splevel, allow_flags);
+        case PwrK_METEORSTORM:
+            ret = magic_use_power_meteor_storm(plyr_idx, stl_x, stl_y, splevel, allow_flags);
             break;
         case PwrK_DESTRWALLS:
             ret = magic_use_power_destroy_walls(plyr_idx, stl_x, stl_y, splevel, allow_flags);

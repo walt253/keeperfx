@@ -46,13 +46,13 @@ extern "C" {
 static void powerful_magic_breaking_sparks(struct Thing* breaktng)
 {
     struct Coord3d pos;
-    pos.x.val = subtile_coord_center(breaktng->mappos.x.stl.num + GAME_RANDOM(11) - 5);
-    pos.y.val = subtile_coord_center(breaktng->mappos.y.stl.num + GAME_RANDOM(11) - 5);
-    pos.z.val = get_floor_height_at(&pos);
     struct ShotConfigStats* shotst = get_shot_model_stats(ShM_DngnHrtBrk);
+    pos.x.val = subtile_coord_center(breaktng->mappos.x.stl.num + GAME_RANDOM(shotst->visual.random_range) - shotst->visual.amount);
+    pos.y.val = subtile_coord_center(breaktng->mappos.y.stl.num + GAME_RANDOM(shotst->visual.random_range) - shotst->visual.amount);
+    pos.z.val = get_floor_height_at(&pos);
     draw_lightning(&breaktng->mappos, &pos, shotst->effect_spacing, shotst->effect_id);
-    if (!S3DEmitterIsPlayingSample(breaktng->snd_emitter_id, 157, 0)) {
-        thing_play_sample(breaktng, 157, NORMAL_PITCH, -1, 3, 1, 6, FULL_LOUDNESS);
+    if (!S3DEmitterIsPlayingSample(breaktng->snd_emitter_id, shotst->firing_sound, 0)) {
+        thing_play_sample(breaktng, shotst->firing_sound, NORMAL_PITCH, -1, 3, 1, 6, FULL_LOUDNESS);
     }
 }
 
@@ -85,6 +85,7 @@ void process_dungeon_destroy(struct Thing* heartng)
     long plyr_idx = heartng->owner;
     struct Dungeon* dungeon = get_dungeon(plyr_idx);
     struct Thing* soultng = thing_get(dungeon->free_soul_idx);
+    struct ShotConfigStats* shotst = get_shot_model_stats(ShM_DngnHrtBrk);
 
     if (dungeon->heart_destroy_state == 0)
     {
@@ -150,8 +151,8 @@ void process_dungeon_destroy(struct Thing* heartng)
         dungeon->heart_destroy_turn++;
         if (dungeon->heart_destroy_turn < 32)
         {
-            if (GAME_RANDOM(96) < (dungeon->heart_destroy_turn << 6) / 32 + 32) {
-                create_effect(central_pos, TngEff_HearthCollapse, plyr_idx);
+            if (GAME_RANDOM(shotst->visual.shot_health) < (dungeon->heart_destroy_turn << 6) / 32 + 32) {
+                create_effect(central_pos, shotst->visual.effect_model, plyr_idx);
             }
         }
         else
@@ -164,7 +165,7 @@ void process_dungeon_destroy(struct Thing* heartng)
         dungeon->heart_destroy_turn++;
         if (dungeon->heart_destroy_turn < 32)
         {
-            create_effect(central_pos, TngEff_HearthCollapse, plyr_idx);
+            create_effect(central_pos, shotst->visual.effect_model, plyr_idx);
         }
         else
         { // Got to next phase
@@ -193,10 +194,10 @@ void process_dungeon_destroy(struct Thing* heartng)
         // Final phase - destroy the heart, both pedestal room and container thing
     {
         struct Thing* efftng;
-        efftng = create_effect(central_pos, TngEff_Explosion4, plyr_idx);
+        efftng = create_effect(central_pos, shotst->hit_creature.effect_model, plyr_idx);
         if (!thing_is_invalid(efftng))
             efftng->shot_effect.hit_type = THit_HeartOnlyNotOwn;
-        efftng = create_effect(central_pos, TngEff_WoPExplosion, plyr_idx);
+        efftng = create_effect(central_pos, shotst->dig.effect_model, plyr_idx);
         if (!thing_is_invalid(efftng))
             efftng->shot_effect.hit_type = THit_HeartOnlyNotOwn;
         destroy_dungeon_heart_room(plyr_idx, heartng);

@@ -1666,7 +1666,7 @@ TngUpdateRet update_shot(struct Thing *thing)
               }
             }
             break;
-        case ShUL_GodMeteor:
+        case ShUL_GodMeteorStorm:
             draw_god_meteor(thing);
             break;
         default:

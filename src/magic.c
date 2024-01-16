@@ -1566,6 +1566,7 @@ TbResult magic_use_power_meteor_storm(PlayerNumber plyr_idx, MapSubtlCoord stl_x
     long max_amount;
     long max_damage;
     long range;
+    long i;
     player = get_player(plyr_idx);
     dungeon = get_dungeon(player->id_number);
     pos.x.val = subtile_coord_center(stl_x);
@@ -1584,7 +1585,7 @@ TbResult magic_use_power_meteor_storm(PlayerNumber plyr_idx, MapSubtlCoord stl_x
         }
     }
     // And cast it
-    powerst = get_power_model_stats(PwrK_METEORSTORM);
+    //powerst = get_power_model_stats(PwrK_METEORSTORM);
     pwrdynst = get_power_dynamic_stats(PwrK_METEORSTORM);
     shotst = get_shot_model_stats(ShM_GodMeteorStorm);
     power_level = pwrdynst->strength[splevel];

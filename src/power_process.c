@@ -388,7 +388,7 @@ void draw_god_lightning(struct Thing *shotng)
     }
 }
 
-void draw_god_meteor(struct Thing *shotng)
+void draw_god_meteor_storm(struct Thing *shotng)
 {
     struct PlayerInfo* player = get_player(shotng->owner);
     const struct Camera* cam = player->acamera;
@@ -401,7 +401,7 @@ void draw_god_meteor(struct Thing *shotng)
         locpos.x.val = (shotng->mappos.x.val + (LbSinL(i + cam->orient_a) >> (LbFPMath_TrigmBits - 10))) + 128;
         locpos.y.val = (shotng->mappos.y.val - (LbCosL(i + cam->orient_a) >> (LbFPMath_TrigmBits - 10))) + 128;
         locpos.z.val = shotng->mappos.z.val + subtile_coord(12,0);
-        struct ShotConfigStats* shotst = get_shot_model_stats(ShM_GodMeteor);
+        struct ShotConfigStats* shotst = get_shot_model_stats(ShM_GodMeteorStorm);
         draw_lightning(&locpos, &shotng->mappos, shotst->effect_spacing, shotst->effect_id);
     }
 }

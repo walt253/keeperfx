@@ -83,6 +83,7 @@ enum ShotUpdateLogics {
     ShUL_GodLightBall,
     ShUL_TrapTNT,
     ShUL_TrapLightning,
+    ShUL_GodMeteorStorm,
 };
 
 /******************************************************************************/

@@ -1554,7 +1554,7 @@ TbResult magic_use_power_meteor_storm(PlayerNumber plyr_idx, MapSubtlCoord stl_x
 {
     struct PlayerInfo *player;
     struct Dungeon *dungeon;
-    struct PowerConfigStats *powerst;
+    //struct PowerConfigStats *powerst;
     const struct MagicStats *pwrdynst;
     struct ShotConfigStats *shotst;
     struct Thing *shtng;
@@ -1608,7 +1608,7 @@ TbResult magic_use_power_meteor_storm(PlayerNumber plyr_idx, MapSubtlCoord stl_x
                 shtng->shot.spell_level = splevel;
             }
             dungeon->camera_deviate_jump = 256;
-            i = meteor_affecting_area(&pos, plyr_idx, range, max_damage);
+            i = meteor_storm_affecting_area(&pos, plyr_idx, range, max_damage);
             SYNCDBG(9,"Affected %ld targets within range %ld, damage %ld",power_level,range,max_damage);
             //if (!thing_is_invalid(shtng))
             //{

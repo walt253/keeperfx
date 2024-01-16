@@ -133,15 +133,6 @@ TbBool detonate_shot(struct Thing *shotng, TbBool destroy)
             PaletteSetPlayerPalette(myplyr, engine_palette);
         }
         break;
-    case ShM_GodMeteor:
-        magic_use_power_destroy_walls(shotng->owner, shotng->mappos.x.stl.num, shotng->mappos.y.stl.num, 8, PwMod_CastForFree);
-        for(int i = 0; i < 8; i++) {
-            magic_use_power_meteor_shower(shotng->owner, (shotng->mappos.x.stl.num)+i, (shotng->mappos.y.stl.num)+i, 1, PwMod_CastForFree);
-            magic_use_power_meteor_shower(shotng->owner, (shotng->mappos.x.stl.num)+i, (shotng->mappos.y.stl.num)-i, 1, PwMod_CastForFree);
-            magic_use_power_meteor_shower(shotng->owner, (shotng->mappos.x.stl.num)-i, (shotng->mappos.y.stl.num)-i, 1, PwMod_CastForFree);
-            magic_use_power_meteor_shower(shotng->owner, (shotng->mappos.x.stl.num)-i, (shotng->mappos.y.stl.num)+i, 1, PwMod_CastForFree);
-        }
-        break;
     case ShM_TrapTNT:
         spell_level = shotng->shot.damage;
         if (spell_level > SPELL_MAX_LEVEL)

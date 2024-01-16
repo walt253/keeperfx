@@ -2130,7 +2130,7 @@ long electricity_affecting_area(const struct Coord3d *pos, PlayerNumber immune_p
     return naffected;
 }
 
-TbBool meteor_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, const struct Coord3d *pos,
+TbBool meteor_storm_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, const struct Coord3d *pos,
     MapCoord max_dist, HitPoints max_damage, PlayerNumber owner)
 {
     TbBool affected = false;
@@ -2164,7 +2164,7 @@ TbBool meteor_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, const 
     return affected;
 }
 
-long meteor_affecting_area(const struct Coord3d *pos, PlayerNumber immune_plyr_idx, long range, long max_damage)
+long meteor_storm_affecting_area(const struct Coord3d *pos, PlayerNumber immune_plyr_idx, long range, long max_damage)
 {
     long naffected = 0;
     const struct StructureList* slist = get_list_for_thing_class(TCls_Creature);
@@ -2184,11 +2184,8 @@ long meteor_affecting_area(const struct Coord3d *pos, PlayerNumber immune_plyr_i
         {
             if (thing->owner != immune_plyr_idx)
             {
-              // if (!creature_affected_by_spell(thing, SplK_Armour))
-              // {
-                  if (meteor_affecting_thing(INVALID_THING, thing, pos, range, max_damage, immune_plyr_idx))
-                      naffected++;
-              // }
+                if (meteor_storm_affecting_thing(INVALID_THING, thing, pos, range, max_damage, immune_plyr_idx))
+                    naffected++;
             }
         }
         // Per-thing code ends

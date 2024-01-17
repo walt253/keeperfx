@@ -58,11 +58,10 @@ enum ShotModels {
     ShM_Disease,
     ShM_Chicken,
     ShM_TimeBomb,
-    ShM_TrapLightning,
-    ShM_WordOfPower, // 30
+    ShM_TrapLightning, // 29
+    ShM_WordOfPower, 
     ShM_TrapWordOfPower,
     ShM_TrapTNT = 32,
-    ShM_DngnHrtBrk = 33,
 };
 
 enum ShotFireLogics {

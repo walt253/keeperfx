@@ -46,7 +46,7 @@ extern "C" {
 static void powerful_magic_breaking_sparks(struct Thing* breaktng)
 {
     struct Coord3d pos;
-    struct ObjectConfigStats* objst = get_object_model_stats(breaktng);
+    struct ObjectConfigStats* objst = get_object_model_stats(breaktng->model);
     pos.x.val = subtile_coord_center(breaktng->mappos.x.stl.num + GAME_RANDOM(11) - 5);
     pos.y.val = subtile_coord_center(breaktng->mappos.y.stl.num + GAME_RANDOM(11) - 5);
     pos.z.val = get_floor_height_at(&pos);
@@ -84,7 +84,7 @@ void process_dungeon_destroy(struct Thing* heartng)
     long plyr_idx = heartng->owner;
     struct Dungeon* dungeon = get_dungeon(plyr_idx);
     struct Thing* soultng = thing_get(dungeon->free_soul_idx);
-    struct ObjectConfigStats* objst = get_object_model_stats(heartng);
+    struct ObjectConfigStats* objst = get_object_model_stats(heartng->model);
     if (dungeon->heart_destroy_state == 0)
     {
         return;

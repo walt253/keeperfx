@@ -47,10 +47,10 @@ static void powerful_magic_breaking_sparks(struct Thing* breaktng)
 {
     struct Coord3d pos;
     struct ObjectConfigStats* objst = get_object_model_stats(ObjMdl_SoulCountainer);
-    pos.x.val = subtile_coord_center(breaktng->mappos.x.stl.num + GAME_RANDOM(objst->effect.random1) - objst->effect.random2);
-    pos.y.val = subtile_coord_center(breaktng->mappos.y.stl.num + GAME_RANDOM(objst->effect.random1) - objst->effect.random2);
+    pos.x.val = subtile_coord_center(breaktng->mappos.x.stl.num + GAME_RANDOM(11) - 5);
+    pos.y.val = subtile_coord_center(breaktng->mappos.y.stl.num + GAME_RANDOM(11) - 5);
     pos.z.val = get_floor_height_at(&pos);
-    draw_lightning(&breaktng->mappos, &pos, objst->effect.distance, objst->effect.beam);
+    draw_lightning(&breaktng->mappos, &pos, objst->effect.spacing, objst->effect.beam);
     if (!S3DEmitterIsPlayingSample(breaktng->snd_emitter_id, objst->effect.sound, 0)) {
         thing_play_sample(breaktng, objst->effect.sound, NORMAL_PITCH, -1, 3, 1, 6, FULL_LOUDNESS);
     }
@@ -146,7 +146,7 @@ void process_dungeon_destroy(struct Thing* heartng)
         dungeon->heart_destroy_turn++;
         if (dungeon->heart_destroy_turn < 32)
         {
-            if (GAME_RANDOM(objst->effect.random3) < (dungeon->heart_destroy_turn << 6) / 32 + 32) {
+            if (GAME_RANDOM(96) < (dungeon->heart_destroy_turn << 6) / 32 + 32) {
                 create_effect(central_pos, objst->effect.particle, plyr_idx);
             }
         }

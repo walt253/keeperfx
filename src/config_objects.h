@@ -59,6 +59,18 @@ enum ObjectModelFlags {
 
 
 /******************************************************************************/
+struct Effects {
+    EffectOrEffElModel beam;
+    EffectOrEffElModel particle;
+    EffectOrEffElModel explosion1;
+    EffectOrEffElModel explosion2;
+    unsigned short distance;
+    unsigned short sound;
+    short random1;
+    short random2;
+    short random3;
+};
+
 struct ObjectConfigStats {
     char code_name[COMMAND_WORD_LEN];
     unsigned long model_flags;
@@ -87,19 +99,7 @@ struct ObjectConfigStats {
     unsigned char initial_state;
     unsigned char random_start_frame;
     unsigned char transparancy_flags;  // Lower 2 bits are transparency flags.
-    struct SoulBreak effect;
-};
-
-struct SoulBreak {
-    EffectOrEffElModel beam;
-    EffectOrEffElModel particle;
-    EffectOrEffElModel explosion1;
-    EffectOrEffElModel explosion2;
-    unsigned short distance;
-    unsigned short sound;
-    short random1;
-    short random2;
-    short random3;
+    struct Effects effect;
 };
 
 struct ObjectsConfig {

@@ -64,11 +64,8 @@ struct Effects {
     EffectOrEffElModel particle;
     EffectOrEffElModel explosion1;
     EffectOrEffElModel explosion2;
-    unsigned short distance;
+    unsigned short spacing;
     unsigned short sound;
-    short random1;
-    short random2;
-    short random3;
 };
 
 struct ObjectConfigStats {

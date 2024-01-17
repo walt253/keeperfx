@@ -95,7 +95,8 @@ struct SoulBreakEffect {
     EffectOrEffElModel particle;
     EffectOrEffElModel explosion1;
     EffectOrEffElModel explosion2;
-    short sound;
+    unsigned short distance;
+    unsigned short sound;
     short random1;
     short random2;
     short random3;

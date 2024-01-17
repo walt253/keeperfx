@@ -76,11 +76,8 @@ const struct NamedCommand objects_object_commands[] = {
   {"EFFECTPARTICLE",    28},
   {"EFFECTEXPLOSION1",  29},
   {"EFFECTEXPLOSION2",  30},
-  {"EFFECTDISTANCE",    31},
+  {"EFFECTSPACING",     31},
   {"EFFECTSOUND",       32},
-  {"EFFECTRANDOM1",     33},
-  {"EFFECTRANDOM2",     34},
-  {"EFFECTRANDOM3",     35},
   {NULL,                 0},
   };
 
@@ -717,14 +714,14 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                         COMMAND_TEXT(cmd_num), block_buf, config_textname);
                 }
                 break;
-            case 31: // EFFECTDISTANCE
+            case 31: // EFFECTSPACING
                 if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {
                     n = atoi(word_buf);
-                    objst->effect.distance = n;
+                    objst->effect.spacing = n;
                     n++;
                 }
-                if (n < 0)
+                if (n <= 0)
                 {
                     CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
                         COMMAND_TEXT(cmd_num), block_buf, config_textname);
@@ -745,46 +742,7 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                     }
                 }
                 break;
-            case 33: // EFFECTRANDOM1
-                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-                {
-                    n = atoi(word_buf);
-                    objst->effect.random1 = n;
-                    n++;
-                }
-                if (!n != 0)
-                {
-                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
-                }
-                break;
-            case 34: // EFFECTRANDOM2
-                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-                {
-                    n = atoi(word_buf);
-                    objst->effect.random2 = n;
-                    n++;
-                }
-                if (!n != 0)
-                {
-                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
-                }
-                break;
-            case 35: // EFFECTRANDOM3
-                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-                {
-                    n = atoi(word_buf);
-                    objst->effect.random3 = n;
-                    n++;
-                }
-                if (!n != 0)
-                {
-                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
-                }
-                break;
-            case 0: // comment
+           case 0: // comment
                 break;
             case -1: // end of buffer
                 break;

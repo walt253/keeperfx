@@ -86,7 +86,19 @@ struct ObjectConfigStats {
     unsigned char updatefn_idx;
     unsigned char initial_state;
     unsigned char random_start_frame;
-    unsigned char transparancy_flags;  // Lower 2 bits are transparency flags
+    unsigned char transparancy_flags;  // Lower 2 bits are transparency flags.
+    struct SoulBreakEffect effect;
+};
+
+struct SoulBreakEffect {
+    EffectOrEffElModel beam;
+    EffectOrEffElModel particle;
+    EffectOrEffElModel explosion1;
+    EffectOrEffElModel explosion2;
+    short sound;
+    short random1;
+    short random2;
+    short random3;
 };
 
 struct ObjectsConfig {

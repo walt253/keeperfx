@@ -87,10 +87,10 @@ struct ObjectConfigStats {
     unsigned char initial_state;
     unsigned char random_start_frame;
     unsigned char transparancy_flags;  // Lower 2 bits are transparency flags.
-    struct SoulBreakEffect effect;
+    struct SoulBreak effect;
 };
 
-struct SoulBreakEffect {
+struct SoulBreak {
     EffectOrEffElModel beam;
     EffectOrEffElModel particle;
     EffectOrEffElModel explosion1;

@@ -84,7 +84,7 @@ void process_dungeon_destroy(struct Thing* heartng)
     long plyr_idx = heartng->owner;
     struct Dungeon* dungeon = get_dungeon(plyr_idx);
     struct Thing* soultng = thing_get(dungeon->free_soul_idx);
-    struct ObjectConfigStats* objst = get_object_model_stats(soultng);
+    struct ObjectConfigStats* objst = get_object_model_stats(heartng);
     if (dungeon->heart_destroy_state == 0)
     {
         return;
@@ -94,7 +94,7 @@ void process_dungeon_destroy(struct Thing* heartng)
         return;
     }
     TbBool no_backup = !(dungeon->backup_heart_idx > 0);
-    powerful_magic_breaking_sparks(soultng);
+    powerful_magic_breaking_sparks(heartng);
     const struct Coord3d* central_pos;
     central_pos = &heartng->mappos;
     switch (dungeon->heart_destroy_state)

@@ -76,10 +76,11 @@ const struct NamedCommand objects_object_commands[] = {
   {"EFFECTPARTICLE",    28},
   {"EFFECTEXPLOSION1",  29},
   {"EFFECTEXPLOSION2",  30},
-  {"EFFECTSOUND",       31},
-  {"EFFECTRANDOM1",     32},
-  {"EFFECTRANDOM2",     33},
-  {"EFFECTRANDOM3",     34},
+  {"EFFECTDISTANCE",    31},
+  {"EFFECTSOUND",       32},
+  {"EFFECTRANDOM1",     33},
+  {"EFFECTRANDOM2",     34},
+  {"EFFECTRANDOM3",     35},
   {NULL,                 0},
   };
 
@@ -716,7 +717,20 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                         COMMAND_TEXT(cmd_num), block_buf, config_textname);
                 }
                 break;
-            case 31: // EFFECTSOUND
+            case 31: // EFFECTDISTANCE
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    n = atoi(word_buf);
+                    objst->effect.distance = n;
+                    n++;
+                }
+                if (n < 0)
+                {
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                }
+                break;
+            case 32: // EFFECTSOUND
                 if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {
                     n = atoi(word_buf);
@@ -731,7 +745,7 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                     }
                 }
                 break;
-            case 32: // EFFECTRANDOM1
+            case 33: // EFFECTRANDOM1
                 if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {
                     n = atoi(word_buf);
@@ -744,7 +758,7 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                         COMMAND_TEXT(cmd_num), block_buf, config_textname);
                 }
                 break;
-            case 33: // EFFECTRANDOM2
+            case 34: // EFFECTRANDOM2
                 if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {
                     n = atoi(word_buf);
@@ -757,7 +771,7 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                         COMMAND_TEXT(cmd_num), block_buf, config_textname);
                 }
                 break;
-            case 34: // EFFECTRANDOM3
+            case 35: // EFFECTRANDOM3
                 if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {
                     n = atoi(word_buf);

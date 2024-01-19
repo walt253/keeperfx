@@ -283,8 +283,9 @@ long get_radially_growing_value(long magnitude, long decay_start, long decay_len
 
 long compute_creature_kind_score(ThingModel crkind,unsigned short crlevel)
 {
+    //modifier shouldn't affect the computation for the creature kind score, compute_creature_max_health has'5' as last argument to get an invalid dungeon.
     struct CreatureStats* crstat = creature_stats_get(crkind);
-    return compute_creature_max_health(crstat->health,crlevel,crkind->owner)
+    return compute_creature_max_health(crstat->health,crlevel,5)
         + compute_creature_max_defense(crstat->defense,crlevel)
         + compute_creature_max_dexterity(crstat->dexterity,crlevel)
         + compute_creature_max_armour(crstat->armour,crlevel,false)

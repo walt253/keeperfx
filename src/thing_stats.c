@@ -284,7 +284,7 @@ long get_radially_growing_value(long magnitude, long decay_start, long decay_len
 long compute_creature_kind_score(ThingModel crkind,unsigned short crlevel)
 {
     struct CreatureStats* crstat = creature_stats_get(crkind);
-    return compute_creature_max_health(crstat->health,crlevel,crkind->model)
+    return compute_creature_max_health(crstat->health,crlevel,crkind->owner)
         + compute_creature_max_defense(crstat->defense,crlevel)
         + compute_creature_max_dexterity(crstat->dexterity,crlevel)
         + compute_creature_max_armour(crstat->armour,crlevel,false)
@@ -294,9 +294,9 @@ long compute_creature_kind_score(ThingModel crkind,unsigned short crlevel)
 /**
  * Computes max health of a creature on given level.
  */
-long compute_creature_max_health(long base_health,unsigned short crlevel, struct Thing* thing)
+long compute_creature_max_health(long base_health,unsigned short crlevel, PlayerNumber plyr_idx)
 {
-    struct Dungeon* dungeon = get_dungeon(thing->owner);
+    struct Dungeon* dungeon = get_dungeon(plyr_idx);
     unsigned short modifier = dungeon->modifier.health;
     if (base_health < -100000)
         base_health = -100000;
@@ -783,7 +783,7 @@ TbBool update_creature_health_to_max(struct Thing *thing)
 {
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    cctrl->max_health = compute_creature_max_health(crstat->health,cctrl->explevel,thing);
+    cctrl->max_health = compute_creature_max_health(crstat->health,cctrl->explevel,thing->owner);
     thing->health = cctrl->max_health;
     return true;
 }
@@ -1047,7 +1047,7 @@ const char *creature_statistic_text(const struct Thing *creatng, CreatureLiveSta
         text = loc_text;
         break;
     case CrLStat_MaxHealth:
-        i = compute_creature_max_health(crstat->health,cctrl->explevel,creatng);
+        i = compute_creature_max_health(crstat->health,cctrl->explevel,creatng->owner);
         snprintf(loc_text,sizeof(loc_text),"%ld", i);
         text = loc_text;
         break;

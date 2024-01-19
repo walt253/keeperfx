@@ -864,14 +864,14 @@ static HitPoints apply_damage_to_creature(struct Thing *thing, HitPoints dmg)
     // Value cannot exceed 255.
     if (carmor >= 255)
         carmor = 255;
-    // Now compute damage
+    // Now compute damage.
     HitPoints cdamage = (dmg * (256 - carmor)) / 256;
     if (cdamage <= 0)
       cdamage = 1;
-    // Apply damage to the thing
+    // Apply damage to the thing.
     thing->health -= cdamage;
     thing->rendering_flags |= TRF_BeingHit;
-    // Red palette if the possessed creature is hit very strong
+    // Red palette if the possessed creature is hit very strong.
     if (is_thing_some_way_controlled(thing))
     {
         struct PlayerInfo* player = get_player(thing->owner);

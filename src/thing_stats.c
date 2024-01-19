@@ -664,11 +664,11 @@ long calculate_correct_creature_maxspeed(const struct Thing *thing)
     {
         dungeon = get_dungeon(thing->owner);
         unsigned short modifier = dungeon->modifier.speed;
+        speed = (speed * modifier) / 100;
         if (dungeon->tortured_creatures[thing->model] > 0)
             speed = 5 * speed / 4;
         if (player_uses_power_obey(thing->owner))
             speed = 5 * speed / 4;
-        speed = (speed * modifier) / 100;
     }
     return speed;
 }
@@ -726,15 +726,12 @@ GoldAmount calculate_correct_creature_scavenging_cost(const struct Thing *thing)
 
 long calculate_correct_creature_scavenge_required(const struct Thing *thing, PlayerNumber callplyr_idx)
 {
-    struct Dungeon* dungeon;
+    struct Dungeon* dungeon = get_dungeon(callplyr_idx);
+    unsigned short modifier = dungeon->modifier.loyalty;
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     long scavngpts = (dungeon->creatures_scavenged[thing->model] + 1) * compute_creature_max_loyalty(crstat->scavenge_require, cctrl->explevel);
-    if (!is_neutral_thing(thing)) {
-        dungeon = get_dungeon(callplyr_idx);
-        unsigned short modifier = dungeon->modifier.loyalty;
-        scavngpts = (scavngpts * modifier) / 100;
-    }
+    scavngpts = (scavngpts * modifier) / 100;
     return scavngpts;
 }
 

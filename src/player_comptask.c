@@ -2329,7 +2329,9 @@ static struct Thing *find_creature_for_call_to_arms(struct Computer2 *comp, TbBo
     {
         struct CreatureControl *cctrl = creature_control_get_from_thing(i);
 
-        if ( any_flag_is_set(i->alloc_flags, (TAlF_IsInLimbo|TAlF_IsInMapWho)) )
+        if ( (i->alloc_flags & TAlF_IsInLimbo) != 0 )
+            continue;
+        if ( (i->state_flags & TAlF_IsInMapWho) != 0 )
             continue;
         if ( i->active_state == CrSt_CreatureUnconscious )
             continue;
@@ -2340,7 +2342,7 @@ static struct Thing *find_creature_for_call_to_arms(struct Computer2 *comp, TbBo
             state = i->active_state;
         struct StateInfo *stati = get_thing_state_info_num(state);
 
-        if (flag_is_set(cctrl->spell_flags, CSAfF_CalledToArms))
+        if ( (cctrl->spell_flags & CSAfF_CalledToArms) != 0 )
         {
             if ( !stati->react_to_cta )
                 continue;

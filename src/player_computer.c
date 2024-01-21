@@ -1212,7 +1212,7 @@ long check_call_to_arms(struct Computer2 *comp)
             }
             i = ctask->next_task;
             // Per-task code
-            if (flag_is_set(ctask->flags, ComTsk_Unkn0001))
+            if (!flag_is_set(ctask->flags, ComTsk_Unkn0001))
             {
                 if ((ctask->ttype == CTT_MagicCallToArms) && (ctask->task_state == CTaskSt_Select))
                 {

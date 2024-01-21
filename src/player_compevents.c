@@ -345,7 +345,7 @@ long computer_event_battle_test(struct Computer2 *comp, struct ComputerEvent *ce
     {
         if (!is_task_in_progress(comp, CTT_MagicCallToArms))
         {
-            if (check_call_to_arms(comp))
+            if (!check_call_to_arms(comp))
             {
                 if (!create_task_magic_battle_call_to_arms(comp, &pos, 2500, creatrs_num)) {
                     return 4;

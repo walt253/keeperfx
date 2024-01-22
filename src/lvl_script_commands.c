@@ -5142,12 +5142,17 @@ static void set_creature_max_level_process(struct ScriptContext* context)
         if (plyr_idx != game.neutral_player_num)
         {
             dungeon = get_dungeon(plyr_idx);
-            if (crtrlvl < 0)
+            if (crtrlvl < 0) {
                 crtrlvl = CREATURE_MAX_LEVEL + 1;
-            dungeon->creature_max_level[crtrid%game.conf.crtr_conf.model_count] = crtrlvl;
+            }
+            // for (int i = crtrid; i < CREATURE_TYPES_MAX; i++)
+            // {
+                dungeon->creature_max_level[crtrid%game.conf.crtr_conf.model_count] = crtrlvl;
+                SCRPTERRLOG("Creature '%s' max level set to %d.", creature_code_name(crtrid), crtrlvl);
+            // }
         } else
         {
-            SCRPTERRLOG("Can't manipulate creature max level, player %d has no dungeon.", (int)plyr_idx);
+            SCRPTERRLOG("Can't manipulate creature '%s' max level, player %d has no dungeon.", creature_code_name(crtrid), (int)plyr_idx);
             break;
         }
     }

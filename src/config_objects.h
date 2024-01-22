@@ -59,13 +59,18 @@ enum ObjectModelFlags {
 
 
 /******************************************************************************/
+struct Sounds {
+    short sndsample_idx; /**< Base sound sample to be played on hit. */
+    unsigned char sndsample_range; /**< Range for random sound sample selection. */
+};
+
 struct Effects {
     EffectOrEffElModel beam;
     EffectOrEffElModel particle;
     EffectOrEffElModel explosion1;
     EffectOrEffElModel explosion2;
     unsigned short spacing;
-    unsigned short sound;
+    struct Sounds sound;
 };
 
 struct ObjectConfigStats {

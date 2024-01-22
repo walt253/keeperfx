@@ -5143,7 +5143,7 @@ static void set_creature_max_level_process(struct ScriptContext* context)
             dungeon = get_dungeon(plyr_idx);
             if (crtr_level < 0)
                 crtr_level = CREATURE_MAX_LEVEL + 1;
-            dungeon->creature_max_level[crtr_id->model] = crtr_level;
+            dungeon->creature_max_level[crtr_id] = crtr_level;
         } else
         {
             SCRPTERRLOG("Can't manipulate creature max level, player %d has no dungeon.", (int)plyr_idx);

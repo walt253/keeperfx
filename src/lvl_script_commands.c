@@ -5155,7 +5155,7 @@ static void set_creature_max_level_process(struct ScriptContext* context)
             } else {
                 for (int i = 1; i < game.conf.crtr_conf.model_count; i++)
                 {
-                    if ((i != get_players_special_digger_model(plyr_idx)) || (i != get_players_spectator_model(plyr_idx)))
+                    if ((i != get_players_special_digger_model(plyr_idx)) && (i != get_players_spectator_model(plyr_idx)))
                     {
                         if (crtr_lvl < 0)
                         {

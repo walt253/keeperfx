@@ -5155,7 +5155,7 @@ static void set_creature_max_level_process(struct ScriptContext* context)
             } else {
                 for (int i = 1; i < game.conf.crtr_conf.model_count; i++)
                 {
-                    if ((i != get_players_special_digger_model(plyr_idx)) && (i != get_players_spectator_model(plyr_idx)))
+                    if (creature_model_matches_model(i, plyr_idx , crtr_id))
                     {
                         if (crtr_lvl < 0)
                         {
@@ -5389,7 +5389,6 @@ const struct CommandDesc dk1_command_desc[] = {
   {"LEVEL_VERSION",                "N       ", Cmd_LEVEL_VERSION, NULL, NULL},
   {NULL,                           "        ", Cmd_NONE, NULL, NULL},
 };
-
 
 #ifdef __cplusplus
 }

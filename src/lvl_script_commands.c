@@ -5141,7 +5141,7 @@ static void set_creature_max_level_process(struct ScriptContext* context)
         if (plyr_idx != game.neutral_player_num)
         {
             dungeon = get_dungeon(plyr_idx);
-            if (creature_code_name(crtrid) != INVALID) {
+            if (crtrid != 253) {
                 if (crtrlvl < 0) {
                     crtrlvl = CREATURE_MAX_LEVEL + 1;
                     dungeon->creature_max_level[crtrid%game.conf.crtr_conf.model_count] = crtrlvl;

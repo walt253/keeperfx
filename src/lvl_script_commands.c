@@ -5112,38 +5112,38 @@ static void set_player_modifier_process(struct ScriptContext* context)
 static void set_creature_max_level_check(const struct ScriptLine* scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0]);
-    short crtr_id = parse_creature_name(scline->tp[1]);
-    short crtr_level = scline->np[2];
-    if (crtr_id == CREATURE_NONE)
+    long crtrid = parse_creature_name(scline->tp[1]);
+    long crtrlvl = scline->np[2];
+    if (crtrid == CREATURE_NONE)
     {
         SCRPTERRLOG("Unknown creature, '%s'", scline->tp[1]);
         DEALLOCATE_SCRIPT_VALUE
         return;
     }
-    if ((crtr_level < -1) || (crtr_level > CREATURE_MAX_LEVEL))
+    if ((crtrlvl < -1) || (crtrlvl > CREATURE_MAX_LEVEL))
     {
-        SCRPTERRLOG("Value is out of range for '%s' max level: %d", scline->tp[1], crtr_level);
+        SCRPTERRLOG("Value is out of range for '%s' max level: %d", scline->tp[1], crtrlvl);
         DEALLOCATE_SCRIPT_VALUE
         return;
     }
-    value->shorts[0] = crtr_id;
-    value->shorts[1] = crtr_level;
+    value->arg0 = crtrid;
+    value->arg1 = crtrlevel;
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
 static void set_creature_max_level_process(struct ScriptContext* context)
 {
     struct Dungeon* dungeon;
-    short crtr_id = context->value->shorts[0];
-    short crtr_level = context->value->shorts[1];
+    long crtrid = context->value->arg0;
+    long crtrlvl = context->value->arg1;
     for (int plyr_idx = context->plr_start; plyr_idx < context->plr_end; plyr_idx++)
     {
         if (plyr_idx != game.neutral_player_num)
         {
             dungeon = get_dungeon(plyr_idx);
-            if (crtr_level < 0)
-                crtr_level = CREATURE_MAX_LEVEL + 1;
-            dungeon->creature_max_level[crtr_id] = crtr_level;
+            if (crtrlvl < 0)
+                crtrlvl = CREATURE_MAX_LEVEL + 1;
+                dungeon->creature_max_level[crtrid%game.conf.crtr_conf.model_count] = crtrlvl;
         } else
         {
             SCRPTERRLOG("Can't manipulate creature max level, player %d has no dungeon.", (int)plyr_idx);

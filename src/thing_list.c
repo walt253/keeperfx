@@ -811,9 +811,9 @@ TbBool creature_model_matches_model(ThingModel model_b, PlayerNumber plyr_idx, T
 
 TbBool creature_matches_model(const struct Thing* creatng, ThingModel crmodel)
 {
-      if (creatng->class_id != TCls_Creature)
+    if (creatng->class_id != TCls_Creature)
         return false;
-      return creature_model_matches_model(creatng->model, creatng->owner, crmodel)
+    return creature_model_matches_model(creatng->model, creatng->owner, crmodel);
 }
 
 /**

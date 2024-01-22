@@ -5122,7 +5122,7 @@ static void set_creature_max_level_check(const struct ScriptLine* scline)
     }
     if ((crtrlvl < -1) || (crtrlvl > CREATURE_MAX_LEVEL))
     {
-        SCRPTERRLOG("Value is out of range for '%s' max level: %d", scline->tp[1], crtrlvl);
+        SCRPTERRLOG("Unable to set the creature '%s' max level to %d, value is out of range.", creature_code_name(crtrid), crtrlvl);
         DEALLOCATE_SCRIPT_VALUE
         return;
     }
@@ -5148,7 +5148,7 @@ static void set_creature_max_level_process(struct ScriptContext* context)
             // for (int i = crtrid; i < CREATURE_TYPES_MAX; i++)
             // {
                 dungeon->creature_max_level[crtrid%game.conf.crtr_conf.model_count] = crtrlvl;
-                SCRPTERRLOG("Creature '%s' max level set to %d.", creature_code_name(crtrid), crtrlvl);
+                SCRPTERRLOG("Creature '%d' max level set to %d.", crtrid, crtrlvl);
             // }
         } else
         {

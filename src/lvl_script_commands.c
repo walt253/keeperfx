@@ -5112,8 +5112,8 @@ static void set_player_modifier_process(struct ScriptContext* context)
 static void set_creature_max_level_check(const struct ScriptLine* scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0]);
-    long crtrid = parse_creature_name(scline->tp[1]);
-    long crtrlvl = scline->np[2];
+    short crtrid = parse_creature_name(scline->tp[1]);
+    short crtrlvl = scline->np[2];
     if (crtrid == CREATURE_NONE)
     {
         SCRPTERRLOG("Unknown creature, '%s'", scline->tp[1]);
@@ -5126,16 +5126,17 @@ static void set_creature_max_level_check(const struct ScriptLine* scline)
         DEALLOCATE_SCRIPT_VALUE
         return;
     }
-    value->arg0 = crtrid;
-    value->arg1 = crtrlvl;
+    value->shorts[0] = crtrid;
+    value->shorts[1] = crtrlvl;
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
 static void set_creature_max_level_process(struct ScriptContext* context)
 {
     struct Dungeon* dungeon;
-    long crtrid = context->value->arg0;
-    long crtrlvl = context->value->arg1;
+    short crtrid = context->value->shorts[0];
+    short crtrlvl = context->value->shorts[1];
+    crtrlvl--;
     for (int plyr_idx = context->plr_start; plyr_idx < context->plr_end; plyr_idx++)
     {
         if (plyr_idx != game.neutral_player_num)

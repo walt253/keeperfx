@@ -157,19 +157,6 @@ TbBool load_columns_config_file(const char *textname, const char *fname, unsigne
     if (!load_toml_file(textname, fname,&file_root,flags))
         return false;
 
-    VALUE *common_section = value_dict_get(&file_root, "common");
-    if (!common_section)
-    {
-        WARNMSG("No [common] in %s for file %d", textname, fname);
-        value_fini(&file_root);
-        return false;
-    }
-
-    long count = value_int32(value_dict_get(common_section, "ColumnsCount"));
-    if (count > *ccount)
-    {
-        *ccount = count;
-    }
     if (*ccount > COLUMNS_COUNT)
     {
         ERRORLOG("more columns then allowed in %s %d/%d",textname,*ccount,COLUMNS_COUNT);

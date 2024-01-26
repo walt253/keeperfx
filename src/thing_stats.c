@@ -281,12 +281,12 @@ long get_radially_growing_value(long magnitude, long decay_start, long decay_len
     return magnitude ;
 }
 
-long compute_creature_kind_score(ThingModel crkind,unsigned short crlevel)
+long compute_creature_kind_score(ThingModel crkind, unsigned short crlevel)
 {
     //modifier shouldn't affect the computation for the creature kind score so compute_creature_max_health has 'game.neutral_player_num' as last argument.
     struct CreatureStats* crstat = creature_stats_get(crkind);
     return compute_creature_max_health(crstat->health,crlevel,game.neutral_player_num)
-        + compute_creature_max_defense(crstat->defense,crlevel)
+        + compute_creature_max_defense(crstat->defense,crlevel,false)
         + compute_creature_max_dexterity(crstat->dexterity,crlevel)
         + compute_creature_max_armour(crstat->armour,crlevel,false)
         + compute_creature_max_strength(crstat->strength,crlevel,false);
@@ -295,7 +295,7 @@ long compute_creature_kind_score(ThingModel crkind,unsigned short crlevel)
 /**
  * Computes max health of a creature on given level.
  */
-long compute_creature_max_health(long base_health,unsigned short crlevel, PlayerNumber plyr_idx)
+long compute_creature_max_health(long base_health, unsigned short crlevel, PlayerNumber plyr_idx)
 {
     struct Dungeon* dungeon;
     if (base_health < -100000)
@@ -316,7 +316,7 @@ long compute_creature_max_health(long base_health,unsigned short crlevel, Player
 /**
  * Computes gold pay of a creature on given level.
  */
-GoldAmount compute_creature_max_pay(GoldAmount base_param,unsigned short crlevel)
+GoldAmount compute_creature_max_pay(GoldAmount base_param, unsigned short crlevel)
 {
     if (base_param <= 0)
         return 0;
@@ -331,7 +331,7 @@ GoldAmount compute_creature_max_pay(GoldAmount base_param,unsigned short crlevel
 /**
  * Computes defense of a creature on given level.
  */
-long compute_creature_max_defense(long base_param,unsigned short crlevel)
+long compute_creature_max_defense(long base_param, unsigned short crlevel, TbBool rage_spell)
 {
     if (base_param <= 0)
         return 0;
@@ -340,13 +340,15 @@ long compute_creature_max_defense(long base_param,unsigned short crlevel)
     if (crlevel >= CREATURE_MAX_LEVEL)
         crlevel = CREATURE_MAX_LEVEL-1;
     long max_param = base_param + (game.conf.crtr_conf.exp.defense_increase_on_exp * base_param * (long)crlevel) / 100;
+    if (rage_spell)
+        max_param = 0;
     return saturate_set_unsigned(max_param, 8);
 }
 
 /**
  * Computes dexterity of a creature on given level.
  */
-long compute_creature_max_dexterity(long base_param,unsigned short crlevel)
+long compute_creature_max_dexterity(long base_param, unsigned short crlevel)
 {
     if (base_param <= 0)
         return 0;
@@ -361,7 +363,7 @@ long compute_creature_max_dexterity(long base_param,unsigned short crlevel)
 /**
  * Computes strength of a creature on given level.
  */
-long compute_creature_max_strength(long base_param,unsigned short crlevel, TbBool rage_spell)
+long compute_creature_max_strength(long base_param, unsigned short crlevel, TbBool rage_spell)
 {
     if (base_param <= 0)
         return 0;
@@ -378,7 +380,7 @@ long compute_creature_max_strength(long base_param,unsigned short crlevel, TbBoo
 /**
  * Computes loyalty of a creature on given level.
  */
-long compute_creature_max_loyalty(long base_param,unsigned short crlevel)
+long compute_creature_max_loyalty(long base_param, unsigned short crlevel)
 {
     if (base_param <= 0)
         return 0;
@@ -415,31 +417,31 @@ long compute_creature_max_armour(long base_param, unsigned short crlevel, TbBool
 /**
  * Computes training cost of a creature on given level.
  */
-GoldAmount compute_creature_max_training_cost(GoldAmount base_param,unsigned short crlevel)
+GoldAmount compute_creature_max_training_cost(GoldAmount base_param, unsigned short crlevel)
 {
-  if (base_param <= 0)
-    return 0;
-  if (base_param > 100000)
-    base_param = 100000;
-  if (crlevel >= CREATURE_MAX_LEVEL)
-    crlevel = CREATURE_MAX_LEVEL-1;
-  GoldAmount max_param = base_param + (game.conf.crtr_conf.exp.training_cost_increase_on_exp * base_param * (long)crlevel) / 100;
-  return saturate_set_signed(max_param, 16);
+    if (base_param <= 0)
+        return 0;
+    if (base_param > 100000)
+        base_param = 100000;
+    if (crlevel >= CREATURE_MAX_LEVEL)
+        crlevel = CREATURE_MAX_LEVEL-1;
+    GoldAmount max_param = base_param + (game.conf.crtr_conf.exp.training_cost_increase_on_exp * base_param * (long)crlevel) / 100;
+    return saturate_set_signed(max_param, 16);
 }
 
 /**
  * Computes training cost of a creature on given level.
  */
-GoldAmount compute_creature_max_scavenging_cost(GoldAmount base_param,unsigned short crlevel)
+GoldAmount compute_creature_max_scavenging_cost(GoldAmount base_param, unsigned short crlevel)
 {
-  if (base_param <= 0)
-    return 0;
-  if (base_param > 100000)
-    base_param = 100000;
-  if (crlevel >= CREATURE_MAX_LEVEL)
-    crlevel = CREATURE_MAX_LEVEL-1;
-  GoldAmount max_param = base_param + (game.conf.crtr_conf.exp.scavenging_cost_increase_on_exp * base_param * (long)crlevel) / 100;
-  return saturate_set_signed(max_param, 16);
+    if (base_param <= 0)
+        return 0;
+    if (base_param > 100000)
+        base_param = 100000;
+    if (crlevel >= CREATURE_MAX_LEVEL)
+        crlevel = CREATURE_MAX_LEVEL-1;
+    GoldAmount max_param = base_param + (game.conf.crtr_conf.exp.scavenging_cost_increase_on_exp * base_param * (long)crlevel) / 100;
+    return saturate_set_signed(max_param, 16);
 }
 
 /**
@@ -1132,7 +1134,7 @@ const char *creature_statistic_text(const struct Thing *creatng, CreatureLiveSta
         text = loc_text;
         break;
     case CrLStat_Defence:
-        i = compute_creature_max_defense(crstat->defense,cctrl->explevel);
+        i = compute_creature_max_defense(crstat->defense,cctrl->explevel,creature_affected_by_spell(creatng, SplK_Rage));
         snprintf(loc_text,sizeof(loc_text),"%ld", i);
         text = loc_text;
         break;

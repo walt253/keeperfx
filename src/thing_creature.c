@@ -2634,7 +2634,7 @@ void delete_effects_attached_to_creature(struct Thing *creatng)
     if (creature_control_invalid(cctrl)) {
         return;
     }
-    if (creature_affected_by_spell(creatng, SplK_Armour)) // todo for rage
+    if (creature_affected_by_spell(creatng, SplK_Armour))
     {
         cctrl->spell_flags &= ~CSAfF_Armour;
         for (i=0; i < 3; i++)

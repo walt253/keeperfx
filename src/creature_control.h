@@ -384,6 +384,7 @@ unsigned char cowers_from_slap_turns;
     unsigned short job_assigned;
     unsigned short spell_tngidx_armour[3];
     unsigned short spell_tngidx_disease[3];
+    unsigned short spell_tngidx_rage[3];
     unsigned short shot_shift_x;
     unsigned short shot_shift_y;
     unsigned short shot_shift_z;

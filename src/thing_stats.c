@@ -691,6 +691,8 @@ long calculate_correct_creature_maxspeed(const struct Thing *thing)
         speed *= 2;
     if (creature_affected_by_spell(thing, SplK_Speed))
         speed *= 2;
+    if (creature_affected_by_spell(thing, SplK_Rage))
+        speed *= 2;
     if (creature_affected_by_spell(thing, SplK_Slow))
         speed /= 2;
     if (!is_neutral_thing(thing))

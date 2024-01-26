@@ -729,6 +729,8 @@ TbBool creature_affected_by_spell(const struct Thing *thing, SpellKind spkind)
     {
     case SplK_Freeze:
         return ((cctrl->stateblock_flags & CCSpl_Freeze) != 0);
+    case SplK_Rage:
+        return ((cctrl->spell_flags & CSAfF_Rage) != 0);
     case SplK_Armour:
         return ((cctrl->spell_flags & CSAfF_Armour) != 0);
     case SplK_Rebound:
@@ -1068,6 +1070,9 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
                 }
             creature_set_speed(thing, 0);
             break;
+        case SplK_Rage:
+            cctrl->max_speed = calculate_correct_creature_maxspeed(thing); // TODO add particles effects?
+            break;
         case SplK_Armour:
             n = 0;
             for (k = 0; k < 2; k++)
@@ -1104,7 +1109,6 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
         case SplK_Fly:
             thing->movement_flags |= TMvF_Flying;
             break;
-
         }
         if (spconf->aura_effect != 0)
         {
@@ -1208,6 +1212,10 @@ void terminate_thing_spell_effect(struct Thing *thing, SpellKind spkind)
             thing->movement_flags |= TMvF_Flying;
             cctrl->spell_flags &= ~CSAfF_Grounded;
         }
+        break;
+    case SplK_Rage:
+        cctrl->spell_flags &= ~CSAfF_Rage; //TODO here for particles effects?
+        cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
         break;
     case SplK_Armour:
         cctrl->spell_flags &= ~CSAfF_Armour;
@@ -2628,7 +2636,7 @@ void delete_effects_attached_to_creature(struct Thing *creatng)
     if (creature_control_invalid(cctrl)) {
         return;
     }
-    if (creature_affected_by_spell(creatng, SplK_Armour))
+    if (creature_affected_by_spell(creatng, SplK_Armour)) // todo for rage
     {
         cctrl->spell_flags &= ~CSAfF_Armour;
         for (i=0; i < 3; i++)
@@ -2822,7 +2830,7 @@ long calculate_melee_damage(struct Thing *creatng)
 {
     const struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     const struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
-    long strength = compute_creature_max_strength(crstat->strength, cctrl->explevel, creature_affected_by_spell(creatng, SplK_Rage));
+    long strength = compute_creature_max_strength(crstat->strength, cctrl->explevel);
     return compute_creature_attack_melee_damage(strength, crstat->luck, cctrl->explevel, creatng);
 }
 
@@ -2835,7 +2843,7 @@ long project_melee_damage(const struct Thing *creatng)
 {
     const struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     const struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
-    long strength = compute_creature_max_strength(crstat->strength, cctrl->explevel, creature_affected_by_spell(creatng, SplK_Rage));
+    long strength = compute_creature_max_strength(crstat->strength, cctrl->explevel);
     return project_creature_attack_melee_damage(strength, crstat->luck, cctrl->explevel, creatng);
 }
 
@@ -2867,7 +2875,7 @@ long project_creature_shot_damage(const struct Thing *thing, ThingModel shot_mod
     if ((shotst->model_flags & ShMF_StrengthBased) != 0 )
     {
         // Project melee damage
-        long strength = compute_creature_max_strength(crstat->strength, cctrl->explevel, creature_affected_by_spell(thing, SplK_Rage));
+        long strength = compute_creature_max_strength(crstat->strength, cctrl->explevel);
         damage = project_creature_attack_melee_damage(strength, crstat->luck, cctrl->explevel, thing);
     } else
     {

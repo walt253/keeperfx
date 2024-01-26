@@ -29,11 +29,11 @@ extern "C" {
 #endif
 
 /******************************************************************************/
-#define MAGIC_ITEMS_MAX        255
+#define MAGIC_ITEMS_MAX         255
 #define SPELL_MAX_LEVEL         8
 #define MAGIC_OVERCHARGE_LEVELS (SPELL_MAX_LEVEL+1)
-#define MAGIC_TYPES_COUNT      31
-#define POWER_TYPES_MAX      64
+#define MAGIC_TYPES_COUNT       31
+#define POWER_TYPES_MAX         64
 
 enum SpellKinds {
     SplK_None = 0,
@@ -41,32 +41,32 @@ enum SpellKinds {
     SplK_FireBomb,
     SplK_Freeze,
     SplK_Armour,
-    SplK_Lightning, //5
+    SplK_Lightning, // 5
     SplK_Rebound,
     SplK_Heal,
     SplK_PoisonCloud,
     SplK_Invisibility,
-    SplK_Teleport, //10
+    SplK_Teleport, // 10
     SplK_Speed,
     SplK_Slow,
     SplK_Drain,
     SplK_Fear,
-    SplK_Missile, //15
+    SplK_Missile, // 15
     SplK_NavigMissile,
     SplK_FlameBreath,
     SplK_Wind,
     SplK_Light,
-    SplK_Fly, //20
+    SplK_Fly, // 20
     SplK_Sight,
     SplK_Grenade,
     SplK_Hailstorm,
     SplK_WordOfPower,
-    SplK_CrazyGas, //25
+    SplK_CrazyGas, // 25
     SplK_Disease,
     SplK_Chicken,
     SplK_TimeBomb,
     SplK_Lizard,
-    SplK_Rage, //30
+    SplK_Rage, // 30
 };
 
 enum CreatureSpellAffectedFlags {
@@ -77,7 +77,7 @@ enum CreatureSpellAffectedFlags {
     CSAfF_Flying       = 0x00010,
     CSAfF_Invisibility = 0x00020,
     CSAfF_Sight        = 0x00040,
-    CSAfF_Light        = 0x00080, // this was originally Freeze, but that is now done via stateblock_flags.
+    CSAfF_Light        = 0x00080, // This was originally Freeze, but that is now done via stateblock_flags.
     CSAfF_Disease      = 0x00100,
     CSAfF_Chicken      = 0x00200,
     CSAfF_PoisonCloud  = 0x00400,

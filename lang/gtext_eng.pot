@@ -6157,5 +6157,5 @@ msgstr ""
 
 #: guitext:1064
 msgctxt "Creature spell"
-msgid "Rage: Increases the creature's strength and speed, decreases the cooldown of abilities, but nullifies evasion."
+msgid "Rage: Makes the creature attack recklessly, hitting harder and faster without dodging."
 msgstr ""

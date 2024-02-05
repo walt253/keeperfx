@@ -2249,7 +2249,7 @@ TbResult magic_use_power_on_thing(PlayerNumber plyr_idx, PowerKind pwkind,
         {
           thing->health = 0;
         } else {
-          thing->health = health_new);
+          thing->health = health_new;
         }
     }
     return ret;

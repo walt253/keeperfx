@@ -2241,6 +2241,16 @@ TbResult magic_use_power_on_thing(PlayerNumber plyr_idx, PowerKind pwkind,
     if (ret == Lb_SUCCESS)
     {
         get_player(plyr_idx)->power_of_cooldown_turn = game.play_gameturn + powerst->cast_cooldown;
+        unsigned char health_cost = powerst->health_cost;
+        unsigned short health_current = thing->health;
+        unsigned short health_substract = health_current * (health_cost / 100);
+        long health_new = saturate_set_signed(health_current - health_substract, 16);
+        if (health_new < 0)
+        {
+          thing->health = 0;
+        } else {
+          thing->health = health_new);
+        }
     }
     return ret;
 }

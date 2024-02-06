@@ -3053,7 +3053,7 @@ void thing_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot
     {
         struct CreatureControl* cctrl = creature_control_get_from_thing(firing);
         struct CreatureStats* crstat = creature_stats_get_from_thing(firing);
-        dexterity = compute_creature_max_dexterity(crstat->dexterity, cctrl->explevel);
+        dexterity = calculate_correct_creature_dexterity(firing);
         max_dexterity = crstat->dexterity + ((crstat->dexterity * cctrl->explevel * game.conf.crtr_conf.exp.dexterity_increase_on_exp) / 100);
 
         pos1.x.val += distance_with_angle_to_coord_x((cctrl->shot_shift_x + (cctrl->shot_shift_x * game.conf.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100), firing->move_angle_xy + LbFPMath_PI / 2);

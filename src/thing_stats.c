@@ -346,7 +346,7 @@ long compute_creature_max_armour(long base_param, unsigned short crlevel)
 /**
  * Computes defense of a creature on given level.
  */
-long compute_creature_max_defense(long base_param, unsigned short crlevel, TbBool rage_spell)
+long compute_creature_max_defense(long base_param, unsigned short crlevel)
 {
     if (base_param <= 0)
         return 0;
@@ -355,8 +355,6 @@ long compute_creature_max_defense(long base_param, unsigned short crlevel, TbBoo
     if (crlevel >= CREATURE_MAX_LEVEL)
         crlevel = CREATURE_MAX_LEVEL-1;
     long max_param = base_param + (game.conf.crtr_conf.exp.defense_increase_on_exp * base_param * (long)crlevel) / 100;
-    if (rage_spell)
-        max_param = 0;
     return saturate_set_unsigned(max_param, 8);
 }
 
@@ -445,7 +443,6 @@ GoldAmount compute_creature_max_scavenging_cost(GoldAmount base_param, unsigned 
  */
 long project_creature_attack_melee_damage(long base_param,long luck,unsigned short crlevel, const struct Thing* thing)
 {
-    struct Dungeon* dungeon;
     if (base_param < -60000)
         base_param = -60000;
     if (base_param > 60000)
@@ -498,7 +495,6 @@ long project_creature_attack_spell_damage(long base_param,long luck,unsigned sho
  */
 long compute_creature_attack_melee_damage(long base_param, long luck, unsigned short crlevel, struct Thing* thing)
 {
-    struct Dungeon* dungeon;
     if (base_param < -60000)
         base_param = -60000;
     if (base_param > 60000)
@@ -906,9 +902,7 @@ void apply_health_to_thing_and_display_health(struct Thing *thing, long amount)
  */
 static HitPoints apply_damage_to_creature(struct Thing *thing, HitPoints dmg)
 {
-    struct Dungeon* dungeon;
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     if ((cctrl->flgfield_1 & CCFlg_PreventDamage) != 0) {
         return 0;
     }

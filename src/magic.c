@@ -1636,7 +1636,7 @@ TbResult magic_use_power_meteor_storm(PlayerNumber plyr_idx, MapSubtlCoord stl_x
     amount = shotst->effect_amount;
     range = shotst->area_range;
     max_amount = amount + power_level;
-    max_range = (range + power_level) / 2;
+    max_range = (range + power_level) / 4;
     for (int loop = 0; loop < max_amount; loop++) {
         dungeon->camera_deviate_jump = 256;
         shtng = create_shot(&pos, ShM_MeteorStorm, plyr_idx);

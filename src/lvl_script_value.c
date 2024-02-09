@@ -180,6 +180,8 @@ TbResult script_use_power_on_creature(PlayerNumber plyr_idx, long crmodel, long 
         return magic_use_power_rebound(caster, thing, 0, 0, splevel, spell_flags);
       case PwrK_CONCEAL:
         return magic_use_power_conceal(caster, thing, 0, 0, splevel, spell_flags);
+      case PwrK_DIVINESHIELD:
+        return magic_use_power_divine_shield(caster, thing, 0, 0, splevel, spell_flags);
       case PwrK_DISEASE:
         return magic_use_power_disease(caster, thing, 0, 0, splevel, spell_flags);
       case PwrK_CHICKEN:

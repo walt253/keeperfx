@@ -748,6 +748,8 @@ TbBool creature_affected_by_spell(const struct Thing *thing, SpellKind spkind)
         return ((cctrl->spell_flags & CSAfF_Flying) != 0);
     case SplK_Sight:
         return ((cctrl->spell_flags & CSAfF_Sight) != 0);
+    case SplK_DivineShield:
+        return ((cctrl->spell_flags & CSAfF_DivineShield) != 0);
     case SplK_Disease:
         return ((cctrl->spell_flags & CSAfF_Disease) != 0);
     case SplK_Chicken:
@@ -1255,6 +1257,9 @@ void terminate_thing_spell_effect(struct Thing *thing, SpellKind spkind)
         break;
     case SplK_Sight:
         cctrl->spell_flags &= ~CSAfF_Sight;
+        break;
+    case SplK_DivineShield:
+        cctrl->spell_flags &= ~CSAfF_DivineShield;
         break;
     case SplK_Disease:
         cctrl->spell_flags &= ~CSAfF_Disease;

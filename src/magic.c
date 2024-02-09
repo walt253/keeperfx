@@ -1612,7 +1612,6 @@ TbResult magic_use_power_meteor_storm(PlayerNumber plyr_idx, MapSubtlCoord stl_x
     long range;
     long max_amount;
     long max_range;
-    long k;
     long n;
     if (splevel >= MAGIC_OVERCHARGE_LEVELS)
         splevel = MAGIC_OVERCHARGE_LEVELS-1;
@@ -1637,15 +1636,14 @@ TbResult magic_use_power_meteor_storm(PlayerNumber plyr_idx, MapSubtlCoord stl_x
     range = shotst->area_range;
     max_amount = amount + power_level;
     max_range = (range + power_level) / 4;
-    for (int loop = 0; loop < max_amount; loop++) {
+    for (int k = 0; k < max_amount; k++) {
         dungeon->camera_deviate_jump = 256;
         shtng = create_shot(&pos, ShM_MeteorStorm, plyr_idx);
         if (!thing_is_invalid(shtng)) {
-            n = GAME_RANDOM(range);
-            k = max_range / (1 + GAME_RANDOM(n));
+            n = GAME_RANDOM(k) + GAME_RANDOM(max_range);
             shtng->mappos.z.val = get_thing_height_at(shtng, &shtng->mappos) + COORD_PER_STL/2;
-            pos.x.val = subtile_coord_center(stl_x + GAME_RANDOM(k) - GAME_RANDOM(k));
-            pos.y.val = subtile_coord_center(stl_y + GAME_RANDOM(k) - GAME_RANDOM(k));
+            pos.x.val = subtile_coord_center(stl_x + GAME_RANDOM(n) - GAME_RANDOM(n));
+            pos.y.val = subtile_coord_center(stl_y + GAME_RANDOM(n) - GAME_RANDOM(n));
             thing_play_sample(shtng, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
         }
     }

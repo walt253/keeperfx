@@ -1613,7 +1613,7 @@ TbResult magic_use_power_meteor_storm(PlayerNumber plyr_idx, MapSubtlCoord stl_x
     long max_amount;
     long max_damage;
     long max_range;
-    long i;
+    long k;
     if (splevel >= MAGIC_OVERCHARGE_LEVELS)
         splevel = MAGIC_OVERCHARGE_LEVELS-1;
     if (splevel < 0)
@@ -1648,12 +1648,10 @@ TbResult magic_use_power_meteor_storm(PlayerNumber plyr_idx, MapSubtlCoord stl_x
             shtng->shot.spell_level = splevel;
         }
         dungeon->camera_deviate_jump = 256;
-        i = meteor_storm_affecting_area(&pos, plyr_idx, max_range, max_damage);
+        k = meteor_storm_affecting_area(&pos, plyr_idx, max_range, max_damage);
         SYNCDBG(9,"Affected %ld targets within range %ld, damage %ld", i, max_range, max_damage);
-        if (loop >= max_amount) {
-            return Lb_SUCCESS;
-        }
     }
+    return Lb_SUCCESS;
 }
 
 TbResult magic_use_power_sight(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel, unsigned long mod_flags)

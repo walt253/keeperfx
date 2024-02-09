@@ -34,9 +34,9 @@ extern "C" {
 #define Z_DRAW_DISTANCE_MAX 65536 // Originally 11232, adjusted for view distance
 #define BUCKETS_COUNT 4098 // Originally 704, adjusted for view distance. (65536/16)+2
 
-#define KEEPSPRITE_LENGTH        9149
-#define KEEPERSPRITE_ADD_OFFSET 32767
-#define KEEPERSPRITE_ADD_NUM    32767
+#define KEEPSPRITE_LENGTH 9149
+#define KEEPERSPRITE_ADD_OFFSET 16384
+#define KEEPERSPRITE_ADD_NUM 8192
 
 struct EngineCoord { // sizeof = 28
   long view_width; // X screen position, probably not a width

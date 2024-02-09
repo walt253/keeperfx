@@ -910,7 +910,7 @@ static HitPoints apply_damage_to_creature(struct Thing *thing, HitPoints dmg)
     long carmor = calculate_correct_creature_armour(thing);
     // Now compute damage.
     HitPoints cdamage = (dmg * (256 - carmor)) / 256;
-    if (cdamage <= 0)
+    if ((cdamage <= 0) || (creature_affected_by_spell(thing, SplK_DivineShield)))
       cdamage = 1;
     // Apply damage to the thing.
     thing->health -= cdamage;

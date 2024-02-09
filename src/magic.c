@@ -1649,7 +1649,7 @@ TbResult magic_use_power_meteor_storm(PlayerNumber plyr_idx, MapSubtlCoord stl_x
         }
         dungeon->camera_deviate_jump = 256;
         k = meteor_storm_affecting_area(&pos, plyr_idx, max_range, max_damage);
-        SYNCDBG(9,"Affected %ld targets within range %ld, damage %ld", i, max_range, max_damage);
+        SYNCDBG(9,"Affected %ld targets within range %ld, damage %ld", k, max_range, max_damage);
     }
     return Lb_SUCCESS;
 }

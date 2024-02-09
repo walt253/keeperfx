@@ -1598,6 +1598,64 @@ TbResult magic_use_power_lightning(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
     return Lb_SUCCESS;
 }
 
+TbResult magic_use_power_meteor_storm(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel, unsigned long mod_flags)
+{
+    struct PlayerInfo *player;
+    struct Dungeon *dungeon;
+    const struct MagicStats *pwrdynst;
+    struct ShotConfigStats *shotst;
+    struct Thing *shtng;
+    struct Coord3d pos;
+    long power_level;
+    long amount;
+    long damage;
+    long range;
+    long max_amount;
+    long max_damage;
+    long max_range;
+    long i;
+    if (splevel >= MAGIC_OVERCHARGE_LEVELS)
+        splevel = MAGIC_OVERCHARGE_LEVELS-1;
+    if (splevel < 0)
+        splevel = 0;
+    if ((mod_flags & PwMod_CastForFree) == 0)
+    {
+        if (!pay_for_spell(plyr_idx, PwrK_METEORSTORM, splevel)) {
+            return Lb_FAIL;
+        }
+    }
+    player = get_player(plyr_idx);
+    dungeon = get_dungeon(player->id_number);
+    pwrdynst = get_power_dynamic_stats(PwrK_METEORSTORM);
+    shotst = get_shot_model_stats(ShM_MeteorStorm);
+    pos.x.val = subtile_coord_center(stl_x);
+    pos.y.val = subtile_coord_center(stl_y);
+    pos.z.val = 0;
+    power_level = pwrdynst->strength[splevel];
+    amount = shotst->effect_amount;
+    damage = shotst->damage;
+    range = shotst->area_range;
+    max_amount = power_level * amount;
+    max_damage = (1 + power_level) * damage;
+    max_range = (1 + power_level) * range;
+    for (int loop = 0; loop < max_amount; loop++) {
+        shtng = create_shot(&pos, ShM_MeteorStorm, plyr_idx);
+        if (!thing_is_invalid(shtng)) {
+            pos.x.val = subtile_coord_center(shtng->mappos.x.stl.num + GAME_RANDOM(max_range) - GAME_RANDOM(max_range));
+            pos.y.val = subtile_coord_center(shtng->mappos.y.stl.num + GAME_RANDOM(max_range) - GAME_RANDOM(max_range));
+            shtng->mappos.z.val = get_thing_height_at(shtng, &shtng->mappos) + COORD_PER_STL/2;
+            shtng->shot.hit_type = THit_CrtrsOnly;
+            shtng->shot.spell_level = splevel;
+        }
+        dungeon->camera_deviate_jump = 256;
+        i = meteor_storm_affecting_area(&pos, plyr_idx, max_range, max_damage);
+        SYNCDBG(9,"Affected %ld targets within range %ld, damage %ld", i, max_range, max_damage);
+        if (loop >= max_amount) {
+            return Lb_SUCCESS;
+        }
+    }
+}
+
 TbResult magic_use_power_sight(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel, unsigned long mod_flags)
 {
     const struct MagicStats *pwrdynst;
@@ -2256,6 +2314,9 @@ TbResult magic_use_power_on_thing(PlayerNumber plyr_idx, PowerKind pwkind,
         case PwrK_LIGHTNING:
             ret = magic_use_power_lightning(plyr_idx, stl_x, stl_y, splevel, allow_flags);
             break;
+        case PwrK_METEORSTORM:
+            ret = magic_use_power_meteor_storm(plyr_idx, stl_x, stl_y, splevel, allow_flags);
+            break;
         case PwrK_TIMEBOMB:
             ret = magic_use_power_time_bomb(plyr_idx, thing, splevel, allow_flags);
             break;
@@ -2357,6 +2418,9 @@ TbResult magic_use_power_on_subtile(PlayerNumber plyr_idx, PowerKind pwkind,
             break;
         case PwrK_LIGHTNING:
             ret = magic_use_power_lightning(plyr_idx, stl_x, stl_y, splevel, allow_flags);
+            break;
+        case PwrK_METEORSTORM:
+            ret = magic_use_power_meteor_storm(plyr_idx, stl_x, stl_y, splevel, allow_flags);
             break;
         case PwrK_DESTRWALLS:
             ret = magic_use_power_destroy_walls(plyr_idx, stl_x, stl_y, splevel, allow_flags);

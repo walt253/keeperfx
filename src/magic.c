@@ -1642,10 +1642,10 @@ TbResult magic_use_power_meteor_storm(PlayerNumber plyr_idx, MapSubtlCoord stl_x
         shtng = create_shot(&pos, ShM_MeteorStorm, plyr_idx);
         if (!thing_is_invalid(shtng)) {
             n = GAME_RANDOM(range);
-            k = max_range / (1 + GAME_RANDOM(n));
+            k = 1 + (max_range / (1 + GAME_RANDOM(n)));
             shtng->mappos.z.val = get_thing_height_at(shtng, &shtng->mappos) + COORD_PER_STL/2;
-            pos.x.val = subtile_coord_center(shtng->mappos.x.stl.num + GAME_RANDOM(k) - GAME_RANDOM(k));
-            pos.y.val = subtile_coord_center(shtng->mappos.y.stl.num + GAME_RANDOM(k) - GAME_RANDOM(k));
+            pos.x.val = subtile_coord_center(stl_x + GAME_RANDOM(k) - GAME_RANDOM(k));
+            pos.y.val = subtile_coord_center(stl_y + GAME_RANDOM(k) - GAME_RANDOM(k));
             thing_play_sample(shtng, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
         }
     }

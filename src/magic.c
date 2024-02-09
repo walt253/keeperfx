@@ -1636,13 +1636,13 @@ TbResult magic_use_power_meteor_storm(PlayerNumber plyr_idx, MapSubtlCoord stl_x
     amount = shotst->effect_amount;
     range = shotst->area_range;
     max_amount = amount + power_level;
-    max_range = range + power_level;
+    max_range = (range + power_level) / 2;
     for (int loop = 0; loop < max_amount; loop++) {
         dungeon->camera_deviate_jump = 256;
         shtng = create_shot(&pos, ShM_MeteorStorm, plyr_idx);
         if (!thing_is_invalid(shtng)) {
             n = GAME_RANDOM(range);
-            k = 1 + (max_range / (1 + GAME_RANDOM(n)));
+            k = max_range / (1 + GAME_RANDOM(n));
             shtng->mappos.z.val = get_thing_height_at(shtng, &shtng->mappos) + COORD_PER_STL/2;
             pos.x.val = subtile_coord_center(stl_x + GAME_RANDOM(k) - GAME_RANDOM(k));
             pos.y.val = subtile_coord_center(stl_y + GAME_RANDOM(k) - GAME_RANDOM(k));

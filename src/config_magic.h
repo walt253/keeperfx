@@ -68,6 +68,7 @@ enum SpellKinds {
     SplK_Familiar, // 30
     SplK_Summon,
     SplK_Rage, // 32
+    SplK_DivineShield, // 33
 };
 
 enum CreatureSpellAffectedFlags {
@@ -91,6 +92,7 @@ enum CreatureSpellAffectedFlags {
     CSAfF_Grounded     = 0x08000,
     CSAfF_Timebomb     = 0x10000,
     CSAfF_Rage         = 0x20000,
+    CSAfF_DivineShield = 0x40000,
 };
 
 enum PowerKinds {
@@ -123,6 +125,7 @@ enum PowerKinds {
     PwrK_FLIGHT,
     PwrK_VISION,
     PwrK_RAGE,
+    PwrK_DIVINESHIELD,
 };
 
 /** Contains properties of a shot model, to be stored in ShotConfigStats.

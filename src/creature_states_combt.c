@@ -1830,6 +1830,10 @@ CrInstance get_best_self_preservation_instance_to_use(const struct Thing *thing)
     {
         INSTANCE_RET_IF_AVAIL(thing, CrInst_RAGE);
     }
+    if (!creature_affected_by_spell(thing, SplK_DivineShield))
+    {
+        INSTANCE_RET_IF_AVAIL(thing, CrInst_DIVINE_SHIELD);
+    }
     INSTANCE_RET_IF_AVAIL(thing, CrInst_SUMMON);
     INSTANCE_RET_IF_AVAIL(thing, CrInst_FAMILIAR);
     for (int i = CrInst_LISTEND; i < game.conf.crtr_conf.instances_count; i++)

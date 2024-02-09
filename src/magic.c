@@ -1603,6 +1603,7 @@ TbResult magic_use_power_meteor_storm(PlayerNumber plyr_idx, MapSubtlCoord stl_x
     struct PlayerInfo *player;
     struct Dungeon *dungeon;
     const struct MagicStats *pwrdynst;
+    struct PowerConfigStats *powerst;
     struct ShotConfigStats *shotst;
     struct Thing *shtng;
     struct Coord3d pos;
@@ -1614,6 +1615,7 @@ TbResult magic_use_power_meteor_storm(PlayerNumber plyr_idx, MapSubtlCoord stl_x
     long max_damage;
     long max_range;
     long k;
+    long n;
     if (splevel >= MAGIC_OVERCHARGE_LEVELS)
         splevel = MAGIC_OVERCHARGE_LEVELS-1;
     if (splevel < 0)
@@ -1627,6 +1629,7 @@ TbResult magic_use_power_meteor_storm(PlayerNumber plyr_idx, MapSubtlCoord stl_x
     player = get_player(plyr_idx);
     dungeon = get_dungeon(player->id_number);
     pwrdynst = get_power_dynamic_stats(PwrK_METEORSTORM);
+    powerst = get_power_model_stats(PwrK_METEORSTORM);
     shotst = get_shot_model_stats(ShM_MeteorStorm);
     pos.x.val = subtile_coord_center(stl_x);
     pos.y.val = subtile_coord_center(stl_y);
@@ -1635,21 +1638,20 @@ TbResult magic_use_power_meteor_storm(PlayerNumber plyr_idx, MapSubtlCoord stl_x
     amount = shotst->effect_amount;
     damage = shotst->damage;
     range = shotst->area_range;
-    max_amount = power_level * amount;
-    max_damage = (1 + power_level) * damage;
-    max_range = (1 + power_level) * range;
+    max_amount = amount + (power_level * amount);
+    max_damage = damage + (power_level * damage);
+    max_range = range + (power_level * range);
     for (int loop = 0; loop < max_amount; loop++) {
+        dungeon->camera_deviate_jump = 256;
         shtng = create_shot(&pos, ShM_MeteorStorm, plyr_idx);
         if (!thing_is_invalid(shtng)) {
-            pos.x.val = subtile_coord_center(shtng->mappos.x.stl.num + GAME_RANDOM(max_range) - GAME_RANDOM(max_range));
-            pos.y.val = subtile_coord_center(shtng->mappos.y.stl.num + GAME_RANDOM(max_range) - GAME_RANDOM(max_range));
+            n = 1 + GAME_RANDOM(range);
+            k = max_range / GAME_RANDOM(n);
             shtng->mappos.z.val = get_thing_height_at(shtng, &shtng->mappos) + COORD_PER_STL/2;
-            shtng->shot.hit_type = THit_CrtrsOnly;
-            shtng->shot.spell_level = splevel;
+            pos.x.val = subtile_coord_center(shtng->mappos.x.stl.num + GAME_RANDOM(k) - GAME_RANDOM(k));
+            pos.y.val = subtile_coord_center(shtng->mappos.y.stl.num + GAME_RANDOM(k) - GAME_RANDOM(k));
+            thing_play_sample(shtng, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
         }
-        dungeon->camera_deviate_jump = 256;
-        k = meteor_storm_affecting_area(&pos, plyr_idx, max_range, max_damage);
-        SYNCDBG(9,"Affected %ld targets within range %ld, damage %ld", k, max_range, max_damage);
     }
     return Lb_SUCCESS;
 }

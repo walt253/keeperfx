@@ -853,6 +853,15 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
                 unset_packet_control(pckt, PCtr_LBtnRelease);
             }
             break;
+        case PSt_MeteorStorm:
+            player->thing_under_hand = 0;
+            if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
+            {
+                i = get_power_overcharge_level(player);
+                magic_use_available_power_on_subtile(plyr_idx, PwrK_METEORSTORM, i, stl_x, stl_y, PwCast_None);
+                unset_packet_control(pckt, PCtr_LBtnRelease);
+            }
+            break;
         case PSt_PlaceDoor:
         {
             if ((pckt->control_flags & PCtr_MapCoordsValid) != 0)

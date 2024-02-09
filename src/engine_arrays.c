@@ -49,7 +49,7 @@ long lintel_bottom_height[256];
 }
 #endif
 /******************************************************************************/
-short convert_td_iso(short n)
+short convert_td_iso(unsigned short n)
 {
     if ((lens_mode == 2) || (lens_mode == 3))
     {
@@ -71,7 +71,7 @@ short convert_td_iso(short n)
     return n;
 }
 
-short straight_td_iso(short n)
+short straight_td_iso(unsigned short n)
 {
     if (n < TD_ISO_POINTS)
         return td_iso[n];
@@ -82,7 +82,7 @@ short straight_td_iso(short n)
     return n;
 }
 
-short straight_iso_td(short n)
+short straight_iso_td(unsigned short n)
 {
     if (n < TD_ISO_POINTS)
         return iso_td[n];

@@ -90,6 +90,7 @@ PowerKind const player_state_to_power_kind[PLAYER_STATES_COUNT] = {
   PwrK_FLIGHT,       // PSt_Flight
   PwrK_VISION,       // PSt_Vision
   PwrK_RAGE,         // PSt_Rage
+  PwrK_DIVINESHIELD, // PSt_DivineShield
 };
 /******************************************************************************/
 

@@ -3019,7 +3019,7 @@ long project_creature_shot_damage(const struct Thing *thing, ThingModel shot_mod
         damage = project_creature_attack_melee_damage(strength, crstat->luck, cctrl->explevel, thing);
     } else
     {
-        // Project shot damage.
+        // Project shot damage
         damage = project_creature_attack_spell_damage(shotst->damage, crstat->luck, cctrl->explevel, thing);
     }
     return damage;

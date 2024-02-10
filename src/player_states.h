@@ -89,6 +89,8 @@ enum PlayerStates {
     PSt_Flight,
     PSt_Vision,
     PSt_Rage, // 55
+    PSt_DivineShield,
+    PSt_MeteorStorm,
     PSt_ListEnd
 };
 

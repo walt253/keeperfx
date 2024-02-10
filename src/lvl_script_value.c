@@ -153,6 +153,7 @@ TbResult script_use_power_on_creature(PlayerNumber plyr_idx, long crmodel, long 
         block |= pwkind == PwrK_CALL2ARMS;
         block |= pwkind == PwrK_CAVEIN;
         block |= pwkind == PwrK_LIGHTNING;
+        block |= pwkind == PwrK_METEORSTORM;
         block |= pwkind == PwrK_MKDIGGER;
         block |= pwkind == PwrK_SIGHT;
         if (block)
@@ -180,6 +181,8 @@ TbResult script_use_power_on_creature(PlayerNumber plyr_idx, long crmodel, long 
         return magic_use_power_rebound(caster, thing, 0, 0, splevel, spell_flags);
       case PwrK_CONCEAL:
         return magic_use_power_conceal(caster, thing, 0, 0, splevel, spell_flags);
+      case PwrK_DIVINESHIELD:
+        return magic_use_power_divine_shield(caster, thing, 0, 0, splevel, spell_flags);
       case PwrK_DISEASE:
         return magic_use_power_disease(caster, thing, 0, 0, splevel, spell_flags);
       case PwrK_CHICKEN:
@@ -198,6 +201,8 @@ TbResult script_use_power_on_creature(PlayerNumber plyr_idx, long crmodel, long 
         return magic_use_power_call_to_arms(caster, stl_x, stl_y, splevel, spell_flags);
       case PwrK_LIGHTNING:
         return magic_use_power_lightning(caster, stl_x, stl_y, splevel, spell_flags);
+      case PwrK_METEORSTORM:
+        return magic_use_power_meteor_storm(caster, stl_x, stl_y, splevel, spell_flags);
       case PwrK_CAVEIN:
         return magic_use_power_cave_in(caster, stl_x, stl_y, splevel, spell_flags);
       case PwrK_MKDIGGER:

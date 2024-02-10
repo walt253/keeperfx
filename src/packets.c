@@ -216,6 +216,12 @@ TbBool process_dungeon_control_packet_spell_overcharge(long plyr_idx)
       case PSt_Rage:
           update_power_overcharge(player, PwrK_RAGE);
           break;
+      case PSt_DivineShield:
+          update_power_overcharge(player, PwrK_DIVINESHIELD);
+          break;
+      case PSt_MeteorStorm:
+          update_power_overcharge(player, PwrK_METEORSTORM);
+          break;
       default:
           player->cast_expand_level++;
           break;

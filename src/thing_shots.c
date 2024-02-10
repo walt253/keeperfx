@@ -1666,6 +1666,9 @@ TngUpdateRet update_shot(struct Thing *thing)
               }
             }
             break;
+        case ShUL_MeteorStorm:
+            draw_god_lightning(thing);
+            break;
         default:
             // All shots that do not require special processing
             break;

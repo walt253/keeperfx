@@ -1830,6 +1830,10 @@ CrInstance get_best_self_preservation_instance_to_use(const struct Thing *thing)
     {
         INSTANCE_RET_IF_AVAIL(thing, CrInst_RAGE);
     }
+    if (!creature_affected_by_spell(thing, SplK_DivineShield))
+    {
+        INSTANCE_RET_IF_AVAIL(thing, CrInst_DIVINE_SHIELD);
+    }
     INSTANCE_RET_IF_AVAIL(thing, CrInst_SUMMON);
     INSTANCE_RET_IF_AVAIL(thing, CrInst_FAMILIAR);
     for (int i = CrInst_LISTEND; i < game.conf.crtr_conf.instances_count; i++)
@@ -3408,9 +3412,8 @@ long project_creature_attack_target_damage(const struct Thing *firing, const str
         shot_model = inst_inf->func_params[0];
     }
     long damage = project_creature_shot_damage(firing, shot_model);
-    // Adjust the damage with target creature defense
-    struct CreatureControl* cctrl = creature_control_get_from_thing(firing);
-    long dexterity = compute_creature_max_dexterity(crstat->dexterity, cctrl->explevel);
+    // Adjust the damage with target creature defense.
+    long dexterity = calculate_correct_creature_dexterity(firing);
     damage = project_damage_of_melee_shot(dexterity, damage, target);
     return damage;
 }

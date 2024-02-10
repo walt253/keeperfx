@@ -748,6 +748,8 @@ TbBool creature_affected_by_spell(const struct Thing *thing, SpellKind spkind)
         return ((cctrl->spell_flags & CSAfF_Flying) != 0);
     case SplK_Sight:
         return ((cctrl->spell_flags & CSAfF_Sight) != 0);
+    case SplK_DivineShield:
+        return ((cctrl->spell_flags & CSAfF_DivineShield) != 0);
     case SplK_Disease:
         return ((cctrl->spell_flags & CSAfF_Disease) != 0);
     case SplK_Chicken:
@@ -1255,6 +1257,9 @@ void terminate_thing_spell_effect(struct Thing *thing, SpellKind spkind)
         break;
     case SplK_Sight:
         cctrl->spell_flags &= ~CSAfF_Sight;
+        break;
+    case SplK_DivineShield:
+        cctrl->spell_flags &= ~CSAfF_DivineShield;
         break;
     case SplK_Disease:
         cctrl->spell_flags &= ~CSAfF_Disease;
@@ -3014,7 +3019,7 @@ long project_creature_shot_damage(const struct Thing *thing, ThingModel shot_mod
         damage = project_creature_attack_melee_damage(strength, crstat->luck, cctrl->explevel, thing);
     } else
     {
-        // Project shot damage
+        // Project shot damage.
         damage = project_creature_attack_spell_damage(shotst->damage, crstat->luck, cctrl->explevel, thing);
     }
     return damage;
@@ -3053,7 +3058,7 @@ void thing_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot
     {
         struct CreatureControl* cctrl = creature_control_get_from_thing(firing);
         struct CreatureStats* crstat = creature_stats_get_from_thing(firing);
-        dexterity = compute_creature_max_dexterity(crstat->dexterity, cctrl->explevel);
+        dexterity = calculate_correct_creature_dexterity(firing);
         max_dexterity = crstat->dexterity + ((crstat->dexterity * cctrl->explevel * game.conf.crtr_conf.exp.dexterity_increase_on_exp) / 100);
 
         pos1.x.val += distance_with_angle_to_coord_x((cctrl->shot_shift_x + (cctrl->shot_shift_x * game.conf.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100), firing->move_angle_xy + LbFPMath_PI / 2);

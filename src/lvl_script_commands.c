@@ -3581,7 +3581,7 @@ static void use_spell_on_creature_check(const struct ScriptLine* scline)
 
     if (splevel < 1)
     {
-        if ( (mag_id == SplK_Freeze) || (mag_id == SplK_Armour) || (mag_id == SplK_Rebound) || (mag_id == SplK_Heal) || (mag_id == SplK_Invisibility) || (mag_id == SplK_Speed) || (mag_id == SplK_Slow) || (mag_id == SplK_Fly) || (mag_id == SplK_Sight) || (mag_id == SplK_Disease) || (mag_id == SplK_Chicken) || (mag_id == SplK_TimeBomb) || (mag_id == SplK_Rage) )
+        if ( (mag_id == SplK_Freeze) || (mag_id == SplK_Armour) || (mag_id == SplK_Rebound) || (mag_id == SplK_Heal) || (mag_id == SplK_Invisibility) || (mag_id == SplK_Speed) || (mag_id == SplK_Slow) || (mag_id == SplK_Fly) || (mag_id == SplK_Sight) || (mag_id == SplK_Disease) || (mag_id == SplK_Chicken) || (mag_id == SplK_TimeBomb) || (mag_id == SplK_Rage) || (mag_id == SplK_DivineShield) )
         {
             SCRPTWRNLOG("Spell %s level too low: %d, setting to 1.", mag_name, splevel);
         }
@@ -5053,7 +5053,7 @@ static void set_player_modifier_check(const struct ScriptLine* scline)
     const char *mdfrname = get_conf_parameter_text(modifier_desc,mdfrdesc);
     if (mdfrdesc == -1)
     {
-        SCRPTERRLOG("Unknown Player Modifier '%s'.", mdfrname);
+        SCRPTERRLOG("Unknown Player Modifier '%s'.", scline->tp[1]);
         DEALLOCATE_SCRIPT_VALUE
         return;
     }
@@ -5111,11 +5111,134 @@ static void set_player_modifier_process(struct ScriptContext* context)
                     break;
                 case 8: // ScavengingCost
                     SCRIPTDBG(7,"Changing Player Modifier '%s' of player %d from %d to %d.", mdfrname, (int)plyr_idx, dungeon->modifier.scavenging_cost, mdfrval);
-                       dungeon->modifier.scavenging_cost = mdfrval;
+                    dungeon->modifier.scavenging_cost = mdfrval;
                 break;
                 case 9: // Loyalty
                     SCRIPTDBG(7,"Changing Player Modifier '%s' of player %d from %d to %d.", mdfrname, (int)plyr_idx, dungeon->modifier.loyalty, mdfrval);
                     dungeon->modifier.loyalty = mdfrval;
+                    break;
+                default:
+                    WARNMSG("Unsupported Player Modifier, command %d.", mdfrdesc);
+                    break;
+            }
+        } else
+        {
+            SCRPTERRLOG("Can't manipulate Player Modifier '%s', player %d has no dungeon.", mdfrname, (int)plyr_idx);
+            break;
+        }
+    }
+}
+
+static void add_to_player_modifier_check(const struct ScriptLine* scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0]);
+    short mdfrdesc = get_id(modifier_desc, scline->tp[1]);
+    short mdfrval = scline->np[2];
+    if (mdfrdesc == -1)
+    {
+        SCRPTERRLOG("Unknown Player Modifier '%s'.", scline->tp[1]);
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    }
+    value->shorts[0] = mdfrdesc;
+    value->shorts[1] = mdfrval;
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void add_to_player_modifier_process(struct ScriptContext* context)
+{
+    struct Dungeon* dungeon;
+    short mdfrdesc = context->value->shorts[0];
+    short mdfrval = context->value->shorts[1];
+    short mdfradd;
+    const char *mdfrname = get_conf_parameter_text(modifier_desc,mdfrdesc);
+    for (int plyr_idx = context->plr_start; plyr_idx < context->plr_end; plyr_idx++)
+    {
+        if (plyr_idx != game.neutral_player_num)
+        {
+            dungeon = get_dungeon(plyr_idx);
+            switch (mdfrdesc)
+            {
+                case 1: // Health
+                    mdfradd = dungeon->modifier.health + mdfrval;
+                    if (mdfradd >= 0) {
+                        SCRIPTDBG(7,"Adding %d to Player Modifier '%s' of player %d.", mdfrval, mdfrname, (int)plyr_idx);
+                        dungeon->modifier.health = mdfradd;
+                    } else {
+                        SCRPTERRLOG("Player %d Modifier '%s' may not be negative. Tried to add %d to value %d", (int)plyr_idx, mdfrname, mdfrval, dungeon->modifier.health);
+                    }
+                    break;
+                case 2: // Strength
+                    mdfradd = dungeon->modifier.strength + mdfrval;
+                    if (mdfradd >= 0) {
+                        SCRIPTDBG(7,"Adding %d to Player Modifier '%s' of player %d.", mdfrval, mdfrname, (int)plyr_idx);
+                        dungeon->modifier.strength = mdfradd;
+                    } else {
+                        SCRPTERRLOG("Player %d Modifier '%s' may not be negative. Tried to add %d to value %d", (int)plyr_idx, mdfrname, mdfrval, dungeon->modifier.strength);
+                    }
+                    break;
+                case 3: // Armour
+                    mdfradd = dungeon->modifier.armour + mdfrval;
+                    if (mdfradd >= 0) {
+                        SCRIPTDBG(7,"Adding %d to Player Modifier '%s' of player %d.", mdfrval, mdfrname, (int)plyr_idx);
+                        dungeon->modifier.armour = mdfradd;
+                    } else {
+                        SCRPTERRLOG("Player %d Modifier '%s' may not be negative. Tried to add %d to value %d", (int)plyr_idx, mdfrname, mdfrval, dungeon->modifier.armour);
+                    }
+                    break;
+                case 4: // SpellDamage
+                    mdfradd = dungeon->modifier.spell_damage + mdfrval;
+                    if (mdfradd >= 0) {
+                        SCRIPTDBG(7,"Adding %d to Player Modifier '%s' of player %d.", mdfrval, mdfrname, (int)plyr_idx);
+                        dungeon->modifier.spell_damage = mdfradd;
+                    } else {
+                        SCRPTERRLOG("Player %d Modifier '%s' may not be negative. Tried to add %d to value %d", (int)plyr_idx, mdfrname, mdfrval, dungeon->modifier.spell_damage);
+                    }
+                    break;
+                case 5: // Speed
+                    mdfradd = dungeon->modifier.speed + mdfrval;
+                    if (mdfradd >= 0) {
+                        SCRIPTDBG(7,"Adding %d to Player Modifier '%s' of player %d.", mdfrval, mdfrname, (int)plyr_idx);
+                        dungeon->modifier.speed = mdfradd;
+                    } else {
+                        SCRPTERRLOG("Player %d Modifier '%s' may not be negative. Tried to add %d to value %d", (int)plyr_idx, mdfrname, mdfrval, dungeon->modifier.speed);
+                    }
+                    break;
+                case 6: // Salary
+                    mdfradd = dungeon->modifier.pay + mdfrval;
+                    if (mdfradd >= 0) {
+                        SCRIPTDBG(7,"Adding %d to Player Modifier '%s' of player %d.", mdfrval, mdfrname, (int)plyr_idx);
+                        dungeon->modifier.pay = mdfradd;
+                    } else {
+                        SCRPTERRLOG("Player %d Modifier '%s' may not be negative. Tried to add %d to value %d", (int)plyr_idx, mdfrname, mdfrval, dungeon->modifier.pay);
+                    }
+                    break;
+                case 7: // TrainingCost
+                    mdfradd = dungeon->modifier.training_cost + mdfrval;
+                    if (mdfradd >= 0) {
+                        SCRIPTDBG(7,"Adding %d to Player Modifier '%s' of player %d.", mdfrval, mdfrname, (int)plyr_idx);
+                        dungeon->modifier.training_cost = mdfradd;
+                    } else {
+                        SCRPTERRLOG("Player %d Modifier '%s' may not be negative. Tried to add %d to value %d", (int)plyr_idx, mdfrname, mdfrval, dungeon->modifier.training_cost);
+                    }
+                    break;
+                case 8: // ScavengingCost
+                    mdfradd = dungeon->modifier.scavenging_cost + mdfrval;
+                    if (mdfradd >= 0) {
+                        SCRIPTDBG(7,"Adding %d to Player Modifier '%s' of player %d.", mdfrval, mdfrname, (int)plyr_idx);
+                        dungeon->modifier.scavenging_cost = mdfradd;
+                    } else {
+                        SCRPTERRLOG("Player %d Modifier '%s' may not be negative. Tried to add %d to value %d", (int)plyr_idx, mdfrname, mdfrval, dungeon->modifier.scavenging_cost);
+                    }
+                break;
+                case 9: // Loyalty
+                    mdfradd = dungeon->modifier.loyalty + mdfrval;
+                    if (mdfradd >= 0) {
+                        SCRIPTDBG(7,"Adding %d to Player Modifier '%s' of player %d.", mdfrval, mdfrname, (int)plyr_idx);
+                        dungeon->modifier.loyalty = mdfradd;
+                    } else {
+                        SCRPTERRLOG("Player %d Modifier '%s' may not be negative. Tried to add %d to value %d", (int)plyr_idx, mdfrname, mdfrval, dungeon->modifier.loyalty);
+                    }
                     break;
                 default:
                     WARNMSG("Unsupported Player Modifier, command %d.", mdfrdesc);
@@ -5351,6 +5474,7 @@ const struct CommandDesc command_desc[] = {
   {"MAKE_UNSAFE",                       "P       ", Cmd_MAKE_UNSAFE, NULL, NULL},
   {"SET_INCREASE_ON_EXPERIENCE",        "AN      ", Cmd_SET_INCREASE_ON_EXPERIENCE, &set_increase_on_experience_check, &set_increase_on_experience_process},
   {"SET_PLAYER_MODIFIER",               "PAN     ", Cmd_SET_PLAYER_MODIFIER, &set_player_modifier_check, &set_player_modifier_process},
+  {"ADD_TO_PLAYER_MODIFIER",            "PAN     ", Cmd_ADD_TO_PLAYER_MODIFIER, &add_to_player_modifier_check, &add_to_player_modifier_process},
   {NULL,                                "        ", Cmd_NONE, NULL, NULL},
 };
 

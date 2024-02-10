@@ -126,6 +126,7 @@ enum PowerKinds {
     PwrK_VISION,
     PwrK_RAGE,
     PwrK_DIVINESHIELD,
+    PwrK_METEORSTORM, // 30
 };
 
 /** Contains properties of a shot model, to be stored in ShotConfigStats.

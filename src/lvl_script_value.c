@@ -153,6 +153,7 @@ TbResult script_use_power_on_creature(PlayerNumber plyr_idx, long crmodel, long 
         block |= pwkind == PwrK_CALL2ARMS;
         block |= pwkind == PwrK_CAVEIN;
         block |= pwkind == PwrK_LIGHTNING;
+        block |= pwkind == PwrK_METEORSTORM;
         block |= pwkind == PwrK_MKDIGGER;
         block |= pwkind == PwrK_SIGHT;
         if (block)
@@ -200,6 +201,8 @@ TbResult script_use_power_on_creature(PlayerNumber plyr_idx, long crmodel, long 
         return magic_use_power_call_to_arms(caster, stl_x, stl_y, splevel, spell_flags);
       case PwrK_LIGHTNING:
         return magic_use_power_lightning(caster, stl_x, stl_y, splevel, spell_flags);
+      case PwrK_METEORSTORM:
+        return magic_use_power_meteor_storm(caster, stl_x, stl_y, splevel, spell_flags);
       case PwrK_CAVEIN:
         return magic_use_power_cave_in(caster, stl_x, stl_y, splevel, spell_flags);
       case PwrK_MKDIGGER:

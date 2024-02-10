@@ -87,6 +87,7 @@ const struct NamedCommand player_state_commands[] = {
     {"PLAYER_STATE_VISION",           PSt_Vision},
     {"PLAYER_STATE_RAGE",             PSt_Rage},
     {"PLAYER_STATE_DIVINESHIELD",     PSt_DivineShield},
+    {"PLAYER_STATE_METEORSTORM",      PSt_MeteorStorm},
     {NULL,                            0},  
 };
 /******************************************************************************/

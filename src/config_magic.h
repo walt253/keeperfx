@@ -149,8 +149,8 @@ enum ShotModelFlags {
     ShMF_Exploding      = 0x02000,
     ShMF_BlocksRebirth  = 0x04000,
     ShMF_Penetrating    = 0x08000,
-    ShMF_Break          = 0x10000,
-    ShMF_Jackpot        = 0x20000,
+    ShMF_Stealing       = 0x10000,
+    ShMF_Looting        = 0x20000,
 };
 
 enum PowerCanCastFlags {
@@ -319,6 +319,9 @@ struct ShotConfigStats {
     unsigned char update_logic; // see enum ShotUpdateLogics
     unsigned short effect_spacing;
     unsigned char effect_amount;
+    unsigned char dexterity_percent;
+    unsigned char break_percent;
+    unsigned char gold_percent;
 };
 
 typedef unsigned char (*Expand_Check_Func)(void);

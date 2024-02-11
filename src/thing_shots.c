@@ -1161,15 +1161,10 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
     }
     if (shotst->dexterity_percent > 0)
     {
-        struct CreatureStats* dxtsr = creature_stats_get_from_thing(shooter);
-        struct CreatureStats* deftg = creature_stats_get_from_thing(trgtng);
         unsigned char dxtprcnt = shotst->dexterity_percent;
-        HitPoints dxtcnt = dxtsr->dexterity;
-        HitPoints defcnt = deftg->defense;
-        if (defcnt >= 255) {
-            defcnt = 255;
-        }
-        HitPoints dxtdmg = (((dxtcnt * dxtprcnt) / 100) * (256 - defcnt)) / 256;
+        unsigned char dxtshtr = calculate_correct_creature_dexterity(shooter);
+        unsigned char deftrgt = calculate_correct_creature_defense(trgtng);
+        HitPoints dxtdmg = (((dxtshtr * dxtprcnt) / 100) * (256 - deftrgt)) / 256;
         if (!thing_is_invalid(shooter)) {
             apply_damage_to_thing_and_display_health(trgtng, dxtdmg, shotst->damage_type, shooter->owner);
         } else {
@@ -1192,7 +1187,7 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
     if (shotst->gold_percent > 0)
     {
         unsigned char gldprcnt = shotst->gold_percent;
-        HitPoints gldcnt = shooter->creature.gold_carried;
+        GoldAmount gldcnt = shooter->creature.gold_carried;
         HitPoints glddmg = (gldcnt * gldprcnt) / 100;
         if (!thing_is_invalid(shooter)) {
             apply_damage_to_thing_and_display_health(trgtng, glddmg, shotst->damage_type, shooter->owner);
@@ -1204,7 +1199,9 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
     if (((shotst->model_flags & ShMF_Stealing) != 0) && (trgtng->creature.gold_carried > 0))
     {
         struct CreatureStats* stlng = creature_stats_get_from_thing(shooter);
-        GoldAmount stlngcnt = stlng->dexterity;
+        unsigned char stlngshtr = calculate_correct_creature_dexterity(shooter);
+        unsigned char stlngtrgt = calculate_correct_creature_dexterity(trgtng);
+        GoldAmount stlngcnt = (stlngshtr * (384 - stlngtrgt)) / 512;
         if (stlngcnt > trgtng->creature.gold_carried) {
             stlngcnt = trgtng->creature.gold_carried;
         }
@@ -1218,7 +1215,9 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
     if ((shotst->model_flags & ShMF_Looting) != 0)
     {
         struct CreatureStats* ltng = creature_stats_get_from_thing(shooter);
-        GoldAmount ltngcnt = ltng->dexterity;
+        unsigned char ltngshtr = calculate_correct_creature_dexterity(shooter);
+        unsigned char ltngtrgt = calculate_correct_creature_dexterity(trgtng);
+        GoldAmount ltngcnt = (ltngshtr * (384 - ltngtrgt)) / 512;
         if (ltng->gold_hold >= (shooter->creature.gold_carried + ltngcnt)) {
             shooter->creature.gold_carried += ltngcnt;
         } else {

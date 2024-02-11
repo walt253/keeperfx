@@ -82,6 +82,7 @@ enum CreatureInstances {
     CrInst_SUMMON,
     CrInst_RAGE, // 50
     CrInst_DIVINE_SHIELD,
+    CrInst_CHARM,
     //CrInst_CAST_SPELL_GROUP,
     CrInst_LISTEND,
 };

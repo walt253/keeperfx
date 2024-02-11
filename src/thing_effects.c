@@ -336,10 +336,27 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
 
     if ((cctrl->spell_flags & CSAfF_DivineShield) != 0)
     {
-        pos.x.val = thing->mappos.x.val;
-        pos.y.val = thing->mappos.y.val;
-        pos.z.val = thing->mappos.z.val + get_creature_eye_height(thing);
-        effeltng = create_thing(&pos, TCls_EffectElem, TngEffElm_LavaFlameMoving, thing->owner, -1);
+        int diamtr = 3 * thing->clipbox_size_xy / 2;
+        MapCoord cor_z_max = thing->clipbox_size_z + (thing->clipbox_size_z * game.conf.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 80; //effect is 20% smaller than unit
+        int i = cor_z_max / 16; //128 is the vertical speed of the circle.
+        if (i <= 1)
+          i = 1;
+        dturn = game.play_gameturn - thing->creation_turn;
+        int vrange = i;
+        if (dturn % (2 * i) < vrange)
+            pos.z.val = thing->mappos.z.val + cor_z_max / vrange * (dturn % vrange);
+        else
+            pos.z.val = thing->mappos.z.val + cor_z_max / vrange * (vrange - (dturn % vrange));
+        int radius = diamtr / 2;
+        for (i=0; i < 16; i++)
+        {
+            angle = (abs(i) & 0xF) << 7;
+            shift_x =  (radius * LbSinL(angle) >> 8) >> 8;
+            shift_y = -(radius * LbCosL(angle) >> 8) >> 8;
+            pos.x.val = thing->mappos.x.val + shift_x;
+            pos.y.val = thing->mappos.y.val + shift_y;
+            effeltng = create_thing(&pos, TCls_EffectElem, TngEffElm_LavaFlameMoving, thing->owner, -1);
+        }
     }
 }
 

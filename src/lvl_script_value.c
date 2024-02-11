@@ -807,6 +807,16 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       case 27: // ALLURING_SCVNGR
           crstat->entrance_force = val4;
           break;
+      case 28: // IMMUNE_TO_CHARM
+          if (val4 >= 1)
+          {
+              crconf->model_flags |= CMF_NoCharm;
+          }
+          else
+          {
+              crconf->model_flags ^= CMF_NoCharm;
+          }
+          break;
       default:
           SCRPTERRLOG("Unknown creature property '%d'", val3);
           break;

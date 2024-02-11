@@ -1159,6 +1159,81 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
         }
         return 1;
     }
+    if (shotst->dexterity_percent > 0)
+    {
+        unsigned char dxtprcnt = shotst->dexterity_percent;
+        unsigned char dxtshtr = calculate_correct_creature_dexterity(shooter);
+        unsigned char deftrgt = calculate_correct_creature_defense(trgtng);
+        HitPoints dxtdmg = (((dxtshtr * dxtprcnt) / 100) * (256 - deftrgt)) / 256;
+        if (!thing_is_invalid(shooter)) {
+            apply_damage_to_thing_and_display_health(trgtng, dxtdmg, shotst->damage_type, shooter->owner);
+        } else {
+            apply_damage_to_thing_and_display_health(trgtng, dxtdmg, shotst->damage_type, -1);
+        }
+    }
+    if (shotst->break_percent > 0)
+    {
+        struct CreatureControl* brksr = creature_control_get_from_thing(shooter);
+        unsigned char brkprcnt = shotst->break_percent;
+        HitPoints max_health = brksr->max_health;
+        HitPoints current_health = shooter->health;
+        HitPoints brkdmg = ((max_health - current_health) * brkprcnt) / 100;
+        if (!thing_is_invalid(shooter)) {
+            apply_damage_to_thing_and_display_health(trgtng, brkdmg, shotst->damage_type, shooter->owner);
+        } else {
+            apply_damage_to_thing_and_display_health(trgtng, brkdmg, shotst->damage_type, -1);
+        }
+    }
+    if (shotst->gold_percent > 0)
+    {
+        unsigned char gldprcnt = shotst->gold_percent;
+        GoldAmount gldcnt = shooter->creature.gold_carried;
+        HitPoints glddmg = (gldcnt * gldprcnt) / 100;
+        if (!thing_is_invalid(shooter)) {
+            apply_damage_to_thing_and_display_health(trgtng, glddmg, shotst->damage_type, shooter->owner);
+            shooter->creature.gold_carried -= glddmg;
+        } else {
+            apply_damage_to_thing_and_display_health(trgtng, glddmg, shotst->damage_type, -1);
+        }
+    }
+    if (((shotst->model_flags & ShMF_Stealing) != 0) && (trgtng->creature.gold_carried > 0))
+    {
+        struct CreatureStats* stlng = creature_stats_get_from_thing(shooter);
+        unsigned char stlngshtr = calculate_correct_creature_dexterity(shooter);
+        unsigned char stlngtrgt = calculate_correct_creature_dexterity(trgtng);
+        GoldAmount stlngcnt = (stlngshtr * (384 - stlngtrgt)) / 512;
+        if (stlngcnt > trgtng->creature.gold_carried) {
+            stlngcnt = trgtng->creature.gold_carried;
+        }
+        if (stlng->gold_hold >= (shooter->creature.gold_carried + stlngcnt)) {
+            shooter->creature.gold_carried += stlngcnt;
+        } else {
+            drop_gold_pile(stlngcnt, &shooter->mappos);
+        }
+        trgtng->creature.gold_carried -= stlngcnt;
+    }
+    if ((shotst->model_flags & ShMF_Looting) != 0)
+    {
+        struct CreatureStats* ltng = creature_stats_get_from_thing(shooter);
+        unsigned char ltngshtr = calculate_correct_creature_dexterity(shooter);
+        unsigned char ltngtrgt = calculate_correct_creature_dexterity(trgtng);
+        GoldAmount ltngcnt = (ltngshtr * (384 - ltngtrgt)) / 512;
+        if (ltng->gold_hold >= (shooter->creature.gold_carried + ltngcnt)) {
+            shooter->creature.gold_carried += ltngcnt;
+        } else {
+            drop_gold_pile(ltngcnt, &trgtng->mappos);
+        }
+    }
+    if (((shotst->model_flags & ShMF_Charming) != 0) && ((get_creature_model_flags(trgtng) & CMF_NoCharm) == 0))
+    {
+        struct CreatureControl* chrmngshtr = creature_control_get_from_thing(shooter);
+        struct CreatureControl* chrmngtrgt = creature_control_get_from_thing(trgtng);
+        unsigned char lvlshtr = chrmngshtr->explevel;
+        unsigned char lvltrgt = chrmngtrgt->explevel;
+        if ((lvlshtr / 2) >= lvltrgt) {
+            change_creature_owner(trgtng, shooter->owner);
+        }
+    }
     if ((shotst->model_flags & ShMF_StrengthBased) != 0)
     {
         return melee_shot_hit_creature_at(shotng, trgtng, pos);

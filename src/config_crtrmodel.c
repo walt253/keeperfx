@@ -116,6 +116,7 @@ const struct NamedCommand creatmodel_properties_commands[] = {
   {"ALLURING_SCVNGR",   27},
   {"NO_RESURRECT",      28},
   {"NO_TRANSFER",       29},
+  {"IMMUNE_TO_CHARM",   30},
   {NULL,                 0},
   };
 
@@ -748,6 +749,10 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
                 break;
             case 29: // NO_TRANSFER
                 crconf->model_flags |= CMF_NoTransfer;
+                n++;
+                break;
+            case 30: // IMMUNE_TO_CHARM
+                crconf->model_flags |= CMF_NoCharm;
                 n++;
                 break;
             default:

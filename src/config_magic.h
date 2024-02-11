@@ -151,6 +151,7 @@ enum ShotModelFlags {
     ShMF_Penetrating    = 0x08000,
     ShMF_Stealing       = 0x10000,
     ShMF_Looting        = 0x20000,
+    ShMF_Charming       = 0x40000,
 };
 
 enum PowerCanCastFlags {

@@ -1224,7 +1224,7 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
             drop_gold_pile(ltngcnt, &trgtng->mappos);
         }
     }
-    if (((shotst->model_flags & ShMF_Charming) != 0) && ((get_creature_model_flags(trgtng) & CMF_NoCharm) = 0))
+    if (((shotst->model_flags & ShMF_Charming) != 0) && ((get_creature_model_flags(trgtng) & CMF_NoCharm) == 0))
     {
         struct CreatureControl* chrmngshtr = creature_control_get_from_thing(shooter);
         struct CreatureControl* chrmngtrgt = creature_control_get_from_thing(trgtng);

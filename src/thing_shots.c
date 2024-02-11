@@ -1196,6 +1196,22 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
             cctrl->frozen_on_hit = shotst->target_hitstop_turns;
         }
     }
+    if ((shotst->model_flags & ShMF_Break) != 0)
+    {
+        struct CreatureControl* brksr = creature_control_get_from_thing(shooter);
+        HitPoints max_health = brksr->max_health;
+        HitPoints health = brksr->health;
+        HitPoints brkdmg = max_health - health;
+        HitPoints brktrgt;
+        brktrgt = apply_damage_to_thing_and_display_health(trgtng, brkdmg, shotst->damage_type, shooter->owner);
+    }
+    if ((shotst->model_flags & ShMF_Jackpot) != 0)
+    {
+        struct CreatureStats* jckptsr = creature_stats_get_from_thing(shooter);
+        HitPoints jckptdmg = jckptsr->creature.gold_carried;
+        HitPoints jckpttrgt;
+        jckpttrgt = apply_damage_to_thing_and_display_health(trgtng, jckptdmg, shotst->damage_type, shooter->owner);
+    }
     if (shotst->cast_spell_kind != 0)
     {
         struct CreatureControl* scctrl = creature_control_get_from_thing(shooter);

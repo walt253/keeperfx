@@ -334,18 +334,11 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
         effeltng = create_thing(&pos, TCls_EffectElem, TngEffElm_RedDot, thing->owner, -1);
     }
 
-//    if ((cctrl->spell_flags & CSAfF_DivineShield) != 0)
-//    {
-//        pos.x.val = thing->mappos.x.val;
-//        pos.y.val = thing->mappos.y.val;
-//        pos.z.val = thing->mappos.z.val + get_creature_eye_height(thing);
-//        effeltng = create_thing(&pos, TCls_EffectElem, TngEffElm_LavaFlameMoving, thing->owner, -1);
-//    }
     if ((cctrl->spell_flags & CSAfF_DivineShield) != 0)
     {
         int diamtr = 4 * thing->clipbox_size_xy / 2;
         MapCoord cor_z_max = thing->clipbox_size_z + (thing->clipbox_size_z * game.conf.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 80; //effect is 20% smaller than unit
-        int i = cor_z_max / 64; //64 is the vertical speed of the circle.
+        int i = cor_z_max / 128; //128 is the vertical speed of the circle.
         if (i <= 1)
           i = 1;
         dturn = game.play_gameturn - thing->creation_turn;

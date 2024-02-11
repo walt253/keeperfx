@@ -1162,9 +1162,14 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
     if (shotst->dexterity_percent > 0)
     {
         struct CreatureStats* dxtsr = creature_stats_get_from_thing(shooter);
+        struct CreatureStats* deftg = creature_stats_get_from_thing(trgtng);
         unsigned char dxtprcnt = shotst->dexterity_percent;
         HitPoints dxtcnt = dxtsr->dexterity;
-        HitPoints dxtdmg = (dxtcnt * dxtprcnt) / 100;
+        HitPoints defcnt = deftg->defense;
+        if (defcnt >= 255) {
+            defcnt = 255;
+        }
+        HitPoints dxtdmg = (((dxtcnt * dxtprcnt) / 100) * (256 - defcnt)) / 256;
         if (!thing_is_invalid(shooter)) {
             apply_damage_to_thing_and_display_health(trgtng, dxtdmg, shotst->damage_type, shooter->owner);
         } else {
@@ -1203,21 +1208,21 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
         if (stlngcnt > trgtng->creature.gold_carried) {
             stlngcnt = trgtng->creature.gold_carried;
         }
-        shooter->creature.gold_carried += stlngcnt;
-        trgtng->creature.gold_carried -= stlngcnt;
-        if (shooter->creature.gold_carried > stlng->gold_hold) {
-            GoldAmount stlngrmns = shooter->creature.gold_carried - stlng->gold_hold;
-            drop_gold_pile(stlngrmns, &shooter->mappos);
+        if (stlng->gold_hold >= (shooter->creature.gold_carried + stlngcnt)) {
+            shooter->creature.gold_carried += stlngcnt;
+        } else {
+            drop_gold_pile(stlngcnt, &shooter->mappos);
         }
+        trgtng->creature.gold_carried -= stlngcnt;
     }
     if ((shotst->model_flags & ShMF_Looting) != 0)
     {
         struct CreatureStats* ltng = creature_stats_get_from_thing(shooter);
         GoldAmount ltngcnt = ltng->dexterity;
-        shooter->creature.gold_carried += ltngcnt;
-        if (shooter->creature.gold_carried > ltng->gold_hold) {
-            GoldAmount ltngrmns = shooter->creature.gold_carried - ltng->gold_hold;
-            drop_gold_pile(ltngrmns, &shooter->mappos);
+        if (ltng->gold_hold >= (shooter->creature.gold_carried + ltngcnt)) {
+            shooter->creature.gold_carried += ltngcnt;
+        } else {
+            drop_gold_pile(ltngcnt, &shooter->mappos);
         }
     }
     if ((shotst->model_flags & ShMF_StrengthBased) != 0)

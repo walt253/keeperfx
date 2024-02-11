@@ -127,6 +127,9 @@ const struct NamedCommand magic_shot_commands[] = {
   {"UPDATELOGIC",           50},
   {"EFFECTSPACING",         51},
   {"EFFECTAMOUNT",          52},
+  {"DEXTERITYPERCENT",      53},
+  {"BREAKPERCENT",          54},
+  {"GOLDPERCENT",           55},
   {NULL,                     0},
   };
 
@@ -195,8 +198,8 @@ const struct NamedCommand shotmodel_properties_commands[] = {
   {"DISARMING",           18},
   {"BLOCKS_REBIRTH",      19},
   {"PENETRATING",         20},
-  {"BREAK",               21},
-  {"JACKPOT",             22},
+  {"STEALING",            21},
+  {"LOOTING",             22},
   {NULL,                   0},
   };
 
@@ -1118,12 +1121,12 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
                 shotst->model_flags |= ShMF_Penetrating;
                 n++;
                 break;
-            case 21: // Break
-                shotst->model_flags |= ShMF_Break;
+            case 21: // Stealing
+                shotst->model_flags |= ShMF_Stealing;
                 n++;
                 break;
-            case 22: // Jackpot
-                shotst->model_flags |= ShMF_Jackpot;
+            case 22: // Looting
+                shotst->model_flags |= ShMF_Looting;
                 n++;
                 break;
             default:
@@ -1792,6 +1795,45 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           {
               k = atoi(word_buf);
               shotst->effect_amount = k;
+              n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 53: //DEXTERITYPERCENT
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              shotst->dexterity_percent = k;
+              n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 54: //BREAKPERCENT
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              shotst->break_percent = k;
+              n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 55: //GOLDPERCENT
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              shotst->gold_percent = k;
               n++;
           }
           if (n < 1)

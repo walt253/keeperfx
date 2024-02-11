@@ -1222,7 +1222,7 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
         if (ltng->gold_hold >= (shooter->creature.gold_carried + ltngcnt)) {
             shooter->creature.gold_carried += ltngcnt;
         } else {
-            drop_gold_pile(ltngcnt, &shooter->mappos);
+            drop_gold_pile(ltngcnt, &trgtng->mappos);
         }
     }
     if ((shotst->model_flags & ShMF_StrengthBased) != 0)

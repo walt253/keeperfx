@@ -1196,23 +1196,29 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
             apply_damage_to_thing_and_display_health(trgtng, glddmg, shotst->damage_type, -1);
         }
     }
-    if ((shotst->model_flags & ShMF_Stealing) != 0)
+    if (((shotst->model_flags & ShMF_Stealing) != 0) && (trgtng->creature.gold_carried > 0))
     {
-        struct CreatureStats* stlr = creature_stats_get_from_thing(shooter);
-        GoldAmount stlrdmg = stlr->dexterity;
-        GoldAmount stlncnt = trgtng->creature.gold_carried;
-        if (stlrdmg > stlncnt) {
-            stlrdmg = stlncnt;
+        struct CreatureStats* stlng = creature_stats_get_from_thing(shooter);
+        GoldAmount stlngcnt = stlng->dexterity;
+        if (stlngcnt > trgtng->creature.gold_carried) {
+            stlngcnt = trgtng->creature.gold_carried;
         }
-        shooter->creature.gold_carried += stlrdmg;
-        trgtng->creature.gold_carried -= stlrdmg;
-        if (shooter->creature.gold_carried > stlr->gold_hold) {
-            GoldAmount gldrmns = shooter->creature.gold_carried - stlr->gold_hold;
-            drop_gold_pile(gldrmns, &shooter->mappos);
+        shooter->creature.gold_carried += stlngcnt;
+        trgtng->creature.gold_carried -= stlngcnt;
+        if (shooter->creature.gold_carried > stlng->gold_hold) {
+            GoldAmount stlngrmns = shooter->creature.gold_carried - stlng->gold_hold;
+            drop_gold_pile(stlngrmns, &shooter->mappos);
         }
     }
     if ((shotst->model_flags & ShMF_Looting) != 0)
     {
+        struct CreatureStats* ltng = creature_stats_get_from_thing(shooter);
+        GoldAmount ltngcnt = ltng->dexterity;
+        shooter->creature.gold_carried += ltngcnt;
+        if (shooter->creature.gold_carried > ltng->gold_hold) {
+            GoldAmount ltngrmns = shooter->creature.gold_carried - ltng->gold_hold;
+            drop_gold_pile(ltngrmns, &shooter->mappos);
+        }
     }
     if ((shotst->model_flags & ShMF_StrengthBased) != 0)
     {

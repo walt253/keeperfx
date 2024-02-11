@@ -1200,7 +1200,6 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
     {
         struct CreatureStats* stlr = creature_stats_get_from_thing(shooter);
         GoldAmount stlrdmg = stlr->dexterity;
-        GoldAmount stlrcnt = shooter->creature.gold_carried;
         GoldAmount stlncnt = trgtng->creature.gold_carried;
         if (stlrdmg > stlncnt) {
             stlrdmg = stlncnt;

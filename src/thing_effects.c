@@ -336,9 +336,9 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
 
     if ((cctrl->spell_flags & CSAfF_DivineShield) != 0)
     {
-        int diamtr = 4 * thing->clipbox_size_xy / 2;
+        int diamtr = 3 * thing->clipbox_size_xy / 2;
         MapCoord cor_z_max = thing->clipbox_size_z + (thing->clipbox_size_z * game.conf.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 80; //effect is 20% smaller than unit
-        int i = cor_z_max / 128; //128 is the vertical speed of the circle.
+        int i = cor_z_max / 16; //128 is the vertical speed of the circle.
         if (i <= 1)
           i = 1;
         dturn = game.play_gameturn - thing->creation_turn;

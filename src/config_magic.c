@@ -200,6 +200,7 @@ const struct NamedCommand shotmodel_properties_commands[] = {
   {"PENETRATING",         20},
   {"STEALING",            21},
   {"LOOTING",             22},
+  {"CHARMING",            23},
   {NULL,                   0},
   };
 
@@ -1127,6 +1128,10 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
                 break;
             case 22: // Looting
                 shotst->model_flags |= ShMF_Looting;
+                n++;
+                break;
+            case 23: // Charming
+                shotst->model_flags |= ShMF_Charming;
                 n++;
                 break;
             default:

@@ -1260,8 +1260,8 @@ void terminate_thing_spell_effect(struct Thing *thing, SpellKind spkind)
     case SplK_Sight:
         cctrl->spell_flags &= ~CSAfF_Sight;
         break;
-    case SplK_Indoctrination:
-        cctrl->spell_flags &= ~CSAfF_MadKilling;
+    case SplK_DivineShield:
+        cctrl->spell_flags &= ~CSAfF_DivineShield;
         break;
     case SplK_Disease:
         cctrl->spell_flags &= ~CSAfF_Disease;
@@ -1281,8 +1281,8 @@ void terminate_thing_spell_effect(struct Thing *thing, SpellKind spkind)
         external_set_thing_state(thing, CrSt_CreatureChangeFromChicken);
         cctrl->countdown_282 = 10;
         break;
-    case SplK_DivineShield:
-        cctrl->spell_flags &= ~CSAfF_DivineShield;
+    case SplK_Indoctrination:
+        cctrl->spell_flags &= ~CSAfF_MadKilling;
         break;
     case SplK_Light:
     crstat = creature_stats_get(thing->model);

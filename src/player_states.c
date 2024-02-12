@@ -93,6 +93,11 @@ PowerKind const player_state_to_power_kind[PLAYER_STATES_COUNT] = {
   PwrK_DIVINESHIELD,   // PSt_DivineShield
   PwrK_METEORSTORM,    // PSt_MeteorStorm
   PwrK_INDOCTRINATION, // PSt_Indoctrination
+  PwrK_MAGICFALL,      // PSt_MagicFall
+  PwrK_MASSTELEPORT,   // PSt_MassTeleport
+  PwrK_FART,           // PSt_Fart
+  PwrK_SUMMONCREATURE, // PSt_SummonCreature
+  PwrK_ERUPTION,       // PSt_Eruption
 };
 /******************************************************************************/
 

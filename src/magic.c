@@ -947,8 +947,7 @@ TbResult magic_use_power_armageddon(PlayerNumber plyr_idx, unsigned long mod_fla
 
 /**
  * Starts and stops the use of Must obey.
- * What differs this power from others is that it is a toggle - pressing once
- * starts the power, and second press disables it.
+ * What differs this power from others is that it is a toggle - pressing once starts the power, and second press disables it.
  * The spell is paid for somewhere else - it takes money every few turns when active.
  * @param plyr_idx
  * @param mod_flags
@@ -978,6 +977,33 @@ void turn_off_power_obey(PlayerNumber plyr_idx)
     struct Dungeon *dungeon;
     dungeon = get_players_num_dungeon(plyr_idx);
     dungeon->must_obey_turn = 0;
+    update_speed_of_player_creatures_of_model(plyr_idx, 0);
+}
+
+TbResult magic_use_power_mighty_infusion(PlayerNumber plyr_idx, unsigned long mod_flags)
+{
+    struct Dungeon *dungeon;
+    dungeon = get_players_num_dungeon(plyr_idx);
+    // Toggle the spell
+    if (dungeon->infusion_turn != 0) {
+        dungeon->infusion_turn = 0;
+    } else {
+        dungeon->infusion_turn = game.play_gameturn;
+        if (plyr_idx == my_player_number)
+        {
+            struct PowerConfigStats *powerst = get_power_model_stats(PwrK_MIGHTYINFUSION);
+            play_non_3d_sample(powerst->select_sound_idx);
+        }
+    }
+    update_speed_of_player_creatures_of_model(plyr_idx, 0);
+    return Lb_SUCCESS;
+}
+
+void turn_off_power_mighty_infusion(PlayerNumber plyr_idx)
+{
+    struct Dungeon *dungeon;
+    dungeon = get_players_num_dungeon(plyr_idx);
+    dungeon->infusion_turn = 0;
     update_speed_of_player_creatures_of_model(plyr_idx, 0);
 }
 
@@ -2155,6 +2181,22 @@ void process_magic_power_must_obey(PlayerNumber plyr_idx)
     }
 }
 
+void process_magic_power_mighty_infusion(PlayerNumber plyr_idx)
+{
+    struct Dungeon *dungeon;
+    dungeon = get_players_num_dungeon(plyr_idx);
+    long delta;
+    delta = game.play_gameturn - dungeon->infusion_turn;
+    const struct MagicStats *pwrdynst;
+    pwrdynst = get_power_dynamic_stats(PwrK_MIGHTYINFUSION);
+    if ((delta % pwrdynst->duration) == 0)
+    {
+        if (!pay_for_spell(plyr_idx, PwrK_MIGHTYINFUSION, 0)) {
+            magic_use_power_mighty_infusion(plyr_idx, PwMod_Default);
+        }
+    }
+}
+
 void process_dungeon_power_magic(void)
 {
     SYNCDBG(8,"Starting");
@@ -2176,6 +2218,10 @@ void process_dungeon_power_magic(void)
             if (player_uses_power_obey(i))
             {
                 process_magic_power_must_obey(i);
+            }
+            if (player_uses_power_mighty_infusion(i))
+            {
+                process_magic_power_mighty_infusion(i);
             }
             if (game.armageddon_cast_turn > 0)
             {
@@ -2485,6 +2531,8 @@ TbResult magic_use_power_on_level(PlayerNumber plyr_idx, PowerKind spl_idx,
     {
     case PwrK_OBEY:
         return magic_use_power_obey(plyr_idx, allow_flags);
+    case PwrK_MIGHTYINFUSION:
+        return magic_use_power_mighty_infusion(plyr_idx, allow_flags);
     case PwrK_HOLDAUDNC:
         return magic_use_power_hold_audience(plyr_idx, allow_flags);
     case PwrK_ARMAGEDDON:

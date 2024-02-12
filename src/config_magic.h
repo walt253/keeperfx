@@ -67,9 +67,10 @@ enum SpellKinds {
     SplK_Lizard,
     SplK_Familiar, // 30
     SplK_Summon,
-    SplK_Rage, // 32
-    SplK_DivineShield, // 33
-    SplK_Indoctrination, // 34
+    SplK_Rage,
+    SplK_DivineShield,
+    SplK_Indoctrination,
+    SplK_MagicFall, // 35
 };
 
 enum CreatureSpellAffectedFlags {
@@ -129,6 +130,12 @@ enum PowerKinds {
     PwrK_DIVINESHIELD,
     PwrK_METEORSTORM, // 30
     PwrK_INDOCTRINATION,
+    PwrK_MIGHTYINFUSION,
+    PwrK_MAGICFALL,
+    PwrK_MASSTELEPORT,
+    PwrK_FART, // 35
+    PwrK_SUMMONCREATURE,
+    PwrK_ERUPTION,
 };
 
 /** Contains properties of a shot model, to be stored in ShotConfigStats.

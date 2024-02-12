@@ -754,6 +754,8 @@ TbBool creature_affected_by_spell(const struct Thing *thing, SpellKind spkind)
         return ((cctrl->spell_flags & CSAfF_Disease) != 0);
     case SplK_Chicken:
         return ((cctrl->spell_flags & CSAfF_Chicken) != 0);
+    case SplK_Indoctrination:
+        return ((cctrl->spell_flags & CSAfF_MadKilling) != 0);
     case SplK_TimeBomb:
         return ((cctrl->spell_flags & CSAfF_Timebomb) != 0);
     // Handle spells with no continuous effect
@@ -1258,8 +1260,8 @@ void terminate_thing_spell_effect(struct Thing *thing, SpellKind spkind)
     case SplK_Sight:
         cctrl->spell_flags &= ~CSAfF_Sight;
         break;
-    case SplK_DivineShield:
-        cctrl->spell_flags &= ~CSAfF_DivineShield;
+    case SplK_Indoctrination:
+        cctrl->spell_flags &= ~CSAfF_MadKilling;
         break;
     case SplK_Disease:
         cctrl->spell_flags &= ~CSAfF_Disease;
@@ -1278,6 +1280,9 @@ void terminate_thing_spell_effect(struct Thing *thing, SpellKind spkind)
         cctrl->spell_flags &= ~CSAfF_Chicken;
         external_set_thing_state(thing, CrSt_CreatureChangeFromChicken);
         cctrl->countdown_282 = 10;
+        break;
+    case SplK_DivineShield:
+        cctrl->spell_flags &= ~CSAfF_DivineShield;
         break;
     case SplK_Light:
     crstat = creature_stats_get(thing->model);

@@ -243,7 +243,7 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
         }
     }
 
-    if ((cctrl->spell_flags & CSAfF_Flying) != 0)
+    if (((cctrl->spell_flags & CSAfF_Flying) != 0) && ((cctrl->stateblock_flags & CCSpl_MagicFall) == 0))
     {
         effeltng = create_thing(&thing->mappos, TCls_EffectElem, TngEffElm_CloudDisperse, thing->owner, -1);
     }
@@ -324,6 +324,13 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
         if ((dturn > 32) || thing_touching_floor(thing)) {
             cctrl->spell_flags &= ~CSAfF_MagicFall;
         }
+    }
+
+    if ((cctrl->stateblock_flags & CCSpl_MagicFall) != 0) {
+        pos.x.val = thing->mappos.x.val;
+        pos.y.val = thing->mappos.y.val;
+        pos.z.val = get_ceiling_height_above_thing_at(thing, &thing->mappos);
+        effeltng = create_thing(&pos, TCls_EffectElem, TngEffElm_EntranceMist, thing->owner, -1);
     }
 
     if ((cctrl->spell_flags & CSAfF_Rage) != 0)

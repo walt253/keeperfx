@@ -897,6 +897,11 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
         case PSt_Rage:
         case PSt_DivineShield:
         case PSt_Indoctrination:
+        case PSt_MagicFall:
+        case PSt_MassTeleport:
+        case PSt_Fart:
+        case PSt_SummonCreature:
+        case PSt_Eruption:
         case PSt_TimeBomb:
             influence_own_creatures = true;
             pwkind = player_state_to_power_kind[player->work_state];

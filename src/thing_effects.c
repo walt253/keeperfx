@@ -363,7 +363,7 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
     {
         pos.x.val = thing->mappos.x.val;
         pos.y.val = thing->mappos.y.val;
-        pos.z.val = thing->mappos.z.val + get_creature_eye_height(thing);
+        pos.z.val = thing->mappos.z.val;
         effeltng = create_thing(&pos, TCls_EffectElem, TngEffElm_BloodSplat, thing->owner, -1);
     }
 }

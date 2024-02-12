@@ -1035,6 +1035,11 @@ long player_state_to_packet(long work_state, PowerKind pwkind, TbBool already_in
     case PSt_DivineShield:
     case PSt_MeteorStorm:
     case PSt_Indoctrination:
+    case PSt_MagicFall:
+    case PSt_MassTeleport:
+    case PSt_Fart:
+    case PSt_SummonCreature:
+    case PSt_Eruption:
     case PSt_TimeBomb:
         return PckA_SetPlyrState;
     case PSt_None:

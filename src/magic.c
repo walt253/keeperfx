@@ -1539,9 +1539,6 @@ TbResult magic_use_power_indoctrination(PlayerNumber plyr_idx, struct Thing *thi
             return Lb_FAIL;
         }
     }
-    struct Coord3d effpos = thing->mappos;
-    effpos.z.val = thing->mappos.z.val + get_creature_eye_height(thing);
-    create_effect(&effpos, TngEff_Blood7, thing->owner);
     struct PowerConfigStats *powerst;
     powerst = get_power_model_stats(PwrK_INDOCTRINATION);
     thing_play_sample(thing, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);

@@ -69,6 +69,7 @@ enum SpellKinds {
     SplK_Summon,
     SplK_Rage, // 32
     SplK_DivineShield, // 33
+    SplK_Indoctrination, // 34
 };
 
 enum CreatureSpellAffectedFlags {
@@ -127,6 +128,7 @@ enum PowerKinds {
     PwrK_RAGE,
     PwrK_DIVINESHIELD,
     PwrK_METEORSTORM, // 30
+    PwrK_Indoctrination,
 };
 
 /** Contains properties of a shot model, to be stored in ShotConfigStats.

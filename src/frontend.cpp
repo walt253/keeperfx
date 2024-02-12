@@ -1047,6 +1047,8 @@ long player_state_to_packet(long work_state, PowerKind pwkind, TbBool already_in
         {
         case PwrK_OBEY:
             return PckA_UsePwrObey;
+        case PwrK_MIGHTYINFUSION:
+            return PckA_UsePwrInfusion;
         case PwrK_HOLDAUDNC:
             return PckA_HoldAudience;
         case PwrK_ARMAGEDDON:

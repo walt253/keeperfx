@@ -91,6 +91,7 @@ enum PlayerStates {
     PSt_Rage, // 55
     PSt_DivineShield,
     PSt_MeteorStorm,
+    PSt_Indoctrination,
     PSt_ListEnd
 };
 

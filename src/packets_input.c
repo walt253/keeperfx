@@ -897,7 +897,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
         case PSt_Rage:
         case PSt_DivineShield:
         case PSt_Indoctrination:
-        case PSt_MagicFall:
+        case PSt_MagicMist:
         case PSt_MassTeleport:
         case PSt_Fart:
         case PSt_SummonCreature:

@@ -474,6 +474,8 @@ long project_creature_attack_spell_damage(long base_param,long luck,unsigned sho
     if (crlevel >= CREATURE_MAX_LEVEL)
         crlevel = CREATURE_MAX_LEVEL-1;
     long max_param = base_param + (game.conf.crtr_conf.exp.spell_damage_increase_on_exp * base_param * (long)crlevel) / 100;
+    if (creature_affected_by_spell(thing, SplK_MagicMist))
+        max_param = (384 * max_param) / 256;
     if (!is_neutral_thing(thing)) {
         dungeon = get_dungeon(thing->owner);
         unsigned short modifier = dungeon->modifier.spell_damage;
@@ -524,6 +526,8 @@ long compute_creature_attack_spell_damage(long base_param, long luck, unsigned s
     if (crlevel >= CREATURE_MAX_LEVEL)
         crlevel = CREATURE_MAX_LEVEL-1;
     long max_param = base_param + (game.conf.crtr_conf.exp.spell_damage_increase_on_exp * base_param * (long)crlevel) / 100;
+    if (creature_affected_by_spell(thing, SplK_MagicMist))
+        max_param = (384 * max_param) / 256;
     if (!is_neutral_thing(thing)) {
         dungeon = get_dungeon(thing->owner);
         unsigned short modifier = dungeon->modifier.spell_damage;
@@ -652,6 +656,8 @@ long calculate_correct_creature_armour(const struct Thing *thing)
     long max_param = compute_creature_max_armour(crstat->armour,cctrl->explevel);
     if (creature_affected_by_spell(thing, SplK_Armour))
         max_param = (320 * max_param) / 256;
+    if (creature_affected_by_spell(thing, SplK_MagicMist))
+        max_param = (320 * max_param) / 256;
     // This limit makes armour absorb up to 80% of damage even with buff.
     if (max_param > 204)
         max_param = 204;
@@ -671,19 +677,43 @@ long calculate_correct_creature_armour(const struct Thing *thing)
 
 long calculate_correct_creature_defense(const struct Thing *thing)
 {
+    struct Dungeon* dungeon;
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     long max_param = compute_creature_max_defense(crstat->defense,cctrl->explevel);
     if (creature_affected_by_spell(thing, SplK_Rage))
         max_param = 0;
+    if (creature_affected_by_spell(thing, SplK_MagicMist))
+        max_param = (320 * max_param) / 256;
+    // Apply modifier after the buff.
+    if (!is_neutral_thing(thing)) {
+        dungeon = get_dungeon(thing->owner);
+        unsigned short modifier = dungeon->modifier.defense;
+        max_param = (max_param * modifier) / 100;
+    }
+    // Value cannot exceed 255.
+    if (max_param >= 255)
+        max_param = 255;
     return max_param;
 }
 
 long calculate_correct_creature_dexterity(const struct Thing *thing)
 {
+    struct Dungeon* dungeon;
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     long max_param = compute_creature_max_dexterity(crstat->dexterity,cctrl->explevel);
+    if (creature_affected_by_spell(thing, SplK_MagicMist))
+        max_param = (320 * max_param) / 256;
+    // Apply modifier after the buff.
+    if (!is_neutral_thing(thing)) {
+        dungeon = get_dungeon(thing->owner);
+        unsigned short modifier = dungeon->modifier.dexterity;
+        max_param = (max_param * modifier) / 100;
+    }
+    // Value cannot exceed 255.
+    if (max_param >= 255)
+        max_param = 255;
     return max_param;
 }
 

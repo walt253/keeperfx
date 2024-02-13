@@ -1777,33 +1777,121 @@ TbResult magic_use_power_mass_teleport(PlayerNumber plyr_idx, MapSubtlCoord stl_
 
 TbResult magic_use_power_fart(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel, unsigned long mod_flags)
 {
-    //struct PlayerInfo *player;
-    //struct Dungeon *dungeon;
-    //const struct MagicStats *pwrdynst;
-    //struct PowerConfigStats *powerst;
-    //struct Coord3d pos;
+    struct Thing* efftng;
+    const struct MagicStats *pwrdynst;
+    struct PowerConfigStats *powerst;
+    struct Coord3d pos;
+    long power_level;
+    long n;
+    if (splevel >= MAGIC_OVERCHARGE_LEVELS)
+        splevel = MAGIC_OVERCHARGE_LEVELS-1;
+    if (splevel < 0)
+        splevel = 0;
+    if ((mod_flags & PwMod_CastForFree) == 0)
+    {
+        // If we can't afford the spell, fail
+        if (!pay_for_spell(plyr_idx, PwrK_FART, splevel)) {
+            return Lb_FAIL;
+        }
+    }
+    pwrdynst = get_power_dynamic_stats(PwrK_FART);
+    powerst = get_power_model_stats(PwrK_FART);
+    pos.x.val = subtile_coord_center(stl_x);
+    pos.y.val = subtile_coord_center(stl_y);
+    pos.z.val = get_floor_height(stl_x, stl_y);
+    power_level = pwrdynst->strength[splevel];
+    for (int k = 0; k < power_level; k++) {
+        efftng = create_effect(&pos, TngEff_Gas3, plyr_idx);
+        if (!thing_is_invalid(efftng)) {
+            efftng->shot_effect.hit_type = THit_CrtrsOnlyNotOwn;
+            n = GAME_RANDOM(k) + GAME_RANDOM(power_level);
+            pos.x.val = subtile_coord_center(stl_x + GAME_RANDOM(n) - GAME_RANDOM(n));
+            pos.y.val = subtile_coord_center(stl_y + GAME_RANDOM(n) - GAME_RANDOM(n));
+            thing_play_sample(efftng,powerst->select_sound_idx+UNSYNC_RANDOM(6), NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
+        }
+    }
     return Lb_SUCCESS;
 }
 
 TbResult magic_use_power_summon_creature(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel, unsigned long mod_flags)
 {
-    //struct PlayerInfo *player;
-    //struct Dungeon *dungeon;
-    //const struct MagicStats *pwrdynst;
-    //struct PowerConfigStats *powerst;
-    //struct Thing *creatng;
-    //struct Coord3d pos;
+    struct Thing *thing;
+    struct Thing *heartng;
+    const struct MagicStats *pwrdynst;
+    struct PowerConfigStats *powerst;
+    struct Coord3d pos;
+    unsigned char creature_id;
+    unsigned char level_up;
+    if (!i_can_allocate_free_control_structure() || !i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots)) {
+        return Lb_FAIL;
+    }
+    if (splevel >= MAGIC_OVERCHARGE_LEVELS)
+        splevel = MAGIC_OVERCHARGE_LEVELS-1;
+    if (splevel < 0)
+        splevel = 0;
+    if ((mod_flags & PwMod_CastForFree) == 0)
+    {
+        // If we can't afford the spell, fail
+        if (!pay_for_spell(plyr_idx, PwrK_SUMMONCREATURE, 0)) {
+            return Lb_FAIL;
+        }
+    }
+    pwrdynst = get_power_dynamic_stats(PwrK_SUMMONCREATURE);
+    powerst = get_power_model_stats(PwrK_SUMMONCREATURE);
+    heartng = get_player_soul_container(plyr_idx);
+    pos.x.val = subtile_coord_center(stl_x);
+    pos.y.val = subtile_coord_center(stl_y);
+    pos.z.val = get_floor_height_at(&pos) + (heartng->clipbox_size_z >> 1);
+    if ((pwrdynst->duration > 0) && (pwrdynst->duration <= CREATURE_TYPES_MAX)) {
+        creature_id = pwrdynst->duration;
+        thing = create_creature(&pos, creature_id, plyr_idx);
+        if (thing_is_invalid(thing))
+        {
+            ERRORLOG("Summoning a new creature failed for some reason.");
+            return Lb_OK;
+        }
+        level_up = pwrdynst->strength[splevel];
+        thing->veloc_push_add.x.val += CREATURE_RANDOM(thing, 161) - 80;
+        thing->veloc_push_add.y.val += CREATURE_RANDOM(thing, 161) - 80;
+        thing->veloc_push_add.z.val += 160;
+        thing->state_flags |= TF1_PushAdd;
+        thing->move_angle_xy = 0;
+        initialise_thing_state(thing, CrSt_ImpBirth);
+        thing_play_sample(thing, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+        play_creature_sound(thing, 3, 2, 0);
+        if (level_up > 0)
+            creature_change_multiple_levels(thing,level_up);
+    } else {
+        ERRORLOG("Tried to summon a creature out of range of data type.");
+        return Lb_FAIL;
+    }
     return Lb_SUCCESS;
 }
 
 TbResult magic_use_power_eruption(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel, unsigned long mod_flags)
 {
-    //struct PlayerInfo *player;
-    //struct Dungeon *dungeon;
-    //const struct MagicStats *pwrdynst;
-    //struct PowerConfigStats *powerst;
-    //struct Thing *efftng;
-    //struct Coord3d pos;
+    struct Thing* efftng;
+    struct PowerConfigStats *powerst;
+    struct Coord3d pos;
+    if (splevel >= MAGIC_OVERCHARGE_LEVELS)
+        splevel = MAGIC_OVERCHARGE_LEVELS-1;
+    if (splevel < 0)
+        splevel = 0;
+    if ((mod_flags & PwMod_CastForFree) == 0)
+    {
+        // If we can't afford the spell, fail
+        if (!pay_for_spell(plyr_idx, PwrK_ERUPTION, splevel)) {
+            return Lb_FAIL;
+        }
+    }
+    powerst = get_power_model_stats(PwrK_ERUPTION);
+    pos.x.val = subtile_coord_center(stl_x);
+    pos.y.val = subtile_coord_center(stl_y);
+    pos.z.val = get_floor_height(stl_x, stl_y);
+    efftng = create_effect(&pos, TngEff_Eruption, plyr_idx);
+        if (!thing_is_invalid(efftng)) {
+            thing_play_sample(efftng,powerst->select_sound_idx+UNSYNC_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
+        }
     return Lb_SUCCESS;
 }
 

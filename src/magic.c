@@ -1572,23 +1572,23 @@ TbResult magic_use_power_indoctrination(PlayerNumber plyr_idx, struct Thing *thi
     return Lb_SUCCESS;
 }
 
-TbResult magic_use_power_magic_fall(PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel, unsigned long mod_flags)
+TbResult magic_use_power_magic_mist(PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel, unsigned long mod_flags)
 {
     // If this spell is already casted at that creature, do nothing
-    if (thing_affected_by_spell(thing, SplK_MagicFall)) {
+    if (thing_affected_by_spell(thing, SplK_MagicMist)) {
         return Lb_OK;
     }
     if ((mod_flags & PwMod_CastForFree) == 0)
     {
         // If we can't afford the spell, fail
-        if (!pay_for_spell(plyr_idx, PwrK_MAGICFALL, splevel)) {
+        if (!pay_for_spell(plyr_idx, PwrK_MAGICMIST, splevel)) {
             return Lb_FAIL;
         }
     }
     struct PowerConfigStats *powerst;
-    powerst = get_power_model_stats(PwrK_MAGICFALL);
+    powerst = get_power_model_stats(PwrK_MAGICMIST);
     thing_play_sample(thing, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
-    apply_spell_effect_to_thing(thing, SplK_MagicFall, splevel);
+    apply_spell_effect_to_thing(thing, SplK_MagicMist, splevel);
     return Lb_SUCCESS;
 }
 
@@ -2405,8 +2405,8 @@ TbResult magic_use_power_on_thing(PlayerNumber plyr_idx, PowerKind pwkind,
         case PwrK_INDOCTRINATION:
             ret = magic_use_power_indoctrination(plyr_idx, thing, stl_x, stl_y, splevel, allow_flags);
             break;
-        case PwrK_MAGICFALL:
-            ret = magic_use_power_magic_fall(plyr_idx, thing, stl_x, stl_y, splevel, allow_flags);
+        case PwrK_MAGICMIST:
+            ret = magic_use_power_magic_mist(plyr_idx, thing, stl_x, stl_y, splevel, allow_flags);
             break;
         case PwrK_SLAP:
             ret = magic_use_power_slap_thing(plyr_idx, thing, allow_flags);

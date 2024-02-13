@@ -1572,6 +1572,26 @@ TbResult magic_use_power_indoctrination(PlayerNumber plyr_idx, struct Thing *thi
     return Lb_SUCCESS;
 }
 
+TbResult magic_use_power_magic_fall(PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel, unsigned long mod_flags)
+{
+    // If this spell is already casted at that creature, do nothing
+    if (thing_affected_by_spell(thing, SplK_MagicFall)) {
+        return Lb_OK;
+    }
+    if ((mod_flags & PwMod_CastForFree) == 0)
+    {
+        // If we can't afford the spell, fail
+        if (!pay_for_spell(plyr_idx, PwrK_MAGICFALL, splevel)) {
+            return Lb_FAIL;
+        }
+    }
+    struct PowerConfigStats *powerst;
+    powerst = get_power_model_stats(PwrK_MAGICFALL);
+    thing_play_sample(thing, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+    apply_spell_effect_to_thing(thing, SplK_MagicFall, splevel);
+    return Lb_SUCCESS;
+}
+
 TbResult magic_use_power_lightning(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel, unsigned long mod_flags)
 {
     struct PlayerInfo *player;
@@ -1693,6 +1713,26 @@ TbResult magic_use_power_meteor_storm(PlayerNumber plyr_idx, MapSubtlCoord stl_x
             thing_play_sample(shtng, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
         }
     }
+    return Lb_SUCCESS;
+}
+
+TbResult magic_use_power_masss_teleport(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel, unsigned long mod_flags)
+{
+    return Lb_SUCCESS;
+}
+
+TbResult magic_use_power_fart(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel, unsigned long mod_flags)
+{
+    return Lb_SUCCESS;
+}
+
+TbResult magic_use_power_summon_creature(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel, unsigned long mod_flags)
+{
+    return Lb_SUCCESS;
+}
+
+TbResult magic_use_power_eruption(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel, unsigned long mod_flags)
+{
     return Lb_SUCCESS;
 }
 
@@ -2365,6 +2405,9 @@ TbResult magic_use_power_on_thing(PlayerNumber plyr_idx, PowerKind pwkind,
         case PwrK_INDOCTRINATION:
             ret = magic_use_power_indoctrination(plyr_idx, thing, stl_x, stl_y, splevel, allow_flags);
             break;
+        case PwrK_MAGICFALL:
+            ret = magic_use_power_magic_fall(plyr_idx, thing, stl_x, stl_y, splevel, allow_flags);
+            break;
         case PwrK_SLAP:
             ret = magic_use_power_slap_thing(plyr_idx, thing, allow_flags);
             break;
@@ -2379,6 +2422,18 @@ TbResult magic_use_power_on_thing(PlayerNumber plyr_idx, PowerKind pwkind,
             break;
         case PwrK_METEORSTORM:
             ret = magic_use_power_meteor_storm(plyr_idx, stl_x, stl_y, splevel, allow_flags);
+            break;
+        case PwrK_MASSTELEPORT:
+            ret = magic_use_power_mass_teleport(plyr_idx, stl_x, stl_y, splevel, allow_flags);
+            break;
+        case PwrK_FART:
+            ret = magic_use_power_fart(plyr_idx, stl_x, stl_y, splevel, allow_flags);
+            break;
+        case PwrK_SUMMONCREATURE:
+            ret = magic_use_power_summon_creature(plyr_idx, stl_x, stl_y, splevel, allow_flags);
+            break;
+        case PwrK_ERUPTION:
+            ret = magic_use_power_eruption(plyr_idx, stl_x, stl_y, splevel, allow_flags);
             break;
         case PwrK_TIMEBOMB:
             ret = magic_use_power_time_bomb(plyr_idx, thing, splevel, allow_flags);

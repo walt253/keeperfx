@@ -1721,7 +1721,7 @@ TbResult magic_use_power_mass_teleport(PlayerNumber plyr_idx, MapSubtlCoord stl_
     struct Dungeon *dungeon;
     struct PowerConfigStats *powerst;
     struct Thing *efftng;
-    const struct Coord3d pos;
+    struct Coord3d loc;
     if (splevel >= MAGIC_OVERCHARGE_LEVELS)
         splevel = MAGIC_OVERCHARGE_LEVELS-1;
     if (splevel < 0)
@@ -1735,13 +1735,12 @@ TbResult magic_use_power_mass_teleport(PlayerNumber plyr_idx, MapSubtlCoord stl_
     }
     dungeon = get_players_num_dungeon(plyr_idx);
     powerst = get_power_model_stats(PwrK_MASSTELEPORT);
-    pos.x.val = subtile_coord_center(stl_x);
-    pos.y.val = subtile_coord_center(stl_y);
-    pos.z.val = get_floor_height(stl_x, stl_y);
-    unsigned long k;
-    int i;
-    k = 0;
-    i = dungeon->creatr_list_start;
+    loc.x.val = subtile_coord_center(stl_x);
+    loc.y.val = subtile_coord_center(stl_y);
+    loc.z.val = get_floor_height(stl_x, stl_y);
+    const struct Coord3d pos = &loc;
+    unsigned long k = 0;
+    int i = dungeon->creatr_list_start;
     while (i != 0)
     {
         struct CreatureControl *cctrl;

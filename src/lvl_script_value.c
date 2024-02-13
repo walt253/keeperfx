@@ -197,8 +197,8 @@ TbResult script_use_power_on_creature(PlayerNumber plyr_idx, long crmodel, long 
         return magic_use_power_vision(caster, thing, 0, 0, splevel, spell_flags);
       case PwrK_INDOCTRINATION:
         return magic_use_power_indoctrination(caster, thing, 0, 0, splevel, spell_flags);
-      case PwrK_MAGICFALL:
-        return magic_use_power_magic_fall(caster, thing, 0, 0, splevel, spell_flags);
+      case PwrK_MAGICMIST:
+        return magic_use_power_magic_mist(caster, thing, 0, 0, splevel, spell_flags);
       case PwrK_SLAP:
         return magic_use_power_slap_thing(caster, thing, spell_flags);
       case PwrK_CALL2ARMS:

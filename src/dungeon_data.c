@@ -538,6 +538,9 @@ void init_dungeons(void)
         dungeon->modifier.training_cost = 100;
         dungeon->modifier.scavenging_cost = 100;
         dungeon->modifier.loyalty = 100;
+        dungeon->modifier.defense = 100;
+        dungeon->modifier.dexterity = 100;
+        dungeon->modifier.luck = 100;
         dungeon->color_idx = i;
         LbMemorySet(dungeon->creature_models_joined, 0, CREATURE_TYPES_MAX);
     }

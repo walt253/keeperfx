@@ -140,6 +140,9 @@ struct Modifiers
     unsigned short training_cost;
     unsigned short scavenging_cost;
     unsigned short loyalty;
+    unsigned short defense;
+    unsigned short dexterity;
+    unsigned short luck;
 };
 
 struct Dungeon {

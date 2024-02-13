@@ -101,7 +101,6 @@ TbBool detonate_shot(struct Thing *shotng, TbBool destroy)
     }
     // If the shot has area_range, then make area damage
     if (shotst->area_range != 0) {
-        struct CreatureStats* crstat = creature_stats_get_from_thing(castng);
         //TODO SPELLS Spell level should be taken from within the shot, not from caster creature
         // Caster may have leveled up, or even may be already dead
         // But currently shot do not store its level, so we don't really have a choice

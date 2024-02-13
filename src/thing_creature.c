@@ -2979,7 +2979,6 @@ void process_creature_standing_on_corpses_at(struct Thing *creatng, struct Coord
 long calculate_melee_damage(struct Thing *creatng)
 {
     const struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    const struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
     long strength = calculate_correct_creature_strength(creatng);
     long luck = calculate_correct_creature_luck(creatng);
     return compute_creature_attack_melee_damage(strength, luck, cctrl->explevel, creatng);
@@ -2993,7 +2992,6 @@ long calculate_melee_damage(struct Thing *creatng)
 long project_melee_damage(const struct Thing *creatng)
 {
     const struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    const struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
     long strength = calculate_correct_creature_strength(creatng);
     long luck = calculate_correct_creature_luck(creatng);
     return project_creature_attack_melee_damage(strength, luck, cctrl->explevel, creatng);
@@ -3008,7 +3006,6 @@ long calculate_shot_damage(struct Thing *creatng, ThingModel shot_model)
 {
     const struct ShotConfigStats* shotst = get_shot_model_stats(shot_model);
     const struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    const struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
     long luck = calculate_correct_creature_luck(creatng);
     return compute_creature_attack_spell_damage(shotst->damage, luck, cctrl->explevel, creatng);
 }
@@ -3023,9 +3020,8 @@ long project_creature_shot_damage(const struct Thing *thing, ThingModel shot_mod
 {
     const struct ShotConfigStats* shotst = get_shot_model_stats(shot_model);
     const struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    const struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     long damage;
-    long luck = calculate_correct_creature_luck(creatng);
+    long luck = calculate_correct_creature_luck(thing);
     if ((shotst->model_flags & ShMF_StrengthBased) != 0 )
     {
         // Project melee damage.

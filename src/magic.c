@@ -1720,8 +1720,8 @@ TbResult magic_use_power_mass_teleport(PlayerNumber plyr_idx, MapSubtlCoord stl_
 {
     struct Dungeon *dungeon;
     struct PowerConfigStats *powerst;
-    struct Coord3d pos;
     struct Thing *efftng;
+    const struct Coord3d pos;
     if (splevel >= MAGIC_OVERCHARGE_LEVELS)
         splevel = MAGIC_OVERCHARGE_LEVELS-1;
     if (splevel < 0)
@@ -1779,33 +1779,33 @@ TbResult magic_use_power_mass_teleport(PlayerNumber plyr_idx, MapSubtlCoord stl_
 
 TbResult magic_use_power_fart(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel, unsigned long mod_flags)
 {
-    struct PlayerInfo *player;
-    struct Dungeon *dungeon;
-    const struct MagicStats *pwrdynst;
-    struct PowerConfigStats *powerst;
-    struct Coord3d pos;
+    //struct PlayerInfo *player;
+    //struct Dungeon *dungeon;
+    //const struct MagicStats *pwrdynst;
+    //struct PowerConfigStats *powerst;
+    //struct Coord3d pos;
     return Lb_SUCCESS;
 }
 
 TbResult magic_use_power_summon_creature(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel, unsigned long mod_flags)
 {
-    struct PlayerInfo *player;
-    struct Dungeon *dungeon;
-    const struct MagicStats *pwrdynst;
-    struct PowerConfigStats *powerst;
-    struct Thing *creatng;
-    struct Coord3d pos;
+    //struct PlayerInfo *player;
+    //struct Dungeon *dungeon;
+    //const struct MagicStats *pwrdynst;
+    //struct PowerConfigStats *powerst;
+    //struct Thing *creatng;
+    //struct Coord3d pos;
     return Lb_SUCCESS;
 }
 
 TbResult magic_use_power_eruption(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel, unsigned long mod_flags)
 {
-    struct PlayerInfo *player;
-    struct Dungeon *dungeon;
-    const struct MagicStats *pwrdynst;
-    struct PowerConfigStats *powerst;
-    struct Thing *efftng;
-    struct Coord3d pos;
+    //struct PlayerInfo *player;
+    //struct Dungeon *dungeon;
+    //const struct MagicStats *pwrdynst;
+    //struct PowerConfigStats *powerst;
+    //struct Thing *efftng;
+    //struct Coord3d pos;
     return Lb_SUCCESS;
 }
 

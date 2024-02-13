@@ -756,8 +756,8 @@ TbBool creature_affected_by_spell(const struct Thing *thing, SpellKind spkind)
         return ((cctrl->spell_flags & CSAfF_Chicken) != 0);
     case SplK_Indoctrination:
         return ((cctrl->spell_flags & CSAfF_MadKilling) != 0);
-    case SplK_MagicFall:
-        return ((cctrl->stateblock_flags & CCSpl_MagicFall) != 0);
+    case SplK_MagicMist:
+        return ((cctrl->spell_flags & CSAfF_MagicMist) != 0);
     case SplK_TimeBomb:
         return ((cctrl->spell_flags & CSAfF_Timebomb) != 0);
     // Handle spells with no continuous effect
@@ -1114,14 +1114,6 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
         case SplK_Fly:
             thing->movement_flags |= TMvF_Flying;
             break;
-        case SplK_MagicFall:
-            cctrl->stateblock_flags |= CCSpl_MagicFall;
-            if ((thing->movement_flags & TMvF_Flying) != 0)
-                {
-                    cctrl->spell_flags |= CSAfF_Grounded;
-                    thing->movement_flags &= ~TMvF_Flying;
-                }
-            break;
         }
         if (spconf->aura_effect != 0)
         {
@@ -1294,13 +1286,8 @@ void terminate_thing_spell_effect(struct Thing *thing, SpellKind spkind)
     case SplK_Indoctrination:
         cctrl->spell_flags &= ~CSAfF_MadKilling;
         break;
-    case SplK_MagicFall:
-        cctrl->stateblock_flags &= ~CCSpl_MagicFall;
-        if ((cctrl->spell_flags & CSAfF_Grounded) != 0)
-        {
-            thing->movement_flags |= TMvF_Flying;
-            cctrl->spell_flags &= ~CSAfF_Grounded;
-        }
+    case SplK_MagicMist:
+        cctrl->spell_flags &= ~CSAfF_MagicMist;
         break;
     case SplK_Light:
     crstat = creature_stats_get(thing->model);

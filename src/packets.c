@@ -225,8 +225,8 @@ TbBool process_dungeon_control_packet_spell_overcharge(long plyr_idx)
       case PSt_Indoctrination:
           update_power_overcharge(player, PwrK_INDOCTRINATION);
           break;
-      case PSt_MagicFall:
-          update_power_overcharge(player, PwrK_MAGICFALL);
+      case PSt_MagicMist:
+          update_power_overcharge(player, PwrK_MAGICMIST);
           break;
       case PSt_MassTeleport:
           update_power_overcharge(player, PwrK_MASSTELEPORT);

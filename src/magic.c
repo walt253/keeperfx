@@ -1721,8 +1721,7 @@ TbResult magic_use_power_mass_teleport(PlayerNumber plyr_idx, MapSubtlCoord stl_
     struct Dungeon *dungeon;
     struct PowerConfigStats *powerst;
     struct Thing *efftng;
-    //struct Coord3d loc;
-    const struct Coord3d *pos;
+    struct Coord3d pos;
     if (splevel >= MAGIC_OVERCHARGE_LEVELS)
         splevel = MAGIC_OVERCHARGE_LEVELS-1;
     if (splevel < 0)
@@ -1739,10 +1738,6 @@ TbResult magic_use_power_mass_teleport(PlayerNumber plyr_idx, MapSubtlCoord stl_
     pos.x.val = subtile_coord_center(stl_x);
     pos.y.val = subtile_coord_center(stl_y);
     pos.z.val = get_floor_height(stl_x, stl_y);
-    //loc.x.val = subtile_coord_center(stl_x);
-    //loc.y.val = subtile_coord_center(stl_y);
-    //loc.z.val = get_floor_height(stl_x, stl_y);
-    //const struct Coord3d *pos = &loc;
     unsigned long k = 0;
     int i = dungeon->creatr_list_start;
     while (i != 0)
@@ -1762,7 +1757,7 @@ TbResult magic_use_power_mass_teleport(PlayerNumber plyr_idx, MapSubtlCoord stl_
         if (!thing_is_picked_up(thing) && !creature_is_kept_in_custody(thing) && !creature_is_being_unconscious(thing))
         {
             create_effect(&thing->mappos, imp_spangle_effects[get_player_color_idx(thing->owner)], thing->owner);
-            move_thing_in_map(thing, pos);
+            move_thing_in_map(thing, &pos);
             reset_interpolation_of_thing(thing);
             initialise_thing_state(thing, CrSt_CreatureInHoldAudience);
             cctrl->turns_at_job = -1;

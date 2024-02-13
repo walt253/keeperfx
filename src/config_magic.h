@@ -70,7 +70,7 @@ enum SpellKinds {
     SplK_Rage,
     SplK_DivineShield,
     SplK_Indoctrination,
-    SplK_MagicFall, // 35
+    SplK_MagicMist, // 35
 };
 
 enum CreatureSpellAffectedFlags {
@@ -95,6 +95,7 @@ enum CreatureSpellAffectedFlags {
     CSAfF_Timebomb     = 0x10000,
     CSAfF_Rage         = 0x20000,
     CSAfF_DivineShield = 0x40000,
+    CSAfF_MagicMist    = 0x80000,
 };
 
 enum PowerKinds {
@@ -131,7 +132,7 @@ enum PowerKinds {
     PwrK_METEORSTORM, // 30
     PwrK_INDOCTRINATION,
     PwrK_MIGHTYINFUSION,
-    PwrK_MAGICFALL,
+    PwrK_MAGICMIST,
     PwrK_MASSTELEPORT,
     PwrK_FART, // 35
     PwrK_SUMMONCREATURE,

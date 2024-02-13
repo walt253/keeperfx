@@ -2611,6 +2611,18 @@ TbResult magic_use_power_on_subtile(PlayerNumber plyr_idx, PowerKind pwkind,
         case PwrK_METEORSTORM:
             ret = magic_use_power_meteor_storm(plyr_idx, stl_x, stl_y, splevel, allow_flags);
             break;
+        case PwrK_MASSTELEPORT:
+            ret = magic_use_power_mass_teleport(plyr_idx, stl_x, stl_y, splevel, allow_flags);
+            break;
+        case PwrK_FART:
+            ret = magic_use_power_fart(plyr_idx, stl_x, stl_y, splevel, allow_flags);
+            break;
+        case PwrK_SUMMONCREATURE:
+            ret = magic_use_power_summon_creature(plyr_idx, stl_x, stl_y, splevel, allow_flags);
+            break;
+        case PwrK_ERUPTION:
+            ret = magic_use_power_eruption(plyr_idx, stl_x, stl_y, splevel, allow_flags);
+            break;
         case PwrK_DESTRWALLS:
             ret = magic_use_power_destroy_walls(plyr_idx, stl_x, stl_y, splevel, allow_flags);
             break;

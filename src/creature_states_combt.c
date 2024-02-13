@@ -1834,6 +1834,10 @@ CrInstance get_best_self_preservation_instance_to_use(const struct Thing *thing)
     {
         INSTANCE_RET_IF_AVAIL(thing, CrInst_DIVINE_SHIELD);
     }
+    if (!creature_affected_by_spell(thing, SplK_MagicMist))
+    {
+        INSTANCE_RET_IF_AVAIL(thing, CrInst_MAGIC_MIST);
+    }
     INSTANCE_RET_IF_AVAIL(thing, CrInst_SUMMON);
     INSTANCE_RET_IF_AVAIL(thing, CrInst_FAMILIAR);
     for (int i = CrInst_LISTEND; i < game.conf.crtr_conf.instances_count; i++)
@@ -1890,6 +1894,10 @@ CrInstance get_self_spell_casting(const struct Thing *thing)
         if (!creature_affected_by_spell(thing, SplK_Sight))
         {
             INSTANCE_RET_IF_AVAIL(thing, CrInst_SIGHT);
+        }
+        if (!creature_affected_by_spell(thing, SplK_MagicMist))
+        {
+            INSTANCE_RET_IF_AVAIL(thing, CrInst_MAGIC_MIST);
         }
         if (!creature_is_kept_in_custody(thing))
         {

@@ -1696,7 +1696,7 @@ TbResult magic_use_power_meteor_storm(PlayerNumber plyr_idx, MapSubtlCoord stl_x
     shotst = get_shot_model_stats(ShM_MeteorStorm);
     pos.x.val = subtile_coord_center(stl_x);
     pos.y.val = subtile_coord_center(stl_y);
-    pos.z.val = 0;
+    pos.z.val = get_floor_height(stl_x, stl_y);
     power_level = pwrdynst->strength[splevel];
     amount = shotst->effect_amount;
     range = shotst->area_range;
@@ -1718,21 +1718,94 @@ TbResult magic_use_power_meteor_storm(PlayerNumber plyr_idx, MapSubtlCoord stl_x
 
 TbResult magic_use_power_mass_teleport(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel, unsigned long mod_flags)
 {
+    struct Dungeon *dungeon;
+    struct PowerConfigStats *powerst;
+    struct Coord3d pos;
+    struct Thing *efftng;
+    if (splevel >= MAGIC_OVERCHARGE_LEVELS)
+        splevel = MAGIC_OVERCHARGE_LEVELS-1;
+    if (splevel < 0)
+        splevel = 0;
+    if ((mod_flags & PwMod_CastForFree) == 0)
+    {
+        // If we can't afford the spell, fail
+        if (!pay_for_spell(plyr_idx, PwrK_MASSTELEPORT, splevel)) {
+            return Lb_FAIL;
+        }
+    }
+    dungeon = get_players_num_dungeon(plyr_idx);
+    powerst = get_power_model_stats(PwrK_MASSTELEPORT);
+    pos.x.val = subtile_coord_center(stl_x);
+    pos.y.val = subtile_coord_center(stl_y);
+    pos.z.val = get_floor_height(stl_x, stl_y);
+    unsigned long k;
+    int i;
+    k = 0;
+    i = dungeon->creatr_list_start;
+    while (i != 0)
+    {
+        struct CreatureControl *cctrl;
+        struct Thing *thing;
+        thing = thing_get(i);
+        TRACE_THING(thing);
+        cctrl = creature_control_get_from_thing(thing);
+        if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
+        {
+            ERRORLOG("Jump to invalid creature detected");
+            break;
+        }
+        i = cctrl->players_next_creature_idx;
+        // Thing list loop body
+        if (!thing_is_picked_up(thing) && !creature_is_kept_in_custody(thing) && !creature_is_being_unconscious(thing))
+        {
+            create_effect(&thing->mappos, imp_spangle_effects[get_player_color_idx(thing->owner)], thing->owner);
+            move_thing_in_map(thing, pos);
+            reset_interpolation_of_thing(thing);
+            initialise_thing_state(thing, CrSt_CreatureInHoldAudience);
+            cctrl->turns_at_job = -1;
+        }
+        // Thing list loop body ends
+        k++;
+        if (k > CREATURES_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping creatures list");
+            break;
+        }
+    }
+    efftng = create_effect(&pos, imp_spangle_effects[get_player_color_idx(plyr_idx)], plyr_idx);
+    thing_play_sample(efftng, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
     return Lb_SUCCESS;
 }
 
 TbResult magic_use_power_fart(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel, unsigned long mod_flags)
 {
+    struct PlayerInfo *player;
+    struct Dungeon *dungeon;
+    const struct MagicStats *pwrdynst;
+    struct PowerConfigStats *powerst;
+    struct Coord3d pos;
     return Lb_SUCCESS;
 }
 
 TbResult magic_use_power_summon_creature(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel, unsigned long mod_flags)
 {
+    struct PlayerInfo *player;
+    struct Dungeon *dungeon;
+    const struct MagicStats *pwrdynst;
+    struct PowerConfigStats *powerst;
+    struct Thing *creatng;
+    struct Coord3d pos;
     return Lb_SUCCESS;
 }
 
 TbResult magic_use_power_eruption(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel, unsigned long mod_flags)
 {
+    struct PlayerInfo *player;
+    struct Dungeon *dungeon;
+    const struct MagicStats *pwrdynst;
+    struct PowerConfigStats *powerst;
+    struct Thing *efftng;
+    struct Coord3d pos;
     return Lb_SUCCESS;
 }
 

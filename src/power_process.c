@@ -749,7 +749,6 @@ void timebomb_explode(struct Thing *creatng)
     long weight = compute_creature_weight(creatng);
     #define weight_divisor 64
     if (shotst->area_range != 0) {
-        struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
         struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
         long luck = calculate_correct_creature_luck(creatng);
         long dist = (compute_creature_attack_range(shotst->area_range * COORD_PER_STL, luck, cctrl->explevel) * weight) / weight_divisor;

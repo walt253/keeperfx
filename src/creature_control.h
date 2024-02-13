@@ -88,7 +88,7 @@ enum CreatureControlSpells {
     CCSpl_ChickenRel    = 0x01,// This is something related to chicken spell, but the spell itself is CSAfF_Chicken
     CCSpl_Freeze        = 0x02,
     CCSpl_Teleport      = 0x04,
-    CCSpl_MagicFall     = 0x08,
+    CCSpl_Unknown08     = 0x08,
     CCSpl_Unknown10     = 0x10,
     CCSpl_Unknown20     = 0x20,
     CCSpl_Unknown40     = 0x40,

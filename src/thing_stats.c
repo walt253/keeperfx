@@ -476,6 +476,7 @@ long project_creature_attack_spell_damage(long base_param,long luck,unsigned sho
     long max_param = base_param + (game.conf.crtr_conf.exp.spell_damage_increase_on_exp * base_param * (long)crlevel) / 100;
     if (creature_affected_by_spell(thing, SplK_MagicMist))
         max_param = (384 * max_param) / 256;
+    // Apply modifier.
     if (!is_neutral_thing(thing)) {
         dungeon = get_dungeon(thing->owner);
         unsigned short modifier = dungeon->modifier.spell_damage;
@@ -528,6 +529,7 @@ long compute_creature_attack_spell_damage(long base_param, long luck, unsigned s
     long max_param = base_param + (game.conf.crtr_conf.exp.spell_damage_increase_on_exp * base_param * (long)crlevel) / 100;
     if (creature_affected_by_spell(thing, SplK_MagicMist))
         max_param = (384 * max_param) / 256;
+    // Apply modifier.
     if (!is_neutral_thing(thing)) {
         dungeon = get_dungeon(thing->owner);
         unsigned short modifier = dungeon->modifier.spell_damage;
@@ -640,11 +642,16 @@ long calculate_correct_creature_strength(const struct Thing *thing)
     long max_param = compute_creature_max_strength(crstat->strength,cctrl->explevel);
     if (creature_affected_by_spell(thing, SplK_Rage))
         max_param = (384 * max_param) / 256;
+    // Apply modifier.
     if (!is_neutral_thing(thing)) {
         dungeon = get_dungeon(thing->owner);
         unsigned short modifier = dungeon->modifier.strength;
         max_param = (max_param * modifier) / 100;
+        if (player_uses_power_mighty_infusion(thing->owner))
+            max_param = (320 * max_param) / 256;
     }
+    if (max_param >= 32767)
+        max_param = 32767;
     return max_param;
 }
 
@@ -663,11 +670,13 @@ long calculate_correct_creature_armour(const struct Thing *thing)
         max_param = 204;
     if (max_param < 0)
         max_param = 0;
-    // Apply modifier after the buff.
+    // Apply modifier.
     if (!is_neutral_thing(thing)) {
         dungeon = get_dungeon(thing->owner);
         unsigned short modifier = dungeon->modifier.armour;
         max_param = (max_param * modifier) / 100;
+        if (player_uses_power_mighty_infusion(thing->owner))
+            max_param = (320 * max_param) / 256;
     }
     // Value cannot exceed 255 with modifier.
     if (max_param >= 255)
@@ -685,11 +694,13 @@ long calculate_correct_creature_defense(const struct Thing *thing)
         max_param = 0;
     if (creature_affected_by_spell(thing, SplK_MagicMist))
         max_param = (320 * max_param) / 256;
-    // Apply modifier after the buff.
+    // Apply modifier.
     if (!is_neutral_thing(thing)) {
         dungeon = get_dungeon(thing->owner);
         unsigned short modifier = dungeon->modifier.defense;
         max_param = (max_param * modifier) / 100;
+        if (player_uses_power_mighty_infusion(thing->owner))
+            max_param = (320 * max_param) / 256;
     }
     // Value cannot exceed 255.
     if (max_param >= 255)
@@ -705,15 +716,35 @@ long calculate_correct_creature_dexterity(const struct Thing *thing)
     long max_param = compute_creature_max_dexterity(crstat->dexterity,cctrl->explevel);
     if (creature_affected_by_spell(thing, SplK_MagicMist))
         max_param = (320 * max_param) / 256;
-    // Apply modifier after the buff.
+    // Apply modifier.
     if (!is_neutral_thing(thing)) {
         dungeon = get_dungeon(thing->owner);
         unsigned short modifier = dungeon->modifier.dexterity;
         max_param = (max_param * modifier) / 100;
+        if (player_uses_power_mighty_infusion(thing->owner))
+            max_param = (320 * max_param) / 256;
     }
     // Value cannot exceed 255.
     if (max_param >= 255)
         max_param = 255;
+    return max_param;
+}
+
+long calculate_correct_creature_luck(const struct Thing *thing)
+{
+    struct Dungeon* dungeon;
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    long max_param = compute_creature_max_luck(crstat->luck,cctrl->explevel);
+    // Apply modifier.
+    if (!is_neutral_thing(thing)) {
+        dungeon = get_dungeon(thing->owner);
+        unsigned short modifier = dungeon->modifier.luck;
+        max_param = (max_param * modifier) / 100;
+    }
+    // Luck cannot exceed 100.
+    if (max_param >= 100)
+        max_param = 100;
     return max_param;
 }
 
@@ -730,6 +761,7 @@ long calculate_correct_creature_maxspeed(const struct Thing *thing)
         speed *= 2;
     if (creature_affected_by_spell(thing, SplK_Slow))
         speed /= 2;
+    // Apply modifier.
     if (!is_neutral_thing(thing))
     {
         dungeon = get_dungeon(thing->owner);
@@ -738,6 +770,8 @@ long calculate_correct_creature_maxspeed(const struct Thing *thing)
         if (dungeon->tortured_creatures[thing->model] > 0)
             speed = 5 * speed / 4;
         if (player_uses_power_obey(thing->owner))
+            speed = 5 * speed / 4;
+        if (player_uses_power_mighty_infusion(thing->owner))
             speed = 5 * speed / 4;
     }
     return speed;
@@ -749,6 +783,7 @@ long calculate_correct_creature_loyalty(const struct Thing *thing)
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     long max_param = compute_creature_max_loyalty(crstat->scavenge_require,cctrl->explevel);
+    // Apply modifier.
     if (!is_neutral_thing(thing)) {
         dungeon = get_dungeon(thing->owner);
         unsigned short modifier = dungeon->modifier.loyalty;
@@ -763,6 +798,7 @@ GoldAmount calculate_correct_creature_pay(const struct Thing *thing)
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     GoldAmount pay = compute_creature_max_pay(crstat->pay, cctrl->explevel);
+    // Apply modifier.
     if (!is_neutral_thing(thing)) {
         dungeon = get_dungeon(thing->owner);
         unsigned short modifier = dungeon->modifier.pay;
@@ -780,6 +816,7 @@ GoldAmount calculate_correct_creature_training_cost(const struct Thing *thing)
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     GoldAmount training_cost = compute_creature_max_training_cost(crstat->training_cost, cctrl->explevel);
+    // Apply modifier.
     if (!is_neutral_thing(thing)) {
         dungeon = get_dungeon(thing->owner);
         unsigned short modifier = dungeon->modifier.training_cost;
@@ -797,6 +834,7 @@ GoldAmount calculate_correct_creature_scavenging_cost(const struct Thing *thing)
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     GoldAmount scavenger_cost = compute_creature_max_scavenging_cost(crstat->scavenger_cost, cctrl->explevel);
+    // Apply modifier.
     if (!is_neutral_thing(thing)) {
         dungeon = get_dungeon(thing->owner);
         unsigned short modifier = dungeon->modifier.scavenging_cost;
@@ -814,6 +852,7 @@ long calculate_correct_creature_scavenge_required(const struct Thing *thing, Pla
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     long scavngpts = (dungeon->creatures_scavenged[thing->model] + 1) * compute_creature_max_loyalty(crstat->scavenge_require, cctrl->explevel);
+    // Apply modifier.
     if (!is_neutral_thing(thing)) {
         unsigned short modifier = dungeon->modifier.loyalty;
         scavngpts = (scavngpts * modifier) / 100;
@@ -827,11 +866,11 @@ long calculate_correct_creature_scavenge_required(const struct Thing *thing, Pla
  */
 long compute_creature_max_unaffected(long base_param,unsigned short crlevel)
 {
-  if (base_param <= 0)
-    return 0;
-  if (base_param > 10000)
-    base_param = 10000;
-  return saturate_set_unsigned(base_param, 8);
+    if (base_param <= 0)
+        return 0;
+    if (base_param > 10000)
+        base_param = 10000;
+    return saturate_set_unsigned(base_param, 8);
 }
 
 /** Computes percentage of given value.
@@ -1167,7 +1206,7 @@ const char *creature_statistic_text(const struct Thing *creatng, CreatureLiveSta
         text = loc_text;
         break;
     case CrLStat_Luck:
-        i = compute_creature_max_luck(crstat->luck,cctrl->explevel);
+        i = calculate_correct_creature_luck(creatng);
         snprintf(loc_text,sizeof(loc_text),"%ld", i);
         text = loc_text;
         break;

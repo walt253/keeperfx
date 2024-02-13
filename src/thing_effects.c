@@ -369,16 +369,16 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
 
     if ((cctrl->spell_flags & CSAfF_MagicMist) != 0)
     {
-        int diamtr = thing->clipbox_size_xy / 2;
+        int diamtr = thing->clipbox_size_xy;
         dturn = game.play_gameturn - thing->creation_turn;
-        MapCoord cor_z_max = thing->clipbox_size_z + (thing->clipbox_size_z * game.conf.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 120; //effect is 25% larger than unit
+        MapCoord cor_z_max = thing->clipbox_size_z + (thing->clipbox_size_z * game.conf.crtr_conf.exp.size_increase_on_exp * cctrl->explevel);
 
         struct EffectElementConfigStats* eestat = get_effect_element_model_stats(TngEffElm_CloudDisperse);
         unsigned short nframes = keepersprite_frames(eestat->sprite_idx);
         GameTurnDelta dtadd = 0;
         unsigned short cframe = game.play_gameturn % nframes;
         pos.z.val = thing->mappos.z.val;
-        int radius = diamtr / 3;
+        int radius = diamtr / 2;
         while (pos.z.val < cor_z_max + thing->mappos.z.val)
         {
             angle = (abs(dturn + dtadd) & 7) << 8;
@@ -391,7 +391,7 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
                 break;
             set_thing_draw(effeltng, eestat->sprite_idx, 256, eestat->sprite_size_min, 0, cframe, ODC_Default);
             dtadd++;
-            pos.z.val += 32;
+            pos.z.val += 16;
             cframe = (cframe + 1) % nframes;
         }
     }

@@ -539,6 +539,16 @@ TbBool player_uses_power_obey(PlayerNumber plyr_idx)
     return (dungeon->must_obey_turn != 0);
 }
 
+TbBool player_uses_power_mighty_infusion(PlayerNumber plyr_idx)
+{
+    struct PlayerInfo* player = get_player(plyr_idx);
+    if (!player_exists(player)) {
+        return false;
+    }
+    struct Dungeon* dungeon = get_players_dungeon(player);
+    return (dungeon->infusion_turn != 0);
+}
+
 TbBool player_uses_power_hold_audience(PlayerNumber plyr_idx)
 {
     struct PlayerInfo* player = get_player(plyr_idx);

@@ -195,6 +195,10 @@ TbResult script_use_power_on_creature(PlayerNumber plyr_idx, long crmodel, long 
         return magic_use_power_flight(caster, thing, 0, 0, splevel, spell_flags);
       case PwrK_VISION:
         return magic_use_power_vision(caster, thing, 0, 0, splevel, spell_flags);
+      case PwrK_INDOCTRINATION:
+        return magic_use_power_indoctrination(caster, thing, 0, 0, splevel, spell_flags);
+      case PwrK_MAGICMIST:
+        return magic_use_power_magic_mist(caster, thing, 0, 0, splevel, spell_flags);
       case PwrK_SLAP:
         return magic_use_power_slap_thing(caster, thing, spell_flags);
       case PwrK_CALL2ARMS:
@@ -203,6 +207,14 @@ TbResult script_use_power_on_creature(PlayerNumber plyr_idx, long crmodel, long 
         return magic_use_power_lightning(caster, stl_x, stl_y, splevel, spell_flags);
       case PwrK_METEORSTORM:
         return magic_use_power_meteor_storm(caster, stl_x, stl_y, splevel, spell_flags);
+      case PwrK_MASSTELEPORT:
+        return magic_use_power_mass_teleport(caster, stl_x, stl_y, splevel, spell_flags);
+      case PwrK_FART:
+        return magic_use_power_fart(caster, stl_x, stl_y, splevel, spell_flags);
+      case PwrK_SUMMONCREATURE:
+        return magic_use_power_summon_creature(caster, stl_x, stl_y, splevel, spell_flags);
+      case PwrK_ERUPTION:
+        return magic_use_power_eruption(caster, stl_x, stl_y, splevel, spell_flags);
       case PwrK_CAVEIN:
         return magic_use_power_cave_in(caster, stl_x, stl_y, splevel, spell_flags);
       case PwrK_MKDIGGER:

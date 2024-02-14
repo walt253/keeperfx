@@ -754,6 +754,10 @@ TbBool creature_affected_by_spell(const struct Thing *thing, SpellKind spkind)
         return ((cctrl->spell_flags & CSAfF_Disease) != 0);
     case SplK_Chicken:
         return ((cctrl->spell_flags & CSAfF_Chicken) != 0);
+    case SplK_Indoctrination:
+        return ((cctrl->spell_flags & CSAfF_MadKilling) != 0);
+    case SplK_MagicMist:
+        return ((cctrl->spell_flags & CSAfF_MagicMist) != 0);
     case SplK_TimeBomb:
         return ((cctrl->spell_flags & CSAfF_Timebomb) != 0);
     // Handle spells with no continuous effect
@@ -1278,6 +1282,12 @@ void terminate_thing_spell_effect(struct Thing *thing, SpellKind spkind)
         cctrl->spell_flags &= ~CSAfF_Chicken;
         external_set_thing_state(thing, CrSt_CreatureChangeFromChicken);
         cctrl->countdown_282 = 10;
+        break;
+    case SplK_Indoctrination:
+        cctrl->spell_flags &= ~CSAfF_MadKilling;
+        break;
+    case SplK_MagicMist:
+        cctrl->spell_flags &= ~CSAfF_MagicMist;
         break;
     case SplK_Light:
     crstat = creature_stats_get(thing->model);
@@ -2969,9 +2979,9 @@ void process_creature_standing_on_corpses_at(struct Thing *creatng, struct Coord
 long calculate_melee_damage(struct Thing *creatng)
 {
     const struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    const struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
     long strength = calculate_correct_creature_strength(creatng);
-    return compute_creature_attack_melee_damage(strength, crstat->luck, cctrl->explevel, creatng);
+    long luck = calculate_correct_creature_luck(creatng);
+    return compute_creature_attack_melee_damage(strength, luck, cctrl->explevel, creatng);
 }
 
 /**
@@ -2982,9 +2992,9 @@ long calculate_melee_damage(struct Thing *creatng)
 long project_melee_damage(const struct Thing *creatng)
 {
     const struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    const struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
     long strength = calculate_correct_creature_strength(creatng);
-    return project_creature_attack_melee_damage(strength, crstat->luck, cctrl->explevel, creatng);
+    long luck = calculate_correct_creature_luck(creatng);
+    return project_creature_attack_melee_damage(strength, luck, cctrl->explevel, creatng);
 }
 
 /**
@@ -2996,8 +3006,8 @@ long calculate_shot_damage(struct Thing *creatng, ThingModel shot_model)
 {
     const struct ShotConfigStats* shotst = get_shot_model_stats(shot_model);
     const struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    const struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
-    return compute_creature_attack_spell_damage(shotst->damage, crstat->luck, cctrl->explevel, creatng);
+    long luck = calculate_correct_creature_luck(creatng);
+    return compute_creature_attack_spell_damage(shotst->damage, luck, cctrl->explevel, creatng);
 }
 
 /**
@@ -3010,17 +3020,17 @@ long project_creature_shot_damage(const struct Thing *thing, ThingModel shot_mod
 {
     const struct ShotConfigStats* shotst = get_shot_model_stats(shot_model);
     const struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    const struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     long damage;
+    long luck = calculate_correct_creature_luck(thing);
     if ((shotst->model_flags & ShMF_StrengthBased) != 0 )
     {
         // Project melee damage.
         long strength = calculate_correct_creature_strength(thing);
-        damage = project_creature_attack_melee_damage(strength, crstat->luck, cctrl->explevel, thing);
+        damage = project_creature_attack_melee_damage(strength, luck, cctrl->explevel, thing);
     } else
     {
         // Project shot damage.
-        damage = project_creature_attack_spell_damage(shotst->damage, crstat->luck, cctrl->explevel, thing);
+        damage = project_creature_attack_spell_damage(shotst->damage, luck, cctrl->explevel, thing);
     }
     return damage;
 }
@@ -3468,6 +3478,11 @@ void get_creature_instance_times(const struct Thing *thing, long inst_idx, long 
     if (!is_neutral_thing(thing))
     {
         if (player_uses_power_obey(thing->owner))
+        {
+            aitime -= aitime / 4;
+            itime -= itime / 4;
+        }
+        if (player_uses_power_mighty_infusion(thing->owner))
         {
             aitime -= aitime / 4;
             itime -= itime / 4;

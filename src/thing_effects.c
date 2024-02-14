@@ -358,6 +358,43 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
             effeltng = create_thing(&pos, TCls_EffectElem, TngEffElm_LavaFlameMoving, thing->owner, -1);
         }
     }
+
+    if ((cctrl->spell_flags & CSAfF_MadKilling) != 0)
+    {
+        pos.x.val = thing->mappos.x.val;
+        pos.y.val = thing->mappos.y.val;
+        pos.z.val = thing->mappos.z.val;
+        effeltng = create_thing(&pos, TCls_EffectElem, TngEffElm_BloodSplat, thing->owner, -1);
+    }
+
+    if ((cctrl->spell_flags & CSAfF_MagicMist) != 0)
+    {
+        int diamtr = thing->clipbox_size_xy;
+        dturn = game.play_gameturn - thing->creation_turn;
+        MapCoord cor_z_max = thing->clipbox_size_z + (thing->clipbox_size_z * game.conf.crtr_conf.exp.size_increase_on_exp * cctrl->explevel);
+
+        struct EffectElementConfigStats* eestat = get_effect_element_model_stats(TngEffElm_CloudDisperse);
+        unsigned short nframes = keepersprite_frames(eestat->sprite_idx);
+        GameTurnDelta dtadd = 0;
+        unsigned short cframe = game.play_gameturn % nframes;
+        pos.z.val = thing->mappos.z.val;
+        int radius = diamtr / 2;
+        while (pos.z.val < cor_z_max + thing->mappos.z.val)
+        {
+            angle = (abs(dturn + dtadd) & 7) << 8;
+            shift_x =  (radius * LbSinL(angle) >> 8) >> 8;
+            shift_y = -(radius * LbCosL(angle) >> 8) >> 8;
+            pos.x.val = thing->mappos.x.val + shift_x;
+            pos.y.val = thing->mappos.y.val + shift_y;
+            effeltng = create_thing(&pos, TCls_EffectElem, TngEffElm_CloudDisperse, thing->owner, -1);
+            if (thing_is_invalid(effeltng))
+                break;
+            set_thing_draw(effeltng, eestat->sprite_idx, 256, eestat->sprite_size_min, 0, cframe, ODC_Default);
+            dtadd++;
+            pos.z.val += 16;
+            cframe = (cframe + 1) % nframes;
+        }
+    }
 }
 
 void move_effect_blocked(struct Thing *thing, struct Coord3d *prev_pos, struct Coord3d *next_pos)

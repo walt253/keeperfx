@@ -108,6 +108,7 @@ long calculate_correct_creature_strength(const struct Thing *thing);
 long calculate_correct_creature_armour(const struct Thing *thing);
 long calculate_correct_creature_defense(const struct Thing *thing);
 long calculate_correct_creature_dexterity(const struct Thing *thing);
+long calculate_correct_creature_luck(const struct Thing *thing);
 long calculate_correct_creature_maxspeed(const struct Thing *thing);
 long calculate_correct_creature_loyalty(const struct Thing *thing);
 long calculate_correct_creature_scavenge_required(const struct Thing *thing, PlayerNumber callplyr_idx);

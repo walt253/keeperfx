@@ -2627,6 +2627,10 @@ void remove_power_from_player(PowerKind pwkind, PlayerNumber plyr_idx)
         if (player_uses_power_obey(plyr_idx))
             turn_off_power_obey(plyr_idx);
         break;
+    case PwrK_MIGHTYINFUSION:
+        if (player_uses_power_mighty_infusion(plyr_idx))
+            turn_off_power_mighty_infusion(plyr_idx);
+        break;
     case PwrK_SIGHT:
         if (player_uses_power_sight(plyr_idx))
             turn_off_power_sight_of_evil(plyr_idx);

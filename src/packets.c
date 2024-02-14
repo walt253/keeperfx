@@ -222,6 +222,24 @@ TbBool process_dungeon_control_packet_spell_overcharge(long plyr_idx)
       case PSt_MeteorStorm:
           update_power_overcharge(player, PwrK_METEORSTORM);
           break;
+      case PSt_Indoctrination:
+          update_power_overcharge(player, PwrK_INDOCTRINATION);
+          break;
+      case PSt_MagicMist:
+          update_power_overcharge(player, PwrK_MAGICMIST);
+          break;
+      case PSt_MassTeleport:
+          update_power_overcharge(player, PwrK_MASSTELEPORT);
+          break;
+      case PSt_Fart:
+          update_power_overcharge(player, PwrK_FART);
+          break;
+      case PSt_SummonCreature:
+          update_power_overcharge(player, PwrK_SUMMONCREATURE);
+          break;
+      case PSt_Eruption:
+          update_power_overcharge(player, PwrK_ERUPTION);
+          break;
       default:
           player->cast_expand_level++;
           break;
@@ -1046,6 +1064,9 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
         query_creature(player, pckt->actn_par1, pckt->actn_par2, pckt->actn_par3);
         return false;
     }
+    case PckA_UsePwrInfusion:
+        magic_use_available_power_on_level(plyr_idx, PwrK_MIGHTYINFUSION, 0, PwMod_Default);
+        return 0;
     default:
       return process_players_global_cheats_packet_action(plyr_idx, pckt);
   }

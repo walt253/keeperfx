@@ -4505,6 +4505,8 @@ long process_work_speed_on_work_value(const struct Thing *thing, long base_val)
     long val = base_val;
     if (creature_affected_by_spell(thing, SplK_Speed))
         val = 2 * val;
+    if (creature_affected_by_spell(thing, SplK_MagicMist))
+        val = 3 * val / 2;
     if (creature_affected_by_slap(thing))
         val = 4 * val / 3;
     if (!is_neutral_thing(thing))

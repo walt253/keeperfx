@@ -140,6 +140,9 @@ struct Modifiers
     unsigned short training_cost;
     unsigned short scavenging_cost;
     unsigned short loyalty;
+    unsigned short defense;
+    unsigned short dexterity;
+    unsigned short luck;
 };
 
 struct Dungeon {
@@ -166,6 +169,7 @@ struct Dungeon {
     unsigned long cta_start_turn;
     TbBool cta_free;
     unsigned long must_obey_turn;
+    unsigned long infusion_turn;
     int hold_audience_cast_turn;
     int scavenge_counters_turn;
     /** Counter of creatures scavenging of each kind, zeroized and recomputed each game turn. */

@@ -71,6 +71,7 @@ enum SpellKinds {
     SplK_DivineShield,
     SplK_Indoctrination,
     SplK_MagicMist, // 35
+    SplK_Kamikaze,
 };
 
 enum CreatureSpellAffectedFlags {

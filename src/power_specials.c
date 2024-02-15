@@ -517,6 +517,12 @@ void activate_dungeon_special(struct Thing *cratetng, struct PlayerInfo *player)
             used = 1;
             delete_thing_structure(cratetng, 0);
             break;
+        case SpcKind_Ragnarok:
+            init_ragnarok(player);
+            remove_events_thing_is_attached_to(cratetng);
+            used = 1;
+            delete_thing_structure(cratetng, 0);
+            break;
         case SpcKind_Custom:
         default:
             if (thing_is_custom_special_box(cratetng))

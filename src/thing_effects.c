@@ -371,7 +371,7 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
     {
         int diamtr = thing->clipbox_size_xy;
         MapCoord cor_z_max = thing->clipbox_size_z + (thing->clipbox_size_z * game.conf.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 80;
-        int i = cor_z_max / 8;
+        int i = cor_z_max / 128;
         if (i <= 1)
           i = 1;
         dturn = game.play_gameturn - thing->creation_turn;

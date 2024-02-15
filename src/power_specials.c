@@ -31,6 +31,7 @@
 #include "dungeon_data.h"
 #include "creature_control.h"
 #include "creature_states_pray.h"
+#include "creature_states.h"
 #include "power_hand.h"
 #include "map_blocks.h"
 #include "spdigger_stack.h"
@@ -94,7 +95,7 @@ void ragnarok_creatures_in_dungeon_list(struct Dungeon *dungeon, long list_start
         if (!thing_is_picked_up(thing) && !creature_is_kept_in_custody(thing) && !creature_is_being_unconscious(thing))
         {
             struct Coord3d pos = thing->mappos;
-            remove_thing_from_power_hand_list(thing, plyr_idx);
+            remove_thing_from_power_hand_list(thing, dungeon->owner);
             kill_creature(thing, INVALID_THING, -1, CrDed_NoEffects|CrDed_NotReallyDying);
             struct Thing* tnrag = create_creature(&pos, specst->value, dungeon->owner);
             if (thing_is_invalid(tnrag))

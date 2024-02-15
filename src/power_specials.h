@@ -47,6 +47,7 @@ enum SpecialKinds {
     SpcKind_GetGold,
     SpcKind_MakeAngry,
     SpcKind_MakeUnsafe,
+    SpcKind_Ragnarok,
 };
 
 /******************************************************************************/

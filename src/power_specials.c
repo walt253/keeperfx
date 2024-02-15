@@ -75,6 +75,54 @@ TbBool activate_bonus_level(struct PlayerInfo *player)
   return result;
 }
 
+void ragnarok_creatures_in_dungeon_list(struct Dungeon *dungeon, long list_start)
+{
+    struct SpecialConfigStats* specst = get_special_model_stats(SpcKind_Ragnarok);
+    unsigned long k = 0;
+    int i = list_start;
+    while (i != 0)
+    {
+        struct Thing* thing = thing_get(i);
+        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+        if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
+        {
+            ERRORLOG("Jump to invalid creature detected");
+            break;
+        }
+        i = cctrl->players_next_creature_idx;
+        // Thing list loop body
+        if (!thing_is_picked_up(thing) && !creature_is_kept_in_custody(thing) && !creature_is_being_unconscious(thing))
+        {
+            struct Coord3d pos = thing->mappos;
+            remove_thing_from_power_hand_list(thing, plyr_idx);
+            kill_creature(thing, INVALID_THING, -1, CrDed_NoEffects|CrDed_NotReallyDying);
+            struct Thing* tnrag = create_creature(&pos, specst->value, dungeon->owner);
+            if (thing_is_invalid(tnrag))
+            {
+                WARNLOG("Can't create a new creature from Ragnarok");
+                break;
+            }
+            create_effect(&tnrag->mappos, imp_spangle_effects[get_player_color_idx(dungeon->owner)], dungeon->owner);
+            set_creature_level(tnrag, cctrl->explevel);
+            initialise_thing_state(tnrag, CrSt_CreatureInHoldAudience);
+        }
+        // Thing list loop body ends
+        k++;
+        if (k > CREATURES_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping creatures list");
+            break;
+        }
+    }
+}
+
+void init_ragnarok(struct PlayerInfo *player)
+{
+    struct Dungeon* dungeon = get_players_dungeon(player);
+    //ragnarok_creatures_in_dungeon_list(dungeon, dungeon->creatr_list_start);
+    ragnarok_creatures_in_dungeon_list(dungeon, dungeon->digger_list_start);
+}
+
 void multiply_creatures_in_dungeon_list(struct Dungeon *dungeon, long list_start)
 {
     unsigned long k = 0;

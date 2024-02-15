@@ -78,7 +78,10 @@ TbBool activate_bonus_level(struct PlayerInfo *player)
 
 void ragnarok_creatures_in_dungeon_list(struct Dungeon *dungeon, long list_start)
 {
-    struct SpecialConfigStats* specst = get_special_model_stats(SpcKind_Ragnarok);
+    struct SpecialConfigStats *specst = get_special_model_stats(SpcKind_Ragnarok);
+    struct Thing *rgnrk;
+    struct Coord3d pos;
+    unsigned char creature_id = specst->value;
     unsigned long k = 0;
     int i = list_start;
     while (i != 0)
@@ -94,18 +97,18 @@ void ragnarok_creatures_in_dungeon_list(struct Dungeon *dungeon, long list_start
         // Thing list loop body
         if (!thing_is_picked_up(thing) && !creature_is_kept_in_custody(thing) && !creature_is_being_unconscious(thing))
         {
-            struct Coord3d pos = thing->mappos;
+            pos = thing->mappos;
             remove_thing_from_power_hand_list(thing, dungeon->owner);
             kill_creature(thing, INVALID_THING, -1, CrDed_NoEffects|CrDed_NotReallyDying);
-            struct Thing* tnrag = create_creature(&pos, specst->value, dungeon->owner);
-            if (thing_is_invalid(tnrag))
+            rgnrk = create_creature(&pos, creature_id, dungeon->owner);
+            if (thing_is_invalid(rgnrk))
             {
                 WARNLOG("Can't create a new creature from Ragnarok");
                 break;
             }
-            create_effect(&tnrag->mappos, imp_spangle_effects[get_player_color_idx(dungeon->owner)], dungeon->owner);
-            set_creature_level(tnrag, cctrl->explevel);
-            initialise_thing_state(tnrag, CrSt_CreatureInHoldAudience);
+            create_effect(&rgnrk->mappos, imp_spangle_effects[get_player_color_idx(dungeon->owner)], dungeon->owner);
+            set_creature_level(rgnrk, cctrl->explevel);
+            initialise_thing_state(rgnrk, CrSt_CreatureInHoldAudience);
         }
         // Thing list loop body ends
         k++;

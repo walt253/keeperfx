@@ -758,6 +758,8 @@ TbBool creature_affected_by_spell(const struct Thing *thing, SpellKind spkind)
         return ((cctrl->spell_flags & CSAfF_MadKilling) != 0);
     case SplK_MagicMist:
         return ((cctrl->spell_flags & CSAfF_MagicMist) != 0);
+    case SplK_Kamikaze:
+        return ((cctrl->spell_flags & CSAfF_Timebomb) != 0);
     case SplK_TimeBomb:
         return ((cctrl->spell_flags & CSAfF_Timebomb) != 0);
     // Handle spells with no continuous effect
@@ -1049,7 +1051,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
             }
         }
     } else
-    if (spell_idx == SplK_TimeBomb)
+    if ((spell_idx == SplK_TimeBomb) || (spell_idx == SplK_Kamikaze))
     {
         if (i != -1)
         {

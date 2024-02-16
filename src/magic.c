@@ -1842,7 +1842,7 @@ TbResult magic_use_power_summon_creature(PlayerNumber plyr_idx, MapSubtlCoord st
     pos.x.val = subtile_coord_center(stl_x);
     pos.y.val = subtile_coord_center(stl_y);
     pos.z.val = get_floor_height_at(&pos) + (heartng->clipbox_size_z >> 1);
-    if ((pwrdynst->duration > 0) && (pwrdynst->duration <= CREATURE_TYPES_MAX)) {
+    if ((pwrdynst->duration > 0) && (pwrdynst->duration <= game.conf.crtr_conf.model_count)) {
         creature_id = pwrdynst->duration;
         thing = create_creature(&pos, creature_id, plyr_idx);
         if (thing_is_invalid(thing))

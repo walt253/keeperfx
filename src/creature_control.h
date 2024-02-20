@@ -32,7 +32,7 @@
 extern "C" {
 #endif
 
-#define CREATURE_TYPES_MAX 64
+#define CREATURE_TYPES_MAX 128
 #define SWAP_CREATURE_TYPES_MAX 64
 #define CREATURE_STATES_MAX 256
 

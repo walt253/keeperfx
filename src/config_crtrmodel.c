@@ -117,6 +117,7 @@ const struct NamedCommand creatmodel_properties_commands[] = {
   {"NO_RESURRECT",      28},
   {"NO_TRANSFER",       29},
   {"IMMUNE_TO_CHARM",   30},
+  {"THIEF",             31},
   {NULL,                 0},
   };
 
@@ -753,6 +754,10 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
                 break;
             case 30: // IMMUNE_TO_CHARM
                 crconf->model_flags |= CMF_NoCharm;
+                n++;
+                break;
+            case 31: // THIEF
+                crconf->model_flags |= CMF_IsThief;
                 n++;
                 break;
             default:

@@ -474,8 +474,6 @@ long project_creature_attack_spell_damage(long base_param,long luck,unsigned sho
     if (crlevel >= CREATURE_MAX_LEVEL)
         crlevel = CREATURE_MAX_LEVEL-1;
     long max_param = base_param + (game.conf.crtr_conf.exp.spell_damage_increase_on_exp * base_param * (long)crlevel) / 100;
-    unsigned short magic = thing->magic;
-    max_param = (max_param * magic) / 100;
     if (creature_affected_by_spell(thing, SplK_MagicMist))
         max_param = (384 * max_param) / 256;
     // Apply modifier.
@@ -529,8 +527,6 @@ long compute_creature_attack_spell_damage(long base_param, long luck, unsigned s
     if (crlevel >= CREATURE_MAX_LEVEL)
         crlevel = CREATURE_MAX_LEVEL-1;
     long max_param = base_param + (game.conf.crtr_conf.exp.spell_damage_increase_on_exp * base_param * (long)crlevel) / 100;
-    unsigned short magic = thing->magic;
-    max_param = (max_param * magic) / 100;
     if (creature_affected_by_spell(thing, SplK_MagicMist))
         max_param = (384 * max_param) / 256;
     // Apply modifier.

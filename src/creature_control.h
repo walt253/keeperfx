@@ -42,9 +42,9 @@ extern "C" {
 /** Max amount of creatures supported on any map. */
 #define CREATURES_COUNT       256
 /** Number of possible melee combat opponents. */
-#define COMBAT_MELEE_OPPONENTS_LIMIT       4
+#define COMBAT_MELEE_OPPONENTS_LIMIT       8
 /** Number of possible range combat opponents. */
-#define COMBAT_RANGED_OPPONENTS_LIMIT      4
+#define COMBAT_RANGED_OPPONENTS_LIMIT      8
 /** Amount of instances. */
 /** Max amount of rooms needed for a creature to be attracted to a dungeon. */
 #define ENTRANCE_ROOMS_COUNT               3
@@ -176,7 +176,7 @@ struct CreatureControl {
     */
     long annoyance_level[5];
     unsigned char mood_flags;
-unsigned char sound_flag;
+    unsigned char sound_flag;
     /** Lair room index, that is the room which holds creature's lair object. */
     unsigned short lair_room_id;
     /** Lair object thing index. */
@@ -367,7 +367,7 @@ unsigned char sound_flag;
     unsigned char active_state_bkp;
     /* State backup when a creature temporarily changes its state due to being slapped. */
     unsigned char continue_state_bkp;
-unsigned char cowers_from_slap_turns;
+    unsigned char cowers_from_slap_turns;
     short conscious_back_turns;
     short countdown_282; // signed
     unsigned short damage_wall_coords;
@@ -525,6 +525,13 @@ struct CreatureStats { // These stats are not compatible with original DK - they
     short footstep_pitch;
     short lair_object;
     short status_offset;
+    unsigned short magic;
+    unsigned short strength_upgrade;
+    unsigned short armour_upgrade;
+    unsigned short defense_upgrade;
+    unsigned short dexterity_upgrade;
+    unsigned short luck_upgrade;
+    unsigned short magic_upgrade;
     struct CreaturePickedUpOffset creature_picked_up_offset;
 };
 

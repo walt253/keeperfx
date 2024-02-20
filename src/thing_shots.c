@@ -1202,6 +1202,9 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
         unsigned char stlngshtr = calculate_correct_creature_dexterity(shooter);
         unsigned char stlngtrgt = calculate_correct_creature_dexterity(trgtng);
         GoldAmount stlngcnt = (stlngshtr * (384 - stlngtrgt)) / 512;
+        if ((get_creature_model_flags(shooter) & CMF_IsThief) != 0) {
+            stlngcnt *= 2;
+        }
         if (stlngcnt > trgtng->creature.gold_carried) {
             stlngcnt = trgtng->creature.gold_carried;
         }
@@ -1215,13 +1218,21 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
     if ((shotst->model_flags & ShMF_Looting) != 0)
     {
         struct CreatureStats* ltng = creature_stats_get_from_thing(shooter);
-        unsigned char ltngshtr = calculate_correct_creature_dexterity(shooter);
-        unsigned char ltngtrgt = calculate_correct_creature_dexterity(trgtng);
-        GoldAmount ltngcnt = (ltngshtr * (384 - ltngtrgt)) / 512;
-        if (ltng->gold_hold >= (shooter->creature.gold_carried + ltngcnt)) {
-            shooter->creature.gold_carried += ltngcnt;
-        } else {
-            drop_gold_pile(ltngcnt, &trgtng->mappos);
+        unsigned char lckshtr = GAME_RANDOM(calculate_correct_creature_luck(shooter));
+        unsigned char lcktrgt = GAME_RANDOM(calculate_correct_creature_luck(trgtng));
+        if ((get_creature_model_flags(shooter) & CMF_IsThief) != 0) {
+            lckshtr = 255;
+        }
+        if (lckshtr > lcktrgt)
+        {
+            unsigned char ltngshtr = calculate_correct_creature_dexterity(shooter);
+            unsigned char ltngtrgt = calculate_correct_creature_dexterity(trgtng);
+            GoldAmount ltngcnt = (ltngshtr * (384 - ltngtrgt)) / 512;
+            if (ltng->gold_hold >= (shooter->creature.gold_carried + ltngcnt)) {
+                shooter->creature.gold_carried += ltngcnt;
+            } else {
+                drop_gold_pile(ltngcnt, &trgtng->mappos);
+            }
         }
     }
     if (((shotst->model_flags & ShMF_Charming) != 0) && ((get_creature_model_flags(trgtng) & CMF_NoCharm) == 0))

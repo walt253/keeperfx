@@ -84,6 +84,7 @@ const struct NamedCommand creatmodel_attributes_commands[] = {
   {"CORPSEVANISHEFFECT", 32},
   {"FOOTSTEPPITCH",      33},
   {"LAIROBJECT",         34},
+  {"MAGIC",              35},
   {NULL,                  0},
   };
 
@@ -267,6 +268,13 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
       crstat->damage_to_boulder = 4;
       crstat->thing_size_xy = 128;
       crstat->thing_size_z = 64;
+      crstat->magic = 100;
+      crstat->strength_upgrade = 0;
+      crstat->armour_upgrade = 0;
+      crstat->defense_upgrade = 0;
+      crstat->dexterity_upgrade = 0;
+      crstat->luck_upgrade = 0;
+      crstat->magic_upgrade = 0;
       crstat->bleeds = false;
       crstat->affected_by_wind = true;
       crstat->immune_to_gas = false;
@@ -823,6 +831,19 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
           {
               CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
                   COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 35: // MAGIC
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            k = atoi(word_buf);
+            crstat->magic = k;
+            n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, creature_code_name(crtr_model), config_textname);
           }
           break;
       case 0: // comment

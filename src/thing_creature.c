@@ -3027,6 +3027,7 @@ long project_creature_shot_damage(const struct Thing *thing, ThingModel shot_mod
     const struct ShotConfigStats* shotst = get_shot_model_stats(shot_model);
     const struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     const struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    long damage;
     unsigned short magic = 100 + crstat->magic;
     long shot_damage = shotst->damage;
     shot_damage = (shot_damage * magic) / 100;

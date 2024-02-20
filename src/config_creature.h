@@ -60,6 +60,7 @@ enum CreatureModelFlags {
     CMF_NoResurrect      = 0x010000, // Creature will not resurrect.
     CMF_NoTransfer       = 0x020000, // Creature cannot be transferred.
     CMF_NoCharm          = 0x040000, // Creature cannot be charmed.
+    CMF_IsThief          = 0x080000, // Creature is expert in looting and stealing.
 };
 
 enum CreatureJobFlags {

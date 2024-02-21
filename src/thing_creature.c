@@ -3008,12 +3008,8 @@ long calculate_shot_damage(struct Thing *creatng, ThingModel shot_model)
 {
     const struct ShotConfigStats* shotst = get_shot_model_stats(shot_model);
     const struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    const struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
-    unsigned short magic = 100 + crstat->magic;
-    long shot_damage = shotst->damage;
-    shot_damage = (shot_damage * magic) / 100;
     long luck = calculate_correct_creature_luck(creatng);
-    return compute_creature_attack_spell_damage(shot_damage, luck, cctrl->explevel, creatng);
+    return compute_creature_attack_spell_damage(shotst->damage, luck, cctrl->explevel, creatng);
 }
 
 /**
@@ -3026,11 +3022,7 @@ long project_creature_shot_damage(const struct Thing *thing, ThingModel shot_mod
 {
     const struct ShotConfigStats* shotst = get_shot_model_stats(shot_model);
     const struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    const struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     long damage;
-    unsigned short magic = 100 + crstat->magic;
-    long shot_damage = shotst->damage;
-    shot_damage = (shot_damage * magic) / 100;
     long luck = calculate_correct_creature_luck(thing);
     if ((shotst->model_flags & ShMF_StrengthBased) != 0 )
     {
@@ -3040,7 +3032,7 @@ long project_creature_shot_damage(const struct Thing *thing, ThingModel shot_mod
     } else
     {
         // Project shot damage.
-        damage = project_creature_attack_spell_damage(shot_damage, luck, cctrl->explevel, thing);
+        damage = project_creature_attack_spell_damage(shotst->damage, luck, cctrl->explevel, thing);
     }
     return damage;
 }

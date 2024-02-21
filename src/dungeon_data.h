@@ -143,6 +143,7 @@ struct Modifiers
     unsigned short defense;
     unsigned short dexterity;
     unsigned short luck;
+    unsigned short magic;
 };
 
 struct Dungeon {

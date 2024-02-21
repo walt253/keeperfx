@@ -1998,6 +1998,7 @@ TngUpdateRet process_creature_state(struct Thing *thing)
     SYNCDBG(19,"Starting for %s index %d owned by player %d",thing_model_name(thing),(int)thing->index,(int)thing->owner);
     TRACE_THING(thing);
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     unsigned long model_flags = get_creature_model_flags(thing);
 
     process_person_moods_and_needs(thing);
@@ -2053,13 +2054,22 @@ TngUpdateRet process_creature_state(struct Thing *thing)
         set_start_state(thing);
     }
 
-    // Creatures that are not special diggers will pick up any nearby gold or food
+    // Creatures that are not special diggers will pick up any nearby gold or food.
     if (((thing->movement_flags & TMvF_Flying) == 0) && ((model_flags & CMF_IsSpecDigger) == 0))
     {
         if (!creature_is_being_unconscious(thing) && !creature_is_dying(thing) &&
             !thing_is_picked_up(thing) && !creature_is_being_dropped(thing))
         {
             creature_pick_up_interesting_object_laying_nearby(thing);
+        }
+    }
+    // Mechanical creature can and will self heal at anytime.
+    if ((crstat->toking_recovery > 0) && (cctrl->max_health > thing->health) && ((model_flags & CMF_Mechanical) != 0))
+    {
+        if (((game.play_gameturn + thing->index) % game.conf.rules.creature.recovery_frequency) == 0)
+        {
+            HitPoints recover = compute_creature_max_health(crstat->toking_recovery, cctrl->explevel, thing->owner);
+            apply_health_to_thing_and_display_health(thing, recover);
         }
     }
     // Enable this to know which function hangs on update_creature.

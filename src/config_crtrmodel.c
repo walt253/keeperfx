@@ -268,7 +268,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
       crstat->damage_to_boulder = 4;
       crstat->thing_size_xy = 128;
       crstat->thing_size_z = 64;
-      crstat->magic = 0;
+      crstat->magic = 100;
       crstat->strength_upgrade = 0;
       crstat->armour_upgrade = 0;
       crstat->defense_upgrade = 0;

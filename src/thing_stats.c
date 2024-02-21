@@ -1107,6 +1107,14 @@ HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, DamageType d
         if (damage_type == DmgT_Magical) {
             unsigned short magic_reduction = calculate_correct_creature_magic(thing);
             dmg = (dmg * 200) / (100 + magic_reduction);
+            // SplK_MagicMist damage reduction.
+            if (creature_affected_by_spell(thing, SplK_MagicMist)) {
+                dmg /= 2;
+            }
+            // RESIST_TO_MAGIC damage reduction.
+            if (crstat->resist_to_magic != 0) {
+                dmg /= 2;
+            }
         }
         cdamage = apply_damage_to_creature(thing, dmg);
         break;

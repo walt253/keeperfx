@@ -252,7 +252,6 @@ long get_radially_decaying_value(long magnitude,long decay_start,long decay_leng
     return magnitude;
 }
 
-
 /**
  * Returns a value which is stronger around some epicenter but can't go beyond, like implosion damage.
  *
@@ -389,6 +388,21 @@ long compute_creature_max_loyalty(long base_param, unsigned short crlevel)
 }
 
 /**
+ * Computes magic of a creature on given level.
+ */
+long compute_creature_max_magic(long base_param, unsigned short crlevel)
+{
+    if (base_param <= 0)
+        return 0;
+    if (base_param > 10000)
+        base_param = 10000;
+    //if (crlevel >= CREATURE_MAX_LEVEL)
+    //    crlevel = CREATURE_MAX_LEVEL-1;
+    //long max_param = base_param + (game.conf.crtr_conf.exp.spell_damage_increase_on_exp * base_param * (long)crlevel) / 100;
+    return saturate_set_unsigned(base_param, 8);
+}
+
+/**
  * Computes gold pay of a creature on given level.
  */
 GoldAmount compute_creature_max_pay(GoldAmount base_param, unsigned short crlevel)
@@ -473,6 +487,8 @@ long project_creature_attack_spell_damage(long base_param,long luck,unsigned sho
         base_param = 60000;
     if (crlevel >= CREATURE_MAX_LEVEL)
         crlevel = CREATURE_MAX_LEVEL-1;
+    unsigned short magic = calculate_correct_creature_magic(thing);
+    base_param = (base_param * magic) / 100;
     long max_param = base_param + (game.conf.crtr_conf.exp.spell_damage_increase_on_exp * base_param * (long)crlevel) / 100;
     if (creature_affected_by_spell(thing, SplK_MagicMist))
         max_param = (384 * max_param) / 256;
@@ -526,6 +542,8 @@ long compute_creature_attack_spell_damage(long base_param, long luck, unsigned s
         base_param = 60000;
     if (crlevel >= CREATURE_MAX_LEVEL)
         crlevel = CREATURE_MAX_LEVEL-1;
+    unsigned short magic = calculate_correct_creature_magic(thing);
+    base_param = (base_param * magic) / 100;
     long max_param = base_param + (game.conf.crtr_conf.exp.spell_damage_increase_on_exp * base_param * (long)crlevel) / 100;
     if (creature_affected_by_spell(thing, SplK_MagicMist))
         max_param = (384 * max_param) / 256;
@@ -789,6 +807,25 @@ long calculate_correct_creature_loyalty(const struct Thing *thing)
         unsigned short modifier = dungeon->modifier.loyalty;
         max_param = (max_param * modifier) / 100;
     }
+    return max_param;
+}
+
+long calculate_correct_creature_magic(const struct Thing *thing)
+{
+    struct Dungeon* dungeon;
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    long max_param = compute_creature_max_magic(crstat->magic,cctrl->explevel);
+    // Apply modifier.
+    if (!is_neutral_thing(thing)) {
+        dungeon = get_dungeon(thing->owner);
+        unsigned short modifier = dungeon->modifier.magic;
+        max_param = (max_param * modifier) / 100;
+        if (player_uses_power_mighty_infusion(thing->owner))
+            max_param = (320 * max_param) / 256;
+    }
+    if (max_param >= 32767)
+        max_param = 32767;
     return max_param;
 }
 

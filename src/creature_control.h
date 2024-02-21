@@ -521,6 +521,8 @@ struct CreatureStats { // These stats are not compatible with original DK - they
     short annoy_going_postal;
     short toking_recovery;
     TbBool illuminated;
+    TbBool is_thief;
+    TbBool resist_to_magic;
     char corpse_vanish_effect;
     short footstep_pitch;
     short lair_object;

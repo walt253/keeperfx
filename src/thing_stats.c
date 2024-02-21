@@ -1105,7 +1105,7 @@ HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, DamageType d
     case TCls_Creature:
         // Test with Magical damage type against the new Magic stat.
         if (damage_type == DmgT_Magical) {
-            magic_reduction = calculate_correct_creature_magic(thing);
+            unsigned short magic_reduction = calculate_correct_creature_magic(thing);
             dmg = (dmg * 200) / (100 + magic_reduction);
         }
         cdamage = apply_damage_to_creature(thing, dmg);

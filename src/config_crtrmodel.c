@@ -119,6 +119,8 @@ const struct NamedCommand creatmodel_properties_commands[] = {
   {"NO_TRANSFER",       29},
   {"IMMUNE_TO_CHARM",   30},
   {"THIEF",             31},
+  {"RESIST_TO_MAGIC",   32},
+  {"MECHANICAL",        33},
   {NULL,                 0},
   };
 
@@ -283,6 +285,8 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
       crstat->flying = false;
       crstat->can_see_invisible = false;
       crstat->can_go_locked_doors = false;
+      crstat->is_thief = false;
+      crstat->resist_to_magic = false;
       crconf->namestr_idx = 0;
       crconf->model_flags = 0;
   }
@@ -765,7 +769,15 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
                 n++;
                 break;
             case 31: // THIEF
-                crconf->model_flags |= CMF_IsThief;
+                crstat->is_thief = true;
+                n++;
+                break;
+            case 32: // RESIST_TO_MAGIC
+                crstat->resist_to_magic = true;
+                n++;
+                break;
+            case 33: // MECHANICAL
+                crconf->model_flags |= CMF_Mechanical;
                 n++;
                 break;
             default:

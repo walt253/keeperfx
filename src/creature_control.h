@@ -42,9 +42,9 @@ extern "C" {
 /** Max amount of creatures supported on any map. */
 #define CREATURES_COUNT       256
 /** Number of possible melee combat opponents. */
-#define COMBAT_MELEE_OPPONENTS_LIMIT       8
+#define COMBAT_MELEE_OPPONENTS_LIMIT       6
 /** Number of possible range combat opponents. */
-#define COMBAT_RANGED_OPPONENTS_LIMIT      8
+#define COMBAT_RANGED_OPPONENTS_LIMIT      6
 /** Amount of instances. */
 /** Max amount of rooms needed for a creature to be attracted to a dungeon. */
 #define ENTRANCE_ROOMS_COUNT               3

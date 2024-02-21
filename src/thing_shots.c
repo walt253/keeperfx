@@ -1221,7 +1221,7 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
         struct CreatureStats* ltng = creature_stats_get_from_thing(shooter);
         unsigned char lckshtr = GAME_RANDOM(calculate_correct_creature_luck(shooter));
         unsigned char lcktrgt = GAME_RANDOM(calculate_correct_creature_luck(trgtng));
-        if (stlng->is_thief != 0) {
+        if (ltng->is_thief != 0) {
             lckshtr = 255;
         }
         if (lckshtr > lcktrgt)

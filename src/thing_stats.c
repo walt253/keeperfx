@@ -1088,9 +1088,13 @@ HitPoints calculate_shot_real_damage_to_door(const struct Thing *doortng, const 
  */
 HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, DamageType damage_type, PlayerNumber dealing_plyr_idx)
 {
-    // We're here to damage, not to heal
+    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    // We're here to damage, not to heal.
     SYNCDBG(19,"Dealing %d damage to %s by player %d",(int)dmg,thing_model_name(thing),(int)dealing_plyr_idx);
     if (dmg <= 0)
+        return 0;
+    // Immune to Gas is also immune to Respiratory damage type.
+    if ((crstat->immune_to_gas != 0) && (damage_type == DmgT_Respiratory))
         return 0;
     // If it's already dead, then don't interfere
     if (thing->health < 0)
@@ -1099,6 +1103,11 @@ HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, DamageType d
     switch (thing->class_id)
     {
     case TCls_Creature:
+        // Test with Magical damage type against the new Magic stat.
+        if (damage_type == DmgT_Magical) {
+            magic_reduction = calculate_correct_creature_magic(thing);
+            dmg = (dmg * 200) / (100 + magic_reduction);
+        }
         cdamage = apply_damage_to_creature(thing, dmg);
         break;
     case TCls_Object:

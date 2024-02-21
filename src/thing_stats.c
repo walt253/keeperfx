@@ -399,7 +399,7 @@ long compute_creature_max_magic(long base_param, unsigned short crlevel)
     //if (crlevel >= CREATURE_MAX_LEVEL)
     //    crlevel = CREATURE_MAX_LEVEL-1;
     //long max_param = base_param + (game.conf.crtr_conf.exp.spell_damage_increase_on_exp * base_param * (long)crlevel) / 100;
-    return saturate_set_unsigned(base_param, 8);
+    return saturate_set_unsigned(base_param, 15);
 }
 
 /**
@@ -824,6 +824,7 @@ long calculate_correct_creature_magic(const struct Thing *thing)
         if (player_uses_power_mighty_infusion(thing->owner))
             max_param = (320 * max_param) / 256;
     }
+    // Magic cannot exceed 32767.
     if (max_param >= 32767)
         max_param = 32767;
     return max_param;

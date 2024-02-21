@@ -105,13 +105,9 @@ TbBool detonate_shot(struct Thing *shotng, TbBool destroy)
         // Caster may have leveled up, or even may be already dead
         // But currently shot do not store its level, so we don't really have a choice
         struct CreatureControl* cctrl = creature_control_get_from_thing(castng);
-        const struct CreatureStats* crstat = creature_stats_get_from_thing(castng);
-        unsigned short magic = 100 + crstat->magic;
-        long area_damage = shotst->area_damage;
-        area_damage = (area_damage * magic) / 100;
         long luck = calculate_correct_creature_luck(castng);
         long dist = compute_creature_attack_range(shotst->area_range * COORD_PER_STL, luck, cctrl->explevel);
-        long damage = compute_creature_attack_spell_damage(area_damage, luck, cctrl->explevel, shotng);
+        long damage = compute_creature_attack_spell_damage(shotst->area_damage, luck, cctrl->explevel, shotng);
         HitTargetFlags hit_targets = hit_type_to_hit_targets(shotst->area_hit_type);
         explosion_affecting_area(shotng, &shotng->mappos, dist, damage, shotst->area_blow, hit_targets, shotst->damage_type);
     }

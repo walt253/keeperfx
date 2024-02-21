@@ -1202,7 +1202,8 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
         unsigned char stlngshtr = calculate_correct_creature_dexterity(shooter);
         unsigned char stlngtrgt = calculate_correct_creature_dexterity(trgtng);
         GoldAmount stlngcnt = (stlngshtr * (384 - stlngtrgt)) / 512;
-        if ((get_creature_model_flags(shooter) & CMF_IsThief) != 0) {
+        
+        if (stlng->is_thief != 0) {
             stlngcnt *= 2;
         }
         if (stlngcnt > trgtng->creature.gold_carried) {
@@ -1220,7 +1221,7 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
         struct CreatureStats* ltng = creature_stats_get_from_thing(shooter);
         unsigned char lckshtr = GAME_RANDOM(calculate_correct_creature_luck(shooter));
         unsigned char lcktrgt = GAME_RANDOM(calculate_correct_creature_luck(trgtng));
-        if ((get_creature_model_flags(shooter) & CMF_IsThief) != 0) {
+        if (stlng->is_thief != 0) {
             lckshtr = 255;
         }
         if (lckshtr > lcktrgt)

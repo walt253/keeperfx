@@ -104,7 +104,7 @@ const struct NamedField rules_computer_named_fields[] = {
 };
 
 const struct NamedField rules_creatures_named_fields[] = {
-  {"RECOVERYFREQUENCY",         &game.conf.rules.creature.recovery_frequency,    var_type(game.conf.rules.creature.recovery_frequency    ),       0,UCHAR_MAX},
+  {"RECOVERYFREQUENCY",         &game.conf.rules.creature.recovery_frequency,    var_type(game.conf.rules.creature.recovery_frequency    ),       1,UCHAR_MAX},
   {"FIGHTMAXHATE",              &game.conf.rules.creature.fight_max_hate,        var_type(game.conf.rules.creature.fight_max_hate        ),       0,USHRT_MAX},
   {"FIGHTBORDERLINE",           &game.conf.rules.creature.fight_borderline,      var_type(game.conf.rules.creature.fight_borderline      ),       0,USHRT_MAX},
   {"FIGHTMAXLOVE",              &game.conf.rules.creature.fight_max_love,        var_type(game.conf.rules.creature.fight_max_love        ),       0,USHRT_MAX},

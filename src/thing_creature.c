@@ -2066,7 +2066,11 @@ TngUpdateRet process_creature_state(struct Thing *thing)
     // Mechanical creature can and will self heal at anytime.
     if ((crstat->toking_recovery > 0) && (cctrl->max_health > thing->health) && ((model_flags & CMF_Mechanical) != 0))
     {
-        if (((game.play_gameturn + thing->index) % game.conf.rules.creature.recovery_frequency) == 0)
+        HitPoints mechanical_frequency = thing->health / crstat->toking_recovery;
+        if (mechanical_frequency < crstat->toking_recovery) {
+            mechanical_frequency = crstat->toking_recovery;
+        }
+        if (((game.play_gameturn + thing->index) % mechanical_frequency) == 0)
         {
             HitPoints recover = compute_creature_max_health(crstat->toking_recovery, cctrl->explevel, thing->owner);
             apply_health_to_thing_and_display_health(thing, recover);

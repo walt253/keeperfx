@@ -523,6 +523,9 @@ struct CreatureStats { // These stats are not compatible with original DK - they
     TbBool illuminated;
     TbBool is_thief;
     TbBool resist_to_magic;
+    TbBool immune_to_freeze;
+    TbBool immune_to_slow;
+    TbBool self_recovery;
     char corpse_vanish_effect;
     short footstep_pitch;
     short lair_object;

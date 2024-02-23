@@ -805,7 +805,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
                 n++;
                 break;
             case 38: // ETHEREAL
-                crconf->model_flags |= CMF_ETHEREAL;
+                crconf->model_flags |= CMF_Ethereal;
                 n++;
                 break;
             default:

@@ -1101,12 +1101,12 @@ HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, DamageType d
     {
     case TCls_Creature:
         // Weaknesses&Resistances to Physical damage type.
-        // if (damage_type == DmgT_Physical) {
-        //     ETHEREAL negates the damage.
-        //     if ((get_creature_model_flags(thing) & CMF_Ethereal) != 0) {
-        //         return 0;
-        //     }
-        // }
+        if (damage_type == DmgT_Physical) {
+            // ETHEREAL negates the damage.
+            if ((get_creature_model_flags(thing) & CMF_Ethereal) != 0) {
+                return 0;
+            }
+        }
         // Weaknesses&Resistances to Magical damage type.
         if (damage_type == DmgT_Magical) {
             // Test with Magical damage type against the new Magic stat.
@@ -1212,6 +1212,29 @@ HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, DamageType d
             }
             // SplK_MagicMist resistance.
             if (creature_affected_by_spell(thing, SplK_MagicMist)) {
+                dmg /= 2;
+            }
+        }
+        // Weaknesses&Resistances to Holy damage type.
+        if (damage_type == DmgT_Holy) {
+            // UNDEAD weakness.
+            if ((get_creature_model_flags(thing) & CMF_Undead) != 0) {
+                dmg *= 8;
+            }
+        }
+        // Weaknesses&Resistances to Darkness damage type.
+        if (damage_type == DmgT_Darkness) {
+            if ((crstat->bleeds != 0) && (crstat->humanoid_creature != 0)) {
+                if ((get_creature_model_flags(thing) & CMF_NoCharm) == 0) {
+                    // BLEEDS with HUMANOID_SKELETON not IMMUNE_TO_CHARM weakness.
+                    dmg *= 2;
+                } else {
+                    // BLEEDS with HUMANOID_SKELETON and IMMUNE_TO_CHARM resistance.
+                    dmg /= 2;
+                }
+            }
+            // UNDEAD resistance.
+            if ((get_creature_model_flags(thing) & CMF_Undead) != 0) {
                 dmg /= 2;
             }
         }

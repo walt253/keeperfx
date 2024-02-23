@@ -61,6 +61,7 @@ enum CreatureModelFlags {
     CMF_NoTransfer       = 0x020000, // Creature cannot be transferred.
     CMF_NoCharm          = 0x040000, // Creature cannot be charmed.
     CMF_Mechanical       = 0x080000, // Creature is mechanical, as a result can self repair itself to heal.
+    CMF_Undead           = 0x100000, // Creature is kind of undead.
 };
 
 enum CreatureJobFlags {

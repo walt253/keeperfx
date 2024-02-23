@@ -1017,9 +1017,17 @@ long melee_shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, stru
       }
       create_relevant_effect_for_shot_hitting_thing(shotng, trgtng);
       if (!thing_is_invalid(shooter)) {
-          apply_damage_to_thing_and_display_health(trgtng, shotng->shot.damage, shotst->damage_type, shooter->owner);
+          if (((shotst->model_flags & ShMF_BlocksRebirth) != 0) && ((get_creature_model_flags(trgtng) & CMF_Undead) == 0)) {
+              apply_damage_to_thing_and_display_health(trgtng, shotng->shot.damage * 8, shotst->damage_type, shooter->owner);
+          } else {
+              apply_damage_to_thing_and_display_health(trgtng, shotng->shot.damage, shotst->damage_type, shooter->owner);
+          }
       } else {
-          apply_damage_to_thing_and_display_health(trgtng, shotng->shot.damage, shotst->damage_type, -1);
+          if (((shotst->model_flags & ShMF_BlocksRebirth) != 0) && ((get_creature_model_flags(trgtng) & CMF_Undead) == 0)) {
+              apply_damage_to_thing_and_display_health(trgtng, shotng->shot.damage * 8, shotst->damage_type, -1);
+          } else {
+              apply_damage_to_thing_and_display_health(trgtng, shotng->shot.damage, shotst->damage_type, -1);
+          }
       }
       if (shotst->model_flags & ShMF_LifeDrain)
       {
@@ -1267,9 +1275,19 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
     {
         HitPoints damage_done;
         if (!thing_is_invalid(shooter)) {
-            damage_done = apply_damage_to_thing_and_display_health(trgtng, shotng->shot.damage, shotst->damage_type, shooter->owner);
+            if (((shotst->model_flags & ShMF_BlocksRebirth) != 0) && ((get_creature_model_flags(trgtng) & CMF_Undead) == 0))
+            {
+                damage_done = apply_damage_to_thing_and_display_health(trgtng, shotng->shot.damage * 8, shotst->damage_type, shooter->owner);
+            } else {
+                damage_done = apply_damage_to_thing_and_display_health(trgtng, shotng->shot.damage, shotst->damage_type, shooter->owner);
+            }
         } else {
-            damage_done = apply_damage_to_thing_and_display_health(trgtng, shotng->shot.damage, shotst->damage_type, -1);
+            if (((shotst->model_flags & ShMF_BlocksRebirth) != 0) && ((get_creature_model_flags(trgtng) & CMF_Undead) == 0))
+            {
+                damage_done = apply_damage_to_thing_and_display_health(trgtng, shotng->shot.damage * 8, shotst->damage_type, -1);
+            } else {
+                damage_done = apply_damage_to_thing_and_display_health(trgtng, shotng->shot.damage, shotst->damage_type, -1);
+            }
         }
         if (shotst->model_flags & ShMF_LifeDrain)
         {

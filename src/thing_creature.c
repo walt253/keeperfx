@@ -2088,6 +2088,19 @@ TngUpdateRet process_creature_state(struct Thing *thing)
             apply_health_to_thing_and_display_health(thing, recover);
         }
     }
+    // Self Recovery creature can and will self heal at anytime.
+    if ((crstat->sleeping_recovery > 0) && (cctrl->max_health > thing->health) && (crstat->self_recovery != 0))
+    {
+        HitPoints recover = compute_creature_max_health(crstat->sleeping_recovery, cctrl->explevel, thing->owner);
+        HitPoints self_frequency = cctrl->max_health / recover;
+        if (self_frequency < recover) {
+            self_frequency = recover;
+        }
+        if (((game.play_gameturn + thing->index) % self_frequency) == 0)
+        {
+            apply_health_to_thing_and_display_health(thing, recover);
+        }
+    }
     // Enable this to know which function hangs on update_creature.
     //TODO CREATURE_AI rewrite state subfunctions so they won't hang
     //if (game.play_gameturn > 119800)

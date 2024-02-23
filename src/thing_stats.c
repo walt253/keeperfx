@@ -1112,16 +1112,16 @@ HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, DamageType d
             // Test with Magical damage type against the new Magic stat.
             unsigned short magic_reduction = calculate_correct_creature_magic(thing);
             dmg = (dmg * 200) / (100 + magic_reduction);
-            // SplK_MagicMist resistance.
-            if (creature_affected_by_spell(thing, SplK_MagicMist)) {
-                dmg /= 2;
-            }
             // MECHANICAL resistance.
             if ((get_creature_model_flags(thing) & CMF_Mechanical) != 0) {
                 dmg /= 2;
             }
             // RESIST_TO_MAGIC resistance.
             if (crstat->resist_to_magic != 0) {
+                dmg /= 2;
+            }
+            // SplK_MagicMist resistance.
+            if (creature_affected_by_spell(thing, SplK_MagicMist)) {
                 dmg /= 2;
             }
         }
@@ -1133,6 +1133,10 @@ HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, DamageType d
             }
             // RESIST_TO_MAGIC resistance.
             if (crstat->resist_to_magic != 0) {
+                dmg /= 2;
+            }
+            // SplK_MagicMist resistance.
+            if (creature_affected_by_spell(thing, SplK_MagicMist)) {
                 dmg /= 2;
             }
         }
@@ -1161,6 +1165,10 @@ HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, DamageType d
             if (crstat->resist_to_magic != 0) {
                 dmg /= 2;
             }
+            // SplK_MagicMist resistance.
+            if (creature_affected_by_spell(thing, SplK_MagicMist)) {
+                dmg /= 2;
+            }
         }
         // Weaknesses&Resistances to Heatburn damage type.
         if (damage_type == DmgT_Heatburn) {
@@ -1178,7 +1186,11 @@ HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, DamageType d
             }
             // If HurtByLava is set to 0 then apply a resistance.
             if (crstat->hurt_by_lava == 0) {
-                dmg /= 10;
+                dmg /= 8;
+            }
+            // SplK_MagicMist resistance.
+            if (creature_affected_by_spell(thing, SplK_MagicMist)) {
+                dmg /= 2;
             }
         }
         // Weaknesses&Resistances to Biological damage type.
@@ -1187,12 +1199,20 @@ HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, DamageType d
             if ((get_creature_model_flags(thing) & CMF_Mechanical) != 0) {
                 dmg /= 2;
             }
+            // SplK_MagicMist resistance.
+            if (creature_affected_by_spell(thing, SplK_MagicMist)) {
+                dmg /= 2;
+            }
         }
         // Weaknesses&Resistances to Respiratory damage type.
         if (damage_type == DmgT_Respiratory) {
             // IMMUNE_TO_GAS or MECHANICAL negates the damage.
             if ((crstat->immune_to_gas != 0) || ((get_creature_model_flags(thing) & CMF_Mechanical) != 0)) {
                 return 0;
+            }
+            // SplK_MagicMist resistance.
+            if (creature_affected_by_spell(thing, SplK_MagicMist)) {
+                dmg /= 2;
             }
         }
         cdamage = apply_damage_to_creature(thing, dmg);

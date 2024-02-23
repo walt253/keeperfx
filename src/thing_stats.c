@@ -1093,9 +1093,6 @@ HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, DamageType d
     SYNCDBG(19,"Dealing %d damage to %s by player %d",(int)dmg,thing_model_name(thing),(int)dealing_plyr_idx);
     if (dmg <= 0)
         return 0;
-    // Immune to Gas is also immune to Respiratory damage type.
-    if ((crstat->immune_to_gas != 0) && (damage_type == DmgT_Respiratory))
-        return 0;
     // If it's already dead, then don't interfere
     if (thing->health < 0)
         return 0;
@@ -1103,17 +1100,99 @@ HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, DamageType d
     switch (thing->class_id)
     {
     case TCls_Creature:
-        // Test with Magical damage type against the new Magic stat.
+        // Weaknesses&Resistances to Physical damage type.
+        // if (damage_type == DmgT_Physical) {
+        //     ETHEREAL negates the damage.
+        //     if ((get_creature_model_flags(thing) & CMF_Ethereal) != 0) {
+        //         return 0;
+        //     }
+        // }
+        // Weaknesses&Resistances to Magical damage type.
         if (damage_type == DmgT_Magical) {
+            // Test with Magical damage type against the new Magic stat.
             unsigned short magic_reduction = calculate_correct_creature_magic(thing);
             dmg = (dmg * 200) / (100 + magic_reduction);
-            // SplK_MagicMist damage reduction.
+            // SplK_MagicMist resistance.
             if (creature_affected_by_spell(thing, SplK_MagicMist)) {
                 dmg /= 2;
             }
-            // RESIST_TO_MAGIC damage reduction.
+            // MECHANICAL resistance.
+            if ((get_creature_model_flags(thing) & CMF_Mechanical) != 0) {
+                dmg /= 2;
+            }
+            // RESIST_TO_MAGIC resistance.
             if (crstat->resist_to_magic != 0) {
                 dmg /= 2;
+            }
+        }
+        // Weaknesses&Resistances to Electric damage type.
+        if (damage_type == DmgT_Electric) {
+            // MECHANICAL weakness.
+            if ((get_creature_model_flags(thing) & CMF_Mechanical) != 0) {
+                dmg *= 2;
+            }
+            // RESIST_TO_MAGIC resistance.
+            if (crstat->resist_to_magic != 0) {
+                dmg /= 2;
+            }
+        }
+        // Weaknesses&Resistances to Combustion damage type.
+        if (damage_type == DmgT_Combustion) {
+            // TREMBLING_FAT resistance.
+            if ((get_creature_model_flags(thing) & CMF_TremblingFat) != 0) {
+                dmg /= 2;
+            }
+        }
+        // Weaknesses&Resistances to Frostbite damage type.
+        if (damage_type == DmgT_Frostbite) {
+            // IMMUNE_TO_FREEZE negates the damage.
+            if (crstat->immune_to_freeze != 0) {
+                return 0;
+            }
+            // If HurtByLava is set to 0 then apply a weakness.
+            if (crstat->hurt_by_lava == 0) {
+                dmg *= 2;
+            }
+            // MECHANICAL resistance.
+            if ((get_creature_model_flags(thing) & CMF_Mechanical) != 0) {
+                dmg /= 2;
+            }
+            // RESIST_TO_MAGIC resistance.
+            if (crstat->resist_to_magic != 0) {
+                dmg /= 2;
+            }
+        }
+        // Weaknesses&Resistances to Heatburn damage type.
+        if (damage_type == DmgT_Heatburn) {
+            // ARACHNID weakness.
+            if ((get_creature_model_flags(thing) & CMF_IsArachnid) != 0) {
+                dmg *= 2;
+            }
+            // DIPTERA weakness.
+            if ((get_creature_model_flags(thing) & CMF_IsDiptera) != 0) {
+                dmg *= 2;
+            }
+            // INSECT weakness.
+            if ((get_creature_model_flags(thing) & CMF_Insect) != 0) {
+                dmg *= 2;
+            }
+            // If HurtByLava is set to 0 then apply a resistance.
+            if (crstat->hurt_by_lava == 0) {
+                dmg /= 10;
+            }
+        }
+        // Weaknesses&Resistances to Biological damage type.
+        if (damage_type == DmgT_Biological) {
+            // MECHANICAL resistance.
+            if ((get_creature_model_flags(thing) & CMF_Mechanical) != 0) {
+                dmg /= 2;
+            }
+        }
+        // Weaknesses&Resistances to Respiratory damage type.
+        if (damage_type == DmgT_Respiratory) {
+            // IMMUNE_TO_GAS or MECHANICAL negates the damage.
+            if ((crstat->immune_to_gas != 0) || ((get_creature_model_flags(thing) & CMF_Mechanical) != 0)) {
+                return 0;
             }
         }
         cdamage = apply_damage_to_creature(thing, dmg);

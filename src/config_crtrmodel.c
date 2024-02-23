@@ -121,6 +121,10 @@ const struct NamedCommand creatmodel_properties_commands[] = {
   {"THIEF",             31},
   {"RESIST_TO_MAGIC",   32},
   {"MECHANICAL",        33},
+  {"UNDEAD",            34},
+  {"IMMUNE_TO_FREEZE",  35},
+  {"IMMUNE_TO_SLOW",    36},
+  {"SELF_RECOVERY",     37},
   {NULL,                 0},
   };
 
@@ -287,6 +291,9 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
       crstat->can_go_locked_doors = false;
       crstat->is_thief = false;
       crstat->resist_to_magic = false;
+      crstat->immune_to_freeze = false;
+      crstat->immune_to_slow = false;
+      crstat->self_recovery = false;
       crconf->namestr_idx = 0;
       crconf->model_flags = 0;
   }
@@ -778,6 +785,22 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
                 break;
             case 33: // MECHANICAL
                 crconf->model_flags |= CMF_Mechanical;
+                n++;
+                break;
+            case 34: // UNDEAD
+                crconf->model_flags |= CMF_Undead;
+                n++;
+                break;
+            case 35: // IMMUNE_TO_FREEZE
+                crstat->immune_to_freeze = true;
+                n++;
+                break;
+            case 36: // IMMUNE_TO_SLOW
+                crstat->immune_to_slow = true;
+                n++;
+                break;
+            case 37: // SELF_RECOVERY
+                crstat->self_recovery = true;
                 n++;
                 break;
             default:

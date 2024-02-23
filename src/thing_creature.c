@@ -2093,8 +2093,8 @@ TngUpdateRet process_creature_state(struct Thing *thing)
     {
         HitPoints recover = compute_creature_max_health(crstat->sleeping_recovery, cctrl->explevel, thing->owner);
         HitPoints self_frequency = cctrl->max_health / recover;
-        if (self_frequency < recover) {
-            self_frequency = recover;
+        if (self_frequency < crstat->sleeping_recovery) {
+            self_frequency = crstat->sleeping_recovery;
         }
         if (((game.play_gameturn + thing->index) % self_frequency) == 0)
         {

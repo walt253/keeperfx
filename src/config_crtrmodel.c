@@ -125,6 +125,7 @@ const struct NamedCommand creatmodel_properties_commands[] = {
   {"IMMUNE_TO_FREEZE",  35},
   {"IMMUNE_TO_SLOW",    36},
   {"SELF_RECOVERY",     37},
+  {"ETHEREAL",          38},
   {NULL,                 0},
   };
 
@@ -801,6 +802,10 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
                 break;
             case 37: // SELF_RECOVERY
                 crstat->self_recovery = true;
+                n++;
+                break;
+            case 38: // ETHEREAL
+                crconf->model_flags |= CMF_ETHEREAL;
                 n++;
                 break;
             default:

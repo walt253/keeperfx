@@ -2089,12 +2089,12 @@ TngUpdateRet process_creature_state(struct Thing *thing)
         }
     }
     // Self Recovery creature can and will self heal at anytime.
-    if ((crstat->sleeping_recovery > 0) && (cctrl->max_health > thing->health) && (crstat->self_recovery != 0))
+    if ((crstat->sleep_recovery > 0) && (cctrl->max_health > thing->health) && (crstat->self_recovery != 0))
     {
-        HitPoints recover = compute_creature_max_health(crstat->sleeping_recovery, cctrl->explevel, thing->owner);
+        HitPoints recover = compute_creature_max_health(crstat->sleep_recovery, cctrl->explevel, thing->owner);
         HitPoints self_frequency = cctrl->max_health / recover;
-        if (self_frequency < crstat->sleeping_recovery) {
-            self_frequency = crstat->sleeping_recovery;
+        if (self_frequency < crstat->sleep_recovery) {
+            self_frequency = crstat->sleep_recovery;
         }
         if (((game.play_gameturn + thing->index) % self_frequency) == 0)
         {

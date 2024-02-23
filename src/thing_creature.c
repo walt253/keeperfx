@@ -1071,13 +1071,17 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
         switch (spell_idx)
         {
         case SplK_Freeze:
-            cctrl->stateblock_flags |= CCSpl_Freeze;
-            if ((thing->movement_flags & TMvF_Flying) != 0)
-                {
-                    cctrl->spell_flags |= CSAfF_Grounded;
-                    thing->movement_flags &= ~TMvF_Flying;
-                }
-            creature_set_speed(thing, 0);
+            crstat = creature_stats_get_from_thing(thing);
+            if (crstat->immune_to_freeze == 0)
+            {
+                cctrl->stateblock_flags |= CCSpl_Freeze;
+                if ((thing->movement_flags & TMvF_Flying) != 0)
+                    {
+                        cctrl->spell_flags |= CSAfF_Grounded;
+                        thing->movement_flags &= ~TMvF_Flying;
+                    }
+                creature_set_speed(thing, 0);
+            }
             break;
         case SplK_Armour:
             n = 0;
@@ -1110,8 +1114,16 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
             break;
         case SplK_Rage:
         case SplK_Speed:
-        case SplK_Slow:
             cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
+            break;
+        case SplK_Slow:
+            crstat = creature_stats_get_from_thing(thing);
+            if (crstat->immune_to_slow == 0)
+            {
+              cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
+            } else {
+              terminate_thing_spell_effect(thing, SplK_Slow);
+            }
             break;
         case SplK_Fly:
             thing->movement_flags |= TMvF_Flying;

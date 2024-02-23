@@ -1120,9 +1120,9 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
             crstat = creature_stats_get_from_thing(thing);
             if (crstat->immune_to_slow == 0)
             {
-              cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
+                cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
             } else {
-              terminate_thing_spell_effect(thing, SplK_Slow);
+                terminate_thing_spell_effect(thing, SplK_Slow);
             }
             break;
         case SplK_Fly:

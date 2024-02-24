@@ -93,6 +93,11 @@ TbBool get_coords_at_meta_action(struct Coord3d *pos, PlayerNumber target_plyr_i
     case MML_RECENT_COMBAT:
         src = &dungeon->last_combat_location;
         break;
+    case MML_RANDOM:
+        src = &dungeon->essential_pos;
+        src->x.val = src->x.val + PLAYER_RANDOM(target_plyr_idx, 255) - 127;
+        src->y.val = src->y.val + PLAYER_RANDOM(target_plyr_idx, 255) - 127;
+        break;
     default:
         return false;
     }
@@ -383,6 +388,13 @@ TbBool get_map_location_id_f(const char *locname, TbMapLocation *location, const
     else if (strcmp(locname, "COMBAT") == 0)
     {
         *location = (((unsigned long)MML_RECENT_COMBAT) << 12)
+            | ((unsigned long)my_player_number << 4)
+            | MLoc_METALOCATION;
+        return true;
+    }
+    else if (strcmp(locname, "RANDOM") == 0)
+    {
+        *location = (((unsigned long)MML_RANDOM) << 12)
             | ((unsigned long)my_player_number << 4)
             | MLoc_METALOCATION;
         return true;

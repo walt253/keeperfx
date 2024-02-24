@@ -1111,8 +1111,8 @@ HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, DamageType d
                 dmg /= 2;
             }
         } else {
-            if ((damage_type == DmgT_Magical) || (damage_type == DmgT_Electric) || (damage_type == DmgT_Frostbite) || (damage_type == DmgT_Heatburn) || (damage_type == DmgT_Holy) || (damage_type == DmgT_Darkness)) {
-                // Test with Magical damage type against the new Magic stat.
+            if ((damage_type == DmgT_Magical) || (damage_type == DmgT_Electric) || (damage_type == DmgT_Frostbite) || (damage_type == DmgT_Heatburn) || (damage_type == DmgT_Holy) || (damage_type == DmgT_Darkness) || (damage_type == DmgT_Hoarfrost)) {
+                // Apply a minor reduction based on Magic stat.
                 unsigned short magic_reduction = calculate_correct_creature_magic(thing);
                 dmg = (dmg * 200) / (100 + magic_reduction);
                 // ETHEREAL weakness.
@@ -1217,6 +1217,10 @@ HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, DamageType d
             if ((get_creature_model_flags(thing) & CMF_Insect) != 0) {
                 dmg *= 2;
             }
+            // UNDEAD weakness.
+            if ((get_creature_model_flags(thing) & CMF_Undead) != 0) {
+                dmg *= 2;
+            }
             // If HurtByLava is set to 0 then apply a resistance.
             if (crstat->hurt_by_lava == 0) {
                 dmg /= 8;
@@ -1296,6 +1300,46 @@ HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, DamageType d
             }
             // UNDEAD resistance.
             if ((get_creature_model_flags(thing) & CMF_Undead) != 0) {
+                dmg /= 2;
+            }
+        }
+        // Weaknesses&Resistances to Hoarfrost damage type.
+        if (damage_type == DmgT_Hoarfrost) {
+            // Apply SplK_Freeze EVEN on IMMUNE_TO_FREEZE.
+            if (crstat->hoarfrost == 0) {
+                crstat->force_to_freeze = true;
+                apply_spell_effect_to_thing(thing, SplK_Freeze, 8);
+                // Not HOARFROST weakness.
+                dmg *= 2;
+            } else {
+                // HOARFROST resistance.
+                dmg /= 4;
+            }
+            // IMMUNE_TO_FREEZE weakness.
+            if (crstat->immune_to_freeze != 0) {
+                dmg *= 2;
+            } else {
+                // Not IMMUNE_TO_FREEZE weakness.
+                dmg *= 4;
+            }
+            // If HurtByLava is set to 0 then apply a weakness.
+            if (crstat->hurt_by_lava == 0) {
+                dmg *= 2;
+            }
+            // MECHANICAL resistance.
+            if ((get_creature_model_flags(thing) & CMF_Mechanical) != 0) {
+                dmg /= 2;
+            }
+            // RESIST_TO_MAGIC resistance.
+            if (crstat->resist_to_magic != 0) {
+                dmg /= 2;
+            }
+            // SplK_Armour resistance.
+            if (creature_affected_by_spell(thing, SplK_Armour)) {
+                dmg /= 2;
+            }
+            // SplK_MagicMist resistance.
+            if (creature_affected_by_spell(thing, SplK_MagicMist)) {
                 dmg /= 2;
             }
         }

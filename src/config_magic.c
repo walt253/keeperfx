@@ -265,6 +265,7 @@ const struct NamedCommand shotmodel_damagetype_commands[] = {
   {"RESTORATION", DmgT_Restoration},
   {"HOLY",        DmgT_Holy},
   {"DARKNESS",    DmgT_Darkness},
+  {"HOARFROST",   DmgT_Hoarfrost},
   {NULL,          DmgT_None},
   };
 

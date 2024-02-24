@@ -126,6 +126,7 @@ const struct NamedCommand creatmodel_properties_commands[] = {
   {"IMMUNE_TO_SLOW",    36},
   {"SELF_RECOVERY",     37},
   {"ETHEREAL",          38},
+  {"HOARFROST",         39},
   {NULL,                 0},
   };
 
@@ -295,6 +296,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
       crstat->immune_to_freeze = false;
       crstat->immune_to_slow = false;
       crstat->self_recovery = false;
+      crstat->hoarfrost = false;
       crconf->namestr_idx = 0;
       crconf->model_flags = 0;
   }
@@ -806,6 +808,10 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
                 break;
             case 38: // ETHEREAL
                 crconf->model_flags |= CMF_Ethereal;
+                n++;
+                break;
+            case 39: // HOARFROST
+                crstat->hoarfrost = true;
                 n++;
                 break;
             default:

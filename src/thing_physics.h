@@ -43,6 +43,7 @@ enum DamageTypes {
     DmgT_Restoration,
     DmgT_Holy,
     DmgT_Darkness,
+    DmgT_Hoarfrost,
     DmgT_TypesCount, /*< Last item in enumeration, allows checking amount of valid types. */
 };
 

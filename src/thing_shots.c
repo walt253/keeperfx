@@ -1000,6 +1000,9 @@ void shot_kill_creature(struct Thing *shotng, struct Thing *creatng)
 long melee_shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coord3d *pos)
 {
     struct ShotConfigStats* shotst = get_shot_model_stats(shotng->model);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(shooter);
+    struct CreatureControl* trgtcctrl = creature_control_get_from_thing(trgtng);
+    struct CreatureStats* crstat = creature_stats_get_from_thing(shooter);
     long throw_strength = shotng->fall_acceleration;
     long n;
     if (trgtng->health < 0)
@@ -1007,7 +1010,6 @@ long melee_shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, stru
     struct Thing* shooter = INVALID_THING;
     if (shotng->parent_idx != shotng->index)
         shooter = thing_get(shotng->parent_idx);
-    struct CreatureControl* tgcctrl = creature_control_get_from_thing(trgtng);
     long damage = get_damage_of_melee_shot(shotng, trgtng);
     if (damage > 0)
     {
@@ -1020,13 +1022,21 @@ long melee_shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, stru
           if (((shotst->model_flags & ShMF_BlocksRebirth) != 0) && ((get_creature_model_flags(trgtng) & CMF_Undead) != 0)) {
               apply_damage_to_thing_and_display_health(trgtng, shotng->shot.damage, DmgT_Holy, shooter->owner);
           } else {
-              apply_damage_to_thing_and_display_health(trgtng, shotng->shot.damage, shotst->damage_type, shooter->owner);
+              if (crstat->hoarfrost != 0) {
+                  apply_damage_to_thing_and_display_health(trgtng, shotng->shot.damage, DmgT_Hoarfrost, shooter->owner);
+              } else {
+                  apply_damage_to_thing_and_display_health(trgtng, shotng->shot.damage, shotst->damage_type, shooter->owner);
+              }
           }
       } else {
           if (((shotst->model_flags & ShMF_BlocksRebirth) != 0) && ((get_creature_model_flags(trgtng) & CMF_Undead) != 0)) {
               apply_damage_to_thing_and_display_health(trgtng, shotng->shot.damage, DmgT_Holy, -1);
           } else {
-              apply_damage_to_thing_and_display_health(trgtng, shotng->shot.damage, shotst->damage_type, -1);
+              if (crstat->hoarfrost != 0) {
+                  apply_damage_to_thing_and_display_health(trgtng, shotng->shot.damage, DmgT_Hoarfrost, -1);
+              } else {
+                  apply_damage_to_thing_and_display_health(trgtng, shotng->shot.damage, shotst->damage_type, -1);
+              }
           }
       }
       if (shotst->model_flags & ShMF_LifeDrain)
@@ -1035,16 +1045,15 @@ long melee_shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, stru
       }
       if (shotst->cast_spell_kind != 0)
       {
-          struct CreatureControl* scctrl = creature_control_get_from_thing(shooter);
-          if (!creature_control_invalid(scctrl)) {
-              n = scctrl->explevel;
+          if (!creature_control_invalid(cctrl)) {
+              n = cctrl->explevel;
           }
           else {
               n = 0;
           }
           if (shotst->cast_spell_kind == SplK_Disease)
           {
-              tgcctrl->disease_caster_plyridx = shotng->owner;
+              trgtcctrl->disease_caster_plyridx = shotng->owner;
           }
           apply_spell_effect_to_thing(trgtng, shotst->cast_spell_kind, n);
       }
@@ -1062,7 +1071,7 @@ long melee_shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, stru
           }
       }
       if (shotst->target_hitstop_turns != 0) {
-          tgcctrl->frozen_on_hit = shotst->target_hitstop_turns;
+          trgtcctrl->frozen_on_hit = shotst->target_hitstop_turns;
       }
       if ( shotst->push_on_hit || creature_is_being_unconscious(trgtng))
       {
@@ -1215,6 +1224,9 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
         if (crstat->is_thief != 0) {
             stlngcnt *= 2;
         }
+        if (trgtstat->is_thief != 0) {
+            stlngcnt /= 2;
+        }
         if (stlngcnt > trgtng->creature.gold_carried) {
             stlngcnt = trgtng->creature.gold_carried;
         }
@@ -1231,6 +1243,9 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
         unsigned char lcktrgt = GAME_RANDOM(calculate_correct_creature_luck(trgtng));
         if (crstat->is_thief != 0) {
             lckshtr = 255;
+        }
+        if (trgtstat->is_thief != 0) {
+            lcktrgt = 255;
         }
         if (lckshtr > lcktrgt)
         {

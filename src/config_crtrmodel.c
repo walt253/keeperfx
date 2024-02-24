@@ -297,6 +297,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
       crstat->immune_to_slow = false;
       crstat->self_recovery = false;
       crstat->hoarfrost = false;
+      crstat->force_to_freeze = false;
       crconf->namestr_idx = 0;
       crconf->model_flags = 0;
   }

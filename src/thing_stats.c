@@ -1201,6 +1201,14 @@ HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, DamageType d
                 dmg *= 8;
                 terminate_thing_spell_effect(thing, SplK_Freeze);
             }
+            // HOARFROST weakness.
+            if (crstat->hoarfrost != 0) {
+                if (dmg != 0) {
+                    dmg *= 4;
+                } else {
+                    dmg = thing->health / 100;
+                }
+            }
             // IMMUNE_TO_FREEZE weakness ONLY if HurtByLava is NOT set to 0.
             if ((crstat->immune_to_freeze != 0) && (crstat->hurt_by_lava != 0)) {
                 dmg *= 4;
@@ -1305,22 +1313,22 @@ HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, DamageType d
         }
         // Weaknesses&Resistances to Hoarfrost damage type.
         if (damage_type == DmgT_Hoarfrost) {
-            // Apply SplK_Freeze EVEN on IMMUNE_TO_FREEZE.
+            // Apply SplK_Freeze EVEN on IMMUNE_TO_FREEZE if not HOARFROST.
             if (crstat->hoarfrost == 0) {
-                crstat->force_to_freeze = true;
-                apply_spell_effect_to_thing(thing, SplK_Freeze, 8);
-                // Not HOARFROST weakness.
-                dmg *= 2;
+                if (creature_affected_by_spell(thing, SplK_Freeze)) {
+                    // SplK_Freeze weakness.
+                    dmg *= 4;
+                } else {
+                    crstat->force_to_freeze = true;
+                    apply_spell_effect_to_thing(thing, SplK_Freeze, 8);
+                }
             } else {
                 // HOARFROST resistance.
                 dmg /= 4;
             }
-            // IMMUNE_TO_FREEZE weakness.
-            if (crstat->immune_to_freeze != 0) {
+            // Not IMMUNE_TO_FREEZE weakness.
+            if (crstat->immune_to_freeze == 0) {
                 dmg *= 2;
-            } else {
-                // Not IMMUNE_TO_FREEZE weakness.
-                dmg *= 4;
             }
             // If HurtByLava is set to 0 then apply a weakness.
             if (crstat->hurt_by_lava == 0) {

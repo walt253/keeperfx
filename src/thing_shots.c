@@ -1000,9 +1000,9 @@ void shot_kill_creature(struct Thing *shotng, struct Thing *creatng)
 long melee_shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coord3d *pos)
 {
     struct ShotConfigStats* shotst = get_shot_model_stats(shotng->model);
-    struct CreatureControl* cctrl = creature_control_get_from_thing(shooter);
-    struct CreatureControl* trgtcctrl = creature_control_get_from_thing(trgtng);
-    struct CreatureStats* crstat = creature_stats_get_from_thing(shooter);
+    struct CreatureControl* cctrl;
+    struct CreatureControl* trgtcctrl;
+    struct CreatureStats* crstat;
     long throw_strength = shotng->fall_acceleration;
     long n;
     if (trgtng->health < 0)
@@ -1018,6 +1018,7 @@ long melee_shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, stru
           play_creature_sound(trgtng, CrSnd_Hurt, 3, 0);
       }
       create_relevant_effect_for_shot_hitting_thing(shotng, trgtng);
+      crstat = creature_stats_get_from_thing(shooter);
       if (!thing_is_invalid(shooter)) {
           if (((shotst->model_flags & ShMF_BlocksRebirth) != 0) && ((get_creature_model_flags(trgtng) & CMF_Undead) != 0)) {
               apply_damage_to_thing_and_display_health(trgtng, shotng->shot.damage, DmgT_Holy, shooter->owner);
@@ -1045,6 +1046,7 @@ long melee_shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, stru
       }
       if (shotst->cast_spell_kind != 0)
       {
+          cctrl = creature_control_get_from_thing(shooter);
           if (!creature_control_invalid(cctrl)) {
               n = cctrl->explevel;
           }
@@ -1053,6 +1055,7 @@ long melee_shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, stru
           }
           if (shotst->cast_spell_kind == SplK_Disease)
           {
+              trgtcctrl = creature_control_get_from_thing(trgtng);
               trgtcctrl->disease_caster_plyridx = shotng->owner;
           }
           apply_spell_effect_to_thing(trgtng, shotst->cast_spell_kind, n);
@@ -1071,6 +1074,7 @@ long melee_shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, stru
           }
       }
       if (shotst->target_hitstop_turns != 0) {
+          trgtcctrl = creature_control_get_from_thing(trgtng);
           trgtcctrl->frozen_on_hit = shotst->target_hitstop_turns;
       }
       if ( shotst->push_on_hit || creature_is_being_unconscious(trgtng))
@@ -1128,16 +1132,16 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
     long i;
     long n;
     struct ShotConfigStats* shotst = get_shot_model_stats(shotng->model);
-    struct CreatureControl* cctrl = creature_control_get_from_thing(shooter);
-    struct CreatureControl* trgtcctrl = creature_control_get_from_thing(trgtng);
-    struct CreatureStats* crstat = creature_stats_get_from_thing(shooter);
-    struct CreatureStats* trgtstat = creature_stats_get_from_thing(trgtng);
+    struct CreatureControl* cctrl;
+    struct CreatureControl* trgtcctrl;
+    struct CreatureStats* crstat;
+    struct CreatureStats* trgtstat;
     long amp = shotng->fall_acceleration;
     struct Thing* shooter = INVALID_THING;
     if (shotng->parent_idx != shotng->index) {
         shooter = thing_get(shotng->parent_idx);
     }
-    // Two fighting creatures gives experience
+    // Two fighting creatures gives experience.
     if (thing_is_creature(shooter) && thing_is_creature(trgtng))
     {
         apply_shot_experience_from_hitting_creature(shooter, trgtng, shotng->model);
@@ -1194,9 +1198,10 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
     }
     if (shotst->break_percent > 0)
     {
-        unsigned char brkprcnt = shotst->break_percent;
+        cctrl = creature_control_get_from_thing(shooter);
         HitPoints max_health = cctrl->max_health;
         HitPoints current_health = shooter->health;
+        unsigned char brkprcnt = shotst->break_percent;
         HitPoints brkdmg = ((max_health - current_health) * brkprcnt) / 100;
         if (!thing_is_invalid(shooter)) {
             apply_damage_to_thing_and_display_health(trgtng, brkdmg, shotst->damage_type, shooter->owner);
@@ -1218,6 +1223,8 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
     }
     if (((shotst->model_flags & ShMF_Stealing) != 0) && (trgtng->creature.gold_carried > 0))
     {
+        crstat = creature_stats_get_from_thing(shooter);
+        trgtstat = creature_stats_get_from_thing(trgtng);
         unsigned char stlngshtr = calculate_correct_creature_dexterity(shooter);
         unsigned char stlngtrgt = calculate_correct_creature_dexterity(trgtng);
         GoldAmount stlngcnt = (stlngshtr * (384 - stlngtrgt)) / 512;
@@ -1239,6 +1246,8 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
     }
     if ((shotst->model_flags & ShMF_Looting) != 0)
     {
+        crstat = creature_stats_get_from_thing(shooter);
+        trgtstat = creature_stats_get_from_thing(trgtng);
         unsigned char lckshtr = GAME_RANDOM(calculate_correct_creature_luck(shooter));
         unsigned char lcktrgt = GAME_RANDOM(calculate_correct_creature_luck(trgtng));
         if (crstat->is_thief != 0) {
@@ -1261,6 +1270,8 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
     }
     if (((shotst->model_flags & ShMF_Charming) != 0) && ((get_creature_model_flags(trgtng) & CMF_NoCharm) == 0))
     {
+        cctrl = creature_control_get_from_thing(shooter);
+        trgtcctrl = creature_control_get_from_thing(trgtng);
         unsigned char lvlshtr = cctrl->explevel;
         unsigned char lvltrgt = trgtcctrl->explevel;
         if ((lvlshtr / 2) >= lvltrgt) {
@@ -1271,7 +1282,7 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
     {
         return melee_shot_hit_creature_at(shotng, trgtng, pos);
     }
-    // Immunity to boulders
+    // Immunity to boulders.
     if (shot_is_boulder(shotng))
     {
         if ((get_creature_model_flags(trgtng) & CMF_ImmuneToBoulder) != 0)
@@ -1287,6 +1298,7 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
     if (shotng->shot.damage != 0)
     {
         HitPoints damage_done;
+        crstat = creature_stats_get_from_thing(shooter);
         if (!thing_is_invalid(shooter)) {
             if (((shotst->model_flags & ShMF_BlocksRebirth) != 0) && ((get_creature_model_flags(trgtng) & CMF_Undead) != 0))
             {
@@ -1317,12 +1329,14 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
     }
     if (shotst->target_hitstop_turns != 0)
     {
+        trgtcctrl = creature_control_get_from_thing(trgtng);
         if (trgtcctrl->frozen_on_hit == 0) {
             trgtcctrl->frozen_on_hit = shotst->target_hitstop_turns;
         }
     }
     if (shotst->cast_spell_kind != 0)
     {
+        cctrl = creature_control_get_from_thing(shooter);
         if (!creature_control_invalid(cctrl)) {
             n = cctrl->explevel;
         } else {
@@ -1330,6 +1344,7 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
         }
         if (shotst->cast_spell_kind == SplK_Disease)
         {
+            trgtcctrl = creature_control_get_from_thing(trgtng);
             trgtcctrl->disease_caster_plyridx = shotng->owner;
         }
         apply_spell_effect_to_thing(trgtng, shotst->cast_spell_kind, n);
@@ -1373,7 +1388,7 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
         }
         else
         {
-            if (shotst->model_flags & ShMF_Boulder) //Boulders move units slightly but without purpose
+            if (shotst->model_flags & ShMF_Boulder) //Boulders move units slightly but without purpose.
             {
                 if (abs(shotng->velocity.x.val) >= abs(shotng->velocity.y.val))
                 {
@@ -1391,7 +1406,7 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
                 }
                 trgtng->state_flags |= TF1_PushAdd;
             }
-            else // Normal shots blast unconscious units out of the way
+            else // Normal shots blast unconscious units out of the way.
             {
                 amp *= 5;
                 i = amp * (long)shotng->velocity.x.val;
@@ -1402,7 +1417,7 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
             }
         }
     }
-    else // not for unconscious units
+    else // Not for unconscious units.
     {
         if (shotst->hit_creature.sndsample_idx != 0)
         {
@@ -1419,6 +1434,7 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
         } 
         else
         {
+            trgtstat = creature_stats_get_from_thing(trgtng);
             shotng->health -= trgtstat->damage_to_boulder;
         }
 
@@ -1433,13 +1449,10 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
             check_hit_when_attacking_door(trgtng);
         }
     }
-
     if (shotst->area_range != 0)
     {
         detonate_shot(shotng, shotst->destroy_on_first_hit);
     }
-
-
     if (shotst->destroy_on_first_hit != 0) {
         delete_thing_structure(shotng, 0);
     }

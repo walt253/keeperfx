@@ -86,6 +86,8 @@ const struct NamedCommand creatmodel_attributes_commands[] = {
   {"LAIROBJECT",         34},
   {"MAGIC",              35},
   {"HURTBYWATER",        36},
+  {"WATERRECOVERY",      37},
+  {"LAVARECOVERY",       38},
   {NULL,                  0},
   };
 
@@ -267,7 +269,6 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
       crstat->hunger_fill = 1;
       crstat->lair_size = 1;
       crstat->hurt_by_lava = 1;
-      crstat->hurt_by_water = 0;
       crstat->base_speed = 1;
       crstat->gold_hold = 100;
       crstat->size_xy = 1;
@@ -278,6 +279,9 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
       crstat->damage_to_boulder = 4;
       crstat->thing_size_xy = 128;
       crstat->thing_size_z = 64;
+      crstat->hurt_by_water = 0;
+      crstat->water_recovery = 0;
+      crstat->lava_recovery = 0;
       crstat->magic = 100;
       crstat->strength_upgrade = 0;
       crstat->armour_upgrade = 0;
@@ -900,6 +904,32 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
           {
             k = atoi(word_buf);
             crstat->hurt_by_water = k;
+            n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, creature_code_name(crtr_model), config_textname);
+          }
+          break;
+      case 37: // WATERRECOVERY
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            k = atoi(word_buf);
+            crstat->water_recovery = k;
+            n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, creature_code_name(crtr_model), config_textname);
+          }
+          break;
+      case 38: // LAVARECOVERY
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            k = atoi(word_buf);
+            crstat->lava_recovery = k;
             n++;
           }
           if (n < 1)

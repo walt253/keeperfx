@@ -489,12 +489,14 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
     short smpl_idx;
     unsigned char range;
     struct SlabMap* slb;
+    MapSubtlCoord stl_x;
+    MapSubtlCoord stl_y;
     if (digging)
     {
         hit_stl_num = process_dig_shot_hit_wall(shotng, blocked_flags, &old_health);
     }
 
-    // If blocked by a higher wall
+    // If blocked by a higher wall.
     if ((blocked_flags & SlbBloF_WalledZ) != 0)
     {
         long cube_id = get_top_cube_at(pos->x.stl.num, pos->y.stl.num, NULL);
@@ -504,9 +506,27 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
             efftng = create_shot_hit_effect(&shotng->mappos, shotng->owner, shotst->hit_door.effect_model, shotst->hit_door.sndsample_idx, shotst->hit_door.sndsample_range);
             if (!shotst->hit_door.withstand)
               destroy_shot = 1;
-            i = calculate_shot_real_damage_to_door(doortng, shotng);
-            apply_damage_to_thing(doortng, i, shotst->damage_type, -1);
-            reveal_secret_door_to_player(doortng,shotng->owner);
+            if (shotst->slab_kind > 0)
+            {
+                destroy_door(doortng);
+                stl_x = doortng->mappos.x.stl.num;
+                stl_y = doortng->mappos.y.stl.num;
+                slb = get_slabmap_block(subtile_slab(stl_x), subtile_slab(stl_y));
+                if (slab_kind_is_indestructible(slb->kind) == false)
+                {
+                    SlabKind slab = shotst->slab_kind;
+                    if (subtile_is_room(stl_x, stl_y))
+                    {
+                        delete_room_slab(subtile_slab(stl_x), subtile_slab(stl_y), true);
+                    }
+                    place_slab_type_on_map(slab, stl_x, stl_y, game.neutral_player_num, 0);
+                    do_slab_efficiency_alteration(subtile_slab(stl_x), subtile_slab(stl_y));
+                }
+            } else {
+                i = calculate_shot_real_damage_to_door(doortng, shotng);
+                apply_damage_to_thing(doortng, i, shotst->damage_type, -1);
+                reveal_secret_door_to_player(doortng,shotng->owner);
+            }
         } else
         if (cube_is_water(cube_id))
         {
@@ -514,12 +534,44 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
             if (!shotst->hit_water.withstand) {
                 destroy_shot = 1;
             }
+            if (shotst->slab_kind > 0)
+            {
+                stl_x = efftng->mappos.x.stl.num;
+                stl_y = efftng->mappos.y.stl.num;
+                slb = get_slabmap_block(subtile_slab(stl_x), subtile_slab(stl_y));
+                if (slab_kind_is_indestructible(slb->kind) == false)
+                {
+                    SlabKind slab = shotst->slab_kind;
+                    if (subtile_is_room(stl_x, stl_y))
+                    {
+                        delete_room_slab(subtile_slab(stl_x), subtile_slab(stl_y), true);
+                    }
+                    place_slab_type_on_map(slab, stl_x, stl_y, game.neutral_player_num, 0);
+                    do_slab_efficiency_alteration(subtile_slab(stl_x), subtile_slab(stl_y));
+                }
+            }
         } else
         if (cube_is_lava(cube_id))
         {
             efftng = create_shot_hit_effect(&shotng->mappos, shotng->owner, shotst->hit_lava.effect_model, shotst->hit_lava.sndsample_idx, shotst->hit_lava.sndsample_range);
             if (!shotst->hit_lava.withstand) {
                 destroy_shot = 1;
+            }
+            if (shotst->slab_kind > 0)
+            {
+                stl_x = efftng->mappos.x.stl.num;
+                stl_y = efftng->mappos.y.stl.num;
+                slb = get_slabmap_block(subtile_slab(stl_x), subtile_slab(stl_y));
+                if (slab_kind_is_indestructible(slb->kind) == false)
+                {
+                    SlabKind slab = shotst->slab_kind;
+                    if (subtile_is_room(stl_x, stl_y))
+                    {
+                        delete_room_slab(subtile_slab(stl_x), subtile_slab(stl_y), true);
+                    }
+                    place_slab_type_on_map(slab, stl_x, stl_y, game.neutral_player_num, 0);
+                    do_slab_efficiency_alteration(subtile_slab(stl_x), subtile_slab(stl_y));
+                }
             }
         } else
         {
@@ -539,6 +591,22 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
             efftng = create_shot_hit_effect(&shotng->mappos, shotng->owner, eff_kind, smpl_idx, range);
             if (!shotst->hit_generic.withstand) {
                 destroy_shot = 1;
+            }
+            if (shotst->slab_kind > 0)
+            {
+                stl_x = efftng->mappos.x.stl.num;
+                stl_y = efftng->mappos.y.stl.num;
+                slb = get_slabmap_block(subtile_slab(stl_x), subtile_slab(stl_y));
+                if (slab_kind_is_indestructible(slb->kind) == false)
+                {
+                    SlabKind slab = shotst->slab_kind;
+                    if (subtile_is_room(stl_x, stl_y))
+                    {
+                        delete_room_slab(subtile_slab(stl_x), subtile_slab(stl_y), true);
+                    }
+                    place_slab_type_on_map(slab, stl_x, stl_y, game.neutral_player_num, 0);
+                    do_slab_efficiency_alteration(subtile_slab(stl_x), subtile_slab(stl_y));
+                }
             }
         }
     }
@@ -627,20 +695,23 @@ long shot_hit_door_at(struct Thing *shotng, struct Coord3d *pos)
     TbBool shot_explodes = false;
     struct ShotConfigStats* shotst = get_shot_model_stats(shotng->model);
     struct Thing* efftng = INVALID_THING;
+    struct SlabMap* slb;
+    MapSubtlCoord stl_x;
+    MapSubtlCoord stl_y;
     long blocked_flags = get_thing_blocked_flags_at(shotng, pos);
     if (blocked_flags != 0)
     {
         struct Thing* doortng = get_door_for_position(pos->x.stl.num, pos->y.stl.num);
-        // If we did found a door to hit
+        // If we did found a door to hit.
         if (!thing_is_invalid(doortng))
         {
-            // If the shot hit is supposed to create effect thing
+            // If the shot hit is supposed to create effect thing.
             int n = shotst->hit_door.effect_model;
             if (n > 0)
             {
                 efftng = create_effect(&shotng->mappos, n, shotng->owner);
             }
-            // If the shot hit is supposed to create sound
+            // If the shot hit is supposed to create sound.
             n = shotst->hit_door.sndsample_idx;
             int i;
             if (n > 0)
@@ -651,16 +722,34 @@ long shot_hit_door_at(struct Thing *shotng, struct Coord3d *pos)
                     thing_play_sample(efftng, n + UNSYNC_RANDOM(i), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
                 }
             }
-            // Shall the shot be destroyed on impact
+            // Shall the shot be destroyed on impact.
             if (!shotst->hit_door.withstand)
             {
                 shot_explodes = true;
             }
-            // Apply damage to the door
-            i = calculate_shot_real_damage_to_door(doortng, shotng);
-            apply_damage_to_thing(doortng, i, shotst->damage_type, -1);
-            reveal_secret_door_to_player(doortng,shotng->owner);
-      }
+            // Apply damage to the door.
+            if (shotst->slab_kind > 0)
+            {
+                destroy_door(doortng);
+                stl_x = doortng->mappos.x.stl.num;
+                stl_y = doortng->mappos.y.stl.num;
+                slb = get_slabmap_block(subtile_slab(stl_x), subtile_slab(stl_y));
+                if (slab_kind_is_indestructible(slb->kind) == false)
+                {
+                    SlabKind slab = shotst->slab_kind;
+                    if (subtile_is_room(stl_x, stl_y))
+                    {
+                        delete_room_slab(subtile_slab(stl_x), subtile_slab(stl_y), true);
+                    }
+                    place_slab_type_on_map(slab, stl_x, stl_y, game.neutral_player_num, 0);
+                    do_slab_efficiency_alteration(subtile_slab(stl_x), subtile_slab(stl_y));
+                }
+            } else {
+                i = calculate_shot_real_damage_to_door(doortng, shotng);
+                apply_damage_to_thing(doortng, i, shotst->damage_type, -1);
+                reveal_secret_door_to_player(doortng,shotng->owner);
+            }
+        }
     }
     if (!thing_is_invalid(efftng)) {
         efftng->shot_effect.hit_type = shotst->area_hit_type;
@@ -1279,18 +1368,6 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
             change_creature_owner(trgtng, shooter->owner);
         }
     }
-    if (shotst->slab_kind > 0)
-    {
-        MapSubtlCoord stl_x = trgtng->mappos.x.stl.num;
-        MapSubtlCoord stl_y = trgtng->mappos.y.stl.num;
-        SlabKind slab = shotst->slab_kind;
-        if (subtile_is_room(stl_x, stl_y))
-        {
-            delete_room_slab(subtile_slab(stl_x), subtile_slab(stl_y), true);
-        }
-        place_slab_type_on_map(slab, stl_x, stl_y, game.neutral_player_num, 0);
-        do_slab_efficiency_alteration(subtile_slab(stl_x), subtile_slab(stl_y));
-    }
     if ((shotst->model_flags & ShMF_StrengthBased) != 0)
     {
         return melee_shot_hit_creature_at(shotng, trgtng, pos);
@@ -1474,8 +1551,27 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
 
 TbBool shot_hit_shootable_thing_at(struct Thing *shotng, struct Thing *target, struct Coord3d *pos)
 {
-    if (!thing_exists(target))
+    if (!thing_exists(target)) {
         return false;
+    } else {
+        struct ShotConfigStats* shotst = get_shot_model_stats(shotng->model);
+        if (shotst->slab_kind > 0)
+        {
+            MapSubtlCoord stl_x = target->mappos.x.stl.num;
+            MapSubtlCoord stl_y = target->mappos.y.stl.num;
+            struct SlabMap* slb = get_slabmap_block(subtile_slab(stl_x), subtile_slab(stl_y));
+            if (slab_kind_is_indestructible(slb->kind) == false)
+            {
+                SlabKind slab = shotst->slab_kind;
+                if (subtile_is_room(stl_x, stl_y))
+                {
+                    delete_room_slab(subtile_slab(stl_x), subtile_slab(stl_y), true);
+                }
+                place_slab_type_on_map(slab, stl_x, stl_y, game.neutral_player_num, 0);
+                do_slab_efficiency_alteration(subtile_slab(stl_x), subtile_slab(stl_y));
+            }
+        }
+    }
     if (target->class_id == TCls_Object) {
         return shot_hit_object_at(shotng, target, pos);
     }

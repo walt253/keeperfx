@@ -5435,13 +5435,15 @@ void process_landscape_affecting_creature(struct Thing *thing)
     thing->movement_flags &= ~TMvF_IsOnLava;
     thing->movement_flags &= ~TMvF_IsOnSnow;
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    HitPoints recover;
+    HitPoints frequency;
     if (creature_control_invalid(cctrl))
     {
         ERRORLOG("Invalid creature control; no action");
         return;
     }
     cctrl->corpse_to_piss_on = 0;
-
     int stl_idx = get_subtile_number(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
     unsigned long navheight = get_navigation_map_floor_height(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
     if (subtile_coord(navheight,0) == thing->mappos.z.val)
@@ -5449,12 +5451,46 @@ void process_landscape_affecting_creature(struct Thing *thing)
         int i = get_top_cube_at_pos(stl_idx);
         if (cube_is_lava(i))
         {
-            struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-            apply_damage_to_thing_and_display_health(thing, crstat->hurt_by_lava, DmgT_Heatburn, -1);
+            if (crstat->hurt_by_lava == 0)
+            {
+                if (creature_affected_by_spell(thing, SplK_Freeze))
+                {
+                    terminate_thing_spell_effect(thing, SplK_Freeze);
+                }
+            } else {
+                apply_damage_to_thing_and_display_health(thing, crstat->hurt_by_lava, DmgT_Heatburn, -1);
+            }
+            if ((crstat->lava_recovery > 0) && (cctrl->max_health > thing->health))
+            {
+                recover = compute_creature_max_health(crstat->lava_recovery, cctrl->explevel, thing->owner);
+                frequency = cctrl->max_health / recover;
+                if (frequency < crstat->lava_recovery) {
+                    frequency = crstat->lava_recovery;
+                }
+                if (((game.play_gameturn + thing->index) % frequency) == 0)
+                {
+                    apply_health_to_thing_and_display_health(thing, recover);
+                }
+            }
             thing->movement_flags |= TMvF_IsOnLava;
         } else
         if (cube_is_water(i))
         {
+            if (crstat->hurt_by_water > 0) {
+                apply_damage_to_thing_and_display_health(thing, crstat->hurt_by_water, DmgT_Physical, -1);
+            }
+            if ((crstat->water_recovery > 0) && (cctrl->max_health > thing->health))
+            {
+                recover = compute_creature_max_health(crstat->water_recovery, cctrl->explevel, thing->owner);
+                frequency = cctrl->max_health / recover;
+                if (frequency < crstat->water_recovery) {
+                    frequency = crstat->water_recovery;
+                }
+                if (((game.play_gameturn + thing->index) % frequency) == 0)
+                {
+                    apply_health_to_thing_and_display_health(thing, recover);
+                }
+            }
             thing->movement_flags |= TMvF_IsOnWater;
         }
         process_creature_leave_footsteps(thing);

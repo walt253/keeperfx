@@ -508,7 +508,6 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
               destroy_shot = 1;
             if (shotst->slab_kind > 0)
             {
-                destroy_door(doortng);
                 stl_x = doortng->mappos.x.stl.num;
                 stl_y = doortng->mappos.y.stl.num;
                 slb = get_slabmap_block(subtile_slab(stl_x), subtile_slab(stl_y));
@@ -519,6 +518,7 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
                     {
                         delete_room_slab(subtile_slab(stl_x), subtile_slab(stl_y), true);
                     }
+                    destroy_door(doortng);
                     place_slab_type_on_map(slab, stl_x, stl_y, game.neutral_player_num, 0);
                     do_slab_efficiency_alteration(subtile_slab(stl_x), subtile_slab(stl_y));
                 }
@@ -730,7 +730,6 @@ long shot_hit_door_at(struct Thing *shotng, struct Coord3d *pos)
             // Apply damage to the door.
             if (shotst->slab_kind > 0)
             {
-                destroy_door(doortng);
                 stl_x = doortng->mappos.x.stl.num;
                 stl_y = doortng->mappos.y.stl.num;
                 slb = get_slabmap_block(subtile_slab(stl_x), subtile_slab(stl_y));
@@ -741,6 +740,7 @@ long shot_hit_door_at(struct Thing *shotng, struct Coord3d *pos)
                     {
                         delete_room_slab(subtile_slab(stl_x), subtile_slab(stl_y), true);
                     }
+                    destroy_door(doortng);
                     place_slab_type_on_map(slab, stl_x, stl_y, game.neutral_player_num, 0);
                     do_slab_efficiency_alteration(subtile_slab(stl_x), subtile_slab(stl_y));
                 }

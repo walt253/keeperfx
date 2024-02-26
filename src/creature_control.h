@@ -438,6 +438,7 @@ struct CreatureStats { // These stats are not compatible with original DK - they
     unsigned short annoy_level;
     unsigned char lair_size;
     unsigned char hurt_by_lava;
+    unsigned char hurt_by_water;
     unsigned char sleep_exp_slab;
     short sleep_experience;
     short exp_for_hitting;

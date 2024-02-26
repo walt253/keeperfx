@@ -1203,11 +1203,7 @@ HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, DamageType d
             }
             // HOARFROST weakness.
             if (crstat->hoarfrost != 0) {
-                if (dmg != 0) {
-                    dmg *= 4;
-                } else {
-                    dmg = thing->health / 100;
-                }
+                dmg *= 4;
             }
             // IMMUNE_TO_FREEZE weakness ONLY if HurtByLava is NOT set to 0.
             if ((crstat->immune_to_freeze != 0) && (crstat->hurt_by_lava != 0)) {

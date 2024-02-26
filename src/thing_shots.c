@@ -1278,6 +1278,18 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
             change_creature_owner(trgtng, shooter->owner);
         }
     }
+    if (shotst->slab_kind > 0)
+    {
+        MapSubtlCoord stl_x = trgtng->mappos.x.stl.num;
+        MapSubtlCoord stl_y = trgtng->mappos.y.stl.num;
+        SlabKind slab = shotst->slab_kind;
+        if (subtile_is_room(stl_x, stl_y))
+        {
+            delete_room_slab(subtile_slab(stl_x), subtile_slab(stl_y), true);
+        }
+        place_slab_type_on_map(slab, stl_x, stl_y, game.neutral_player_num, 0);
+        do_slab_efficiency_alteration(subtile_slab(stl_x), subtile_slab(stl_y));
+    }
     if ((shotst->model_flags & ShMF_StrengthBased) != 0)
     {
         return melee_shot_hit_creature_at(shotng, trgtng, pos);

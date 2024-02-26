@@ -992,47 +992,50 @@ long project_damage_of_melee_shot(long shot_dexterity, long shot_damage, const s
 void create_relevant_effect_for_shot_hitting_thing(struct Thing *shotng, struct Thing *target)
 {
     struct Thing* efftng = INVALID_THING;
+    struct CreatureStats* crstat = creature_stats_get_from_thing(target);
     struct ShotConfigStats* shotst = get_shot_model_stats(shotng->model);
     if (target->class_id == TCls_Creature)
     {
         thing_play_sample(target, shotst->hit_creature.sndsample_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
-        efftng = create_effect(&shotng->mappos, shotst->hit_creature.effect_model, shotng->owner);
-        switch (shotng->model)
+        if (shotst->hit_creature.effect_model == 13)
         {
-        case ShM_PoisonCloud:
-            if ( !thing_is_invalid(efftng) ) {
+            efftng = create_effect(&shotng->mappos, shotst->hit_creature.effect_model, shotng->owner);
+            if (!thing_is_invalid(efftng))
+            {
                 efftng->shot_effect.hit_type = THit_CrtrsOnly;
             }
-            break;
-        case ShM_Arrow:
-        case ShM_SwingSword:
-        case ShM_SwingFist:
-            if (creature_affected_by_spell(target, SplK_Freeze)) {
-                efftng = create_effect(&shotng->mappos, TngEff_HitFrozenUnit, shotng->owner);
-            } else
-            if (creature_model_bleeds(target->model)) {
-                efftng = create_effect(&shotng->mappos, TngEff_HitBleedingUnit, shotng->owner);
+        } else {
+            if (shotst->hit_creature.effect_model == 6)
+            {
+                if (crstat->bleeds != 0)
+                {
+                    if (creature_affected_by_spell(target, SplK_Freeze)) {
+                        efftng = create_effect(&shotng->mappos, TngEff_HitFrozenUnit, shotng->owner);
+                    } else
+                    if (creature_model_bleeds(target->model)) {
+                        efftng = create_effect(&shotng->mappos, TngEff_HitBleedingUnit, shotng->owner);
+                    }
+                }
+            } else {
+                efftng = create_effect(&shotng->mappos, shotst->hit_creature.effect_model, shotng->owner);
             }
-            break;
         }
     }
     if (target->class_id == TCls_Trap)
     {
-        //todo introduce trap/object hit
         thing_play_sample(target, shotst->hit_creature.sndsample_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
-        efftng = create_effect(&shotng->mappos, shotst->hit_creature.effect_model, shotng->owner);
-        switch (shotng->model)
+        if (shotst->hit_creature.effect_model == 13)
         {
-
-        case ShM_PoisonCloud:
-            if (!thing_is_invalid(efftng)) {
+            efftng = create_effect(&shotng->mappos, shotst->hit_creature.effect_model, shotng->owner);
+            if (!thing_is_invalid(efftng))
+            {
                 efftng->shot_effect.hit_type = THit_CrtrsOnly;
             }
-            break;
-        case ShM_NaviMissile:
-        case ShM_Missile:
-            efftng = create_effect(&shotng->mappos, TngEff_Blood3, shotng->owner);
-            break;
+        } else {
+            if (shotst->hit_creature.effect_model != 6)
+            {
+                efftng = create_effect(&shotng->mappos, shotst->hit_creature.effect_model, shotng->owner);
+            }
         }
     }
     TRACE_THING(efftng);

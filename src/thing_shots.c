@@ -36,6 +36,7 @@
 #include "map_blocks.h"
 #include "magic.h"
 #include "room_garden.h"
+#include "room_util.h"
 #include "config_creature.h"
 #include "config_terrain.h"
 #include "power_process.h"

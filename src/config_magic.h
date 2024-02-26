@@ -334,6 +334,7 @@ struct ShotConfigStats {
     unsigned char dexterity_percent;
     unsigned char break_percent;
     unsigned char gold_percent;
+    unsigned char slab_kind;
 };
 
 typedef unsigned char (*Expand_Check_Func)(void);

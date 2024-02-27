@@ -1838,8 +1838,11 @@ TngUpdateRet update_shot(struct Thing *thing)
                 }
             }
         }
-        if (shotst->persistence != 0) {
-            detonate_shot(thing, false);
+        if (shotst->persistence > 0) {
+            unsigned short frequency = shotst->persistence;
+            if (((game.play_gameturn + thing->index) % frequency) == 0) {
+                detonate_shot(thing, false);
+            }
         }
         switch (shotst->update_logic)
         {

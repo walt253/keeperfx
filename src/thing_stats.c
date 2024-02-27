@@ -268,6 +268,9 @@ long get_radially_growing_value(long magnitude, long decay_start, long decay_len
         return 0; //Outside the max range, nothing is pulled inwards
 
     if (distance >= decay_start) //too far away to pull with full power
+        if (decay_length == 0) {
+            decay_length = 1;
+        }
         magnitude = magnitude * (decay_length - (distance - decay_start)) / decay_length;
         
     long total_distance = abs((COORD_PER_STL / friction * magnitude + magnitude) / 2); // The intended distance to push the thing
@@ -275,9 +278,12 @@ long get_radially_growing_value(long magnitude, long decay_start, long decay_len
     if (total_distance > distance) // Never return a value that would go past the epicentre
     {
         short factor = COORD_PER_STL / friction * 3 / 4; // Creatures slide so move further then expected
+        if (factor == 0) {
+            factor = 1;
+        }
         return -(distance / factor);
     }
-    return magnitude ;
+    return magnitude;
 }
 
 long compute_creature_kind_score(ThingModel crkind, unsigned short crlevel)

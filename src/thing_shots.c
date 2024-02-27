@@ -145,7 +145,7 @@ TbBool detonate_shot(struct Thing *shotng, TbBool destroy)
     default:
         break;
     }
-    if ((destroy) && (shotst->persistence == 0))
+    if (destroy)
     {
         delete_thing_structure(shotng, 0);
     }
@@ -1837,6 +1837,9 @@ TngUpdateRet update_shot(struct Thing *thing)
                     }
                 }
             }
+        }
+        if (shotst->persistence != 0) {
+            detonate_shot(thing, false);
         }
         switch (shotst->update_logic)
         {

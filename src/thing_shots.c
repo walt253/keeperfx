@@ -145,7 +145,7 @@ TbBool detonate_shot(struct Thing *shotng, TbBool destroy)
     default:
         break;
     }
-    if (destroy)
+    if ((destroy) && (shotst->persistence == 0))
     {
         delete_thing_structure(shotng, 0);
     }
@@ -448,6 +448,10 @@ struct Thing *create_shot_hit_effect(struct Coord3d *effpos, long effowner, long
     struct Thing* efftng = INVALID_THING;
     if (eff_kind > 0) {
         efftng = create_effect(effpos, eff_kind, effowner);
+        if ((eff_kind == 13) && (!thing_is_invalid(efftng)))
+        {
+            efftng->shot_effect.hit_type = THit_CrtrsOnly;
+        }
         TRACE_THING(efftng);
     }
     if (snd_idx > 0)
@@ -505,7 +509,7 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
         {
             efftng = create_shot_hit_effect(&shotng->mappos, shotng->owner, shotst->hit_door.effect_model, shotst->hit_door.sndsample_idx, shotst->hit_door.sndsample_range);
             if (!shotst->hit_door.withstand)
-              destroy_shot = 1;
+                destroy_shot = 1;
             if (shotst->slab_kind > 0)
             {
                 stl_x = doortng->mappos.x.stl.num;

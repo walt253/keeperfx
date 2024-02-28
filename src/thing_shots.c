@@ -111,6 +111,7 @@ TbBool detonate_shot(struct Thing *shotng, TbBool destroy)
         long dist = compute_creature_attack_range(shotst->area_range * COORD_PER_STL, luck, cctrl->explevel);
         long damage = compute_creature_attack_spell_damage(shotst->area_damage, luck, cctrl->explevel, shotng);
         HitTargetFlags hit_targets = hit_type_to_hit_targets(shotst->area_hit_type);
+        JUSTLOG("Luck %d, dist %d, damage %d.", luck, dist, damage);
         explosion_affecting_area(shotng, &shotng->mappos, dist, damage, shotst->area_blow, hit_targets, shotst->damage_type);
     }
     create_used_effect_or_element(&shotng->mappos, shotst->explode.effect1_model, shotng->owner);

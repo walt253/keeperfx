@@ -100,7 +100,8 @@ TbBool detonate_shot(struct Thing *shotng, TbBool destroy)
         castng = thing_get(shotng->parent_idx);
         TRACE_THING(castng);
     }
-    // If the shot has area_range, then make area damage
+    // If the shot has area_range, then make area 
+    JUSTLOG("Shot has %d range with %d damage and %d blow with hit type %d.", shotst->area_range, shotst->area_damage, shotst->area_blow, shotst->area_hit_type);
     if (shotst->area_range != 0) {
         //TODO SPELLS Spell level should be taken from within the shot, not from caster creature
         // Caster may have leveled up, or even may be already dead

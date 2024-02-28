@@ -525,6 +525,8 @@ struct CreatureStats { // These stats are not compatible with original DK - they
     short footstep_pitch;
     short lair_object;
     short status_offset;
+    unsigned short gold_poop_amount;
+    unsigned short gold_poop_frequency;
     struct CreaturePickedUpOffset creature_picked_up_offset;
 };
 

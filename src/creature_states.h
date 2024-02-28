@@ -394,6 +394,7 @@ TbBool creature_is_kept_in_custody_by_enemy_or_dying(const struct Thing *thing);
 
 TbBool creature_state_cannot_be_blocked(const struct Thing *thing);
 
+TbBool setup_move_off_water(struct Thing* thing);
 TbBool setup_move_off_lava(struct Thing* thing);
 TbBool setup_move_out_of_cave_in(struct Thing* thing);
 

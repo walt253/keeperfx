@@ -5333,7 +5333,7 @@ void check_for_creature_escape_from_water(struct Thing *thing)
                 cctrl->water_escape_since = game.play_gameturn;
                 if (cleanup_current_thing_state(thing))
                 {
-                    if (setup_move_off_lava(thing))
+                    if (setup_move_out_of_cave_in(thing))
                     {
                         thing->continue_state = CrSt_CreatureEscapingDeath;
                     }

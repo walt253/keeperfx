@@ -5320,6 +5320,33 @@ short update_creature_movements(struct Thing *thing)
     }
 }
 
+void check_for_creature_escape_from_water(struct Thing *thing)
+{
+    if (((thing->alloc_flags & TAlF_IsControlled) == 0) && ((thing->movement_flags & TMvF_IsOnWater) != 0))
+    {
+        struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+        if (crstat->hurt_by_water > 0)
+        {
+            struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+            if ((!creature_is_escaping_death(thing)) && (cctrl->water_escape_since + 64 < game.play_gameturn))
+            {
+                cctrl->water_escape_since = game.play_gameturn;
+                if (cleanup_current_thing_state(thing))
+                {
+                    if (setup_move_off_lava(thing))
+                    {
+                        thing->continue_state = CrSt_CreatureEscapingDeath;
+                    }
+                    else
+                    {
+                        set_start_state(thing);
+                    }
+                }
+            }
+        }
+    }
+}
+
 void check_for_creature_escape_from_lava(struct Thing *thing)
 {
     if (((thing->alloc_flags & TAlF_IsControlled) == 0) && ((thing->movement_flags & TMvF_IsOnLava) != 0))
@@ -5343,7 +5370,7 @@ void check_for_creature_escape_from_lava(struct Thing *thing)
                     }
                 }
             }
-      }
+        }
     }
 }
 
@@ -5496,6 +5523,7 @@ void process_landscape_affecting_creature(struct Thing *thing)
         process_creature_leave_footsteps(thing);
         process_creature_standing_on_corpses_at(thing, &thing->mappos);
     }
+    check_for_creature_escape_from_water(thing);
     check_for_creature_escape_from_lava(thing);
     SYNCDBG(19,"Finished");
 }

@@ -5579,6 +5579,26 @@ long update_creature_levels(struct Thing *thing)
     return -1;
 }
 
+void process_creature_pooping_gold(struct Thing *thing)
+{
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    if (creature_control_invalid(cctrl))
+    {
+        ERRORLOG("Invalid creature control; no action");
+        return;
+    }
+    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    if ((crstat->gold_poop_amount > 0) && (crstat->gold_poop_frequency > 0))
+    {
+        GoldAmount amount = crstat->gold_poop_amount;
+        if (((game.play_gameturn + thing->index) % crstat->gold_poop_frequency) == 0)
+        {
+            drop_gold_pile(amount, &thing->mappos);
+        }
+    }
+    return;
+}
+
 TngUpdateRet update_creature(struct Thing *thing)
 {
     SYNCDBG(19,"Starting for %s index %d",thing_model_name(thing),(int)thing->index);
@@ -5727,6 +5747,7 @@ TngUpdateRet update_creature(struct Thing *thing)
     {
         return TUFRet_Deleted;
     }
+    process_creature_pooping_gold(thing);
     process_creature_self_spell_casting(thing);
     cctrl->moveaccel.x.val = 0;
     cctrl->moveaccel.y.val = 0;

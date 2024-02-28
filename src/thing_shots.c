@@ -95,17 +95,17 @@ TbBool detonate_shot(struct Thing *shotng, TbBool destroy)
     struct Thing* castng = INVALID_THING;
     struct PlayerInfo* myplyr = get_my_player();
     short spell_level;
-    // Identify the creator of the shot
+    // Identify the creator of the shot.
     if (shotng->index != shotng->parent_idx) {
         castng = thing_get(shotng->parent_idx);
         TRACE_THING(castng);
     }
-    // If the shot has area_range, then make area 
-    JUSTLOG("Shot has %d range with %d damage and %d blow with hit type %d.", shotst->area_range, shotst->area_damage, shotst->area_blow, shotst->area_hit_type);
+    // If the shot has area_range, then make area damage.
+    // JUSTLOG("Shot has %d range with %d damage and %d blow with hit type %d.", shotst->area_range, shotst->area_damage, shotst->area_blow, shotst->area_hit_type);
     if (shotst->area_range != 0) {
-        //TODO SPELLS Spell level should be taken from within the shot, not from caster creature
-        // Caster may have leveled up, or even may be already dead
-        // But currently shot do not store its level, so we don't really have a choice
+        // TODO SPELLS Spell level should be taken from within the shot, not from caster creature.
+        // Caster may have leveled up, or even may be already dead.
+        // But currently shot do not store its level, so we don't really have a choice.
         struct CreatureControl* cctrl = creature_control_get_from_thing(castng);
         long luck = calculate_correct_creature_luck(castng);
         long dist = compute_creature_attack_range(shotst->area_range * COORD_PER_STL, luck, cctrl->explevel);
@@ -113,7 +113,6 @@ TbBool detonate_shot(struct Thing *shotng, TbBool destroy)
         HitTargetFlags hit_targets = hit_type_to_hit_targets(shotst->area_hit_type);
         explosion_affecting_area(shotng, &shotng->mappos, dist, damage, shotst->area_blow, hit_targets, shotst->damage_type);
     }
-   
     create_used_effect_or_element(&shotng->mappos, shotst->explode.effect1_model, shotng->owner);
     create_used_effect_or_element(&shotng->mappos, shotst->explode.effect2_model, shotng->owner);
     if (shotst->explode.around_effect1_model != 0)
@@ -124,8 +123,7 @@ TbBool detonate_shot(struct Thing *shotng, TbBool destroy)
     {
         create_effect_around_thing(shotng, shotst->explode.around_effect2_model);
     }
-
-    //TODO CONFIG shot model dependency, make config option instead
+    //TODO CONFIG shot model dependency, make config option instead.
     switch (shotng->model)
     {
     case ShM_Lightning:

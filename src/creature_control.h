@@ -404,6 +404,7 @@ struct CreatureControl {
     MapSubtlCoord alarm_stl_x;
     MapSubtlCoord alarm_stl_y;
     unsigned long alarm_over_turn;
+    unsigned long water_escape_since;
     unsigned long lava_escape_since;
     unsigned char stopped_for_hand_turns;
     long following_leader_since;

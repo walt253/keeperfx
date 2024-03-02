@@ -170,7 +170,6 @@ const struct NamedCommand magic_special_commands[] = {
   {NULL,               0},
   };
 
-
 const struct NamedCommand shotmodel_withstand_types[] = {
   {"CREATURE",      1},
   {"WALL",          2},

@@ -101,15 +101,18 @@ TbBool detonate_shot(struct Thing *shotng, TbBool destroy)
         TRACE_THING(castng);
     }
     // If the shot has area_range, then make area damage.
-    // JUSTLOG("Shot has %d range with %d damage and %d blow with hit type %d.", shotst->area_range, shotst->area_damage, shotst->area_blow, shotst->area_hit_type);
+    JUSTLOG("Shot has %d range with %d damage and %d blow with hit type %d.", shotst->area_range, shotst->area_damage, shotst->area_blow, shotst->area_hit_type);
     if (shotst->area_range != 0) {
         // TODO SPELLS Spell level should be taken from within the shot, not from caster creature.
         // Caster may have leveled up, or even may be already dead.
         // But currently shot do not store its level, so we don't really have a choice.
         struct CreatureControl* cctrl = creature_control_get_from_thing(castng);
         long luck = calculate_correct_creature_luck(castng);
+        JUSTLOG("Shot has %d luck.", luck);
         long dist = compute_creature_attack_range(shotst->area_range * COORD_PER_STL, luck, cctrl->explevel);
+        JUSTLOG("Shot has %d distance.", dist);
         long damage = compute_creature_attack_spell_damage(shotst->area_damage, luck, cctrl->explevel, castng);
+        JUSTLOG("Shot has %d damage.", damage);
         HitTargetFlags hit_targets = hit_type_to_hit_targets(shotst->area_hit_type);
         explosion_affecting_area(shotng, &shotng->mappos, dist, damage, shotst->area_blow, hit_targets, shotst->damage_type);
     }

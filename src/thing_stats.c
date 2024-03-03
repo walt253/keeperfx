@@ -818,6 +818,10 @@ long calculate_correct_creature_loyalty(const struct Thing *thing)
 
 long calculate_correct_creature_magic(const struct Thing *thing)
 {
+    // If not a creature, then skip this function and return 100% magic.
+    if (thing->class_id != TCls_Creature) {
+        return 100;
+    }
     struct Dungeon* dungeon;
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);

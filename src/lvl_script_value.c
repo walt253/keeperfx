@@ -166,11 +166,12 @@ TbResult script_use_spell_on_creature(PlayerNumber plyr_idx, long crmodel, long 
     }
     SpellKind spkind = (fmcl_bytes >> 8) & 255;
     const struct SpellConfig* spconf = get_spell_config(spkind);
-
+    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     if (spconf->caster_affected ||
-            (spkind == SplK_Freeze) || (spkind == SplK_Slow) || // These two should be also marked at configs somehow?
-            ( (spkind == SplK_Disease) && ((get_creature_model_flags(thing) & CMF_NeverSick) == 0) ) ||
-            ( (spkind == SplK_Chicken) && ((get_creature_model_flags(thing) & CMF_NeverChickens) == 0) ) )
+      ((spkind == SplK_Disease) && ((get_creature_model_flags(thing) & CMF_NeverSick) == 0))
+      || ((spkind == SplK_Chicken) && ((get_creature_model_flags(thing) & CMF_NeverChickens) == 0))
+      || ((spkind == SplK_Freeze) && (crstat->immune_to_freeze == 0))
+      || ((spkind == SplK_Slow) && (crstat->immune_to_slow == 0)))
     {
         if (thing_is_picked_up(thing))
         {
@@ -746,6 +747,16 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           break;
       case 27: // ALLURING_SCVNGR
           crstat->entrance_force = val4;
+          break;
+      case 28: // IMMUNE_TO_CHARM
+          if (val4 >= 1)
+          {
+              crconf->model_flags |= CMF_NoCharm;
+          }
+          else
+          {
+              crconf->model_flags ^= CMF_NoCharm;
+          }
           break;
       default:
           SCRPTERRLOG("Unknown creature property '%d'", val3);

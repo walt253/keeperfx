@@ -51,7 +51,9 @@ enum TrapTriggerTypes {
     TrpTrg_Pressure_Slab,
     TrpTrg_LineOfSight,
     TrpTrg_Pressure_Subtile,
+    TrpTrg_WheneverPlaced,
 };
+
 enum TrapActivationTypes {
     TrpAcT_None = 0,
     TrpAcT_HeadforTarget90,

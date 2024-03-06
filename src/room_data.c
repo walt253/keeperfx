@@ -62,6 +62,7 @@ void count_slabs_all_only(struct Room *room);
 void count_slabs_all_wth_effcncy(struct Room *room);
 void count_slabs_div2_wth_effcncy(struct Room *room);
 void count_gold_slabs_wth_effcncy(struct Room *room);
+void count_gold_slabs_all_only(struct Room *room);
 
 void count_gold_hoardes_in_room(struct Room *room);
 void count_books_in_room(struct Room *room);
@@ -978,6 +979,11 @@ void count_gold_slabs_wth_effcncy(struct Room *room)
     if (count < 1)
         count = 1;
     room->total_capacity = count;
+}
+
+void count_gold_slabs_all_only(struct Room *room)
+{
+    room->total_capacity = ROOM_EFFICIENCY_MAX;
 }
 
 TbBool recreate_repositioned_crate_in_room_on_subtile(struct Room *room, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct RoomReposition * rrepos)

@@ -42,9 +42,9 @@
 extern "C" {
 #endif
 /******************************************************************************/
-#define DUNGEONS_COUNT              5
+#define DUNGEONS_COUNT              9
 #define DIGGER_TASK_MAX_COUNT       64
-#define DUNGEON_RESEARCH_COUNT      64
+#define DUNGEON_RESEARCH_COUNT      255
 #define MAX_THINGS_IN_HAND          64
 #define TURN_TIMERS_COUNT           8
 #define SCRIPT_FLAGS_COUNT          8
@@ -140,6 +140,10 @@ struct Modifiers
     unsigned short training_cost;
     unsigned short scavenging_cost;
     unsigned short loyalty;
+    unsigned short defense;
+    unsigned short dexterity;
+    unsigned short luck;
+    unsigned short magic;
 };
 
 struct Dungeon {
@@ -166,6 +170,7 @@ struct Dungeon {
     unsigned long cta_start_turn;
     TbBool cta_free;
     unsigned long must_obey_turn;
+    unsigned long infusion_turn;
     int hold_audience_cast_turn;
     int scavenge_counters_turn;
     /** Counter of creatures scavenging of each kind, zeroized and recomputed each game turn. */

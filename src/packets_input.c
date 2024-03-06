@@ -853,6 +853,51 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
                 unset_packet_control(pckt, PCtr_LBtnRelease);
             }
             break;
+        case PSt_MeteorStorm:
+            player->thing_under_hand = 0;
+            if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
+            {
+                i = get_power_overcharge_level(player);
+                magic_use_available_power_on_subtile(plyr_idx, PwrK_METEORSTORM, i, stl_x, stl_y, PwCast_None);
+                unset_packet_control(pckt, PCtr_LBtnRelease);
+            }
+            break;
+        case PSt_MassTeleport:
+            player->thing_under_hand = 0;
+            if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
+            {
+                i = get_power_overcharge_level(player);
+                magic_use_available_power_on_subtile(plyr_idx, PwrK_MASSTELEPORT, i, stl_x, stl_y, PwCast_None);
+                unset_packet_control(pckt, PCtr_LBtnRelease);
+            }
+            break;
+        case PSt_Fart:
+            player->thing_under_hand = 0;
+            if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
+            {
+                i = get_power_overcharge_level(player);
+                magic_use_available_power_on_subtile(plyr_idx, PwrK_FART, i, stl_x, stl_y, PwCast_None);
+                unset_packet_control(pckt, PCtr_LBtnRelease);
+            }
+            break;
+        case PSt_SummonCreature:
+            player->thing_under_hand = 0;
+            if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
+            {
+                i = get_power_overcharge_level(player);
+                magic_use_available_power_on_subtile(plyr_idx, PwrK_SUMMONCREATURE, i, stl_x, stl_y, PwCast_None);
+                unset_packet_control(pckt, PCtr_LBtnRelease);
+            }
+            break;
+        case PSt_Eruption:
+            player->thing_under_hand = 0;
+            if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
+            {
+                i = get_power_overcharge_level(player);
+                magic_use_available_power_on_subtile(plyr_idx, PwrK_ERUPTION, i, stl_x, stl_y, PwCast_None);
+                unset_packet_control(pckt, PCtr_LBtnRelease);
+            }
+            break;
         case PSt_PlaceDoor:
         {
             if ((pckt->control_flags & PCtr_MapCoordsValid) != 0)
@@ -885,6 +930,10 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
         case PSt_Slow:
         case PSt_Flight:
         case PSt_Vision:
+        case PSt_Rage:
+        case PSt_DivineShield:
+        case PSt_Indoctrination:
+        case PSt_MagicMist:
         case PSt_TimeBomb:
             influence_own_creatures = true;
             pwkind = player_state_to_power_kind[player->work_state];

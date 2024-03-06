@@ -62,7 +62,7 @@ void count_slabs_all_only(struct Room *room);
 void count_slabs_all_wth_effcncy(struct Room *room);
 void count_slabs_div2_wth_effcncy(struct Room *room);
 void count_gold_slabs_wth_effcncy(struct Room *room);
-void count_gold_slabs_all_only(struct Room *room);
+void count_room_efficiency_max(struct Room *room);
 
 void count_gold_hoardes_in_room(struct Room *room);
 void count_books_in_room(struct Room *room);
@@ -981,7 +981,7 @@ void count_gold_slabs_wth_effcncy(struct Room *room)
     room->total_capacity = count;
 }
 
-void count_gold_slabs_all_only(struct Room *room)
+void count_room_efficiency_max(struct Room *room)
 {
     room->total_capacity = ROOM_EFFICIENCY_MAX;
 }

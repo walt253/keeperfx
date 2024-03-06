@@ -1103,12 +1103,12 @@ HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, DamageType d
     SYNCDBG(19,"Dealing %d damage to %s by player %d",(int)dmg,thing_model_name(thing),(int)dealing_plyr_idx);
     if (dmg <= 0)
         return 0;
-    // If it's already dead, then don't interfere
+    // If it's already dead, then don't interfere.
     if (thing->health < 0)
         return 0;
     HitPoints cdamage;
     switch (thing->class_id)
-    {
+    {//TODO: make own function for Weaknesses&Resistances system and rewrite it entirely.
     case TCls_Creature:
         // Weaknesses&Resistances to Physical damage type.
         if (damage_type == DmgT_Physical) {

@@ -4076,8 +4076,9 @@ TbBool process_creature_hunger(struct Thing *thing)
     {
         // Make sure every creature loses health on different turn.
         if (((game.play_gameturn + thing->index) % game.conf.rules.health.turns_per_hunger_health_loss) == 0) {
-            SYNCDBG(9,"The %s index %d lost %d health due to hunger",thing_model_name(thing), (int)thing->index, (int)game.conf.rules.health.hunger_health_loss);
-            remove_health_from_thing_and_display_health(thing, game.conf.rules.health.hunger_health_loss);
+            HitPoints hunger_health_loss = (cctrl->max_health * game.conf.rules.health.hunger_health_loss) / 100;
+            SYNCDBG(9,"The %s index %d lost %d health due to hunger",thing_model_name(thing), (int)thing->index, hunger_health_loss);
+            remove_health_from_thing_and_display_health(thing, hunger_health_loss);
             return true;
         }
     }
@@ -4511,6 +4512,8 @@ long process_work_speed_on_work_value(const struct Thing *thing, long base_val)
     long val = base_val;
     if (creature_affected_by_spell(thing, SplK_Speed))
         val = 2 * val;
+    if (creature_affected_by_spell(thing, SplK_MagicMist))
+        val = 3 * val / 2;
     if (creature_affected_by_slap(thing))
         val = 4 * val / 3;
     if (!is_neutral_thing(thing))

@@ -91,6 +91,7 @@ long project_creature_attack_spell_damage(long base_param,long luck,unsigned sho
 long compute_creature_attack_range(long base_param,long luck,unsigned short crlevel);
 long compute_creature_work_value(long base_param,long efficiency,unsigned short crlevel);
 long compute_creature_max_strength(long base_param,unsigned short crlevel);
+long compute_creature_max_magic(long base_param,unsigned short crlevel);
 long compute_creature_max_armour(long base_param,unsigned short crlevel);
 long compute_creature_max_defense(long base_param,unsigned short crlevel);
 long compute_creature_max_dexterity(long base_param,unsigned short crlevel);
@@ -105,6 +106,7 @@ GoldAmount calculate_correct_creature_pay(const struct Thing *thing);
 GoldAmount calculate_correct_creature_training_cost(const struct Thing *thing);
 GoldAmount calculate_correct_creature_scavenging_cost(const struct Thing *thing);
 long calculate_correct_creature_strength(const struct Thing *thing);
+long calculate_correct_creature_magic(const struct Thing *thing);
 long calculate_correct_creature_armour(const struct Thing *thing);
 long calculate_correct_creature_defense(const struct Thing *thing);
 long calculate_correct_creature_dexterity(const struct Thing *thing);

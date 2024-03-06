@@ -132,6 +132,8 @@ const struct NamedCommand magic_shot_commands[] = {
   {"DEXTERITYPERCENT",      55},
   {"BREAKPERCENT",          56},
   {"GOLDPERCENT",           57},
+  {"SLABKIND",              58},
+  {"PERSISTENCE",           59},
   {NULL,                     0},
   };
 
@@ -264,6 +266,9 @@ const struct NamedCommand shotmodel_damagetype_commands[] = {
   {"MAGICAL",     DmgT_Magical},
   {"RESPIRATORY", DmgT_Respiratory},
   {"RESTORATION", DmgT_Restoration},
+  {"HOLY",        DmgT_Holy},
+  {"DARKNESS",    DmgT_Darkness},
+  {"HOARFROST",   DmgT_Hoarfrost},
   {NULL,          DmgT_None},
   };
 
@@ -1872,6 +1877,32 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           {
               k = atoi(word_buf);
               shotst->gold_percent = k;
+              n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 58: //SLABKIND
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              shotst->slab_kind = k;
+              n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 59: //PERSISTENCE
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              shotst->persistence = k;
               n++;
           }
           if (n < 1)

@@ -776,7 +776,11 @@ TngUpdateRet update_trap_trigger(struct Thing* traptng)
     case TrpTrg_LineOfSight:
         do_trig = update_trap_trigger_line_of_sight(traptng);
         break;
-    case TrpTrg_None: // for manually activated traps
+    case TrpTrg_WheneverPlaced: // Activated once placed.
+        activate_trap(traptng, traptng);
+        do_trig = true;
+        break;
+    case TrpTrg_None: // For manually activated traps.
         do_trig = false;
         break;
     default:

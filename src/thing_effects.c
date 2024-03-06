@@ -337,8 +337,8 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
     if ((cctrl->spell_flags & CSAfF_DivineShield) != 0)
     {
         int diamtr = 3 * thing->clipbox_size_xy / 2;
-        MapCoord cor_z_max = thing->clipbox_size_z + (thing->clipbox_size_z * game.conf.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 80; //effect is 20% smaller than unit
-        int i = cor_z_max / 16; //128 is the vertical speed of the circle.
+        MapCoord cor_z_max = thing->clipbox_size_z + (thing->clipbox_size_z * game.conf.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 80;
+        int i = cor_z_max / 16;
         if (i <= 1)
           i = 1;
         dturn = game.play_gameturn - thing->creation_turn;
@@ -370,29 +370,25 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
     if ((cctrl->spell_flags & CSAfF_MagicMist) != 0)
     {
         int diamtr = thing->clipbox_size_xy;
+        MapCoord cor_z_max = thing->clipbox_size_z + (thing->clipbox_size_z * game.conf.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 80;
+        int i = cor_z_max / 128;
+        if (i <= 1)
+          i = 1;
         dturn = game.play_gameturn - thing->creation_turn;
-        MapCoord cor_z_max = thing->clipbox_size_z + (thing->clipbox_size_z * game.conf.crtr_conf.exp.size_increase_on_exp * cctrl->explevel);
-
-        struct EffectElementConfigStats* eestat = get_effect_element_model_stats(TngEffElm_CloudDisperse);
-        unsigned short nframes = keepersprite_frames(eestat->sprite_idx);
-        GameTurnDelta dtadd = 0;
-        unsigned short cframe = game.play_gameturn % nframes;
-        pos.z.val = thing->mappos.z.val;
+        int vrange = i;
+        if (dturn % (2 * i) < vrange)
+            pos.z.val = thing->mappos.z.val + cor_z_max / vrange * (dturn % vrange);
+        else
+            pos.z.val = thing->mappos.z.val + cor_z_max / vrange * (vrange - (dturn % vrange));
         int radius = diamtr / 2;
-        while (pos.z.val < cor_z_max + thing->mappos.z.val)
+        for (i=0; i < 16; i++)
         {
-            angle = (abs(dturn + dtadd) & 7) << 8;
+            angle = (abs(i) & 0xF) << 7;
             shift_x =  (radius * LbSinL(angle) >> 8) >> 8;
             shift_y = -(radius * LbCosL(angle) >> 8) >> 8;
             pos.x.val = thing->mappos.x.val + shift_x;
             pos.y.val = thing->mappos.y.val + shift_y;
             effeltng = create_thing(&pos, TCls_EffectElem, TngEffElm_CloudDisperse, thing->owner, -1);
-            if (thing_is_invalid(effeltng))
-                break;
-            set_thing_draw(effeltng, eestat->sprite_idx, 256, eestat->sprite_size_min, 0, cframe, ODC_Default);
-            dtadd++;
-            pos.z.val += 16;
-            cframe = (cframe + 1) % nframes;
         }
     }
 }
@@ -993,6 +989,10 @@ struct Thing *create_used_effect_or_element(const struct Coord3d *pos, EffectOrE
     if (effect > 0)
     {
         efftng = create_effect(pos, effect, plyr_idx);
+        if ((effect == 13) && (!thing_is_invalid(efftng)))
+        {
+            efftng->shot_effect.hit_type = THit_CrtrsOnly;
+        }
     }
     else
     {

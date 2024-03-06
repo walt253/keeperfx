@@ -315,6 +315,7 @@ const struct NamedCommand modifier_desc[] = {
   {"Defense",        10},
   {"Dexterity",      11},
   {"Luck",           12},
+  {"Magic",          13},
   {NULL,              0},
 };
 
@@ -5246,6 +5247,10 @@ static void set_player_modifier_process(struct ScriptContext* context)
                 SCRIPTDBG(7,"Changing Player Modifier '%s' of player %d from %d to %d.", mdfrname, (int)plyr_idx, dungeon->modifier.luck, mdfrval);
                 dungeon->modifier.luck = mdfrval;
                 break;
+            case 13: // Magic
+                SCRIPTDBG(7,"Changing Player Modifier '%s' of player %d from %d to %d.", mdfrname, (int)plyr_idx, dungeon->modifier.magic, mdfrval);
+                dungeon->modifier.magic = mdfrval;
+                break;
             default:
                 WARNMSG("Unsupported Player Modifier, command %d.", mdfrdesc);
                 break;
@@ -5394,6 +5399,15 @@ static void add_to_player_modifier_process(struct ScriptContext* context)
                     dungeon->modifier.luck = mdfradd;
                 } else {
                     SCRPTERRLOG("Player %d Modifier '%s' may not be negative. Tried to add %d to value %d", (int)plyr_idx, mdfrname, mdfrval, dungeon->modifier.luck);
+                }
+                break;
+            case 13: // Magic
+                mdfradd = dungeon->modifier.magic + mdfrval;
+                if (mdfradd >= 0) {
+                    SCRIPTDBG(7,"Adding %d to Player %d Modifier '%s'.", mdfrval, (int)plyr_idx, mdfrname);
+                    dungeon->modifier.magic = mdfradd;
+                } else {
+                    SCRPTERRLOG("Player %d Modifier '%s' may not be negative. Tried to add %d to value %d", (int)plyr_idx, mdfrname, mdfrval, dungeon->modifier.magic);
                 }
                 break;
             default:

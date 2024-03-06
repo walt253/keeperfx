@@ -71,6 +71,7 @@ enum SpellKinds {
     SplK_DivineShield,
     SplK_Indoctrination,
     SplK_MagicMist, // 35
+    SplK_Kamikaze,
 };
 
 enum CreatureSpellAffectedFlags {
@@ -334,6 +335,8 @@ struct ShotConfigStats {
     unsigned char dexterity_percent;
     unsigned char break_percent;
     unsigned char gold_percent;
+    unsigned char slab_kind;
+    unsigned char persistence;
 };
 
 typedef unsigned char (*Expand_Check_Func)(void);

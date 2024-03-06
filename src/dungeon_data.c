@@ -541,6 +541,7 @@ void init_dungeons(void)
         dungeon->modifier.defense = 100;
         dungeon->modifier.dexterity = 100;
         dungeon->modifier.luck = 100;
+        dungeon->modifier.magic = 100;
         dungeon->color_idx = i;
         LbMemorySet(dungeon->creature_models_joined, 0, CREATURE_TYPES_MAX);
     }

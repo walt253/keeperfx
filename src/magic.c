@@ -1423,6 +1423,11 @@ TbResult magic_use_power_freeze(PlayerNumber plyr_idx, struct Thing *thing, MapS
             return Lb_FAIL;
         }
     }
+    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    if (crstat->immune_to_freeze != 0) {
+        thing_play_sample(thing, 119, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+        return Lb_FAIL;
+    }
     struct Coord3d effpos = thing->mappos;
     effpos.z.val = get_ceiling_height_above_thing_at(thing, &thing->mappos);
     create_effect(&effpos, TngEff_FallingIceBlocks, thing->owner);
@@ -1445,6 +1450,11 @@ TbResult magic_use_power_slow(PlayerNumber plyr_idx, struct Thing *thing, MapSub
         if (!pay_for_spell(plyr_idx, PwrK_SLOW, splevel)) {
             return Lb_FAIL;
         }
+    }
+    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    if (crstat->immune_to_slow != 0) {
+        thing_play_sample(thing, 119, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+        return Lb_FAIL;
     }
     struct Coord3d effpos = thing->mappos;
     effpos.z.val = get_ceiling_height_above_thing_at(thing, &thing->mappos);
@@ -1842,7 +1852,7 @@ TbResult magic_use_power_summon_creature(PlayerNumber plyr_idx, MapSubtlCoord st
     pos.x.val = subtile_coord_center(stl_x);
     pos.y.val = subtile_coord_center(stl_y);
     pos.z.val = get_floor_height_at(&pos) + (heartng->clipbox_size_z >> 1);
-    if ((pwrdynst->duration > 0) && (pwrdynst->duration <= CREATURE_TYPES_MAX)) {
+    if ((pwrdynst->duration > 0) && (pwrdynst->duration <= game.conf.crtr_conf.model_count)) {
         creature_id = pwrdynst->duration;
         thing = create_creature(&pos, creature_id, plyr_idx);
         if (thing_is_invalid(thing))

@@ -664,7 +664,8 @@ void food_eaten_by_creature(struct Thing *foodtng, struct Thing *creatng)
         if (cctrl->hunger_loss < 255) {
               cctrl->hunger_loss++;
         }
-        apply_health_to_thing_and_display_health(creatng, game.conf.rules.health.food_health_gain);
+        HitPoints food_health_gain = (cctrl->max_health * game.conf.rules.health.food_health_gain) / 100;
+        apply_health_to_thing_and_display_health(creatng, food_health_gain);
         cctrl->hunger_level = 0;
     }
     // Food is destroyed just below, so the sound must be made by creature
@@ -758,6 +759,8 @@ TbBool creature_affected_by_spell(const struct Thing *thing, SpellKind spkind)
         return ((cctrl->spell_flags & CSAfF_MadKilling) != 0);
     case SplK_MagicMist:
         return ((cctrl->spell_flags & CSAfF_MagicMist) != 0);
+    case SplK_Kamikaze:
+        return ((cctrl->spell_flags & CSAfF_Timebomb) != 0);
     case SplK_TimeBomb:
         return ((cctrl->spell_flags & CSAfF_Timebomb) != 0);
     // Handle spells with no continuous effect
@@ -1049,7 +1052,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
             }
         }
     } else
-    if (spell_idx == SplK_TimeBomb)
+    if ((spell_idx == SplK_TimeBomb) || (spell_idx == SplK_Kamikaze))
     {
         if (i != -1)
         {
@@ -1069,13 +1072,21 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
         switch (spell_idx)
         {
         case SplK_Freeze:
-            cctrl->stateblock_flags |= CCSpl_Freeze;
-            if ((thing->movement_flags & TMvF_Flying) != 0)
+            crstat = creature_stats_get_from_thing(thing);
+            if ((crstat->immune_to_freeze == 0) || (crstat->force_to_freeze != 0))
+            {
+                cctrl->stateblock_flags |= CCSpl_Freeze;
+                if ((thing->movement_flags & TMvF_Flying) != 0)
                 {
                     cctrl->spell_flags |= CSAfF_Grounded;
                     thing->movement_flags &= ~TMvF_Flying;
                 }
-            creature_set_speed(thing, 0);
+                creature_set_speed(thing, 0);
+                if (crstat->force_to_freeze != 0)
+                {
+                    crstat->force_to_freeze = false;
+                }
+            }
             break;
         case SplK_Armour:
             n = 0;
@@ -1108,8 +1119,16 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
             break;
         case SplK_Rage:
         case SplK_Speed:
-        case SplK_Slow:
             cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
+            break;
+        case SplK_Slow:
+            crstat = creature_stats_get_from_thing(thing);
+            if (crstat->immune_to_slow == 0)
+            {
+                cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
+            } else {
+                terminate_thing_spell_effect(thing, SplK_Slow);
+            }
             break;
         case SplK_Fly:
             thing->movement_flags |= TMvF_Flying;
@@ -1996,6 +2015,7 @@ TngUpdateRet process_creature_state(struct Thing *thing)
     SYNCDBG(19,"Starting for %s index %d owned by player %d",thing_model_name(thing),(int)thing->index,(int)thing->owner);
     TRACE_THING(thing);
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     unsigned long model_flags = get_creature_model_flags(thing);
 
     process_person_moods_and_needs(thing);
@@ -2051,13 +2071,39 @@ TngUpdateRet process_creature_state(struct Thing *thing)
         set_start_state(thing);
     }
 
-    // Creatures that are not special diggers will pick up any nearby gold or food
+    // Creatures that are not special diggers will pick up any nearby gold or food.
     if (((thing->movement_flags & TMvF_Flying) == 0) && ((model_flags & CMF_IsSpecDigger) == 0))
     {
         if (!creature_is_being_unconscious(thing) && !creature_is_dying(thing) &&
             !thing_is_picked_up(thing) && !creature_is_being_dropped(thing))
         {
             creature_pick_up_interesting_object_laying_nearby(thing);
+        }
+    }
+    // Mechanical creature can and will self heal at anytime.
+    if ((crstat->toking_recovery > 0) && (cctrl->max_health > thing->health) && ((model_flags & CMF_Mechanical) != 0))
+    {
+        HitPoints mechanical_frequency = thing->health / crstat->toking_recovery;
+        if (mechanical_frequency < crstat->toking_recovery) {
+            mechanical_frequency = crstat->toking_recovery;
+        }
+        if (((game.play_gameturn + thing->index) % mechanical_frequency) == 0)
+        {
+            HitPoints recover = compute_creature_max_health(crstat->toking_recovery, cctrl->explevel, thing->owner);
+            apply_health_to_thing_and_display_health(thing, recover);
+        }
+    }
+    // Self Recovery creature can and will self heal at anytime.
+    if ((crstat->sleep_recovery > 0) && (cctrl->max_health > thing->health) && (crstat->self_recovery != 0))
+    {
+        HitPoints recover = compute_creature_max_health(crstat->sleep_recovery, cctrl->explevel, thing->owner);
+        HitPoints self_frequency = cctrl->max_health / recover;
+        if (self_frequency < crstat->sleep_recovery) {
+            self_frequency = crstat->sleep_recovery;
+        }
+        if (((game.play_gameturn + thing->index) % self_frequency) == 0)
+        {
+            apply_health_to_thing_and_display_health(thing, recover);
         }
     }
     // Enable this to know which function hangs on update_creature.
@@ -5275,6 +5321,33 @@ short update_creature_movements(struct Thing *thing)
     }
 }
 
+void check_for_creature_escape_from_water(struct Thing *thing)
+{
+    if (((thing->alloc_flags & TAlF_IsControlled) == 0) && ((thing->movement_flags & TMvF_IsOnWater) != 0))
+    {
+        struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+        if (crstat->hurt_by_water > 0)
+        {
+            struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+            if ((!creature_is_escaping_death(thing)) && (cctrl->water_escape_since + 64 < game.play_gameturn))
+            {
+                cctrl->water_escape_since = game.play_gameturn;
+                if (cleanup_current_thing_state(thing))
+                {
+                    if (setup_move_out_of_cave_in(thing))
+                    {
+                        thing->continue_state = CrSt_CreatureEscapingDeath;
+                    }
+                    else
+                    {
+                        set_start_state(thing);
+                    }
+                }
+            }
+        }
+    }
+}
+
 void check_for_creature_escape_from_lava(struct Thing *thing)
 {
     if (((thing->alloc_flags & TAlF_IsControlled) == 0) && ((thing->movement_flags & TMvF_IsOnLava) != 0))
@@ -5298,7 +5371,7 @@ void check_for_creature_escape_from_lava(struct Thing *thing)
                     }
                 }
             }
-      }
+        }
     }
 }
 
@@ -5390,13 +5463,15 @@ void process_landscape_affecting_creature(struct Thing *thing)
     thing->movement_flags &= ~TMvF_IsOnLava;
     thing->movement_flags &= ~TMvF_IsOnSnow;
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    HitPoints recover;
+    HitPoints frequency;
     if (creature_control_invalid(cctrl))
     {
         ERRORLOG("Invalid creature control; no action");
         return;
     }
     cctrl->corpse_to_piss_on = 0;
-
     int stl_idx = get_subtile_number(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
     unsigned long navheight = get_navigation_map_floor_height(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
     if (subtile_coord(navheight,0) == thing->mappos.z.val)
@@ -5404,17 +5479,52 @@ void process_landscape_affecting_creature(struct Thing *thing)
         int i = get_top_cube_at_pos(stl_idx);
         if (cube_is_lava(i))
         {
-            struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-            apply_damage_to_thing_and_display_health(thing, crstat->hurt_by_lava, DmgT_Heatburn, -1);
+            if (crstat->hurt_by_lava == 0)
+            {
+                if (creature_affected_by_spell(thing, SplK_Freeze))
+                {
+                    terminate_thing_spell_effect(thing, SplK_Freeze);
+                }
+            } else {
+                apply_damage_to_thing_and_display_health(thing, crstat->hurt_by_lava, DmgT_Heatburn, -1);
+            }
+            if ((crstat->lava_recovery > 0) && (cctrl->max_health > thing->health))
+            {
+                recover = compute_creature_max_health(crstat->lava_recovery, cctrl->explevel, thing->owner);
+                frequency = cctrl->max_health / recover;
+                if (frequency < crstat->lava_recovery) {
+                    frequency = crstat->lava_recovery;
+                }
+                if (((game.play_gameturn + thing->index) % frequency) == 0)
+                {
+                    apply_health_to_thing_and_display_health(thing, recover);
+                }
+            }
             thing->movement_flags |= TMvF_IsOnLava;
         } else
         if (cube_is_water(i))
         {
+            if (crstat->hurt_by_water > 0) {
+                apply_damage_to_thing_and_display_health(thing, crstat->hurt_by_water, DmgT_Physical, -1);
+            }
+            if ((crstat->water_recovery > 0) && (cctrl->max_health > thing->health))
+            {
+                recover = compute_creature_max_health(crstat->water_recovery, cctrl->explevel, thing->owner);
+                frequency = cctrl->max_health / recover;
+                if (frequency < crstat->water_recovery) {
+                    frequency = crstat->water_recovery;
+                }
+                if (((game.play_gameturn + thing->index) % frequency) == 0)
+                {
+                    apply_health_to_thing_and_display_health(thing, recover);
+                }
+            }
             thing->movement_flags |= TMvF_IsOnWater;
         }
         process_creature_leave_footsteps(thing);
         process_creature_standing_on_corpses_at(thing, &thing->mappos);
     }
+    check_for_creature_escape_from_water(thing);
     check_for_creature_escape_from_lava(thing);
     SYNCDBG(19,"Finished");
 }

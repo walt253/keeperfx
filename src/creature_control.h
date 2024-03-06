@@ -442,7 +442,7 @@ struct CreatureStats { // These stats are not compatible with original DK - they
     unsigned char sleep_exp_slab;
     short sleep_experience;
     short exp_for_hitting;
-    short gold_hold;
+    long gold_hold;
     short training_cost;
     short scavenger_cost;
     short scavenge_require;

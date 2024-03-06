@@ -983,7 +983,7 @@ void count_gold_slabs_wth_effcncy(struct Room *room)
 
 void count_room_efficiency_max(struct Room *room)
 {
-    room->total_capacity = get_wealth_size_types_count();
+    room->total_capacity = room->slabs_count * get_wealth_size_types_count();
 }
 
 TbBool recreate_repositioned_crate_in_room_on_subtile(struct Room *room, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct RoomReposition * rrepos)

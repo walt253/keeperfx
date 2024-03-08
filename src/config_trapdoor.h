@@ -88,6 +88,7 @@ struct TrapConfigStats {
     short notify;
     short unsellable;
     short placeonbridge;
+    EffectOrEffElModel destroyed_effect;
 };
 
 /**

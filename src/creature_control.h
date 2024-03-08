@@ -543,6 +543,10 @@ struct CreatureStats { // These stats are not compatible with original DK - they
     unsigned short dexterity_upgrade;
     unsigned short luck_upgrade;
     unsigned short magic_upgrade;
+    unsigned short poop_amount;
+    unsigned short poop_frequency;
+    unsigned char poop_type;
+    unsigned char poop_random;
     struct CreaturePickedUpOffset creature_picked_up_offset;
 };
 

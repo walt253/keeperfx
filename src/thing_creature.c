@@ -5720,6 +5720,94 @@ long update_creature_levels(struct Thing *thing)
     return -1;
 }
 
+void process_creature_pooping_thing(struct Thing *thing)
+{
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    if (creature_control_invalid(cctrl))
+    {
+        ERRORLOG("Invalid creature control; no action");
+        return;
+    }
+    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    if ((crstat->poop_frequency > 0) && (crstat->poop_type > 0))
+    {
+        if (((game.play_gameturn + thing->index) % crstat->poop_frequency) == 0)
+        {
+            struct Thing* objtng = create_thing(&thing->mappos, TCls_Object, crstat->poop_type, thing->owner, -1);
+            if (thing_is_invalid(objtng))
+            {
+                return;
+            }
+            if (thing_is_dungeon_heart(objtng))
+            {
+                struct Dungeon* dungeon = get_dungeon(objtng->owner);
+                if (dungeon->backup_heart_idx == 0)
+                {
+                    dungeon->backup_heart_idx = objtng->index;
+                }
+            }
+            struct ObjectConfigStats* objst = get_object_model_stats(objtng->model);
+            switch (objst->genre)
+            {
+                case OCtg_Valuable:
+                {
+                    if (crstat->poop_amount > 0)
+                    {
+                        if (crstat->poop_random == 0)
+                        {
+                            objtng->valuable.gold_stored = crstat->poop_amount;
+                        } else {
+                            objtng->valuable.gold_stored = (crstat->poop_random + GAME_RANDOM(crstat->poop_amount));
+                        }
+                    } else {
+                        objtng->valuable.gold_stored = 1;
+                    }
+                    break;
+                }
+                case OCtg_GoldHoard:
+                {
+                    delete_thing_structure(objtng, 0);
+                    if (crstat->poop_amount > 0)
+                    {
+                        if (crstat->poop_random == 0)
+                        {
+                            drop_gold_pile(crstat->poop_amount, &thing->mappos);
+                        } else {
+                            drop_gold_pile((crstat->poop_random + GAME_RANDOM(crstat->poop_amount)), &thing->mappos);
+                        }
+                    } else {
+                        drop_gold_pile(1, &thing->mappos);
+                    }
+                    break;
+                }
+                case OCtg_SpecialBox:
+                {
+                    if (crstat->poop_amount > 255)
+                    {
+                        if (crstat->poop_random == 0)
+                        {
+                            objtng->custom_box.box_kind = 0;
+                        } else {
+                            objtng->custom_box.box_kind = GAME_RANDOM(255);
+                        }
+                    } else {
+                        if (crstat->poop_random == 0)
+                        {
+                            objtng->custom_box.box_kind = crstat->poop_amount;
+                        } else {
+                            objtng->custom_box.box_kind = GAME_RANDOM(crstat->poop_amount);
+                        }
+                    }
+                    break;
+                }
+                default:
+                    break;
+            }
+        }
+    }
+    return;
+}
+
 TngUpdateRet update_creature(struct Thing *thing)
 {
     SYNCDBG(19,"Starting for %s index %d",thing_model_name(thing),(int)thing->index);
@@ -5868,6 +5956,7 @@ TngUpdateRet update_creature(struct Thing *thing)
     {
         return TUFRet_Deleted;
     }
+    process_creature_pooping_thing(thing);
     process_creature_self_spell_casting(thing);
     cctrl->moveaccel.x.val = 0;
     cctrl->moveaccel.y.val = 0;

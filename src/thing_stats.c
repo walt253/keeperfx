@@ -1081,7 +1081,7 @@ HitPoints calculate_shot_real_damage_to_door(struct Thing *doortng, struct Thing
         if (shotst->damage_type == DmgT_Combustion) {
             dmg *= 2;
         }
-        if (shotst->damage_type != DmgT_Heatburn) {
+        if (shotst->damage_type == DmgT_Heatburn) {
             dmg *= dmg;
         }
     }

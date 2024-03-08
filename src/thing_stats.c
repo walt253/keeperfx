@@ -1068,19 +1068,27 @@ static HitPoints apply_damage_to_door(struct Thing *thing, HitPoints dmg)
 
 HitPoints calculate_shot_real_damage_to_door(const struct Thing *doortng, const struct Thing *shotng)
 {
-    HitPoints dmg;
     const struct ShotConfigStats* shotst = get_shot_model_stats(shotng->model);
     const struct DoorConfigStats* doorst = get_door_model_stats(doortng->model);
-
-    //TODO CONFIG replace deals_physical_damage with check for shotst->damage_type (magic in this sense is DmgT_Electric, DmgT_Combustion and DmgT_Heatburn)
-    if ( !(doorst->model_flags & DoMF_ResistNonMagic)  || (shotst->damage_type == DmgT_Magical))
-    {
-        dmg = shotng->shot.damage;
-    } else
-    {
-        dmg = shotng->shot.damage / 10;
-        if (dmg < 1)
-            dmg = 1;
+    HitPoints dmg = shotng->shot.damage;
+    if (shotst->damage_type == DmgT_Respiratory) {
+        return 0;
+    }
+    if (((doorst->model_flags & DoMF_ResistNonMagic) != 0) && ((shotst->damage_type == DmgT_Combustion) ||(shotst->damage_type == DmgT_Physical) || (shotst->damage_type == DmgT_Biological))) {
+        dmg /= 10;
+    }
+    if (((doorst->model_flags & DoMF_Wooden) != 0) && ((shotst->damage_type == DmgT_Combustion) || (shotst->damage_type != DmgT_Heatburn))) {
+        dmg *= 2;
+    }
+    if (((doorst->model_flags & DoMF_Steelen) != 0) && ((shotst->damage_type == DmgT_Magical) || (shotst->damage_type == DmgT_Electric) || (shotst->damage_type == DmgT_Frostbite) || (shotst->damage_type == DmgT_Heatburn) || (shotst->damage_type == DmgT_Holy) || (shotst->damage_type == DmgT_Darkness) || (shotst->damage_type == DmgT_Hoarfrost))) {
+        dmg /= 2;
+    }
+    if ((doorst->model_flags & DoMF_Golden) != 0) {
+        drop_gold_pile(dmg, &shotng->mappos);
+        dmg /= 2;
+    }
+    if (dmg < 1) {
+        dmg = 1;
     }
     return dmg;
 }

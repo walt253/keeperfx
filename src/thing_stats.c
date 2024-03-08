@@ -1132,7 +1132,7 @@ HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, DamageType d
             } else {
                 // ETHEREAL receives random damage.
                 if ((get_creature_model_flags(thing) & CMF_Ethereal) != 0) {
-                    dmg = GAME_RANDOM(dmg) / 1 + (GAME_RANDOM(calculate_correct_creature_armour(thing)));
+                    dmg = GAME_RANDOM(dmg) / (1 + GAME_RANDOM(calculate_correct_creature_armour(thing)));
                 }
             }
         }

@@ -1066,7 +1066,7 @@ static HitPoints apply_damage_to_door(struct Thing *thing, HitPoints dmg)
     return cdamage;
 }
 
-HitPoints calculate_shot_real_damage_to_door(const struct Thing *doortng, const struct Thing *shotng)
+HitPoints calculate_shot_real_damage_to_door(struct Thing *doortng, struct Thing *shotng)
 {
     const struct ShotConfigStats* shotst = get_shot_model_stats(shotng->model);
     const struct DoorConfigStats* doorst = get_door_model_stats(doortng->model);
@@ -1084,11 +1084,7 @@ HitPoints calculate_shot_real_damage_to_door(const struct Thing *doortng, const 
         dmg /= 2;
     }
     if ((doorst->model_flags & DoMF_Golden) != 0) {
-        struct Coord3d *pos;
-        pos.x.val = shotng->mappos.x.val;
-        pos.y.val = shotng->mappos.y.val;
-        pos.z.val = shotng->mappos.z.val;
-        drop_gold_pile(dmg, &pos);
+        drop_gold_pile(dmg, &shotng->mappos);
         dmg /= 2;
     }
     if (dmg < 1) {

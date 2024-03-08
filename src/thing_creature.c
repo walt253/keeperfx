@@ -5759,11 +5759,14 @@ void process_creature_pooping_thing(struct Thing *thing)
                         } else {
                             objtng->valuable.gold_stored = (crstat->poop_random + GAME_RANDOM(crstat->poop_amount));
                         }
+                    } else {
+                        objtng->valuable.gold_stored = 1;
                     }
                     break;
                 }
                 case OCtg_GoldHoard:
                 {
+                    delete_thing_structure(objtng, 0);
                     if (crstat->poop_amount > 0)
                     {
                         if (crstat->poop_random == 0)
@@ -5772,6 +5775,8 @@ void process_creature_pooping_thing(struct Thing *thing)
                         } else {
                             drop_gold_pile((crstat->poop_random + GAME_RANDOM(crstat->poop_amount)), &thing->mappos);
                         }
+                    } else {
+                        drop_gold_pile(1, &thing->mappos);
                     }
                     break;
                 }

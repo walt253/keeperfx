@@ -91,6 +91,7 @@ const struct NamedCommand creatmodel_attributes_commands[] = {
   {"POOPAMOUNT",         39},
   {"POOPFREQUENCY",      40},
   {"POOPTYPE",           41},
+  {"POOPRANDOM",         42},
   {NULL,                  0},
   };
 
@@ -981,6 +982,19 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
           {
               CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
                   COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 42: // POOPRANDOM
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            k = atoi(word_buf);
+            crstat->poop_random = k;
+            n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, creature_code_name(crtr_model), config_textname);
           }
           break;
       case 0: // comment

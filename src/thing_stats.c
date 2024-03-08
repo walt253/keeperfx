@@ -1077,14 +1077,19 @@ HitPoints calculate_shot_real_damage_to_door(struct Thing *doortng, struct Thing
     if (((doorst->model_flags & DoMF_ResistNonMagic) != 0) && ((shotst->damage_type == DmgT_Combustion) ||(shotst->damage_type == DmgT_Physical) || (shotst->damage_type == DmgT_Biological))) {
         dmg /= 10;
     }
-    if (((doorst->model_flags & DoMF_Wooden) != 0) && ((shotst->damage_type == DmgT_Combustion) || (shotst->damage_type != DmgT_Heatburn))) {
-        dmg *= 2;
+    if ((doorst->model_flags & DoMF_Wooden) != 0) {
+        if (shotst->damage_type == DmgT_Combustion) {
+            dmg *= 2;
+        }
+        if (shotst->damage_type != DmgT_Heatburn) {
+            dmg *= dmg;
+        }
     }
     if (((doorst->model_flags & DoMF_Steelen) != 0) && ((shotst->damage_type == DmgT_Magical) || (shotst->damage_type == DmgT_Electric) || (shotst->damage_type == DmgT_Frostbite) || (shotst->damage_type == DmgT_Heatburn) || (shotst->damage_type == DmgT_Holy) || (shotst->damage_type == DmgT_Darkness) || (shotst->damage_type == DmgT_Hoarfrost))) {
         dmg /= 2;
     }
     if ((doorst->model_flags & DoMF_Golden) != 0) {
-        drop_gold_pile(dmg, &shotng->mappos);
+        drop_gold_pile(dmg, &doortng->mappos);
         dmg /= 2;
     }
     if (dmg < 1) {

@@ -5725,7 +5725,6 @@ void process_creature_pooping_thing(struct Thing *thing)
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     if (creature_control_invalid(cctrl))
     {
-        ERRORLOG("Invalid creature control; no action");
         return;
     }
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
@@ -5766,7 +5765,6 @@ void process_creature_pooping_thing(struct Thing *thing)
                 }
                 case OCtg_GoldHoard:
                 {
-                    delete_thing_structure(objtng, 0);
                     if (crstat->poop_amount > 0)
                     {
                         if (crstat->poop_random == 0)
@@ -5778,6 +5776,7 @@ void process_creature_pooping_thing(struct Thing *thing)
                     } else {
                         drop_gold_pile(1, &thing->mappos);
                     }
+                    delete_thing_structure(objtng, 0);
                     break;
                 }
                 case OCtg_SpecialBox:
@@ -5809,6 +5808,11 @@ void process_creature_pooping_thing(struct Thing *thing)
                 case OCtg_LairTotem:
                 {
                     struct Thing* creatng = create_creature(&objtng->mappos, objst->related_creatr_model, objtng->owner);
+                    if (thing_is_invalid(creatng))
+                    {
+                        delete_thing_structure(objtng, 0);
+                        break;
+                    }
                     unsigned short level = crstat->poop_amount;
                     if (level >= CREATURE_MAX_LEVEL)
                     {

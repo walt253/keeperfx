@@ -5800,6 +5800,33 @@ void process_creature_pooping_thing(struct Thing *thing)
                     }
                     break;
                 }
+                case OCtg_Effect:
+                case OCtg_Power:
+                {
+                    delete_thing_structure(objtng, 0);
+                    break;
+                }
+                case OCtg_LairTotem:
+                {
+                    struct Thing* creatng = create_creature(&objtng->mappos, objst->related_creatr_model, objtng->owner);
+                    unsigned short level = crstat->poop_amount;
+                    if (level >= CREATURE_MAX_LEVEL)
+                    {
+                        level = CREATURE_MAX_LEVEL;
+                    }
+                    if (level == 0)
+                    {
+                        level = cctrl->explevel;
+                    }
+                    if (crstat->poop_random == 0)
+                    {
+                        set_creature_level(creatng, level);
+                    } else {
+                        set_creature_level(creatng, GAME_RANDOM(level));
+                    }
+                    delete_thing_structure(objtng, 0);
+                    break;
+                }
                 default:
                     break;
             }

@@ -4095,6 +4095,9 @@ struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumbe
     cctrl->defense_upgrade = CREATURE_RANDOM(crtng, crstat->defense_personal);
     cctrl->dexterity_upgrade = CREATURE_RANDOM(crtng, crstat->dexterity_personal);
     cctrl->luck_upgrade = CREATURE_RANDOM(crtng, crstat->luck_personal);
+    cctrl->speed_upgrade = CREATURE_RANDOM(crtng, crstat->speed_personal);
+    cctrl->loyalty_upgrade = CREATURE_RANDOM(crtng, crstat->loyalty_personal);
+    cctrl->salary_upgrade = CREATURE_RANDOM(crtng, crstat->salary_personal);
     if (owner == game.hero_player_num)
     {
       cctrl->hero.sbyte_89 = -1;

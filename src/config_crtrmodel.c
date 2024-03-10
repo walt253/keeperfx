@@ -1007,7 +1007,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            crstat->strength_personal = GAME_RANDOM(k);
+            crstat->strength_personal = k;
             n++;
           }
           if (n < 1)
@@ -1020,7 +1020,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            crstat->magic_personal = GAME_RANDOM(k);
+            crstat->magic_personal = k;
             n++;
           }
           if (n < 1)
@@ -1033,7 +1033,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            crstat->armour_personal = GAME_RANDOM(k);
+            crstat->armour_personal = k;
             n++;
           }
           if (n < 1)
@@ -1046,7 +1046,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            crstat->defense_personal = GAME_RANDOM(k);
+            crstat->defense_personal = k;
             n++;
           }
           if (n < 1)
@@ -1059,7 +1059,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            crstat->dexterity_personal = GAME_RANDOM(k);
+            crstat->dexterity_personal = k;
             n++;
           }
           if (n < 1)
@@ -1072,7 +1072,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            crstat->luck_personal = GAME_RANDOM(k);
+            crstat->luck_personal = k;
             n++;
           }
           if (n < 1)

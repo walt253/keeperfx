@@ -92,6 +92,12 @@ const struct NamedCommand creatmodel_attributes_commands[] = {
   {"POOPFREQUENCY",      40},
   {"POOPTYPE",           41},
   {"POOPRANDOM",         42},
+  {"STRENGTHPERSONAL",   43},
+  {"MAGICPERSONAL",      44},
+  {"ARMOURPERSONAL",     45},
+  {"DEFENSEPERSONAL",    46},
+  {"DEXTERITYPERSONAL",  47},
+  {"LUCKPERSONAL",       48},
   {NULL,                  0},
   };
 
@@ -989,6 +995,84 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
           {
             k = atoi(word_buf);
             crstat->poop_random = k;
+            n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, creature_code_name(crtr_model), config_textname);
+          }
+          break;
+      case 43: // STRENGTHPERSONAL
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            k = atoi(word_buf);
+            crstat->strength_personal = GAME_RANDOM(k);
+            n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, creature_code_name(crtr_model), config_textname);
+          }
+          break;
+      case 44: // MAGICPERSONAL
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            k = atoi(word_buf);
+            crstat->magic_personal = GAME_RANDOM(k);
+            n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, creature_code_name(crtr_model), config_textname);
+          }
+          break;
+      case 45: // ARMOURPERSONAL
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            k = atoi(word_buf);
+            crstat->armour_personal = GAME_RANDOM(k);
+            n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, creature_code_name(crtr_model), config_textname);
+          }
+          break;
+      case 46: // DEFENSEPERSONAL
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            k = atoi(word_buf);
+            crstat->defense_personal = GAME_RANDOM(k);
+            n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, creature_code_name(crtr_model), config_textname);
+          }
+          break;
+      case 47: // DEXTERITYPERSONAL
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            k = atoi(word_buf);
+            crstat->dexterity_personal = GAME_RANDOM(k);
+            n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, creature_code_name(crtr_model), config_textname);
+          }
+          break;
+      case 48: // LUCKPERSONAL
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            k = atoi(word_buf);
+            crstat->luck_personal = GAME_RANDOM(k);
             n++;
           }
           if (n < 1)

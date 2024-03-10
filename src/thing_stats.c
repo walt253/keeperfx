@@ -664,7 +664,7 @@ long calculate_correct_creature_strength(const struct Thing *thing)
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     long max_param = compute_creature_max_strength(crstat->strength,cctrl->explevel);
-    max_param += thing->strength_personal;
+    max_param += cctrl->strength_upgrade;
     if (creature_affected_by_spell(thing, SplK_Rage))
         max_param = (384 * max_param) / 256;
     // Apply modifier.

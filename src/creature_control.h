@@ -417,6 +417,18 @@ struct CreatureControl {
     GameTurn unsummon_turn;
     ThingIndex summoner_idx;
     ThingIndex familiar_idx[FAMILIAR_MAX];
+    unsigned short strength_personal;
+    unsigned short magic_personal;
+    unsigned char armour_personal;
+    unsigned char defense_personal;
+    unsigned char dexterity_personal;
+    unsigned char luck_personal;
+    unsigned short strength_upgrade;
+    unsigned short magic_upgrade;
+    unsigned char armour_upgrade;
+    unsigned char defense_upgrade;
+    unsigned char dexterity_upgrade;
+    unsigned char luck_upgrade;
 };
 
 struct CreatureStats { // These stats are not compatible with original DK - they have more fields
@@ -537,18 +549,6 @@ struct CreatureStats { // These stats are not compatible with original DK - they
     unsigned char water_recovery;
     unsigned char lava_recovery;
     unsigned short magic;
-    unsigned short strength_personal;
-    unsigned short magic_personal;
-    unsigned char armour_personal;
-    unsigned char defense_personal;
-    unsigned char dexterity_personal;
-    unsigned char luck_personal;
-    unsigned short strength_upgrade;
-    unsigned short magic_upgrade;
-    unsigned char armour_upgrade;
-    unsigned char defense_upgrade;
-    unsigned char dexterity_upgrade;
-    unsigned char luck_upgrade;
     unsigned short poop_amount;
     unsigned short poop_frequency;
     unsigned char poop_type;

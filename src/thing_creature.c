@@ -4089,12 +4089,7 @@ struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumbe
     crtng->creation_turn = game.play_gameturn;
     cctrl->joining_age = 17 + CREATURE_RANDOM(crtng, 13);
     cctrl->blood_type = CREATURE_RANDOM(crtng, BLOOD_TYPES_COUNT);
-    cctrl->strength_upgrade = CREATURE_RANDOM(crtng, crstat->strength_personal);
-    cctrl->magic_upgrade = CREATURE_RANDOM(crtng, crstat->magic_personal);
-    cctrl->armour_upgrade = CREATURE_RANDOM(crtng, crstat->armour_personal);
-    cctrl->defense_upgrade = CREATURE_RANDOM(crtng, crstat->defense_personal);
-    cctrl->dexterity_upgrade = CREATURE_RANDOM(crtng, crstat->dexterity_personal);
-    cctrl->luck_upgrade = CREATURE_RANDOM(crtng, crstat->luck_personal);
+
     if (owner == game.hero_player_num)
     {
       cctrl->hero.sbyte_89 = -1;

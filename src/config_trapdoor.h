@@ -66,6 +66,9 @@ enum DoorModelFlags {
     DoMF_ResistNonMagic = 0x0001,
     DoMF_Secret         = 0x0002,
     DoMF_Thick          = 0x0004,
+    DoMF_Wooden         = 0x0008,
+    DoMF_Steelen        = 0x0010,
+    DoMF_Golden         = 0x0020,
 };
 
 struct TrapConfigStats {
@@ -85,6 +88,7 @@ struct TrapConfigStats {
     short notify;
     short unsellable;
     short placeonbridge;
+    EffectOrEffElModel destroyed_effect;
 };
 
 /**

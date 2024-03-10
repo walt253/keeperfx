@@ -4073,6 +4073,7 @@ struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumbe
     crtng->owner = owner;
     crtng->move_angle_xy = 0;
     crtng->move_angle_z = 0;
+    cctrl->speed_upgrade = CREATURE_RANDOM(crtng, crstat->speed_personal);
     cctrl->max_speed = calculate_correct_creature_maxspeed(crtng);
     cctrl->shot_shift_x = creatures[model].shot_shift_x;
     cctrl->shot_shift_y = creatures[model].shot_shift_y;
@@ -4095,13 +4096,14 @@ struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumbe
     cctrl->defense_upgrade = CREATURE_RANDOM(crtng, crstat->defense_personal);
     cctrl->dexterity_upgrade = CREATURE_RANDOM(crtng, crstat->dexterity_personal);
     cctrl->luck_upgrade = CREATURE_RANDOM(crtng, crstat->luck_personal);
-    cctrl->speed_upgrade = CREATURE_RANDOM(crtng, crstat->speed_personal);
     cctrl->loyalty_upgrade = CREATURE_RANDOM(crtng, crstat->loyalty_personal);
     cctrl->salary_upgrade = CREATURE_RANDOM(crtng, crstat->salary_personal);
+    cctrl->training_cost_upgrade = CREATURE_RANDOM(crtng, crstat->training_cost_personal);
+    cctrl->scavenging_cost_upgrade = CREATURE_RANDOM(crtng, crstat->scavenging_cost_personal);
     if (owner == game.hero_player_num)
     {
-      cctrl->hero.sbyte_89 = -1;
-      cctrl->hero.byte_8C = 1;
+        cctrl->hero.sbyte_89 = -1;
+        cctrl->hero.byte_8C = 1;
     }
     cctrl->flee_pos.x.val = crtng->mappos.x.val;
     cctrl->flee_pos.y.val = crtng->mappos.y.val;

@@ -427,6 +427,8 @@ struct CreatureControl {
     unsigned char speed_upgrade;
     unsigned char loyalty_upgrade;
     unsigned char salary_upgrade;
+    unsigned char training_cost_upgrade;
+    unsigned char scavenging_cost_upgrade;
 };
 
 struct CreatureStats { // These stats are not compatible with original DK - they have more fields
@@ -559,6 +561,8 @@ struct CreatureStats { // These stats are not compatible with original DK - they
     unsigned char speed_personal;
     unsigned char loyalty_personal;
     unsigned char salary_personal;
+    unsigned char training_cost_personal;
+    unsigned char scavenging_cost_personal;
     struct CreaturePickedUpOffset creature_picked_up_offset;
 };
 

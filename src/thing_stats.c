@@ -686,6 +686,7 @@ long calculate_correct_creature_armour(const struct Thing *thing)
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     long max_param = compute_creature_max_armour(crstat->armour,cctrl->explevel);
+    max_param += cctrl->armour_upgrade;
     if (creature_affected_by_spell(thing, SplK_Armour))
         max_param = (320 * max_param) / 256;
     if (creature_affected_by_spell(thing, SplK_MagicMist))
@@ -715,6 +716,7 @@ long calculate_correct_creature_defense(const struct Thing *thing)
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     long max_param = compute_creature_max_defense(crstat->defense,cctrl->explevel);
+    max_param += cctrl->defense_upgrade;
     if (creature_affected_by_spell(thing, SplK_Rage))
         max_param = 0;
     if (creature_affected_by_spell(thing, SplK_MagicMist))
@@ -739,6 +741,7 @@ long calculate_correct_creature_dexterity(const struct Thing *thing)
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     long max_param = compute_creature_max_dexterity(crstat->dexterity,cctrl->explevel);
+    max_param += cctrl->dexterity_upgrade;
     if (creature_affected_by_spell(thing, SplK_MagicMist))
         max_param = (320 * max_param) / 256;
     // Apply modifier.
@@ -761,6 +764,7 @@ long calculate_correct_creature_luck(const struct Thing *thing)
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     long max_param = compute_creature_max_luck(crstat->luck,cctrl->explevel);
+    max_param += cctrl->luck_upgrade;
     // Apply modifier.
     if (!is_neutral_thing(thing)) {
         dungeon = get_dungeon(thing->owner);
@@ -778,6 +782,7 @@ long calculate_correct_creature_maxspeed(const struct Thing *thing)
     struct Dungeon* dungeon;
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     long speed = crstat->base_speed;
+    speed += cctrl->speed_upgrade;
     if ((creature_affected_by_slap(thing)) || (creature_affected_by_spell(thing, SplK_TimeBomb)))
         speed *= 2;
     if (creature_affected_by_spell(thing, SplK_Speed))
@@ -808,6 +813,7 @@ long calculate_correct_creature_loyalty(const struct Thing *thing)
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     long max_param = compute_creature_max_loyalty(crstat->scavenge_require,cctrl->explevel);
+    max_param += cctrl->loyalty_upgrade;
     // Apply modifier.
     if (!is_neutral_thing(thing)) {
         dungeon = get_dungeon(thing->owner);
@@ -827,6 +833,7 @@ long calculate_correct_creature_magic(const struct Thing *thing)
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     long max_param = compute_creature_max_magic(crstat->magic,cctrl->explevel);
+    max_param += cctrl->magic_upgrade;
     // Apply modifier.
     if (!is_neutral_thing(thing)) {
         dungeon = get_dungeon(thing->owner);
@@ -847,6 +854,7 @@ GoldAmount calculate_correct_creature_pay(const struct Thing *thing)
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     GoldAmount pay = compute_creature_max_pay(crstat->pay, cctrl->explevel);
+    pay += cctrl->salary_upgrade;
     // Apply modifier.
     if (!is_neutral_thing(thing)) {
         dungeon = get_dungeon(thing->owner);

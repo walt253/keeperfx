@@ -101,6 +101,8 @@ const struct NamedCommand creatmodel_attributes_commands[] = {
   {"SPEEDPERSONAL",      49},
   {"LOYALTYPERSONAL",    50},
   {"SALARYPERSONAL",     51},
+  {"TRAININGCOSTPERSONAL",   52},
+  {"SCAVENGINGCOSTPERSONAL", 53},
   {NULL,                  0},
   };
 
@@ -305,6 +307,8 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
       crstat->speed_personal = 0;
       crstat->loyalty_personal = 0;
       crstat->salary_personal = 0;
+      crstat->training_cost_personal = 0;
+      crstat->scavenging_cost_personal = 0;
       crstat->bleeds = false;
       crstat->affected_by_wind = true;
       crstat->immune_to_gas = false;
@@ -1117,6 +1121,32 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
           {
             k = atoi(word_buf);
             crstat->salary_personal = k;
+            n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, creature_code_name(crtr_model), config_textname);
+          }
+          break;
+      case 52: // TRAININGCOSTPERSONAL
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            k = atoi(word_buf);
+            crstat->training_cost_personal = k;
+            n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, creature_code_name(crtr_model), config_textname);
+          }
+          break;
+      case 53: // SCAVENGINGCOSTPERSONAL
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            k = atoi(word_buf);
+            crstat->scavenging_cost_personal = k;
             n++;
           }
           if (n < 1)

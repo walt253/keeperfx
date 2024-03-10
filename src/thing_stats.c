@@ -1121,6 +1121,7 @@ HitPoints calculate_shot_real_damage_to_door(struct Thing *doortng, struct Thing
 HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, DamageType damage_type, PlayerNumber dealing_plyr_idx)
 {
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     // We're here to damage, not to heal.
     SYNCDBG(19,"Dealing %d damage to %s by player %d",(int)dmg,thing_model_name(thing),(int)dealing_plyr_idx);
     if (dmg <= 0)
@@ -1347,7 +1348,7 @@ HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, DamageType d
                     // SplK_Freeze weakness.
                     dmg *= 4;
                 } else {
-                    crstat->force_to_freeze = true;
+                    cctrl->force_to_freeze = true;
                     apply_spell_effect_to_thing(thing, SplK_Freeze, 8);
                 }
             } else {
@@ -1394,7 +1395,6 @@ HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, DamageType d
     }
     if ((thing->class_id == TCls_Creature) && (thing->health < 0))
     {
-        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
         if ((cctrl->fighting_player_idx == -1) && (dealing_plyr_idx != -1))
         {
             cctrl->fighting_player_idx = dealing_plyr_idx;

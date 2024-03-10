@@ -4089,6 +4089,12 @@ struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumbe
     crtng->creation_turn = game.play_gameturn;
     cctrl->joining_age = 17 + CREATURE_RANDOM(crtng, 13);
     cctrl->blood_type = CREATURE_RANDOM(crtng, BLOOD_TYPES_COUNT);
+    crtng->strength_personal = CREATURE_RANDOM(crtng, crstat->strength_personal);
+    crtng->magic_personal = CREATURE_RANDOM(crtng, crstat->magic_personal);
+    crtng->armour_personal = CREATURE_RANDOM(crtng, crstat->armour_personal);
+    crtng->defense_personal = CREATURE_RANDOM(crtng, crstat->defense_personal);
+    crtng->dexterity_personal = CREATURE_RANDOM(crtng, crstat->dexterity_personal);
+    crtng->luck_personal = CREATURE_RANDOM(crtng, crstat->luck_personal);
     if (owner == game.hero_player_num)
     {
       cctrl->hero.sbyte_89 = -1;
@@ -5981,6 +5987,7 @@ TngUpdateRet update_creature(struct Thing *thing)
             pvpos.z.val = tngpos->z.val;
 
             move_thing_in_map(tngp, &pvpos);
+            tngp->move_angle_xy = thing->move_angle_xy; //corpse gets rotated along with creature
         }
     }
     if (update_creature_levels(thing) == -1)

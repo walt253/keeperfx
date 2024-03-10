@@ -98,6 +98,9 @@ const struct NamedCommand creatmodel_attributes_commands[] = {
   {"DEFENSEPERSONAL",    46},
   {"DEXTERITYPERSONAL",  47},
   {"LUCKPERSONAL",       48},
+  {"SPEEDPERSONAL",      49},
+  {"LOYALTYPERSONAL",    50},
+  {"SALARYPERSONAL",     51},
   {NULL,                  0},
   };
 
@@ -299,6 +302,9 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
       crstat->defense_personal = 0;
       crstat->dexterity_personal = 0;
       crstat->luck_personal = 0;
+      crstat->speed_personal = 0;
+      crstat->loyalty_personal = 0;
+      crstat->salary_personal = 0;
       crstat->bleeds = false;
       crstat->affected_by_wind = true;
       crstat->immune_to_gas = false;
@@ -313,7 +319,6 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
       crstat->immune_to_slow = false;
       crstat->self_recovery = false;
       crstat->hoarfrost = false;
-      crstat->force_to_freeze = false;
       crconf->namestr_idx = 0;
       crconf->model_flags = 0;
   }
@@ -1073,6 +1078,45 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
           {
             k = atoi(word_buf);
             crstat->luck_personal = k;
+            n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, creature_code_name(crtr_model), config_textname);
+          }
+          break;
+      case 49: // SPEEDPERSONAL
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            k = atoi(word_buf);
+            crstat->speed_personal = k;
+            n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, creature_code_name(crtr_model), config_textname);
+          }
+          break;
+      case 50: // LOYALTYPERSONAL
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            k = atoi(word_buf);
+            crstat->loyalty_personal = k;
+            n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, creature_code_name(crtr_model), config_textname);
+          }
+          break;
+      case 51: // SALARYPERSONAL
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            k = atoi(word_buf);
+            crstat->salary_personal = k;
             n++;
           }
           if (n < 1)

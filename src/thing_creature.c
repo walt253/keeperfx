@@ -1073,7 +1073,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
         {
         case SplK_Freeze:
             crstat = creature_stats_get_from_thing(thing);
-            if ((crstat->immune_to_freeze == 0) || (crstat->force_to_freeze != 0))
+            if ((crstat->immune_to_freeze == 0) || (cctrl->force_to_freeze != 0))
             {
                 cctrl->stateblock_flags |= CCSpl_Freeze;
                 if ((thing->movement_flags & TMvF_Flying) != 0)
@@ -1082,9 +1082,9 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
                     thing->movement_flags &= ~TMvF_Flying;
                 }
                 creature_set_speed(thing, 0);
-                if (crstat->force_to_freeze != 0)
+                if (cctrl->force_to_freeze != 0)
                 {
-                    crstat->force_to_freeze = false;
+                    cctrl->force_to_freeze = false;
                 }
             }
             break;
@@ -4095,6 +4095,9 @@ struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumbe
     cctrl->defense_upgrade = CREATURE_RANDOM(crtng, crstat->defense_personal);
     cctrl->dexterity_upgrade = CREATURE_RANDOM(crtng, crstat->dexterity_personal);
     cctrl->luck_upgrade = CREATURE_RANDOM(crtng, crstat->luck_personal);
+    cctrl->speed_upgrade = CREATURE_RANDOM(crtng, crstat->speed_personal);
+    cctrl->loyalty_upgrade = CREATURE_RANDOM(crtng, crstat->loyalty_personal);
+    cctrl->salary_upgrade = CREATURE_RANDOM(crtng, crstat->salary_personal);
     if (owner == game.hero_player_num)
     {
       cctrl->hero.sbyte_89 = -1;

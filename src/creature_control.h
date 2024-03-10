@@ -417,12 +417,16 @@ struct CreatureControl {
     GameTurn unsummon_turn;
     ThingIndex summoner_idx;
     ThingIndex familiar_idx[FAMILIAR_MAX];
+    TbBool force_to_freeze;
     unsigned short strength_upgrade;
     unsigned short magic_upgrade;
     unsigned char armour_upgrade;
     unsigned char defense_upgrade;
     unsigned char dexterity_upgrade;
     unsigned char luck_upgrade;
+    unsigned char speed_upgrade;
+    unsigned char loyalty_upgrade;
+    unsigned char salary_upgrade;
 };
 
 struct CreatureStats { // These stats are not compatible with original DK - they have more fields
@@ -534,7 +538,6 @@ struct CreatureStats { // These stats are not compatible with original DK - they
     TbBool immune_to_slow;
     TbBool self_recovery;
     TbBool hoarfrost;
-    TbBool force_to_freeze;
     char corpse_vanish_effect;
     short footstep_pitch;
     short lair_object;
@@ -553,6 +556,9 @@ struct CreatureStats { // These stats are not compatible with original DK - they
     unsigned char defense_personal;
     unsigned char dexterity_personal;
     unsigned char luck_personal;
+    unsigned char speed_personal;
+    unsigned char loyalty_personal;
+    unsigned char salary_personal;
     struct CreaturePickedUpOffset creature_picked_up_offset;
 };
 

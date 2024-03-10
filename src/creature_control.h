@@ -418,17 +418,17 @@ struct CreatureControl {
     ThingIndex summoner_idx;
     ThingIndex familiar_idx[FAMILIAR_MAX];
     TbBool force_to_freeze;
-    unsigned short strength_upgrade;
-    unsigned short magic_upgrade;
-    unsigned char armour_upgrade;
-    unsigned char defense_upgrade;
-    unsigned char dexterity_upgrade;
-    unsigned char luck_upgrade;
-    unsigned char speed_upgrade;
-    unsigned char loyalty_upgrade;
-    unsigned char salary_upgrade;
-    unsigned char training_cost_upgrade;
-    unsigned char scavenging_cost_upgrade;
+    short strength_upgrade;
+    short magic_upgrade;
+    short armour_upgrade;
+    short defense_upgrade;
+    short dexterity_upgrade;
+    short luck_upgrade;
+    short speed_upgrade;
+    short loyalty_upgrade;
+    short salary_upgrade;
+    short training_cost_upgrade;
+    short scavenging_cost_upgrade;
 };
 
 struct CreatureStats { // These stats are not compatible with original DK - they have more fields
@@ -540,6 +540,7 @@ struct CreatureStats { // These stats are not compatible with original DK - they
     TbBool immune_to_slow;
     TbBool self_recovery;
     TbBool hoarfrost;
+    TbBool boss;
     char corpse_vanish_effect;
     short footstep_pitch;
     short lair_object;
@@ -552,17 +553,6 @@ struct CreatureStats { // These stats are not compatible with original DK - they
     unsigned short poop_frequency;
     unsigned char poop_type;
     unsigned char poop_random;
-    unsigned short strength_personal;
-    unsigned short magic_personal;
-    unsigned char armour_personal;
-    unsigned char defense_personal;
-    unsigned char dexterity_personal;
-    unsigned char luck_personal;
-    unsigned char speed_personal;
-    unsigned char loyalty_personal;
-    unsigned char salary_personal;
-    unsigned char training_cost_personal;
-    unsigned char scavenging_cost_personal;
     struct CreaturePickedUpOffset creature_picked_up_offset;
 };
 

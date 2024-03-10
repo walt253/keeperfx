@@ -302,6 +302,9 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
       crstat->defense_personal = 0;
       crstat->dexterity_personal = 0;
       crstat->luck_personal = 0;
+      crstat->speed_personal = 0;
+      crstat->loyalty_personal = 0;
+      crstat->salary_personal = 0;
       crstat->bleeds = false;
       crstat->affected_by_wind = true;
       crstat->immune_to_gas = false;

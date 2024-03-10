@@ -863,7 +863,7 @@ GoldAmount calculate_correct_creature_training_cost(const struct Thing *thing)
     struct Dungeon* dungeon;
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-    GoldAmount training_cost = compute_creature_max_training_cost(crstat->training_cost, cctrl->explevel);
+    GoldAmount training_cost = compute_creature_max_training_cost(crstat->training_cost + cctrl->training_cost_upgrade, cctrl->explevel);
     // Apply modifier.
     if (!is_neutral_thing(thing)) {
         dungeon = get_dungeon(thing->owner);
@@ -881,7 +881,7 @@ GoldAmount calculate_correct_creature_scavenging_cost(const struct Thing *thing)
     struct Dungeon* dungeon;
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-    GoldAmount scavenger_cost = compute_creature_max_scavenging_cost(crstat->scavenger_cost, cctrl->explevel);
+    GoldAmount scavenger_cost = compute_creature_max_scavenging_cost(crstat->scavenger_cost + cctrl->scavenging_cost_upgrade, cctrl->explevel);
     // Apply modifier.
     if (!is_neutral_thing(thing)) {
         dungeon = get_dungeon(thing->owner);

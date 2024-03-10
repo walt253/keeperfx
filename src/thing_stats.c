@@ -776,6 +776,7 @@ long calculate_correct_creature_maxspeed(const struct Thing *thing)
 {
     struct Dungeon* dungeon;
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     long speed = crstat->base_speed + cctrl->speed_upgrade;
     if ((creature_affected_by_slap(thing)) || (creature_affected_by_spell(thing, SplK_TimeBomb)))
         speed *= 2;

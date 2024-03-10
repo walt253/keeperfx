@@ -92,17 +92,6 @@ const struct NamedCommand creatmodel_attributes_commands[] = {
   {"POOPFREQUENCY",      40},
   {"POOPTYPE",           41},
   {"POOPRANDOM",         42},
-  {"STRENGTHPERSONAL",   43},
-  {"MAGICPERSONAL",      44},
-  {"ARMOURPERSONAL",     45},
-  {"DEFENSEPERSONAL",    46},
-  {"DEXTERITYPERSONAL",  47},
-  {"LUCKPERSONAL",       48},
-  {"SPEEDPERSONAL",      49},
-  {"LOYALTYPERSONAL",    50},
-  {"SALARYPERSONAL",     51},
-  {"TRAININGCOSTPERSONAL",   52},
-  {"SCAVENGINGCOSTPERSONAL", 53},
   {NULL,                  0},
   };
 
@@ -145,6 +134,7 @@ const struct NamedCommand creatmodel_properties_commands[] = {
   {"SELF_RECOVERY",     37},
   {"ETHEREAL",          38},
   {"HOARFROST",         39},
+  {"BOSS",              40},
   {NULL,                 0},
   };
 
@@ -298,17 +288,6 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
       crstat->water_recovery = 0;
       crstat->lava_recovery = 0;
       crstat->magic = 100;
-      crstat->strength_personal = 0;
-      crstat->magic_personal = 0;
-      crstat->armour_personal = 0;
-      crstat->defense_personal = 0;
-      crstat->dexterity_personal = 0;
-      crstat->luck_personal = 0;
-      crstat->speed_personal = 0;
-      crstat->loyalty_personal = 0;
-      crstat->salary_personal = 0;
-      crstat->training_cost_personal = 0;
-      crstat->scavenging_cost_personal = 0;
       crstat->bleeds = false;
       crstat->affected_by_wind = true;
       crstat->immune_to_gas = false;
@@ -323,6 +302,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
       crstat->immune_to_slow = false;
       crstat->self_recovery = false;
       crstat->hoarfrost = false;
+      crstat->boss = false;
       crconf->namestr_idx = 0;
       crconf->model_flags = 0;
   }
@@ -840,6 +820,10 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
                 crstat->hoarfrost = true;
                 n++;
                 break;
+            case 40: // BOSS
+                crstat->boss = true;
+                n++;
+                break;
             default:
               CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in [%s] block of %s %s file.",
                   COMMAND_TEXT(cmd_num),word_buf,block_buf, creature_code_name(crtr_model), config_textname);
@@ -1004,149 +988,6 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
           {
             k = atoi(word_buf);
             crstat->poop_random = k;
-            n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, creature_code_name(crtr_model), config_textname);
-          }
-          break;
-      case 43: // STRENGTHPERSONAL
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            crstat->strength_personal = k;
-            n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, creature_code_name(crtr_model), config_textname);
-          }
-          break;
-      case 44: // MAGICPERSONAL
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            crstat->magic_personal = k;
-            n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, creature_code_name(crtr_model), config_textname);
-          }
-          break;
-      case 45: // ARMOURPERSONAL
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            crstat->armour_personal = k;
-            n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, creature_code_name(crtr_model), config_textname);
-          }
-          break;
-      case 46: // DEFENSEPERSONAL
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            crstat->defense_personal = k;
-            n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, creature_code_name(crtr_model), config_textname);
-          }
-          break;
-      case 47: // DEXTERITYPERSONAL
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            crstat->dexterity_personal = k;
-            n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, creature_code_name(crtr_model), config_textname);
-          }
-          break;
-      case 48: // LUCKPERSONAL
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            crstat->luck_personal = k;
-            n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, creature_code_name(crtr_model), config_textname);
-          }
-          break;
-      case 49: // SPEEDPERSONAL
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            crstat->speed_personal = k;
-            n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, creature_code_name(crtr_model), config_textname);
-          }
-          break;
-      case 50: // LOYALTYPERSONAL
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            crstat->loyalty_personal = k;
-            n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, creature_code_name(crtr_model), config_textname);
-          }
-          break;
-      case 51: // SALARYPERSONAL
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            crstat->salary_personal = k;
-            n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, creature_code_name(crtr_model), config_textname);
-          }
-          break;
-      case 52: // TRAININGCOSTPERSONAL
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            crstat->training_cost_personal = k;
-            n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, creature_code_name(crtr_model), config_textname);
-          }
-          break;
-      case 53: // SCAVENGINGCOSTPERSONAL
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            crstat->scavenging_cost_personal = k;
             n++;
           }
           if (n < 1)

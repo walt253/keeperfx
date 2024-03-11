@@ -4073,7 +4073,7 @@ struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumbe
     crtng->owner = owner;
     crtng->move_angle_xy = 0;
     crtng->move_angle_z = 0;
-    cctrl->speed_upgrade = CREATURE_RANDOM(crtng, crstat->speed_personal);
+    cctrl->speed_upgrade = 0;
     cctrl->max_speed = calculate_correct_creature_maxspeed(crtng);
     cctrl->shot_shift_x = creatures[model].shot_shift_x;
     cctrl->shot_shift_y = creatures[model].shot_shift_y;
@@ -4090,16 +4090,30 @@ struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumbe
     crtng->creation_turn = game.play_gameturn;
     cctrl->joining_age = 17 + CREATURE_RANDOM(crtng, 13);
     cctrl->blood_type = CREATURE_RANDOM(crtng, BLOOD_TYPES_COUNT);
-    cctrl->strength_upgrade = CREATURE_RANDOM(crtng, crstat->strength_personal);
-    cctrl->magic_upgrade = CREATURE_RANDOM(crtng, crstat->magic_personal);
-    cctrl->armour_upgrade = CREATURE_RANDOM(crtng, crstat->armour_personal);
-    cctrl->defense_upgrade = CREATURE_RANDOM(crtng, crstat->defense_personal);
-    cctrl->dexterity_upgrade = CREATURE_RANDOM(crtng, crstat->dexterity_personal);
-    cctrl->luck_upgrade = CREATURE_RANDOM(crtng, crstat->luck_personal);
-    cctrl->loyalty_upgrade = CREATURE_RANDOM(crtng, crstat->loyalty_personal);
-    cctrl->salary_upgrade = CREATURE_RANDOM(crtng, crstat->salary_personal);
-    cctrl->training_cost_upgrade = CREATURE_RANDOM(crtng, crstat->training_cost_personal);
-    cctrl->scavenging_cost_upgrade = CREATURE_RANDOM(crtng, crstat->scavenging_cost_personal);
+    if (crstat->boss == 0)
+    {
+        cctrl->strength_upgrade = CREATURE_RANDOM(crtng, (crstat->strength / 10)) - CREATURE_RANDOM(crtng, (crstat->strength / 10));
+        cctrl->armour_upgrade = CREATURE_RANDOM(crtng, (crstat->armour / 10)) - CREATURE_RANDOM(crtng, (crstat->armour / 10));
+        cctrl->defense_upgrade = CREATURE_RANDOM(crtng, (crstat->defense / 10)) - CREATURE_RANDOM(crtng, (crstat->defense / 10));
+        cctrl->dexterity_upgrade = CREATURE_RANDOM(crtng, (crstat->dexterity / 10)) - CREATURE_RANDOM(crtng, (crstat->dexterity / 10));
+        cctrl->luck_upgrade = CREATURE_RANDOM(crtng, (crstat->luck / 5)) - CREATURE_RANDOM(crtng, (crstat->luck / 5));
+        cctrl->magic_upgrade = CREATURE_RANDOM(crtng, (crstat->magic / 10)) - CREATURE_RANDOM(crtng, (crstat->magic / 10));
+        cctrl->loyalty_upgrade = CREATURE_RANDOM(crtng, (crstat->scavenge_require / 5)) - CREATURE_RANDOM(crtng, (crstat->scavenge_require / 5));
+        cctrl->salary_upgrade = CREATURE_RANDOM(crtng, (crstat->pay / 10)) - CREATURE_RANDOM(crtng, (crstat->pay / 10));
+        cctrl->training_cost_upgrade = CREATURE_RANDOM(crtng, (crstat->training_cost / 10)) - CREATURE_RANDOM(crtng, (crstat->training_cost / 10));
+        cctrl->scavenging_cost_upgrade = CREATURE_RANDOM(crtng, (crstat->scavenger_cost / 10)) - CREATURE_RANDOM(crtng, (crstat->scavenger_cost / 10));
+    } else {
+        cctrl->strength_upgrade = 0;
+        cctrl->armour_upgrade = 0;
+        cctrl->defense_upgrade = 0;
+        cctrl->dexterity_upgrade = 0;
+        cctrl->luck_upgrade = 0;
+        cctrl->magic_upgrade = 0;
+        cctrl->loyalty_upgrade = 0;
+        cctrl->salary_upgrade = 0;
+        cctrl->training_cost_upgrade = 0;
+        cctrl->scavenging_cost_upgrade = 0;
+    }
     if (owner == game.hero_player_num)
     {
         cctrl->hero.sbyte_89 = -1;

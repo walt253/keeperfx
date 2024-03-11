@@ -429,6 +429,7 @@ struct CreatureControl {
     short salary_upgrade;
     short training_cost_upgrade;
     short scavenging_cost_upgrade;
+    unsigned long total_upgrade;
 };
 
 struct CreatureStats { // These stats are not compatible with original DK - they have more fields

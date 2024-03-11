@@ -6119,6 +6119,7 @@ TngUpdateRet update_creature(struct Thing *thing)
     {
         return TUFRet_Deleted;
     }
+    process_creature_using_gold(thing);
     process_creature_pooping_thing(thing);
     process_creature_self_spell_casting(thing);
     cctrl->moveaccel.x.val = 0;

@@ -4073,7 +4073,7 @@ struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumbe
     crtng->owner = owner;
     crtng->move_angle_xy = 0;
     crtng->move_angle_z = 0;
-    cctrl->speed_upgrade = CREATURE_RANDOM(crtng, crstat->speed_personal);
+    cctrl->speed_upgrade = 0;
     cctrl->max_speed = calculate_correct_creature_maxspeed(crtng);
     cctrl->shot_shift_x = creatures[model].shot_shift_x;
     cctrl->shot_shift_y = creatures[model].shot_shift_y;
@@ -4090,21 +4090,36 @@ struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumbe
     crtng->creation_turn = game.play_gameturn;
     cctrl->joining_age = 17 + CREATURE_RANDOM(crtng, 13);
     cctrl->blood_type = CREATURE_RANDOM(crtng, BLOOD_TYPES_COUNT);
-    cctrl->strength_upgrade = CREATURE_RANDOM(crtng, crstat->strength_personal);
-    cctrl->magic_upgrade = CREATURE_RANDOM(crtng, crstat->magic_personal);
-    cctrl->armour_upgrade = CREATURE_RANDOM(crtng, crstat->armour_personal);
-    cctrl->defense_upgrade = CREATURE_RANDOM(crtng, crstat->defense_personal);
-    cctrl->dexterity_upgrade = CREATURE_RANDOM(crtng, crstat->dexterity_personal);
-    cctrl->luck_upgrade = CREATURE_RANDOM(crtng, crstat->luck_personal);
-    cctrl->loyalty_upgrade = CREATURE_RANDOM(crtng, crstat->loyalty_personal);
-    cctrl->salary_upgrade = CREATURE_RANDOM(crtng, crstat->salary_personal);
-    cctrl->training_cost_upgrade = CREATURE_RANDOM(crtng, crstat->training_cost_personal);
-    cctrl->scavenging_cost_upgrade = CREATURE_RANDOM(crtng, crstat->scavenging_cost_personal);
+    if (crstat->boss == 0)
+    {
+        cctrl->strength_upgrade = CREATURE_RANDOM(crtng, (crstat->strength / 10)) - CREATURE_RANDOM(crtng, (crstat->strength / 10));
+        cctrl->armour_upgrade = CREATURE_RANDOM(crtng, (crstat->armour / 10)) - CREATURE_RANDOM(crtng, (crstat->armour / 10));
+        cctrl->defense_upgrade = CREATURE_RANDOM(crtng, (crstat->defense / 10)) - CREATURE_RANDOM(crtng, (crstat->defense / 10));
+        cctrl->dexterity_upgrade = CREATURE_RANDOM(crtng, (crstat->dexterity / 10)) - CREATURE_RANDOM(crtng, (crstat->dexterity / 10));
+        cctrl->luck_upgrade = CREATURE_RANDOM(crtng, (crstat->luck / 5)) - CREATURE_RANDOM(crtng, (crstat->luck / 5));
+        cctrl->loyalty_upgrade = CREATURE_RANDOM(crtng, (crstat->scavenge_require / 5)) - CREATURE_RANDOM(crtng, (crstat->scavenge_require / 5));
+        cctrl->magic_upgrade = CREATURE_RANDOM(crtng, (crstat->magic / 10)) - CREATURE_RANDOM(crtng, (crstat->magic / 10));
+        cctrl->salary_upgrade = CREATURE_RANDOM(crtng, (crstat->pay / 10)) - CREATURE_RANDOM(crtng, (crstat->pay / 10));
+        cctrl->training_cost_upgrade = CREATURE_RANDOM(crtng, (crstat->training_cost / 10)) - CREATURE_RANDOM(crtng, (crstat->training_cost / 10));
+        cctrl->scavenging_cost_upgrade = CREATURE_RANDOM(crtng, (crstat->scavenger_cost / 10)) - CREATURE_RANDOM(crtng, (crstat->scavenger_cost / 10));
+    } else {
+        cctrl->strength_upgrade = 0;
+        cctrl->armour_upgrade = 0;
+        cctrl->defense_upgrade = 0;
+        cctrl->dexterity_upgrade = 0;
+        cctrl->luck_upgrade = 0;
+        cctrl->loyalty_upgrade = 0;
+        cctrl->magic_upgrade = 0;
+        cctrl->salary_upgrade = 0;
+        cctrl->training_cost_upgrade = 0;
+        cctrl->scavenging_cost_upgrade = 0;
+    }
     if (owner == game.hero_player_num)
     {
         cctrl->hero.sbyte_89 = -1;
         cctrl->hero.byte_8C = 1;
     }
+    cctrl->total_upgrade = 0;
     cctrl->flee_pos.x.val = crtng->mappos.x.val;
     cctrl->flee_pos.y.val = crtng->mappos.y.val;
     cctrl->flee_pos.z.val = crtng->mappos.z.val;
@@ -5731,6 +5746,111 @@ long update_creature_levels(struct Thing *thing)
     return -1;
 }
 
+void process_creature_using_gold(struct Thing *thing)
+{
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    if (creature_control_invalid(cctrl))
+    {
+        return;
+    }
+    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    if ((thing->creature.gold_carried > 0) && (crstat->pay > 0))
+    {
+        unsigned long frequency = ((100 * crstat->pay) / thing->creature.gold_carried);
+        unsigned long cost = (crstat->pay + (crstat->pay * cctrl->total_upgrade));
+        if ((((game.play_gameturn + thing->index) % frequency) == 0) && (thing->creature.gold_carried >= cost))
+        {
+            unsigned char upgrade_kind = GAME_RANDOM(8);
+            switch (upgrade_kind)
+            {
+                case 1: // strength_upgrade
+                {
+                    if (cctrl->strength_upgrade < crstat->strength)
+                    {
+                        cctrl->strength_upgrade += 1;
+                        cctrl->total_upgrade += 1;
+                        thing->creature.gold_carried -= cost;
+                    }
+                    break;
+                }
+                case 2: // armour_upgrade
+                {
+                    if (cctrl->armour_upgrade < crstat->armour)
+                    {
+                        cctrl->armour_upgrade += 1;
+                        cctrl->total_upgrade += 1;
+                        thing->creature.gold_carried -= cost;
+                    }
+                    break;
+                }
+                case 3: // defense_upgrade
+                {
+                    if (cctrl->defense_upgrade < crstat->defense)
+                    {
+                        cctrl->defense_upgrade += 1;
+                        cctrl->total_upgrade += 1;
+                        thing->creature.gold_carried -= cost;
+                    }
+                    break;
+                }
+                case 4: // dexterity_upgrade
+                {
+                    if (cctrl->dexterity_upgrade < crstat->dexterity)
+                    {
+                        cctrl->dexterity_upgrade += 1;
+                        cctrl->total_upgrade += 1;
+                        thing->creature.gold_carried -= cost;
+                    }
+                    break;
+                }
+                case 5: // luck_upgrade
+                {
+                    if (cctrl->luck_upgrade < crstat->luck)
+                    {
+                        cctrl->luck_upgrade += 1;
+                        cctrl->total_upgrade += 1;
+                        thing->creature.gold_carried -= cost;
+                    }
+                    break;
+                }
+                case 6: // speed_upgrade
+                {
+                    if (cctrl->speed_upgrade < crstat->base_speed)
+                    {
+                        cctrl->speed_upgrade += 1;
+                        cctrl->total_upgrade += 1;
+                        thing->creature.gold_carried -= cost;
+                    }
+                    break;
+                }
+                case 7: // loyalty_upgrade
+                {
+                    if (cctrl->loyalty_upgrade < crstat->scavenge_require)
+                    {
+                        cctrl->loyalty_upgrade += 1;
+                        cctrl->total_upgrade += 1;
+                        thing->creature.gold_carried -= cost;
+                    }
+                    break;
+                }
+                case 8: // magic_upgrade
+                {
+                    if (cctrl->magic_upgrade < crstat->magic)
+                    {
+                        cctrl->magic_upgrade += 1;
+                        cctrl->total_upgrade += 1;
+                        thing->creature.gold_carried -= cost;
+                    }
+                    break;
+                }
+                default:
+                    break;
+            }
+        }
+    }
+    return;
+}
+
 void process_creature_pooping_thing(struct Thing *thing)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
@@ -5999,6 +6119,7 @@ TngUpdateRet update_creature(struct Thing *thing)
     {
         return TUFRet_Deleted;
     }
+    process_creature_using_gold(thing);
     process_creature_pooping_thing(thing);
     process_creature_self_spell_casting(thing);
     cctrl->moveaccel.x.val = 0;

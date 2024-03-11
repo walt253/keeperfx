@@ -873,6 +873,7 @@ long gold_being_dropped_on_creature(long plyr_idx, struct Thing *goldtng, struct
             cctrl->countdown_282 = 50;
         }
     }
+    creatng->creature.gold_carried += tribute;
     return 1;
 }
 

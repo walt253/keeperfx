@@ -5643,6 +5643,36 @@ long get_creature_thing_score(const struct Thing *thing)
     return game.creature_scores[crmodel].value[exp];
 }
 
+void transfer_creature_data_and_gold(struct Thing *oldtng, struct Thing *newtng)
+{
+    struct CreatureControl* oldcctrl = creature_control_get_from_thing(oldtng);
+    struct CreatureControl* newcctrl = creature_control_get_from_thing(newtng);
+    newcctrl->blood_type = oldcctrl->blood_type;
+    newcctrl->creature_name = oldcctrl->creature_name;
+    newcctrl->kills_num = oldcctrl->kills_num;
+    newcctrl->joining_age = oldcctrl->joining_age;
+    newcctrl->total_upgrade = oldcctrl->total_upgrade;
+    if (newcctrl->total_upgrade < 10)
+    {
+        newcctrl->total_upgrade = 10;
+    }
+    newcctrl->strength_upgrade = oldcctrl->strength_upgrade + GAME_RANDOM(newcctrl->total_upgrade);
+    newcctrl->armour_upgrade = oldcctrl->armour_upgrade + GAME_RANDOM(newcctrl->total_upgrade);
+    newcctrl->defense_upgrade = oldcctrl->defense_upgrade + GAME_RANDOM(newcctrl->total_upgrade);
+    newcctrl->dexterity_upgrade = oldcctrl->dexterity_upgrade + GAME_RANDOM(newcctrl->total_upgrade);
+    newcctrl->luck_upgrade = oldcctrl->luck_upgrade + GAME_RANDOM(newcctrl->total_upgrade);
+    newcctrl->speed_upgrade = oldcctrl->speed_upgrade + GAME_RANDOM(newcctrl->total_upgrade);
+    newcctrl->loyalty_upgrade = oldcctrl->loyalty_upgrade + GAME_RANDOM(newcctrl->total_upgrade);
+    newcctrl->magic_upgrade = oldcctrl->magic_upgrade + GAME_RANDOM(newcctrl->total_upgrade);
+    newcctrl->salary_upgrade = oldcctrl->salary_upgrade;
+    newcctrl->training_cost_upgrade = oldcctrl->training_cost_upgrade;
+    newcctrl->scavenging_cost_upgrade = oldcctrl->scavenging_cost_upgrade;
+    newcctrl->total_upgrade = 0;
+    newtng->creature.gold_carried += oldtng->creature.gold_carried;
+    oldtng->creature.gold_carried = 0;
+    return;
+}
+
 long update_creature_levels(struct Thing *thing)
 {
     SYNCDBG(18,"Starting");
@@ -5705,6 +5735,7 @@ long update_creature_levels(struct Thing *thing)
         return 0;
     }
     set_creature_level(newtng, crstat->grow_up_level-1);
+    transfer_creature_data_and_gold(thing, newtng);// Transfer the blood type, creature name, kill count, joined age and carried gold to the new creature.
     update_creature_health_to_max(newtng);
     cctrl = creature_control_get_from_thing(thing);
     cctrl->countdown_282 = 50;

@@ -5668,6 +5668,7 @@ void transfer_creature_data_and_gold(struct Thing *oldtng, struct Thing *newtng)
     newcctrl->training_cost_upgrade = oldcctrl->training_cost_upgrade;
     newcctrl->scavenging_cost_upgrade = oldcctrl->scavenging_cost_upgrade;
     newcctrl->total_upgrade = 0;
+    newtng->creation_turn = oldtng->creation_turn;
     newtng->creature.gold_carried += oldtng->creature.gold_carried;
     oldtng->creature.gold_carried = 0;
     return;

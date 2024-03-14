@@ -1180,8 +1180,8 @@ void update_panel_colors(void)
         {
             int i;
             int n;
-            n = 12 * PrevDoorHighlight;
-            for (i=NoBackColours; i > 0; i--)
+            n = 2 * PLAYERS_COUNT * PrevDoorHighlight;
+            for (i=NumBackColours; i > 0; i--)
             {
                 int k;
                 for (k=0; k < 6; k+=2)
@@ -1196,11 +1196,11 @@ void update_panel_colors(void)
         {
             int i;
             int n;
-            n = 12 * highlight;
-            for (i = NoBackColours; i > 0; i--)
+            n = 2 * PLAYERS_COUNT * highlight;
+            for (i = NumBackColours; i > 0; i--)
             {
                 int k;
-                for (k=0; k < 6; k+=2)
+                for (k=0; k < PLAYERS_COUNT; k+=2)
                 {
                   PanelColours[n + 110 + k] = 31;
                   PanelColours[n + 116 + k] = 31;

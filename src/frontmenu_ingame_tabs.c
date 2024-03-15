@@ -599,7 +599,8 @@ void gui_area_spell_button(struct GuiButton *gbtn)
             int i = powerst->work_state;
             if (((i == PSt_CallToArms) && player_uses_power_call_to_arms(my_player_number))
              || ((i == PSt_SightOfEvil) && player_uses_power_sight(my_player_number))
-             || ((pwkind == PwrK_OBEY) && player_uses_power_obey(my_player_number))) {
+             || ((pwkind == PwrK_OBEY) && player_uses_power_obey(my_player_number))
+             || ((pwkind == PwrK_MIGHTYINFUSION) && player_uses_power_mighty_infusion(my_player_number))) {
                 draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, GPS_rpanel_frame_portrt_light);
             }
             GoldAmount price = compute_power_price(dungeon->owner, pwkind, 0);
@@ -957,11 +958,7 @@ void gui_over_door_button(struct GuiButton *gbtn)
     int manufctr_idx = (long)gbtn->content;
     struct ManufactureData* manufctr = get_manufacture_data(manufctr_idx);
 
-    //todo support more then 5 doors
-    if (manufctr->tngmodel >= 5)
-        gui_door_type_highlighted = 0;
-    else
-        gui_door_type_highlighted = manufctr->tngmodel;
+    gui_door_type_highlighted = manufctr->tngmodel;
 }
 
 void gui_remove_area_for_traps(struct GuiButton *gbtn)

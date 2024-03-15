@@ -242,6 +242,7 @@ const struct NamedCommand trap_config_desc[] = {
   {"TriggerSound",        38},
   {"RechargeAnimationID", 39},
   {"AttackAnimationID",   40},
+  {"DestroyedEffect",     41},
   {NULL,                   0},
 };
 
@@ -309,6 +310,10 @@ const struct NamedCommand modifier_desc[] = {
   {"TrainingCost",    7},
   {"ScavengingCost",  8},
   {"Loyalty",         9},
+  {"Defense",        10},
+  {"Dexterity",      11},
+  {"Luck",           12},
+  {"Magic",          13},
   {NULL,              0},
 };
 
@@ -1042,6 +1047,17 @@ static void set_trap_configuration_check(const struct ScriptLine* scline)
             return;
         }
     }
+    else if (trapvar == 41)  // DestroyedEffect
+    {
+        newvalue = effect_or_effect_element_id(valuestring);
+        if ((newvalue == 0) && (!parameter_is_number(valuestring)))
+        {
+            SCRPTERRLOG("Unknown effect or effect element: '%s'", valuestring);
+            DEALLOCATE_SCRIPT_VALUE
+            return;
+        }
+        value->uarg1 = newvalue;
+    }
     else if ((trapvar != 4) && (trapvar != 12) && (trapvar != 39) && (trapvar != 40))  // PointerSprites && AnimationIDs
     {
         if (parameter_is_number(valuestring))
@@ -1060,7 +1076,7 @@ static void set_trap_configuration_check(const struct ScriptLine* scline)
             newvalue = get_id(object_desc, valuestring);
             if ((newvalue > SHRT_MAX) || (newvalue < 0))
             {
-                SCRPTERRLOG("Unknown crate object: %s", valuestring);
+                SCRPTERRLOG("Unknown crate object: '%s'", valuestring);
                 DEALLOCATE_SCRIPT_VALUE
                 return;
             }
@@ -1576,6 +1592,9 @@ static void new_trap_type_check(const struct ScriptLine* scline)
     trapst->unsellable = 0;
     trapst->notify = 0;
     trapst->placeonbridge = 0;
+    trapst->place_sound_idx = 117; 
+    trapst->trigger_sound_idx = 176;
+    trapst->destroyed_effect = -39;
 
     game.conf.trap_stats[i].health = 0;
     game.conf.trap_stats[i].sprite_anim_idx = 0;
@@ -1833,6 +1852,9 @@ static void set_trap_configuration_process(struct ScriptContext *context)
             break;
         case 40: // AttackAnimationID
             trapstat->attack_sprite_anim_idx = get_anim_id(context->value->str2, &obj_tmp);
+            break;
+        case 41: // DestroyedEffect
+            trapst->destroyed_effect = value;
             break;
         default:
             WARNMSG("Unsupported Trap configuration, variable %d.", context->value->shorts[1]);
@@ -3559,7 +3581,7 @@ static void use_spell_on_players_creatures_check(const struct ScriptLine* scline
 
     if (splevel < 1)
     {
-        if ((mag_id == SplK_Heal) || (mag_id == SplK_Armour) || (mag_id == SplK_Speed) || (mag_id == SplK_Disease) || (mag_id == SplK_Invisibility) || (mag_id == SplK_Chicken))
+        if ( (mag_id == SplK_Freeze) || (mag_id == SplK_Armour) || (mag_id == SplK_Rebound) || (mag_id == SplK_Heal) || (mag_id == SplK_Invisibility) || (mag_id == SplK_Speed) || (mag_id == SplK_Slow) || (mag_id == SplK_Fly) || (mag_id == SplK_Sight) || (mag_id == SplK_Disease) || (mag_id == SplK_Chicken) || (mag_id == SplK_TimeBomb) || (mag_id == SplK_Rage) || (mag_id == SplK_DivineShield) || (mag_id == SplK_Indoctrination) || (mag_id == SplK_MagicMist) )
         {
             SCRPTWRNLOG("Spell %s level too low: %d, setting to 1.", mag_name, splevel);
         }
@@ -5228,6 +5250,22 @@ static void set_player_modifier_process(struct ScriptContext* context)
                 SCRIPTDBG(7,"Changing Player Modifier '%s' of player %d from %d to %d.", mdfrname, (int)plyr_idx, dungeon->modifier.loyalty, mdfrval);
                 dungeon->modifier.loyalty = mdfrval;
                 break;
+            case 10: // Defense
+                SCRIPTDBG(7,"Changing Player Modifier '%s' of player %d from %d to %d.", mdfrname, (int)plyr_idx, dungeon->modifier.defense, mdfrval);
+                dungeon->modifier.defense = mdfrval;
+                break;
+            case 11: // Dexterity
+                SCRIPTDBG(7,"Changing Player Modifier '%s' of player %d from %d to %d.", mdfrname, (int)plyr_idx, dungeon->modifier.dexterity, mdfrval);
+                dungeon->modifier.dexterity = mdfrval;
+                break;
+            case 12: // Luck
+                SCRIPTDBG(7,"Changing Player Modifier '%s' of player %d from %d to %d.", mdfrname, (int)plyr_idx, dungeon->modifier.luck, mdfrval);
+                dungeon->modifier.luck = mdfrval;
+                break;
+            case 13: // Magic
+                SCRIPTDBG(7,"Changing Player Modifier '%s' of player %d from %d to %d.", mdfrname, (int)plyr_idx, dungeon->modifier.magic, mdfrval);
+                dungeon->modifier.magic = mdfrval;
+                break;
             default:
                 WARNMSG("Unsupported Player Modifier, command %d.", mdfrdesc);
                 break;
@@ -5349,6 +5387,42 @@ static void add_to_player_modifier_process(struct ScriptContext* context)
                     dungeon->modifier.loyalty = mdfradd;
                 } else {
                     SCRPTERRLOG("Player %d Modifier '%s' may not be negative. Tried to add %d to value %d", (int)plyr_idx, mdfrname, mdfrval, dungeon->modifier.loyalty);
+                }
+                break;
+            case 10: // Defense
+                mdfradd = dungeon->modifier.defense + mdfrval;
+                if (mdfradd >= 0) {
+                    SCRIPTDBG(7,"Adding %d to Player %d Modifier '%s'.", mdfrval, (int)plyr_idx, mdfrname);
+                    dungeon->modifier.defense = mdfradd;
+                } else {
+                    SCRPTERRLOG("Player %d Modifier '%s' may not be negative. Tried to add %d to value %d", (int)plyr_idx, mdfrname, mdfrval, dungeon->modifier.defense);
+                }
+                break;
+            case 11: // Dexterity
+                mdfradd = dungeon->modifier.dexterity + mdfrval;
+                if (mdfradd >= 0) {
+                    SCRIPTDBG(7,"Adding %d to Player %d Modifier '%s'.", mdfrval, (int)plyr_idx, mdfrname);
+                    dungeon->modifier.dexterity = mdfradd;
+                } else {
+                    SCRPTERRLOG("Player %d Modifier '%s' may not be negative. Tried to add %d to value %d", (int)plyr_idx, mdfrname, mdfrval, dungeon->modifier.dexterity);
+                }
+                break;
+            case 12: // Luck
+                mdfradd = dungeon->modifier.luck + mdfrval;
+                if (mdfradd >= 0) {
+                    SCRIPTDBG(7,"Adding %d to Player %d Modifier '%s'.", mdfrval, (int)plyr_idx, mdfrname);
+                    dungeon->modifier.luck = mdfradd;
+                } else {
+                    SCRPTERRLOG("Player %d Modifier '%s' may not be negative. Tried to add %d to value %d", (int)plyr_idx, mdfrname, mdfrval, dungeon->modifier.luck);
+                }
+                break;
+            case 13: // Magic
+                mdfradd = dungeon->modifier.magic + mdfrval;
+                if (mdfradd >= 0) {
+                    SCRIPTDBG(7,"Adding %d to Player %d Modifier '%s'.", mdfrval, (int)plyr_idx, mdfrname);
+                    dungeon->modifier.magic = mdfradd;
+                } else {
+                    SCRPTERRLOG("Player %d Modifier '%s' may not be negative. Tried to add %d to value %d", (int)plyr_idx, mdfrname, mdfrval, dungeon->modifier.magic);
                 }
                 break;
             default:
@@ -5504,7 +5578,7 @@ const struct CommandDesc command_desc[] = {
   {"KILL_CREATURE",                     "PC!AN   ", Cmd_KILL_CREATURE, NULL, NULL},
   {"COMPUTER_DIG_TO_LOCATION",          "PLL     ", Cmd_COMPUTER_DIG_TO_LOCATION, NULL, NULL},
   {"USE_POWER_ON_CREATURE",             "PC!APANN", Cmd_USE_POWER_ON_CREATURE, NULL, NULL},
-  {"USE_POWER_ON_PLAYERS_CREATURES",    "PC!PANN ", Cmd_USE_SPELL_ON_PLAYERS_CREATURES, &use_power_on_players_creatures_check, &use_power_on_players_creatures_process },
+  {"USE_POWER_ON_PLAYERS_CREATURES",    "PC!PANN ", Cmd_USE_POWER_ON_PLAYERS_CREATURES, &use_power_on_players_creatures_check, &use_power_on_players_creatures_process },
   {"USE_POWER_AT_POS",                  "PNNANN  ", Cmd_USE_POWER_AT_POS, NULL, NULL},
   {"USE_POWER_AT_SUBTILE",              "PNNANN  ", Cmd_USE_POWER_AT_POS, NULL, NULL},  //todo: Remove after mapmakers have received time to use USE_POWER_AT_POS
   {"USE_POWER_AT_LOCATION",             "PLANN   ", Cmd_USE_POWER_AT_LOCATION, NULL, NULL},

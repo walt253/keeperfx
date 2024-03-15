@@ -2312,11 +2312,11 @@ long move_creature(struct Thing *thing)
         }
         cctrl->flgfield_1 |= CCFlg_Unknown08;
     }
-    if ((get_creature_model_flags(thing) & CMF_TremblingFat) != 0)
+    if ((get_creature_model_flags(thing) & CMF_Fat) != 0)
     {
-      if (creature_is_ambulating(thing))
+        if (creature_is_ambulating(thing))
         {
-            if (thing->current_frame > 3)
+            if (thing->current_frame > (keepersprite_frames(thing->anim_sprite)/2))
             {
                 velo_y = 0;
                 velo_x = 0;
@@ -5647,7 +5647,8 @@ void transfer_creature_data_and_gold(struct Thing *oldtng, struct Thing *newtng)
 {
     struct CreatureControl* oldcctrl = creature_control_get_from_thing(oldtng);
     struct CreatureControl* newcctrl = creature_control_get_from_thing(newtng);
-    struct CreatureStats* crstat = creature_stats_get(newtng->model);
+    struct CreatureStats* oldcrstat = creature_stats_get_from_thing(oldtng);
+    struct CreatureStats* newcrstat = creature_stats_get_from_thing(newtng);
     // Transfer blood type, creature name, kill count and joining age to the new creature.
     strcpy(newcctrl->creature_name, oldcctrl->creature_name);
     newcctrl->blood_type = oldcctrl->blood_type;
@@ -5710,8 +5711,16 @@ void transfer_creature_data_and_gold(struct Thing *oldtng, struct Thing *newtng)
     // Transfer the creation turn.
     newtng->creation_turn = oldtng->creation_turn;
     // Transfer the gold carried.
-    newtng->creature.gold_carried += oldtng->creature.gold_carried;
-    oldtng->creature.gold_carried = 0;
+    if (ncrstat->gold_hold >= oldtng->creature.gold_carried)
+    {
+        newtng->creature.gold_carried += oldtng->creature.gold_carried;
+        oldtng->creature.gold_carried = 0;
+    }
+    else
+    {
+        newtng->creature.gold_carried += ncrstat->gold_hold;
+        oldtng->creature.gold_carried -= ncrstat->gold_hold;
+    }
     return;
 }
 

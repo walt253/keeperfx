@@ -51,7 +51,7 @@ enum CreatureModelFlags {
     CMF_ImmuneToBoulder  = 0x000080, // Boulder traps are destroyed at the moment they touch the creature.
     CMF_NoCorpseRotting  = 0x000100, // Corpse cannot rot in graveyard.
     CMF_NoEnmHeartAttack = 0x000200, // Creature will not attack enemy heart on sight.
-    CMF_TremblingFat     = 0x000400, // Creature causes ground to tremble when dropped.
+    CMF_Trembling        = 0x000400, // Creature causes ground to tremble when dropped.
     CMF_Female           = 0x000800, // Creature is female.
     CMF_Insect           = 0x001000, // Creature is kind of insect.
     CMF_OneOfKind        = 0x002000, // Only one creature of that kind may exist on one level. Unit name is type name.
@@ -59,10 +59,11 @@ enum CreatureModelFlags {
     CMF_NeverSick        = 0x008000, // Creature will not get disease.
     CMF_NoResurrect      = 0x010000, // Creature will not resurrect.
     CMF_NoTransfer       = 0x020000, // Creature cannot be transferred.
-    CMF_NoCharm          = 0x040000, // Creature cannot be charmed.
-    CMF_Mechanical       = 0x080000, // Creature is mechanical, as a result can self repair itself to heal.
-    CMF_Undead           = 0x100000, // Creature is kind of undead.
-    CMF_Ethereal         = 0x200000, // Creature is immune to physical damage type.
+    CMF_Fat              = 0x040000, // Creature to fat too walk a full animation.
+    CMF_NoCharm          = 0x080000, // Creature cannot be charmed.
+    CMF_Mechanical       = 0x100000, // Creature is mechanical, as a result can self repair itself to heal.
+    CMF_Undead           = 0x200000, // Creature is kind of undead.
+    CMF_Ethereal         = 0x400000, // Creature is immune to physical damage type.
 };
 
 enum CreatureJobFlags {

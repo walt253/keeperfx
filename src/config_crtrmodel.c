@@ -120,16 +120,18 @@ const struct NamedCommand creatmodel_properties_commands[] = {
   {"ALLURING_SCVNGR",   27},
   {"NO_RESURRECT",      28},
   {"NO_TRANSFER",       29},
-  {"IMMUNE_TO_CHARM",   30},
-  {"THIEF",             31},
-  {"RESIST_TO_MAGIC",   32},
-  {"MECHANICAL",        33},
-  {"UNDEAD",            34},
-  {"IMMUNE_TO_FREEZE",  35},
-  {"IMMUNE_TO_SLOW",    36},
-  {"SELF_RECOVERY",     37},
-  {"ETHEREAL",          38},
-  {"HOARFROST",         39},
+  {"TREMBLING",         30},
+  {"FAT",               31},
+  {"IMMUNE_TO_CHARM",   32},
+  {"THIEF",             33},
+  {"RESIST_TO_MAGIC",   34},
+  {"MECHANICAL",        35},
+  {"UNDEAD",            36},
+  {"IMMUNE_TO_FREEZE",  37},
+  {"IMMUNE_TO_SLOW",    38},
+  {"SELF_RECOVERY",     39},
+  {"ETHEREAL",          40},
+  {"HOARFROST",         41},
   {NULL,                 0},
   };
 
@@ -742,7 +744,8 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
                 n++;
                 break;
             case 20: // TREMBLING_FAT
-                crconf->model_flags |= CMF_TremblingFat;
+                crconf->model_flags |= CMF_Trembling;
+                crconf->model_flags |= CMF_Fat;
                 n++;
                 break;
             case 21: // FEMALE
@@ -781,43 +784,51 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
                 crconf->model_flags |= CMF_NoTransfer;
                 n++;
                 break;
-            case 30: // IMMUNE_TO_CHARM
+            case 30: // TREMBLING
+                crconf->model_flags |= CMF_Trembling;
+                n++;
+                break;
+            case 31: // FAT
+                crconf->model_flags |= CMF_Fat;
+                n++;
+                break;
+            case 32: // IMMUNE_TO_CHARM
                 crconf->model_flags |= CMF_NoCharm;
                 n++;
                 break;
-            case 31: // THIEF
+            case 33: // THIEF
                 crstat->is_thief = true;
                 n++;
                 break;
-            case 32: // RESIST_TO_MAGIC
+            case 34: // RESIST_TO_MAGIC
                 crstat->resist_to_magic = true;
                 n++;
                 break;
-            case 33: // MECHANICAL
+            case 35: // MECHANICAL
                 crconf->model_flags |= CMF_Mechanical;
                 n++;
                 break;
-            case 34: // UNDEAD
+            case 36: // UNDEAD
                 crconf->model_flags |= CMF_Undead;
                 n++;
                 break;
-            case 35: // IMMUNE_TO_FREEZE
+            case 37: // IMMUNE_TO_FREEZE
                 crstat->immune_to_freeze = true;
                 n++;
                 break;
-            case 36: // IMMUNE_TO_SLOW
+            case 38: // IMMUNE_TO_SLOW
                 crstat->immune_to_slow = true;
                 n++;
                 break;
-            case 37: // SELF_RECOVERY
+            case 39: // SELF_RECOVERY
                 crstat->self_recovery = true;
                 n++;
                 break;
-            case 38: // ETHEREAL
+            case 40: // ETHEREAL
                 crconf->model_flags |= CMF_Ethereal;
                 n++;
                 break;
-            case 39: // HOARFROST
+            case 41: // HOARFROST
                 crstat->hoarfrost = true;
                 n++;
                 break;

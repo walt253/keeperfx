@@ -5643,7 +5643,7 @@ long get_creature_thing_score(const struct Thing *thing)
     return game.creature_scores[crmodel].value[exp];
 }
 
-void transfer_creature_data_and_gold(struct Thing *oldtng, struct Thing *newtng)
+long transfer_creature_data_and_gold(struct Thing *oldtng, struct Thing *newtng)
 {
     struct CreatureControl* oldcctrl = creature_control_get_from_thing(oldtng);
     struct CreatureControl* newcctrl = creature_control_get_from_thing(newtng);

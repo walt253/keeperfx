@@ -449,9 +449,13 @@ void update_creature_graphic_anim(struct Thing *thing)
         {
             update_creature_anim(thing, 256, CGI_GotSlapped);
         } else
-        if ((thing->active_state == CrSt_CreaturePiss) || (thing->active_state == CrSt_CreatureRoar))
+        if (thing->active_state == CrSt_CreaturePiss)
         {
             update_creature_anim(thing, 128, CGI_Dig);
+        } else
+        if (thing->active_state == CrSt_CreatureRoar)
+        {
+            update_creature_anim(thing, 128, CGI_Celebrate);
         } else
         if (thing->active_state == CrSt_CreatureUnconscious)
         {

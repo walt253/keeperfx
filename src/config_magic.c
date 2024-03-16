@@ -129,11 +129,13 @@ const struct NamedCommand magic_shot_commands[] = {
   {"EFFECTAMOUNT",          52},
   {"HITHEARTEFFECT",        53},
   {"HITHEARTSOUND",         54},
-  {"DEXTERITYPERCENT",      55},
-  {"BREAKPERCENT",          56},
-  {"GOLDPERCENT",           57},
-  {"SLABKIND",              58},
-  {"PERSISTENCE",           59},
+  {"BLEEDINGEFFECT",        55},
+  {"FROZENEFFECT",          56},
+  {"DEXTERITYPERCENT",      57},
+  {"BREAKPERCENT",          58},
+  {"GOLDPERCENT",           59},
+  {"SLABKIND",              60},
+  {"PERSISTENCE",           61},
   {NULL,                     0},
   };
 
@@ -1846,7 +1848,33 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
                   COMMAND_TEXT(cmd_num), block_buf, config_textname);
           }
           break;
-      case 55: //DEXTERITYPERCENT
+      case 55: //BLEEDINGEFFECT
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = effect_or_effect_element_id(word_buf);
+              shotst->effect_bleeding = k;
+              n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 56: //FROZENEFFECT
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = effect_or_effect_element_id(word_buf);
+              shotst->effect_frozen = k;
+              n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 57: //DEXTERITYPERCENT
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
@@ -1859,7 +1887,7 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
                   COMMAND_TEXT(cmd_num), block_buf, config_textname);
           }
           break;
-      case 56: //BREAKPERCENT
+      case 58: //BREAKPERCENT
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
@@ -1872,7 +1900,7 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
                   COMMAND_TEXT(cmd_num), block_buf, config_textname);
           }
           break;
-      case 57: //GOLDPERCENT
+      case 59: //GOLDPERCENT
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
@@ -1885,7 +1913,7 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
                   COMMAND_TEXT(cmd_num), block_buf, config_textname);
           }
           break;
-      case 58: //SLABKIND
+      case 60: //SLABKIND
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
@@ -1898,7 +1926,7 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
                   COMMAND_TEXT(cmd_num), block_buf, config_textname);
           }
           break;
-      case 59: //PERSISTENCE
+      case 61: //PERSISTENCE
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);

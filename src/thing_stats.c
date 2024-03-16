@@ -1188,7 +1188,7 @@ HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, DamageType d
         // Weaknesses&Resistances to Combustion damage type.
         if (damage_type == DmgT_Combustion) {
             // TREMBLING_FAT resistance.
-            if ((get_creature_model_flags(thing) & CMF_TremblingFat) != 0) {
+            if (((get_creature_model_flags(thing) & CMF_Trembling) != 0) && ((get_creature_model_flags(thing) & CMF_Fat) != 0)) {
                 dmg /= 2;
             }
         }

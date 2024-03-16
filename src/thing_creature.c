@@ -5707,7 +5707,7 @@ void transfer_creature_data_and_gold(struct Thing *oldtng, struct Thing *newtng)
     newcctrl->speed_upgrade = oldcctrl->speed_upgrade;
     if (oldcrstat->base_speed > newcrstat->base_speed)
     {
-        newcctrl->speed_upgrade += ((oldcrstat->base_speed) - (newcrstat->base_speed)) / 2;
+        newcctrl->speed_upgrade += ((oldcrstat->base_speed) - (newcrstat->base_speed));
     } else {
         newcctrl->speed_upgrade += newcrstat->base_speed / 16;
     }

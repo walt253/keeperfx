@@ -1452,32 +1452,32 @@ long get_combat_score(const struct Thing *thing, const struct Thing *enmtng, CrA
         if ((attack_type == AttckT_Ranged) || creature_has_ranged_weapon(thing))
         {
             score_extra = 258;
-            score_base = 258 * (4 - enmctrl->opponents_ranged_count) + score_extra;
+            score_base = 258 * (COMBAT_RANGED_OPPONENTS_LIMIT - enmctrl->opponents_ranged_count) + score_extra;
         } else
         if (attack_type != AttckT_Ranged)
         {
             score_extra = 1;
-            score_base = 258 * (4 - enmctrl->opponents_melee_count) + score_extra + 128;
+            score_base = 258 * (COMBAT_MELEE_OPPONENTS_LIMIT - enmctrl->opponents_melee_count) + score_extra + 128;
         } else
         {
             score_extra = 1;
-            score_base = 258 * (4 - enmctrl->opponents_ranged_count) + score_extra;
+            score_base = 258 * (COMBAT_RANGED_OPPONENTS_LIMIT - enmctrl->opponents_ranged_count) + score_extra;
         }
     } else
     {
         if (attack_type == AttckT_Ranged)
         {
             score_extra = 1;
-            score_base = 258 * (4 - enmctrl->opponents_ranged_count) + score_extra;
+            score_base = 258 * (COMBAT_RANGED_OPPONENTS_LIMIT - enmctrl->opponents_ranged_count) + score_extra;
         } else
         if (attack_type != AttckT_Ranged)
         {
             score_extra = 258;
-            score_base = 258 * (4 - enmctrl->opponents_melee_count) + score_extra + 128;
+            score_base = 258 * (COMBAT_MELEE_OPPONENTS_LIMIT - enmctrl->opponents_melee_count) + score_extra + 128;
         } else
         {
             score_extra = 258;
-            score_base = 258 * (4 - enmctrl->opponents_ranged_count) + score_extra;
+            score_base = 258 * (COMBAT_RANGED_OPPONENTS_LIMIT - enmctrl->opponents_ranged_count) + score_extra;
         }
     }
     if (a4 >= 5376)

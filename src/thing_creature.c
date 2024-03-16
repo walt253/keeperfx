@@ -5654,53 +5654,67 @@ void transfer_creature_data_and_gold(struct Thing *oldtng, struct Thing *newtng)
     newcctrl->blood_type = oldcctrl->blood_type;
     newcctrl->kills_num = oldcctrl->kills_num;
     newcctrl->joining_age = oldcctrl->joining_age;
-    // Transfer strength_upgrade and gives a bonus based on the new creature kind.
-    newcctrl->strength_upgrade = oldcctrl->strength_upgrade + CREATURE_RANDOM(newtng, (crstat->strength / 10));
-    if (oldcctrl->strength_upgrade > 0) // If not negative, grants an extra bonus.
+    // Transfer strength_upgrade and gives a bonus.
+    newcctrl->strength_upgrade = oldcctrl->strength_upgrade + CREATURE_RANDOM(newtng, (oldcrstat->strength / 10)) + CREATURE_RANDOM(newtng, (newcrstat->strength / 10));
+    // Make sure strength_upgrade is not above the max allowed.
+    if (newcctrl->strength_upgrade > newcrstat->strength)
     {
-        newcctrl->strength_upgrade += CREATURE_RANDOM(newtng, oldcctrl->strength_upgrade);
+        newcctrl->strength_upgrade = newcrstat->strength;
     }
-    // Transfer armour_upgrade and gives a bonus based on the new creature kind.
-    newcctrl->armour_upgrade = oldcctrl->armour_upgrade + CREATURE_RANDOM(newtng, (crstat->armour / 10));
-    if (oldcctrl->armour_upgrade > 0) // If not negative, grants an extra bonus.
+    // Transfer armour_upgrade and gives a bonus.
+    newcctrl->armour_upgrade = oldcctrl->armour_upgrade + CREATURE_RANDOM(newtng, (oldcrstat->armour / 10)) + CREATURE_RANDOM(newtng, (newcrstat->armour / 10));
+    // Make sure armour_upgrade is not above the max allowed.
+    if (newcctrl->armour_upgrade > newcrstat->armour)
     {
-        newcctrl->armour_upgrade += CREATURE_RANDOM(newtng, oldcctrl->armour_upgrade);
+        newcctrl->armour_upgrade = newcrstat->armour;
     }
-    // Transfer defense_upgrade and gives a bonus based on the new creature kind.
-    newcctrl->defense_upgrade = oldcctrl->defense_upgrade + CREATURE_RANDOM(newtng, (crstat->defense / 10));
-    if (oldcctrl->defense_upgrade > 0) // If not negative, grants an extra bonus.
+    // Transfer defense_upgrade and gives a bonus.
+    newcctrl->defense_upgrade = oldcctrl->defense_upgrade + CREATURE_RANDOM(newtng, (oldcrstat->defense / 10)) + CREATURE_RANDOM(newtng, (newcrstat->defense / 10));
+    // Make sure defense_upgrade is not above the max allowed.
+    if (newcctrl->defense_upgrade > newcrstat->defense)
     {
-        newcctrl->defense_upgrade += CREATURE_RANDOM(newtng, oldcctrl->defense_upgrade);
+        newcctrl->defense_upgrade = newcrstat->defense;
     }
-    // Transfer dexterity_upgrade and gives a bonus based on the new creature kind.
-    newcctrl->dexterity_upgrade = oldcctrl->dexterity_upgrade + CREATURE_RANDOM(newtng, (crstat->dexterity / 10));
-    if (oldcctrl->dexterity_upgrade > 0) // If not negative, grants an extra bonus.
+    // Transfer dexterity_upgrade and gives a bonus.
+    newcctrl->dexterity_upgrade = oldcctrl->dexterity_upgrade + CREATURE_RANDOM(newtng, (oldcrstat->dexterity / 10)) + CREATURE_RANDOM(newtng, (newcrstat->dexterity / 10));
+    // Make sure dexterity_upgrade is not above the max allowed.
+    if (newcctrl->dexterity_upgrade > newcrstat->dexterity)
     {
-        newcctrl->dexterity_upgrade += CREATURE_RANDOM(newtng, oldcctrl->dexterity_upgrade);
+        newcctrl->dexterity_upgrade = newcrstat->dexterity;
     }
-    // Transfer luck_upgrade and gives a bonus based on the new creature kind.
-    newcctrl->luck_upgrade = oldcctrl->luck_upgrade + CREATURE_RANDOM(newtng, (crstat->luck / 5));
-    if (oldcctrl->luck_upgrade > 0) // If not negative, grants an extra bonus.
+    // Transfer luck_upgrade and gives a bonus.
+    newcctrl->luck_upgrade = oldcctrl->luck_upgrade + CREATURE_RANDOM(newtng, (oldcrstat->luck / 5)) + CREATURE_RANDOM(newtng, (newcrstat->luck / 5));
+    // Make sure luck_upgrade is not above the max allowed.
+    if (newcctrl->luck_upgrade > newcrstat->luck)
     {
-        newcctrl->luck_upgrade += CREATURE_RANDOM(newtng, oldcctrl->luck_upgrade);
+        newcctrl->luck_upgrade = newcrstat->luck;
     }
-    // Transfer loyalty_upgrade and gives a bonus based on the new creature kind.
-    newcctrl->loyalty_upgrade = oldcctrl->loyalty_upgrade + CREATURE_RANDOM(newtng, (crstat->scavenge_require / 5));
-    if (oldcctrl->loyalty_upgrade > 0) // If not negative, grants an extra bonus.
+    // Transfer loyalty_upgrade and gives a bonus.
+    newcctrl->loyalty_upgrade = oldcctrl->loyalty_upgrade + CREATURE_RANDOM(newtng, (oldcrstat->scavenge_require / 5)) + CREATURE_RANDOM(newtng, (newcrstat->scavenge_require / 5));
+    // Make sure loyalty_upgrade is not above the max allowed.
+    if (newcctrl->loyalty_upgrade > newcrstat->scavenge_require)
     {
-        newcctrl->loyalty_upgrade += CREATURE_RANDOM(newtng, oldcctrl->loyalty_upgrade);
+        newcctrl->loyalty_upgrade = newcrstat->scavenge_require;
     }
-    // Transfer magic_upgrade and gives a bonus based on the new creature kind.
-    newcctrl->magic_upgrade = oldcctrl->magic_upgrade + CREATURE_RANDOM(newtng, (crstat->magic / 10));
-    if (oldcctrl->magic_upgrade > 0) // If not negative, grants an extra bonus.
+    // Transfer magic_upgrade and gives a bonus.
+    newcctrl->magic_upgrade = oldcctrl->magic_upgrade + CREATURE_RANDOM(newtng, (oldcrstat->magic / 10)) + CREATURE_RANDOM(newtng, (newcrstat->magic / 10));
+    // Make sure magic_upgrade is not above the max allowed.
+    if (newcctrl->magic_upgrade > newcrstat->magic)
     {
-        newcctrl->magic_upgrade += CREATURE_RANDOM(newtng, oldcctrl->magic_upgrade);
+        newcctrl->magic_upgrade = newcrstat->magic;
     }
-    // Transfer speed_upgrade and gives a bonus based on the new creature kind.
-    newcctrl->speed_upgrade = oldcctrl->speed_upgrade + CREATURE_RANDOM(newtng, (crstat->base_speed / 8));
-    if (oldcctrl->speed_upgrade > 0) // If not negative, grants an extra bonus.
+    // Transfer speed_upgrade and gives a bonus.
+    newcctrl->speed_upgrade = oldcctrl->speed_upgrade;
+    if (oldcrstat->base_speed > newcrstat->base_speed)
     {
-        newcctrl->speed_upgrade += CREATURE_RANDOM(newtng, oldcctrl->speed_upgrade);
+        newcctrl->speed_upgrade += ((oldcrstat->base_speed) - (newcrstat->base_speed)) / 2;
+    } else {
+        newcctrl->speed_upgrade += newcrstat->base_speed / 16;
+    }
+    // Make sure speed_upgrade is not above the max allowed.
+    if (newcctrl->speed_upgrade > newcrstat->base_speed)
+    {
+        newcctrl->speed_upgrade = newcrstat->base_speed;
     }
     // Update the max speed.
     newcctrl->max_speed = calculate_correct_creature_maxspeed(newtng);
@@ -5711,15 +5725,15 @@ void transfer_creature_data_and_gold(struct Thing *oldtng, struct Thing *newtng)
     // Transfer the creation turn.
     newtng->creation_turn = oldtng->creation_turn;
     // Transfer the gold carried.
-    if (ncrstat->gold_hold >= oldtng->creature.gold_carried)
+    if (newcrstat->gold_hold >= oldtng->creature.gold_carried)
     {
         newtng->creature.gold_carried += oldtng->creature.gold_carried;
         oldtng->creature.gold_carried = 0;
     }
     else
     {
-        newtng->creature.gold_carried += ncrstat->gold_hold;
-        oldtng->creature.gold_carried -= ncrstat->gold_hold;
+        newtng->creature.gold_carried += newcrstat->gold_hold;
+        oldtng->creature.gold_carried -= newcrstat->gold_hold;
     }
     return;
 }

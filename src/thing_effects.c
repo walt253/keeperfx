@@ -989,10 +989,6 @@ struct Thing *create_used_effect_or_element(const struct Coord3d *pos, EffectOrE
     if (effect > 0)
     {
         efftng = create_effect(pos, effect, plyr_idx);
-        if ((effect == 13) && (!thing_is_invalid(efftng)))
-        {
-            efftng->shot_effect.hit_type = THit_CrtrsOnly;
-        }
     }
     else
     {

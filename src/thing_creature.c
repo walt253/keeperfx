@@ -1073,7 +1073,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
         {
         case SplK_Freeze:
             crstat = creature_stats_get_from_thing(thing);
-            if ((crstat->immune_to_freeze == 0) || (crstat->force_to_freeze != 0))
+            if ((crstat->immune_to_freeze == 0) || (cctrl->force_to_freeze != 0))
             {
                 cctrl->stateblock_flags |= CCSpl_Freeze;
                 if ((thing->movement_flags & TMvF_Flying) != 0)
@@ -1082,9 +1082,9 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
                     thing->movement_flags &= ~TMvF_Flying;
                 }
                 creature_set_speed(thing, 0);
-                if (crstat->force_to_freeze != 0)
+                if (cctrl->force_to_freeze != 0)
                 {
-                    crstat->force_to_freeze = false;
+                    cctrl->force_to_freeze = false;
                 }
             }
             break;
@@ -4073,6 +4073,7 @@ struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumbe
     crtng->owner = owner;
     crtng->move_angle_xy = 0;
     crtng->move_angle_z = 0;
+    cctrl->speed_upgrade = 0;
     cctrl->max_speed = calculate_correct_creature_maxspeed(crtng);
     cctrl->shot_shift_x = creatures[model].shot_shift_x;
     cctrl->shot_shift_y = creatures[model].shot_shift_y;
@@ -4089,11 +4090,36 @@ struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumbe
     crtng->creation_turn = game.play_gameturn;
     cctrl->joining_age = 17 + CREATURE_RANDOM(crtng, 13);
     cctrl->blood_type = CREATURE_RANDOM(crtng, BLOOD_TYPES_COUNT);
+    if (crstat->boss == 0)
+    {
+        cctrl->strength_upgrade = CREATURE_RANDOM(crtng, (crstat->strength / 10)) - CREATURE_RANDOM(crtng, (crstat->strength / 10));
+        cctrl->armour_upgrade = CREATURE_RANDOM(crtng, (crstat->armour / 10)) - CREATURE_RANDOM(crtng, (crstat->armour / 10));
+        cctrl->defense_upgrade = CREATURE_RANDOM(crtng, (crstat->defense / 10)) - CREATURE_RANDOM(crtng, (crstat->defense / 10));
+        cctrl->dexterity_upgrade = CREATURE_RANDOM(crtng, (crstat->dexterity / 10)) - CREATURE_RANDOM(crtng, (crstat->dexterity / 10));
+        cctrl->luck_upgrade = CREATURE_RANDOM(crtng, (crstat->luck / 5)) - CREATURE_RANDOM(crtng, (crstat->luck / 5));
+        cctrl->loyalty_upgrade = CREATURE_RANDOM(crtng, (crstat->scavenge_require / 5)) - CREATURE_RANDOM(crtng, (crstat->scavenge_require / 5));
+        cctrl->magic_upgrade = CREATURE_RANDOM(crtng, (crstat->magic / 10)) - CREATURE_RANDOM(crtng, (crstat->magic / 10));
+        cctrl->salary_upgrade = CREATURE_RANDOM(crtng, (crstat->pay / 10)) - CREATURE_RANDOM(crtng, (crstat->pay / 10));
+        cctrl->training_cost_upgrade = CREATURE_RANDOM(crtng, (crstat->training_cost / 10)) - CREATURE_RANDOM(crtng, (crstat->training_cost / 10));
+        cctrl->scavenging_cost_upgrade = CREATURE_RANDOM(crtng, (crstat->scavenger_cost / 10)) - CREATURE_RANDOM(crtng, (crstat->scavenger_cost / 10));
+    } else {
+        cctrl->strength_upgrade = 0;
+        cctrl->armour_upgrade = 0;
+        cctrl->defense_upgrade = 0;
+        cctrl->dexterity_upgrade = 0;
+        cctrl->luck_upgrade = 0;
+        cctrl->loyalty_upgrade = 0;
+        cctrl->magic_upgrade = 0;
+        cctrl->salary_upgrade = 0;
+        cctrl->training_cost_upgrade = 0;
+        cctrl->scavenging_cost_upgrade = 0;
+    }
     if (owner == game.hero_player_num)
     {
-      cctrl->hero.sbyte_89 = -1;
-      cctrl->hero.byte_8C = 1;
+        cctrl->hero.sbyte_89 = -1;
+        cctrl->hero.byte_8C = 1;
     }
+    cctrl->total_upgrade = 0;
     cctrl->flee_pos.x.val = crtng->mappos.x.val;
     cctrl->flee_pos.y.val = crtng->mappos.y.val;
     cctrl->flee_pos.z.val = crtng->mappos.z.val;
@@ -5621,23 +5647,93 @@ void transfer_creature_data_and_gold(struct Thing *oldtng, struct Thing *newtng)
 {
     struct CreatureControl* oldcctrl = creature_control_get_from_thing(oldtng);
     struct CreatureControl* newcctrl = creature_control_get_from_thing(newtng);
-    struct CreatureStats* ncrstat = creature_stats_get_from_thing(newtng);
-
+    struct CreatureStats* oldcrstat = creature_stats_get_from_thing(oldtng);
+    struct CreatureStats* newcrstat = creature_stats_get_from_thing(newtng);
+    // Transfer blood type, creature name, kill count and joining age to the new creature.
     strcpy(newcctrl->creature_name, oldcctrl->creature_name);
     newcctrl->blood_type = oldcctrl->blood_type;
     newcctrl->kills_num = oldcctrl->kills_num;
     newcctrl->joining_age = oldcctrl->joining_age;
+    // Transfer strength_upgrade and gives a bonus.
+    newcctrl->strength_upgrade = oldcctrl->strength_upgrade + CREATURE_RANDOM(newtng, (oldcrstat->strength / 10)) + CREATURE_RANDOM(newtng, (newcrstat->strength / 10));
+    // Make sure strength_upgrade is not above the max allowed.
+    if (newcctrl->strength_upgrade > newcrstat->strength)
+    {
+        newcctrl->strength_upgrade = newcrstat->strength;
+    }
+    // Transfer armour_upgrade and gives a bonus.
+    newcctrl->armour_upgrade = oldcctrl->armour_upgrade + CREATURE_RANDOM(newtng, (oldcrstat->armour / 10)) + CREATURE_RANDOM(newtng, (newcrstat->armour / 10));
+    // Make sure armour_upgrade is not above the max allowed.
+    if (newcctrl->armour_upgrade > newcrstat->armour)
+    {
+        newcctrl->armour_upgrade = newcrstat->armour;
+    }
+    // Transfer defense_upgrade and gives a bonus.
+    newcctrl->defense_upgrade = oldcctrl->defense_upgrade + CREATURE_RANDOM(newtng, (oldcrstat->defense / 10)) + CREATURE_RANDOM(newtng, (newcrstat->defense / 10));
+    // Make sure defense_upgrade is not above the max allowed.
+    if (newcctrl->defense_upgrade > newcrstat->defense)
+    {
+        newcctrl->defense_upgrade = newcrstat->defense;
+    }
+    // Transfer dexterity_upgrade and gives a bonus.
+    newcctrl->dexterity_upgrade = oldcctrl->dexterity_upgrade + CREATURE_RANDOM(newtng, (oldcrstat->dexterity / 10)) + CREATURE_RANDOM(newtng, (newcrstat->dexterity / 10));
+    // Make sure dexterity_upgrade is not above the max allowed.
+    if (newcctrl->dexterity_upgrade > newcrstat->dexterity)
+    {
+        newcctrl->dexterity_upgrade = newcrstat->dexterity;
+    }
+    // Transfer luck_upgrade and gives a bonus.
+    newcctrl->luck_upgrade = oldcctrl->luck_upgrade + CREATURE_RANDOM(newtng, (oldcrstat->luck / 5)) + CREATURE_RANDOM(newtng, (newcrstat->luck / 5));
+    // Make sure luck_upgrade is not above the max allowed.
+    if (newcctrl->luck_upgrade > newcrstat->luck)
+    {
+        newcctrl->luck_upgrade = newcrstat->luck;
+    }
+    // Transfer loyalty_upgrade and gives a bonus.
+    newcctrl->loyalty_upgrade = oldcctrl->loyalty_upgrade + CREATURE_RANDOM(newtng, (oldcrstat->scavenge_require / 5)) + CREATURE_RANDOM(newtng, (newcrstat->scavenge_require / 5));
+    // Make sure loyalty_upgrade is not above the max allowed.
+    if (newcctrl->loyalty_upgrade > newcrstat->scavenge_require)
+    {
+        newcctrl->loyalty_upgrade = newcrstat->scavenge_require;
+    }
+    // Transfer magic_upgrade and gives a bonus.
+    newcctrl->magic_upgrade = oldcctrl->magic_upgrade + CREATURE_RANDOM(newtng, (oldcrstat->magic / 10)) + CREATURE_RANDOM(newtng, (newcrstat->magic / 10));
+    // Make sure magic_upgrade is not above the max allowed.
+    if (newcctrl->magic_upgrade > newcrstat->magic)
+    {
+        newcctrl->magic_upgrade = newcrstat->magic;
+    }
+    // Transfer speed_upgrade and gives a bonus.
+    newcctrl->speed_upgrade = oldcctrl->speed_upgrade;
+    if (oldcrstat->base_speed > newcrstat->base_speed)
+    {
+        newcctrl->speed_upgrade += ((oldcrstat->base_speed) - (newcrstat->base_speed)) / 2;
+    } else {
+        newcctrl->speed_upgrade += newcrstat->base_speed / 16;
+    }
+    // Make sure speed_upgrade is not above the max allowed.
+    if (newcctrl->speed_upgrade > newcrstat->base_speed)
+    {
+        newcctrl->speed_upgrade = newcrstat->base_speed;
+    }
+    // Update the max speed.
+    newcctrl->max_speed = calculate_correct_creature_maxspeed(newtng);
+    // Transfer the salary, training cost and scavenging cost modifier to the new creature.
+    newcctrl->salary_upgrade = oldcctrl->salary_upgrade;
+    newcctrl->training_cost_upgrade = oldcctrl->training_cost_upgrade;
+    newcctrl->scavenging_cost_upgrade = oldcctrl->scavenging_cost_upgrade;
+    // Transfer the creation turn.
     newtng->creation_turn = oldtng->creation_turn;
-
-    if (ncrstat->gold_hold >= oldtng->creature.gold_carried)
+    // Transfer the gold carried.
+    if (newcrstat->gold_hold >= oldtng->creature.gold_carried)
     {
         newtng->creature.gold_carried += oldtng->creature.gold_carried;
         oldtng->creature.gold_carried = 0;
     }
     else
     {
-        newtng->creature.gold_carried = ncrstat->gold_hold;
-        oldtng->creature.gold_carried -= ncrstat->gold_hold;
+        newtng->creature.gold_carried += newcrstat->gold_hold;
+        oldtng->creature.gold_carried -= newcrstat->gold_hold;
     }
     return;
 }
@@ -5744,6 +5840,230 @@ long update_creature_levels(struct Thing *thing)
     }
     kill_creature(thing, INVALID_THING, -1, CrDed_NoEffects|CrDed_NoUnconscious|CrDed_NotReallyDying);
     return -1;
+}
+
+void process_creature_using_gold(struct Thing *thing)
+{
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    if (creature_control_invalid(cctrl))
+    {
+        return;
+    }
+    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    if ((thing->creature.gold_carried > 0) && (crstat->pay > 0))
+    {
+        unsigned long frequency = ((100 * crstat->pay) / thing->creature.gold_carried);
+        unsigned long cost = (crstat->pay + (crstat->pay * cctrl->total_upgrade));
+        if ((((game.play_gameturn + thing->index) % frequency) == 0) && (thing->creature.gold_carried >= cost))
+        {
+            unsigned char upgrade_kind = GAME_RANDOM(8);
+            switch (upgrade_kind)
+            {
+                case 1: // strength_upgrade
+                {
+                    if (cctrl->strength_upgrade < crstat->strength)
+                    {
+                        cctrl->strength_upgrade += 1;
+                        cctrl->total_upgrade += 1;
+                        thing->creature.gold_carried -= cost;
+                    }
+                    break;
+                }
+                case 2: // armour_upgrade
+                {
+                    if (cctrl->armour_upgrade < crstat->armour)
+                    {
+                        cctrl->armour_upgrade += 1;
+                        cctrl->total_upgrade += 1;
+                        thing->creature.gold_carried -= cost;
+                    }
+                    break;
+                }
+                case 3: // defense_upgrade
+                {
+                    if (cctrl->defense_upgrade < crstat->defense)
+                    {
+                        cctrl->defense_upgrade += 1;
+                        cctrl->total_upgrade += 1;
+                        thing->creature.gold_carried -= cost;
+                    }
+                    break;
+                }
+                case 4: // dexterity_upgrade
+                {
+                    if (cctrl->dexterity_upgrade < crstat->dexterity)
+                    {
+                        cctrl->dexterity_upgrade += 1;
+                        cctrl->total_upgrade += 1;
+                        thing->creature.gold_carried -= cost;
+                    }
+                    break;
+                }
+                case 5: // luck_upgrade
+                {
+                    if (cctrl->luck_upgrade < crstat->luck)
+                    {
+                        cctrl->luck_upgrade += 1;
+                        cctrl->total_upgrade += 1;
+                        thing->creature.gold_carried -= cost;
+                    }
+                    break;
+                }
+                case 6: // speed_upgrade
+                {
+                    if (cctrl->speed_upgrade < crstat->base_speed)
+                    {
+                        cctrl->speed_upgrade += 1;
+                        cctrl->total_upgrade += 1;
+                        thing->creature.gold_carried -= cost;
+                    }
+                    break;
+                }
+                case 7: // loyalty_upgrade
+                {
+                    if (cctrl->loyalty_upgrade < crstat->scavenge_require)
+                    {
+                        cctrl->loyalty_upgrade += 1;
+                        cctrl->total_upgrade += 1;
+                        thing->creature.gold_carried -= cost;
+                    }
+                    break;
+                }
+                case 8: // magic_upgrade
+                {
+                    if (cctrl->magic_upgrade < crstat->magic)
+                    {
+                        cctrl->magic_upgrade += 1;
+                        cctrl->total_upgrade += 1;
+                        thing->creature.gold_carried -= cost;
+                    }
+                    break;
+                }
+                default:
+                    break;
+            }
+        }
+    }
+    return;
+}
+
+void process_creature_pooping_thing(struct Thing *thing)
+{
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    if (creature_control_invalid(cctrl))
+    {
+        return;
+    }
+    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    if ((crstat->poop_frequency > 0) && (crstat->poop_type > 0))
+    {
+        if (((game.play_gameturn + thing->index) % crstat->poop_frequency) == 0)
+        {
+            struct Thing* objtng = create_thing(&thing->mappos, TCls_Object, crstat->poop_type, thing->owner, -1);
+            if (thing_is_invalid(objtng))
+            {
+                return;
+            }
+            if (thing_is_dungeon_heart(objtng))
+            {
+                struct Dungeon* dungeon = get_dungeon(objtng->owner);
+                if (dungeon->backup_heart_idx == 0)
+                {
+                    dungeon->backup_heart_idx = objtng->index;
+                }
+            }
+            struct ObjectConfigStats* objst = get_object_model_stats(objtng->model);
+            switch (objst->genre)
+            {
+                case OCtg_Valuable:
+                {
+                    if (crstat->poop_amount > 0)
+                    {
+                        if (crstat->poop_random == 0)
+                        {
+                            objtng->valuable.gold_stored = crstat->poop_amount;
+                        } else {
+                            objtng->valuable.gold_stored = (crstat->poop_random + GAME_RANDOM(crstat->poop_amount));
+                        }
+                    } else {
+                        objtng->valuable.gold_stored = 1;
+                    }
+                    break;
+                }
+                case OCtg_GoldHoard:
+                {
+                    if (crstat->poop_amount > 0)
+                    {
+                        if (crstat->poop_random == 0)
+                        {
+                            drop_gold_pile(crstat->poop_amount, &thing->mappos);
+                        } else {
+                            drop_gold_pile((crstat->poop_random + GAME_RANDOM(crstat->poop_amount)), &thing->mappos);
+                        }
+                    } else {
+                        drop_gold_pile(1, &thing->mappos);
+                    }
+                    delete_thing_structure(objtng, 0);
+                    break;
+                }
+                case OCtg_SpecialBox:
+                {
+                    if (crstat->poop_amount > 255)
+                    {
+                        if (crstat->poop_random == 0)
+                        {
+                            objtng->custom_box.box_kind = 0;
+                        } else {
+                            objtng->custom_box.box_kind = GAME_RANDOM(255);
+                        }
+                    } else {
+                        if (crstat->poop_random == 0)
+                        {
+                            objtng->custom_box.box_kind = crstat->poop_amount;
+                        } else {
+                            objtng->custom_box.box_kind = GAME_RANDOM(crstat->poop_amount);
+                        }
+                    }
+                    break;
+                }
+                case OCtg_Effect:
+                case OCtg_Power:
+                {
+                    delete_thing_structure(objtng, 0);
+                    break;
+                }
+                case OCtg_LairTotem:
+                {
+                    struct Thing* creatng = create_creature(&objtng->mappos, objst->related_creatr_model, objtng->owner);
+                    if (thing_is_invalid(creatng))
+                    {
+                        delete_thing_structure(objtng, 0);
+                        break;
+                    }
+                    unsigned short level = crstat->poop_amount;
+                    if (level >= CREATURE_MAX_LEVEL)
+                    {
+                        level = CREATURE_MAX_LEVEL;
+                    }
+                    if (level == 0)
+                    {
+                        level = cctrl->explevel;
+                    }
+                    if (crstat->poop_random == 0)
+                    {
+                        set_creature_level(creatng, level);
+                    } else {
+                        set_creature_level(creatng, GAME_RANDOM(level));
+                    }
+                    delete_thing_structure(objtng, 0);
+                    break;
+                }
+                default:
+                    break;
+            }
+        }
+    }
+    return;
 }
 
 TngUpdateRet update_creature(struct Thing *thing)
@@ -5895,6 +6215,8 @@ TngUpdateRet update_creature(struct Thing *thing)
     {
         return TUFRet_Deleted;
     }
+    process_creature_using_gold(thing);
+    process_creature_pooping_thing(thing);
     process_creature_self_spell_casting(thing);
     cctrl->moveaccel.x.val = 0;
     cctrl->moveaccel.y.val = 0;

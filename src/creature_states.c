@@ -2948,6 +2948,7 @@ short creature_take_salary(struct Thing *creatng)
     }
     GoldAmount salary = calculate_correct_creature_pay(creatng);
     GoldAmount received = take_money_from_dungeon(creatng->owner, salary, 0);
+    creatng->creature.gold_carried += received;
     if (received < 1) {
         ERRORLOG("The %s index %d has used capacity %d but no gold for %s salary",room_code_name(room->kind),
             (int)room->index,(int)room->used_capacity,thing_model_name(creatng));

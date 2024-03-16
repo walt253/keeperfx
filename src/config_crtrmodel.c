@@ -88,6 +88,10 @@ const struct NamedCommand creatmodel_attributes_commands[] = {
   {"HURTBYWATER",        36},
   {"WATERRECOVERY",      37},
   {"LAVARECOVERY",       38},
+  {"POOPAMOUNT",         39},
+  {"POOPFREQUENCY",      40},
+  {"POOPTYPE",           41},
+  {"POOPRANDOM",         42},
   {NULL,                  0},
   };
 
@@ -132,6 +136,7 @@ const struct NamedCommand creatmodel_properties_commands[] = {
   {"SELF_RECOVERY",     39},
   {"ETHEREAL",          40},
   {"HOARFROST",         41},
+  {"BOSS",              42},
   {NULL,                 0},
   };
 
@@ -285,12 +290,6 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
       crstat->water_recovery = 0;
       crstat->lava_recovery = 0;
       crstat->magic = 100;
-      crstat->strength_upgrade = 0;
-      crstat->armour_upgrade = 0;
-      crstat->defense_upgrade = 0;
-      crstat->dexterity_upgrade = 0;
-      crstat->luck_upgrade = 0;
-      crstat->magic_upgrade = 0;
       crstat->bleeds = false;
       crstat->affected_by_wind = true;
       crstat->immune_to_gas = false;
@@ -305,7 +304,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
       crstat->immune_to_slow = false;
       crstat->self_recovery = false;
       crstat->hoarfrost = false;
-      crstat->force_to_freeze = false;
+      crstat->boss = false;
       crconf->namestr_idx = 0;
       crconf->model_flags = 0;
   }
@@ -832,6 +831,10 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
                 crstat->hoarfrost = true;
                 n++;
                 break;
+            case 42: // BOSS
+                crstat->boss = true;
+                n++;
+                break;
             default:
               CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in [%s] block of %s %s file.",
                   COMMAND_TEXT(cmd_num),word_buf,block_buf, creature_code_name(crtr_model), config_textname);
@@ -941,6 +944,61 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
           {
             k = atoi(word_buf);
             crstat->lava_recovery = k;
+            n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, creature_code_name(crtr_model), config_textname);
+          }
+          break;
+      case 39: // POOPAMOUNT
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            k = atoi(word_buf);
+            crstat->poop_amount = k;
+            n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, creature_code_name(crtr_model), config_textname);
+          }
+          break;
+      case 40: // POOPFREQUENCY
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            k = atoi(word_buf);
+            crstat->poop_frequency = k;
+            n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, creature_code_name(crtr_model), config_textname);
+          }
+          break;
+      case 41: // POOPTYPE
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = get_id(object_desc, word_buf);
+              if (k > 0)
+              {
+                  crstat->poop_type = k;
+                  n++;
+              }
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 42: // POOPRANDOM
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            k = atoi(word_buf);
+            crstat->poop_random = k;
             n++;
           }
           if (n < 1)

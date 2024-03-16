@@ -417,6 +417,19 @@ struct CreatureControl {
     GameTurn unsummon_turn;
     ThingIndex summoner_idx;
     ThingIndex familiar_idx[FAMILIAR_MAX];
+    TbBool force_to_freeze;
+    short strength_upgrade;
+    short magic_upgrade;
+    short armour_upgrade;
+    short defense_upgrade;
+    short dexterity_upgrade;
+    short luck_upgrade;
+    short speed_upgrade;
+    short loyalty_upgrade;
+    short salary_upgrade;
+    short training_cost_upgrade;
+    short scavenging_cost_upgrade;
+    unsigned long total_upgrade;
 };
 
 struct CreatureStats { // These stats are not compatible with original DK - they have more fields
@@ -442,7 +455,7 @@ struct CreatureStats { // These stats are not compatible with original DK - they
     unsigned char sleep_exp_slab;
     short sleep_experience;
     short exp_for_hitting;
-    short gold_hold;
+    long gold_hold;
     short training_cost;
     short scavenger_cost;
     short scavenge_require;
@@ -528,7 +541,7 @@ struct CreatureStats { // These stats are not compatible with original DK - they
     TbBool immune_to_slow;
     TbBool self_recovery;
     TbBool hoarfrost;
-    TbBool force_to_freeze;
+    TbBool boss;
     char corpse_vanish_effect;
     short footstep_pitch;
     short lair_object;
@@ -537,12 +550,10 @@ struct CreatureStats { // These stats are not compatible with original DK - they
     unsigned char water_recovery;
     unsigned char lava_recovery;
     unsigned short magic;
-    unsigned short strength_upgrade;
-    unsigned short armour_upgrade;
-    unsigned short defense_upgrade;
-    unsigned short dexterity_upgrade;
-    unsigned short luck_upgrade;
-    unsigned short magic_upgrade;
+    unsigned short poop_amount;
+    unsigned short poop_frequency;
+    unsigned char poop_type;
+    unsigned char poop_random;
     struct CreaturePickedUpOffset creature_picked_up_offset;
 };
 

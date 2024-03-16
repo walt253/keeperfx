@@ -58,27 +58,31 @@ extern TbBool packets_process_cheats(
 
 extern void update_double_click_detection(long plyr_idx);
 
-TbBool fix_previous_cursor_subtile_when_offmap;
+// Returns false if mouse is on map edges or on GUI
+TbBool is_mouse_on_map(struct Packet* pckt)
+{
+    int x = (pckt->pos_x >> 8) / 3;
+    int y = (pckt->pos_y >> 8) / 3;
+    if (x == 0) {return false;}
+    if (y == 0) {return false;}
+    if (x == gameadd.map_tiles_x-1) {return false;}
+    if (y == gameadd.map_tiles_y-1) {return false;}
+    return true;
+}
+
 void remember_cursor_subtile(struct PlayerInfo *player) {
     struct Packet* pckt = get_packet_direct(player->packet_num);
+    TbBool badPacket = (pckt->pos_x == 0) && (pckt->pos_y == 0);
+    
     player->previous_cursor_subtile_x = player->cursor_subtile_x;
     player->previous_cursor_subtile_y = player->cursor_subtile_y;
-    
-    TbBool badPacket = (pckt->pos_x == 0) && (pckt->pos_y == 0);
-    TbBool onGui = ((pckt->control_flags & PCtr_Gui) != 0);
+    player->cursor_subtile_x = coord_subtile((pckt->pos_x));
+    player->cursor_subtile_y = coord_subtile((pckt->pos_y));
 
-    if (onGui == true || player->mouse_is_offmap == true || badPacket == true) {
-        // Off field
-        fix_previous_cursor_subtile_when_offmap = true;
-    } else {
-        // On field
-        player->cursor_subtile_x = coord_subtile((pckt->pos_x));
-        player->cursor_subtile_y = coord_subtile((pckt->pos_y));
-        if (fix_previous_cursor_subtile_when_offmap == true) {
-            fix_previous_cursor_subtile_when_offmap = false;
-            player->previous_cursor_subtile_x = player->cursor_subtile_x;
-            player->previous_cursor_subtile_y = player->cursor_subtile_y;
-        }
+    // Off field
+    if (player->mouse_on_map == false || badPacket == true) {
+        player->previous_cursor_subtile_x = player->cursor_subtile_x;
+        player->previous_cursor_subtile_y = player->cursor_subtile_y;
     }
 }
 
@@ -661,6 +665,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
     SYNCDBG(6,"Starting for player %d state %s",(int)plyr_idx,player_state_code_name(player->work_state));
     player->full_slab_cursor = 1;
     packet_left_button_double_clicked[plyr_idx] = 0;
+    player->mouse_on_map = is_mouse_on_map(pckt);
     remember_cursor_subtile(player);
     if ((pckt->control_flags & PCtr_Gui) != 0)
         return false;
@@ -853,6 +858,51 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
                 unset_packet_control(pckt, PCtr_LBtnRelease);
             }
             break;
+        case PSt_MeteorStorm:
+            player->thing_under_hand = 0;
+            if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
+            {
+                i = get_power_overcharge_level(player);
+                magic_use_available_power_on_subtile(plyr_idx, PwrK_METEORSTORM, i, stl_x, stl_y, PwCast_None);
+                unset_packet_control(pckt, PCtr_LBtnRelease);
+            }
+            break;
+        case PSt_MassTeleport:
+            player->thing_under_hand = 0;
+            if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
+            {
+                i = get_power_overcharge_level(player);
+                magic_use_available_power_on_subtile(plyr_idx, PwrK_MASSTELEPORT, i, stl_x, stl_y, PwCast_None);
+                unset_packet_control(pckt, PCtr_LBtnRelease);
+            }
+            break;
+        case PSt_Fart:
+            player->thing_under_hand = 0;
+            if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
+            {
+                i = get_power_overcharge_level(player);
+                magic_use_available_power_on_subtile(plyr_idx, PwrK_FART, i, stl_x, stl_y, PwCast_None);
+                unset_packet_control(pckt, PCtr_LBtnRelease);
+            }
+            break;
+        case PSt_SummonCreature:
+            player->thing_under_hand = 0;
+            if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
+            {
+                i = get_power_overcharge_level(player);
+                magic_use_available_power_on_subtile(plyr_idx, PwrK_SUMMONCREATURE, i, stl_x, stl_y, PwCast_None);
+                unset_packet_control(pckt, PCtr_LBtnRelease);
+            }
+            break;
+        case PSt_Eruption:
+            player->thing_under_hand = 0;
+            if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
+            {
+                i = get_power_overcharge_level(player);
+                magic_use_available_power_on_subtile(plyr_idx, PwrK_ERUPTION, i, stl_x, stl_y, PwCast_None);
+                unset_packet_control(pckt, PCtr_LBtnRelease);
+            }
+            break;
         case PSt_PlaceDoor:
         {
             if ((pckt->control_flags & PCtr_MapCoordsValid) != 0)
@@ -885,6 +935,10 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
         case PSt_Slow:
         case PSt_Flight:
         case PSt_Vision:
+        case PSt_Rage:
+        case PSt_DivineShield:
+        case PSt_Indoctrination:
+        case PSt_MagicMist:
         case PSt_TimeBomb:
             influence_own_creatures = true;
             pwkind = player_state_to_power_kind[player->work_state];

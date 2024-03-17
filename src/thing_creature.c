@@ -5735,7 +5735,7 @@ long transfer_creature_data_and_gold(struct Thing *oldtng, struct Thing *newtng)
         newtng->creature.gold_carried += newcrstat->gold_hold;
         oldtng->creature.gold_carried -= newcrstat->gold_hold;
     }
-    return;
+    // return;
 }
 
 long update_creature_levels(struct Thing *thing)

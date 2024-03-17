@@ -123,7 +123,7 @@ TbBool detonate_shot(struct Thing *shotng, TbBool destroy)
     {
         create_effect_around_thing(shotng, shotst->explode.around_effect2_model);
     }
-    //TODO CONFIG shot model dependency, make config option instead.
+    // TODO CONFIG shot model dependency, make config option instead.
     switch (shotng->model)
     {
     case ShM_Lightning:

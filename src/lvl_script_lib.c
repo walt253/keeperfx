@@ -147,6 +147,11 @@ TbResult script_use_power_on_creature(struct Thing* thing, short pwkind, short s
         block |= pwkind == PwrK_CALL2ARMS;
         block |= pwkind == PwrK_CAVEIN;
         block |= pwkind == PwrK_LIGHTNING;
+        block |= pwkind == PwrK_METEORSTORM;
+        block |= pwkind == PwrK_MASSTELEPORT;
+        block |= pwkind == PwrK_FART;
+        block |= pwkind == PwrK_SUMMONCREATURE;
+        block |= pwkind == PwrK_ERUPTION;
         block |= pwkind == PwrK_MKDIGGER;
         block |= pwkind == PwrK_SIGHT;
         if (block)
@@ -198,6 +203,24 @@ TbResult script_use_power_on_creature(struct Thing* thing, short pwkind, short s
         return magic_use_power_sight(caster, stl_x, stl_y, splevel, spell_flags);
     case PwrK_TIMEBOMB:
         return magic_use_power_time_bomb(caster, thing, splevel, spell_flags);
+    case PwrK_RAGE:
+        return magic_use_power_rage(caster, thing, 0, 0, splevel, spell_flags);
+    case PwrK_DIVINESHIELD:
+        return magic_use_power_divine_shield(caster, thing, 0, 0, splevel, spell_flags);
+    case PwrK_INDOCTRINATION:
+        return magic_use_power_indoctrination(caster, thing, 0, 0, splevel, spell_flags);
+    case PwrK_MAGICMIST:
+        return magic_use_power_magic_mist(caster, thing, 0, 0, splevel, spell_flags);
+    case PwrK_METEORSTORM:
+        return magic_use_power_meteor_storm(caster, stl_x, stl_y, splevel, spell_flags);
+    case PwrK_MASSTELEPORT:
+        return magic_use_power_mass_teleport(caster, stl_x, stl_y, splevel, spell_flags);
+    case PwrK_FART:
+        return magic_use_power_fart(caster, stl_x, stl_y, splevel, spell_flags);
+    case PwrK_SUMMONCREATURE:
+        return magic_use_power_summon_creature(caster, stl_x, stl_y, splevel, spell_flags);
+    case PwrK_ERUPTION:
+        return magic_use_power_eruption(caster, stl_x, stl_y, splevel, spell_flags);
     default:
         SCRPTERRLOG("Power not supported for this command: %s", power_code_name(pwkind));
         return Lb_FAIL;

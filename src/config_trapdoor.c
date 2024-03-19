@@ -1096,7 +1096,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
               k = atoi(word_buf);
               if (k >= 0)
               {
-                  trapst->initial_delay = k;
+                  game.conf.trap_stats[i].initial_delay = k;
                   n++;
               }
           }

@@ -110,6 +110,7 @@ const struct NamedCommand creaturetype_instance_properties[] = {
   {"QUICK",                InstPF_Quick},
   {"DISARMING",            InstPF_Disarming},
   {"DISPLAY_SWIPE",        InstPF_UsesSwipe},
+  {"REQUIRE_DEADBODY",     InstPF_RequireDeadbody},
   {NULL,                     0},
   };
 

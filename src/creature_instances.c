@@ -391,6 +391,17 @@ TbBool creature_has_quick_range_weapon(const struct Thing *creatng)
     return false;
 }
 
+TbBool instance_requires_deadbody(CrInstance inum)
+{
+    struct InstanceInfo* inst_inf;
+    inst_inf = creature_instance_info_get(inum);
+    if (inst_inf->flags & InstPF_RequireDeadbody)
+    {
+        return true;
+    }
+    return false;
+}
+
 void process_creature_instance(struct Thing *thing)
 {
     struct CreatureControl *cctrl;

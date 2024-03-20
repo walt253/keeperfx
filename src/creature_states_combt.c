@@ -1798,6 +1798,7 @@ CrInstance get_best_self_preservation_instance_to_use(const struct Thing *thing)
 {
     struct InstanceInfo* inst_inf;
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    struct Thing* deadtng;
     if ((cctrl->spell_flags & CSAfF_PoisonCloud) != 0)
     {
         INSTANCE_RET_IF_AVAIL(thing, CrInst_WIND);
@@ -1833,8 +1834,14 @@ CrInstance get_best_self_preservation_instance_to_use(const struct Thing *thing)
         inst_inf = creature_instance_info_get(i);
         if ((inst_inf->flags & InstPF_SelfBuff))
         {
-            if (!creature_affected_by_spell(thing, inst_inf->func_params[1]))
+            if ((!creature_affected_by_spell(thing, inst_inf->func_params[1])) && (!instance_requires_deadbody(i)))
             {
+                INSTANCE_RET_IF_AVAIL(thing, i);
+            }
+            if ((instance_requires_deadbody(i)) && (cctrl->corpse_to_piss_on != 0))
+            {
+                deadtng = thing_get(cctrl->corpse_to_piss_on);
+                delete_corpse(deadtng);
                 INSTANCE_RET_IF_AVAIL(thing, i);
             }
         }
@@ -1948,12 +1955,19 @@ CrInstance get_best_combat_weapon_instance_to_use(const struct Thing *thing, lon
 {
     CrInstance inst_id = CrInst_NULL;
     struct InstanceInfo* inst_inf;
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    struct Thing* deadtng;
     for (short i = 0; i < game.conf.crtr_conf.instances_count; i++)
     {
+        if ((instance_requires_deadbody(i)) && (cctrl->corpse_to_piss_on != 0) && (creature_instance_is_available(thing, i)) && (creature_instance_has_reset(thing, i)))
+        {
+            deadtng = thing_get(cctrl->corpse_to_piss_on);
+            delete_corpse(deadtng);
+            return i;
+        }
         inst_inf = creature_instance_info_get(i);
         if (inst_inf->range_min < 0) //instance is not a combat weapon
             continue;
-
         if (creature_instance_is_available(thing, i))
         {
             if ( ( ((inst_inf->flags & (InstPF_RangedAttack | InstPF_RangedDebuff | InstPF_MeleeAttack)) && (atktype & InstPF_RangedAttack)) ||
@@ -1963,7 +1977,7 @@ CrInstance get_best_combat_weapon_instance_to_use(const struct Thing *thing, lon
             {
                 if (creature_instance_has_reset(thing, i))
                 {
-                    if ((inst_inf->range_min <= dist) && (inst_inf->range_max >= dist)) {
+                    if ((inst_inf->range_min <= dist) && (inst_inf->range_max >= dist) && (!instance_requires_deadbody(i))) {
                         return i;
                     }
                 }

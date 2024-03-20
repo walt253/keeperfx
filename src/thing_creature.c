@@ -3054,7 +3054,7 @@ long calculate_shot_damage(struct Thing *creatng, ThingModel shot_model)
     const struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     long luck = calculate_correct_creature_luck(creatng);
     long damage = compute_creature_attack_spell_damage(shotst->damage, luck, cctrl->explevel, creatng);
-    if ((shotst->model_flags & ShMF_Digging != 0) && (shotst->model_flags & ShMF_NoHit != 0) && (damage < shotst->damage))
+    if (((shotst->model_flags & ShMF_Digging) != 0) && ((shotst->model_flags & ShMF_NoHit) != 0) && (damage < shotst->damage))
     {
         damage = shotst->damage;
     }
@@ -3073,7 +3073,7 @@ long project_creature_shot_damage(const struct Thing *thing, ThingModel shot_mod
     const struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     long damage;
     long luck = calculate_correct_creature_luck(thing);
-    if ((shotst->model_flags & ShMF_StrengthBased) != 0 )
+    if ((shotst->model_flags & ShMF_StrengthBased) != 0)
     {
         // Project melee damage.
         long strength = calculate_correct_creature_strength(thing);

@@ -34,6 +34,7 @@
 #include "thing_stats.h"
 #include "thing_physics.h"
 #include "thing_objects.h"
+#include "thing_corpses.h"
 #include "thing_effects.h"
 #include "thing_shots.h"
 #include "thing_navigate.h"

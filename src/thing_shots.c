@@ -1566,12 +1566,9 @@ TbBool shot_hit_shootable_thing_at(struct Thing *shotng, struct Thing *target, s
         return shot_hit_object_at(shotng, target, pos);
     }
     if (target->class_id == TCls_Creature) {
-        if ((shotst->area_hit_type == 3) || (shotst->area_hit_type == 4) || (shotst->area_hit_type == 5))
+        if ((target->owner == shotng->owner) && (shotst->no_trigger_on_friendly != 0))
         {
-            if (target->owner == shotng->owner)
-            {
-                return false;
-            }
+            return false;
         }
         return shot_hit_creature_at(shotng, target, pos);
     }

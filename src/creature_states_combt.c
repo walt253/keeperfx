@@ -1862,6 +1862,7 @@ CrInstance get_self_spell_casting(const struct Thing *thing)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct InstanceInfo* inst_inf;
+    unsigned char i;
     if (creature_would_benefit_from_healing(thing))
     {
         INSTANCE_RET_IF_AVAIL(thing, CrInst_HEAL);
@@ -1869,16 +1870,15 @@ CrInstance get_self_spell_casting(const struct Thing *thing)
     // Check if thing is a digger doing digger activity.
     if (thing_is_creature_special_digger(thing) && creature_is_doing_digger_activity(thing))
     {
-        // Casting Wind when under influence of gas.
+        // Casting wind when under influence of gas.
         if ((cctrl->spell_flags & CSAfF_PoisonCloud) != 0)
         {
             INSTANCE_RET_IF_AVAIL(thing, CrInst_WIND);
         }
-        for (short i = 0; i < game.conf.crtr_conf.instances_count; i++)
+        for (i = 0; i < game.conf.crtr_conf.instances_count; i++)
         {
             if (i == CrInst_HEAL)
                 continue;
-
             inst_inf = creature_instance_info_get(i);
             if ((inst_inf->flags & InstPF_SelfBuff))
             {
@@ -1905,7 +1905,7 @@ CrInstance get_self_spell_casting(const struct Thing *thing)
         }
         if (!creature_is_kept_in_custody(thing))
         {
-            // Casting Wind when under influence of gas.
+            // Casting wind when under influence of gas.
             if ((cctrl->spell_flags & CSAfF_PoisonCloud) != 0)
             {
                 INSTANCE_RET_IF_AVAIL(thing, CrInst_WIND);
@@ -1919,7 +1919,7 @@ CrInstance get_self_spell_casting(const struct Thing *thing)
             {
                 INSTANCE_RET_IF_AVAIL(thing, CrInst_FLY);
             }
-            //TODO CREATURE_AI allow using invisibility when creature is being attacked or escaping.
+            // TODO CREATURE_AI: allow using invisibility when creature is being attacked or escaping.
             if (!creature_affected_by_spell(thing, SplK_Invisibility) && (state_type != CrStTyp_Idle))
             {
                 INSTANCE_RET_IF_AVAIL(thing, CrInst_INVISIBILITY);
@@ -1927,6 +1927,22 @@ CrInstance get_self_spell_casting(const struct Thing *thing)
             if (state_type != CrStTyp_Idle)
             {
                 INSTANCE_RET_IF_AVAIL(thing, CrInst_FAMILIAR);
+            }
+        }
+        for (i = 0; i < game.conf.crtr_conf.instances_count; i++)
+        {
+            inst_inf = creature_instance_info_get(i);
+            if (!creature_is_kept_in_custody(thing))
+            {
+                if ((inst_inf->flags & InstPF_OutOfBattle))
+                {
+                    INSTANCE_RET_IF_AVAIL(thing, i);
+                }
+            } else {
+                if ((inst_inf->flags & InstPF_CastOnCustody))
+                {
+                    INSTANCE_RET_IF_AVAIL(thing, i);
+                }
             }
         }
     }

@@ -22,7 +22,6 @@
 #include "globals.h"
 #include "bflib_basics.h"
 #include "creature_instances.h"
-
 #include "config.h"
 
 #ifdef __cplusplus
@@ -30,10 +29,10 @@ extern "C" {
 #endif
 
 /******************************************************************************/
-#define MAGIC_ITEMS_MAX        255
+#define MAGIC_ITEMS_MAX         255
 #define SPELL_MAX_LEVEL         8
 #define MAGIC_OVERCHARGE_LEVELS (SPELL_MAX_LEVEL+1)
-#define POWER_TYPES_MAX      64
+#define POWER_TYPES_MAX         64
 
 enum SpellKinds {
     SplK_None = 0,
@@ -68,28 +67,36 @@ enum SpellKinds {
     SplK_Lizard,
     SplK_Familiar, // 30
     SplK_Summon,
+    SplK_Rage,
+    SplK_DivineShield,
+    SplK_Indoctrination,
+    SplK_MagicMist, // 35
+    SplK_Kamikaze,
 };
 
 enum CreatureSpellAffectedFlags {
-    CSAfF_Slow         = 0x0001,
-    CSAfF_Speed        = 0x0002,
-    CSAfF_Armour       = 0x0004,
-    CSAfF_Rebound      = 0x0008,
-    CSAfF_Flying       = 0x0010,
-    CSAfF_Invisibility = 0x0020,
-    CSAfF_Sight        = 0x0040,
-    CSAfF_Light        = 0x0080, // this was originally Freeze, but that is now done via stateblock_flags
-    CSAfF_Disease      = 0x0100,
-    CSAfF_Chicken      = 0x0200,
-    CSAfF_PoisonCloud  = 0x0400,
-    CSAfF_CalledToArms = 0x0800,
-    CSAfF_MadKilling   = 0x1000,
+    CSAfF_Slow         = 0x00001,
+    CSAfF_Speed        = 0x00002,
+    CSAfF_Armour       = 0x00004,
+    CSAfF_Rebound      = 0x00008,
+    CSAfF_Flying       = 0x00010,
+    CSAfF_Invisibility = 0x00020,
+    CSAfF_Sight        = 0x00040,
+    CSAfF_Light        = 0x00080, // This was originally Freeze, but that is now done via stateblock_flags.
+    CSAfF_Disease      = 0x00100,
+    CSAfF_Chicken      = 0x00200,
+    CSAfF_PoisonCloud  = 0x00400,
+    CSAfF_CalledToArms = 0x00800,
+    CSAfF_MadKilling   = 0x01000,
     /** The creature does a free fall with magical effect, ie. it was just created with some initial velocity. */
-    CSAfF_MagicFall    = 0x2000,
-    CSAfF_ExpLevelUp   = 0x4000,
+    CSAfF_MagicFall    = 0x02000,
+    CSAfF_ExpLevelUp   = 0x04000,
     /** For creature which are normally flying, this informs that its grounded due to spells or its condition. */
-    CSAfF_Grounded     = 0x8000,
+    CSAfF_Grounded     = 0x08000,
     CSAfF_Timebomb     = 0x10000,
+    CSAfF_Rage         = 0x20000,
+    CSAfF_DivineShield = 0x40000,
+    CSAfF_MagicMist    = 0x80000,
 };
 
 enum PowerKinds {
@@ -121,28 +128,41 @@ enum PowerKinds {
     PwrK_SLOW, // 25
     PwrK_FLIGHT,
     PwrK_VISION,
+    PwrK_RAGE,
+    PwrK_DIVINESHIELD,
+    PwrK_METEORSTORM, // 30
+    PwrK_INDOCTRINATION,
+    PwrK_MIGHTYINFUSION,
+    PwrK_MAGICMIST,
+    PwrK_MASSTELEPORT,
+    PwrK_FART, // 35
+    PwrK_SUMMONCREATURE,
+    PwrK_ERUPTION,
 };
 
 /** Contains properties of a shot model, to be stored in ShotConfigStats.
  */
 enum ShotModelFlags {
     /** Set if the shot can be slapped with hand of evil of owning player. */
-    ShMF_Slappable      = 0x0001,
-    ShMF_Navigable      = 0x0002,
-    ShMF_Boulder        = 0x0004,
-    ShMF_ReboundImmune  = 0x0008,
-    ShMF_Digging        = 0x0010,
-    ShMF_LifeDrain      = 0x0020,
-    ShMF_GroupUp        = 0x0040,
-    ShMF_NoStun         = 0x0080,
-    ShMF_NoHit          = 0x0100,
-    ShMF_StrengthBased  = 0x0200,
-    ShMF_AlarmsUnits    = 0x0400,
-    ShMF_CanCollide     = 0x0800,
-    ShMF_Disarming      = 0x1000,
-    ShMF_Exploding      = 0x2000,
-    ShMF_BlocksRebirth  = 0x4000,
-    ShMF_Penetrating    = 0x8000,
+    ShMF_Slappable      = 0x00001,
+    ShMF_Navigable      = 0x00002,
+    ShMF_Boulder        = 0x00004,
+    ShMF_ReboundImmune  = 0x00008,
+    ShMF_Digging        = 0x00010,
+    ShMF_LifeDrain      = 0x00020,
+    ShMF_GroupUp        = 0x00040,
+    ShMF_NoStun         = 0x00080,
+    ShMF_NoHit          = 0x00100,
+    ShMF_StrengthBased  = 0x00200,
+    ShMF_AlarmsUnits    = 0x00400,
+    ShMF_CanCollide     = 0x00800,
+    ShMF_Disarming      = 0x01000,
+    ShMF_Exploding      = 0x02000,
+    ShMF_BlocksRebirth  = 0x04000,
+    ShMF_Penetrating    = 0x08000,
+    ShMF_Stealing       = 0x10000,
+    ShMF_Looting        = 0x20000,
+    ShMF_Charming       = 0x40000,
 };
 
 enum PowerCanCastFlags {
@@ -159,7 +179,6 @@ enum PowerCanCastFlags {
     PwCast_NConscCrtrs   = 0x0000000010,
     /** Allow casting the spell on creatures which are bound by state (dragged, being sacrificed, teleported etc.). */
     PwCast_BoundCrtrs    = 0x0000000020,
-
     /** Allow casting the spell on neutral walkable tiles - path, water, lava. */
     PwCast_UnclmdGround  = 0x0000000080,
     /** Allow casting the spell on neutral ground - rooms floor and neutral claimed ground. */
@@ -170,7 +189,6 @@ enum PowerCanCastFlags {
     PwCast_AlliedGround  = 0x0000000400,
     /** Allow casting the spell on enemy players ground - rooms floor and claimed ground. */
     PwCast_EnemyGround   = 0x0000000800,
-
     /** Allow casting the spell on neutral tall slabs - earth, wall, gold. */
     PwCast_NeutrlTall    = 0x0000001000,
     /** Allow casting the spell on owned tall slabs - own fortified wall. */
@@ -179,7 +197,6 @@ enum PowerCanCastFlags {
     PwCast_AlliedTall    = 0x0000004000,
     /** Allow casting the spell on tall slabs owned by enemies - their fortified walls. */
     PwCast_EnemyTall     = 0x0000008000,
-
     /** Allow casting the spell on owned food things (chickens). */
     PwCast_OwnedFood     = 0x0000020000,
     /** Allow casting the spell on neutral food things. */
@@ -231,7 +248,6 @@ enum PowerConfigFlags {
 struct SpellConfigStats {
     char code_name[COMMAND_WORD_LEN];
 };
-
 
 struct ShotHitConfig {
     short effect_model; /**< Effect kind to be created when the shot hits. */
@@ -318,6 +334,11 @@ struct ShotConfigStats {
     unsigned char update_logic; // see enum ShotUpdateLogics
     unsigned short effect_spacing;
     unsigned char effect_amount;
+    unsigned char dexterity_percent;
+    unsigned char break_percent;
+    unsigned char gold_percent;
+    unsigned char slab_kind;
+    unsigned char persistence;
 };
 
 typedef unsigned char (*Expand_Check_Func)(void);
@@ -344,6 +365,7 @@ struct PowerConfigStats {
     long panel_tab_idx;
     unsigned short select_sound_idx;
     short cast_cooldown;
+    unsigned char health_cost;
 };
 
 /**
@@ -385,7 +407,7 @@ struct SpellConfig {
     short linked_power;
     short duration;
     short aura_effect;
-    unsigned short spell_flags;
+    unsigned long spell_flags;
 };
 
 struct MagicStats {

@@ -2,7 +2,7 @@
 # In others cfgs just reference the first entry, followed by Red (used as first entry but could be swapped) Blue, Green, Yellow, White, Neutral, Purple, Black and Orange.
 # Can also use custom sprites: [ 93,"CTA_RED_64","CTA_BLUE_64","CTA_GREEN_64","CTA_YELLOW_64"],#cta_high
 
-#stuff in gui2-xx.dat
+# Stuff in gui2-xx.dat
 gui_panel_sprites = [
     [116, 116, 558, 560, 564, 562,   0, 678, 708, 738],#cta_low
     [ 93,  93, 574, 576, 580, 578,   0, 682, 712, 742],#cta_high
@@ -29,7 +29,7 @@ gui_panel_sprites = [
     [251, 251, 594, 595, 597, 596,   0, 687, 717, 747],#rpanel_msg_room
 ]
 
-#stuff in pointerxx.dat
+# Stuff in pointerxx.dat
 pointer_sprites = [
     [ 40,  40, 203, 211, 227, 219,   0, 279, 317, 298],#quadptr_power_cta
     [193, 193, 267, 268, 270, 269,   0, 295, 333, 314],#tileptr_power_cta
@@ -38,15 +38,15 @@ pointer_sprites = [
     [  9,   9, 275, 276, 278, 277,   0, 297, 335, 316],#tileptr_trap_alarm
 ]
 
-#stuff in gui1-xx.dat
+# Stuff in gui1-xx.dat
 button_sprite = [
     [ 62,  62, 127, 128, 129, 130,   0, 131, 132, 133],#creatr_state_cta
     [ 58,  58, 134, 135, 136, 137,   0, 138, 139, 140],#creatr_state_lair
     [ 88,  88,  96, 104, 112, 120,   0, 222, 230, 238],#creature_flower_health
 ]
 
-#stuff in creatures.jty
-#Only works for cta flag.
+# Stuff in creatures.jty
+# Only works for CTA flag.
 animationIds = [
     [867, 867, 873, 879, 885, "CTA_WHITE_ACTIVATE",     0, "CTA_PURPLE_ACTIVATE",   "CTA_BLACK_ACTIVATE",   "CTA_ORANGE_ACTIVATE"  ],#cta_birth_anim_idx
     [868, 868, 874, 880, 886, "CTA_WHITE_ACTIVE",       0, "CTA_PURPLE_ACTIVE",     "CTA_BLACK_ACTIVE",     "CTA_ORANGE_ACTIVE"    ],#cta_alive_anim_idx

@@ -65,8 +65,6 @@ enum TrapActivationTypes {
     TrpAcT_Power
 };
 
-struct Thing;
-
 struct TrapStats {
   unsigned long health;
   unsigned long sprite_anim_idx;

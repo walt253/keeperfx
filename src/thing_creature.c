@@ -5763,6 +5763,10 @@ TngUpdateRet update_creature(struct Thing *thing)
     cctrl->spell_flags &= ~CSAfF_PoisonCloud;
     process_thing_spell_effects(thing);
     process_timebomb(thing);
+    if (game.conf.rules.game.additional_rule != 0)
+    {
+    // do whatever
+    }
     SYNCDBG(19,"Finished");
     return TUFRet_Modified;
 }

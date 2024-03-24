@@ -1920,7 +1920,7 @@ CrInstance get_self_spell_casting(const struct Thing *thing)
                         INSTANCE_RET_IF_AVAIL(thing, i);
                     }
                 } else {
-                    if ((inst_inf->flags & InstPF_CastOnCustody))
+                    if ((inst_inf->flags & InstPF_WhileImprisoned))
                     {
                         INSTANCE_RET_IF_AVAIL(thing, i);
                     }

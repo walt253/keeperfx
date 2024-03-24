@@ -726,7 +726,7 @@ long calculate_correct_creature_defense(const struct Thing *thing)
         if (player_uses_power_mighty_infusion(thing->owner))
             max_param = (320 * max_param) / 256;
     }
-    // Value cannot exceed 255 with modifier.
+    // Value cannot exceed 255.
     if (max_param >= 255)
         max_param = 255;
     return max_param;

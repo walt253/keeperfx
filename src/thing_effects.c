@@ -437,7 +437,7 @@ TngUpdateRet update_effect_element(struct Thing *elemtng)
     TRACE_THING(elemtng);
     struct EffectElementConfigStats* eestats = get_effect_element_model_stats(elemtng->model);
     // Check if effect health dropped to zero; delete it, or decrease health for the next check
-    long health = elemtng->health;
+    HitPoints health = elemtng->health;
     if (health <= 0)
     {
         if (eestats->transform_model != 0)

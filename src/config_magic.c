@@ -896,6 +896,7 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
             shotst->inertia_floor = 0;
             shotst->target_hitstop_turns = 0;
             shotst->soft_landing = 0;
+            shotst->periodical = 0;
         }
     }
   // Load the file

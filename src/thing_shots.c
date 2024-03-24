@@ -123,7 +123,7 @@ TbBool detonate_shot(struct Thing *shotng, TbBool destroy)
     {
         create_effect_around_thing(shotng, shotst->explode.around_effect2_model);
     }
-    //TODO CONFIG shot model dependency, make config option instead.
+    // TODO CONFIG shot model dependency, make config option instead.
     switch (shotng->model)
     {
     case ShM_Lightning:
@@ -1821,8 +1821,8 @@ TngUpdateRet update_shot(struct Thing *thing)
                 }
             }
         }
-        if (shotst->persistence > 0) {
-            unsigned short frequency = shotst->persistence;
+        if (shotst->periodical > 0) {
+            unsigned short frequency = shotst->periodical;
             if (((game.play_gameturn + thing->index) % frequency) == 0) {
                 detonate_shot(thing, false);
             }

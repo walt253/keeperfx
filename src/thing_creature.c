@@ -956,8 +956,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
         if (n < 0)
         {
             thing->health = 0;
-        } else 
-        {
+        } else {
             thing->health = min(n, cctrl->max_health);
         }
         if (spconf->aura_effect != 0)
@@ -1176,9 +1175,9 @@ void reapply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long spe
         HitPoints i = saturate_set_signed(thing->health + pwrdynst->strength[spell_lev], 32);
         if (i < 0)
         {
-          thing->health = 0;
+            thing->health = 0;
         } else {
-          thing->health = min(i, cctrl->max_health);
+            thing->health = min(i, cctrl->max_health);
         }
         if (spconf->aura_effect != 0)
         {

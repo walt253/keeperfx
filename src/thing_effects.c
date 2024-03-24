@@ -188,13 +188,11 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
     MapCoordDelta shift_y;
     struct Coord3d pos;
     struct Thing *effeltng;
-
     if ((cctrl->spell_flags & CSAfF_Rebound) != 0)
     {
         int diamtr = 4 * thing->clipbox_size_xy / 2;
         dturn = game.play_gameturn - thing->creation_turn;
-        MapCoord cor_z_max = thing->clipbox_size_z + (thing->clipbox_size_z * game.conf.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 80; //effect is 25% larger than unit
-
+        MapCoord cor_z_max = thing->clipbox_size_z + (thing->clipbox_size_z * game.conf.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 80; // Effect is 25% larger than unit.
         struct EffectElementConfigStats* eestat = get_effect_element_model_stats(TngEffElm_FlashBall1);
         unsigned short nframes = keepersprite_frames(eestat->sprite_idx);
         GameTurnDelta dtadd = 0;
@@ -217,12 +215,11 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
             cframe = (cframe + 1) % nframes;
         }
     }
-
     if ((cctrl->spell_flags & CSAfF_Slow) != 0)
     {
         int diamtr = 4 * thing->clipbox_size_xy / 2;
-        MapCoord cor_z_max = thing->clipbox_size_z + (thing->clipbox_size_z * game.conf.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 80; //effect is 20% smaller than unit
-        int i = cor_z_max / 64; //64 is the vertical speed of the circle.
+        MapCoord cor_z_max = thing->clipbox_size_z + (thing->clipbox_size_z * game.conf.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 80; // Effect is 20% smaller than unit.
+        int i = cor_z_max / 64; // 64 is the vertical speed of the circle.
         if (i <= 1)
           i = 1;
         dturn = game.play_gameturn - thing->creation_turn;
@@ -242,18 +239,16 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
             effeltng = create_thing(&pos, TCls_EffectElem, TngEffElm_RedFlash, thing->owner, -1);
         }
     }
-
     if ((cctrl->spell_flags & CSAfF_Flying) != 0)
     {
         effeltng = create_thing(&thing->mappos, TCls_EffectElem, TngEffElm_CloudDisperse, thing->owner, -1);
     }
-
     if ((cctrl->spell_flags & CSAfF_Speed) != 0)
     {
         effeltng = create_effect_element(&thing->mappos, TngEffElm_FlashBall2, thing->owner);
         if (!thing_is_invalid(effeltng))
         {
-            //make an afterimage of the speeding unit
+            // Make an afterimage of the speeding unit.
             effeltng->anim_time = thing->anim_time;
             effeltng->anim_sprite = thing->anim_sprite;
             effeltng->sprite_size = thing->sprite_size;
@@ -272,7 +267,6 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
             effeltng->move_angle_xy = thing->move_angle_xy;
         }
     }
-
     if ((cctrl->stateblock_flags & CCSpl_Teleport) != 0)
     {
         dturn = get_spell_duration_left_on_thing(thing, SplK_Teleport);
@@ -282,7 +276,7 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
             effeltng = create_effect_element(&thing->mappos, TngEffElm_FlashBall2, thing->owner);
             if (!thing_is_invalid(effeltng))
             {
-                //make an afterimage of the teleporting unit
+                // Make an afterimage of the teleporting unit.
                 effeltng->anim_speed = 0;
                 effeltng->anim_time = thing->anim_time;
                 effeltng->anim_sprite = thing->anim_sprite;
@@ -312,7 +306,6 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
             creature_turn_to_face_angle(thing, thing->move_angle_xy + crstat->max_turning_speed);
         }
     }
-
     if ((cctrl->spell_flags & CSAfF_MagicFall) != 0)
     {
         dturn = game.play_gameturn - thing->creation_turn;
@@ -325,7 +318,6 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
             cctrl->spell_flags &= ~CSAfF_MagicFall;
         }
     }
-
     if ((cctrl->spell_flags & CSAfF_Rage) != 0)
     {
         pos.x.val = thing->mappos.x.val;
@@ -333,7 +325,6 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
         pos.z.val = thing->mappos.z.val + get_creature_eye_height(thing);
         effeltng = create_thing(&pos, TCls_EffectElem, TngEffElm_RedDot, thing->owner, -1);
     }
-
     if ((cctrl->spell_flags & CSAfF_DivineShield) != 0)
     {
         int diamtr = 3 * thing->clipbox_size_xy / 2;
@@ -358,7 +349,6 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
             effeltng = create_thing(&pos, TCls_EffectElem, TngEffElm_LavaFlameMoving, thing->owner, -1);
         }
     }
-
     if ((cctrl->spell_flags & CSAfF_MadKilling) != 0)
     {
         pos.x.val = thing->mappos.x.val;
@@ -366,7 +356,6 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
         pos.z.val = thing->mappos.z.val;
         effeltng = create_thing(&pos, TCls_EffectElem, TngEffElm_BloodSplat, thing->owner, -1);
     }
-
     if ((cctrl->spell_flags & CSAfF_MagicMist) != 0)
     {
         int diamtr = thing->clipbox_size_xy;

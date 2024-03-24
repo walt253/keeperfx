@@ -98,6 +98,7 @@ struct GameRulesConfig {
     short torture_payday;
     short torture_training_cost;
     short torture_scavenging_cost;
+    unsigned char additional_rule;
 };
 
 struct ComputerRulesConfig {

@@ -131,11 +131,11 @@ const struct NamedCommand magic_shot_commands[] = {
   {"HITHEARTSOUND",         54},
   {"BLEEDINGEFFECT",        55},
   {"FROZENEFFECT",          56},
-  {"DEXTERITYPERCENT",      57},
-  {"BREAKPERCENT",          58},
-  {"GOLDPERCENT",           59},
-  {"SLABKIND",              60},
-  {"PERSISTENCE",           61},
+  {"PERIODICAL",            57},
+  {"DEXTERITYPERCENT",      58},
+  {"BREAKPERCENT",          59},
+  {"GOLDPERCENT",           60},
+  {"SLABKIND",              61},
   {NULL,                     0},
   };
 
@@ -1848,7 +1848,7 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
                   COMMAND_TEXT(cmd_num), block_buf, config_textname);
           }
           break;
-      case 55: //BLEEDINGEFFECT
+      case 55: // BLEEDINGEFFECT
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = effect_or_effect_element_id(word_buf);
@@ -1861,7 +1861,7 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
                   COMMAND_TEXT(cmd_num), block_buf, config_textname);
           }
           break;
-      case 56: //FROZENEFFECT
+      case 56: // FROZENEFFECT
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = effect_or_effect_element_id(word_buf);
@@ -1874,7 +1874,20 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
                   COMMAND_TEXT(cmd_num), block_buf, config_textname);
           }
           break;
-      case 57: //DEXTERITYPERCENT
+      case 57: //PERIODICAL
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              shotst->periodical = k;
+              n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 58: //DEXTERITYPERCENT
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
@@ -1887,7 +1900,7 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
                   COMMAND_TEXT(cmd_num), block_buf, config_textname);
           }
           break;
-      case 58: //BREAKPERCENT
+      case 59: //BREAKPERCENT
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
@@ -1900,7 +1913,7 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
                   COMMAND_TEXT(cmd_num), block_buf, config_textname);
           }
           break;
-      case 59: //GOLDPERCENT
+      case 60: //GOLDPERCENT
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
@@ -1913,24 +1926,11 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
                   COMMAND_TEXT(cmd_num), block_buf, config_textname);
           }
           break;
-      case 60: //SLABKIND
+      case 61: //SLABKIND
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
               shotst->slab_kind = k;
-              n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
-          }
-          break;
-      case 61: //PERSISTENCE
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              shotst->persistence = k;
               n++;
           }
           if (n < 1)

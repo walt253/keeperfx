@@ -247,7 +247,7 @@ void clear_creature_pool(void)
     game.pool.is_empty = true;
 }
 
-void give_shooter_drained_health(struct Thing *shooter, long health_delta)
+void give_shooter_drained_health(struct Thing *shooter, HitPoints health_delta)
 {
     struct CreatureControl *cctrl;
     HitPoints max_health;

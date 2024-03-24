@@ -3539,11 +3539,6 @@ void get_creature_instance_times(const struct Thing *thing, long inst_idx, long 
         aitime /= 2;
         itime /= 2;
     }
-    if (creature_affected_by_spell(thing, SplK_Rage))
-    {
-        aitime /= 2;
-        itime /= 2;
-    }
     if (aitime <= 1)
         aitime = 1;
     if (itime <= 1)

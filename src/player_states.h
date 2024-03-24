@@ -93,7 +93,7 @@ enum PlayerStates {
     PSt_MeteorStorm,
     PSt_Indoctrination,
     PSt_MagicMist,
-    PSt_MassTeleport,
+    PSt_MassTeleport, // 60
     PSt_Fart,
     PSt_SummonCreature,
     PSt_Eruption,

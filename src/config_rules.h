@@ -82,7 +82,7 @@ struct GameRulesConfig {
     long boulder_reduce_health_room;
     GameTurnDelta pay_day_gap;
     unsigned long dungeon_heart_heal_time;
-    long dungeon_heart_heal_health;
+    HitPoints dungeon_heart_heal_health;
     unsigned long hero_door_wait_time;
     unsigned long classic_bugs_flags;
     unsigned long gem_effectiveness;

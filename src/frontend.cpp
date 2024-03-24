@@ -1039,6 +1039,14 @@ long player_state_to_packet(long work_state, PowerKind pwkind, TbBool already_in
     case PSt_Flight:
     case PSt_Vision:
     case PSt_Rage:
+    case PSt_DivineShield:
+    case PSt_MeteorStorm:
+    case PSt_Indoctrination:
+    case PSt_MagicMist:
+    case PSt_MassTeleport:
+    case PSt_Fart:
+    case PSt_SummonCreature:
+    case PSt_Eruption:
     case PSt_TimeBomb:
         return PckA_SetPlyrState;
     case PSt_None:
@@ -1046,6 +1054,8 @@ long player_state_to_packet(long work_state, PowerKind pwkind, TbBool already_in
         {
         case PwrK_OBEY:
             return PckA_UsePwrObey;
+        case PwrK_MIGHTYINFUSION:
+            return PckA_UsePwrInfusion;
         case PwrK_HOLDAUDNC:
             return PckA_HoldAudience;
         case PwrK_ARMAGEDDON:

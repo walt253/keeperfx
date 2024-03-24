@@ -118,7 +118,10 @@ const struct NamedCommand trapdoor_trap_commands[] = {
 const struct NamedCommand door_properties_commands[] = {
   {"RESIST_NON_MAGIC",     1},
   {"SECRET",               2},
-  {"THICK",                3},  
+  {"THICK",                3}, 
+  {"WOODEN",               4}, 
+  {"STEELEN",              5}, 
+  {"GOLDEN",               6},  
   {NULL,                   0},
   };
 
@@ -1409,6 +1412,18 @@ TbBool parse_trapdoor_door_blocks(char *buf, long len, const char *config_textna
                 break;
             case 3: // THICK
                 doorst->model_flags |= DoMF_Thick;
+                n++;
+                break;
+            case 4: // WOODEN
+                doorst->model_flags |= DoMF_Wooden;
+                n++;
+                break;
+            case 5: // STEELEN
+                doorst->model_flags |= DoMF_Steelen;
+                n++;
+                break;
+            case 6: // GOLDEN
+                doorst->model_flags |= DoMF_Golden;
                 n++;
                 break;
             default:

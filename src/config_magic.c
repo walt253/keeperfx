@@ -131,6 +131,11 @@ const struct NamedCommand magic_shot_commands[] = {
   {"HITHEARTSOUND",         54},
   {"BLEEDINGEFFECT",        55},
   {"FROZENEFFECT",          56},
+  {"PERIODICAL",            57},
+  {"DEXTERITYPERCENT",      58},
+  {"BREAKPERCENT",          59},
+  {"GOLDPERCENT",           60},
+  {"SLABKIND",              61},
   {NULL,                     0},
   };
 
@@ -167,7 +172,6 @@ const struct NamedCommand magic_special_commands[] = {
   {NULL,               0},
   };
 
-
 const struct NamedCommand shotmodel_withstand_types[] = {
   {"CREATURE",      1},
   {"WALL",          2},
@@ -199,6 +203,9 @@ const struct NamedCommand shotmodel_properties_commands[] = {
   {"DISARMING",           18},
   {"BLOCKS_REBIRTH",      19},
   {"PENETRATING",         20},
+  {"STEALING",            21},
+  {"LOOTING",             22},
+  {"CHARMING",            23},
   {NULL,                   0},
   };
 
@@ -261,6 +268,9 @@ const struct NamedCommand shotmodel_damagetype_commands[] = {
   {"MAGICAL",     DmgT_Magical},
   {"RESPIRATORY", DmgT_Respiratory},
   {"RESTORATION", DmgT_Restoration},
+  {"HOLY",        DmgT_Holy},
+  {"DARKNESS",    DmgT_Darkness},
+  {"HOARFROST",   DmgT_Hoarfrost},
   {NULL,          DmgT_None},
   };
 
@@ -886,6 +896,7 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
             shotst->inertia_floor = 0;
             shotst->target_hitstop_turns = 0;
             shotst->soft_landing = 0;
+            shotst->periodical = 0;
         }
     }
   // Load the file
@@ -1118,6 +1129,18 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
                 break;
             case 20: // Penetrating
                 shotst->model_flags |= ShMF_Penetrating;
+                n++;
+                break;
+            case 21: // Stealing
+                shotst->model_flags |= ShMF_Stealing;
+                n++;
+                break;
+            case 22: // Looting
+                shotst->model_flags |= ShMF_Looting;
+                n++;
+                break;
+            case 23: // Charming
+                shotst->model_flags |= ShMF_Charming;
                 n++;
                 break;
             default:
@@ -1844,6 +1867,71 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           {
               k = effect_or_effect_element_id(word_buf);
               shotst->effect_frozen = k;
+              n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 57: //PERIODICAL
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              shotst->periodical = k;
+              n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 58: //DEXTERITYPERCENT
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              shotst->dexterity_percent = k;
+              n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 59: //BREAKPERCENT
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              shotst->break_percent = k;
+              n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 60: //GOLDPERCENT
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              shotst->gold_percent = k;
+              n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 61: //SLABKIND
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              shotst->slab_kind = k;
               n++;
           }
           if (n < 1)
@@ -2631,6 +2719,10 @@ void remove_power_from_player(PowerKind pwkind, PlayerNumber plyr_idx)
     case PwrK_OBEY:
         if (player_uses_power_obey(plyr_idx))
             turn_off_power_obey(plyr_idx);
+        break;
+    case PwrK_MIGHTYINFUSION:
+        if (player_uses_power_mighty_infusion(plyr_idx))
+            turn_off_power_mighty_infusion(plyr_idx);
         break;
     case PwrK_SIGHT:
         if (player_uses_power_sight(plyr_idx))

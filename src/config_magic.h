@@ -67,7 +67,11 @@ enum SpellKinds {
     SplK_Lizard,
     SplK_Familiar, // 30
     SplK_Summon,
-    SplK_Rage, // 32
+    SplK_Rage,
+    SplK_DivineShield,
+    SplK_Indoctrination,
+    SplK_MagicMist, // 35
+    SplK_Kamikaze,
 };
 
 enum CreatureSpellAffectedFlags {
@@ -91,6 +95,8 @@ enum CreatureSpellAffectedFlags {
     CSAfF_Grounded     = 0x08000,
     CSAfF_Timebomb     = 0x10000,
     CSAfF_Rage         = 0x20000,
+    CSAfF_DivineShield = 0x40000,
+    CSAfF_MagicMist    = 0x80000,
 };
 
 enum PowerKinds {
@@ -123,28 +129,40 @@ enum PowerKinds {
     PwrK_FLIGHT,
     PwrK_VISION,
     PwrK_RAGE,
+    PwrK_DIVINESHIELD,
+    PwrK_METEORSTORM, // 30
+    PwrK_INDOCTRINATION,
+    PwrK_MIGHTYINFUSION,
+    PwrK_MAGICMIST,
+    PwrK_MASSTELEPORT,
+    PwrK_FART, // 35
+    PwrK_SUMMONCREATURE,
+    PwrK_ERUPTION,
 };
 
 /** Contains properties of a shot model, to be stored in ShotConfigStats.
  */
 enum ShotModelFlags {
     /** Set if the shot can be slapped with hand of evil of owning player. */
-    ShMF_Slappable      = 0x0001,
-    ShMF_Navigable      = 0x0002,
-    ShMF_Boulder        = 0x0004,
-    ShMF_ReboundImmune  = 0x0008,
-    ShMF_Digging        = 0x0010,
-    ShMF_LifeDrain      = 0x0020,
-    ShMF_GroupUp        = 0x0040,
-    ShMF_NoStun         = 0x0080,
-    ShMF_NoHit          = 0x0100,
-    ShMF_StrengthBased  = 0x0200,
-    ShMF_AlarmsUnits    = 0x0400,
-    ShMF_CanCollide     = 0x0800,
-    ShMF_Disarming      = 0x1000,
-    ShMF_Exploding      = 0x2000,
-    ShMF_BlocksRebirth  = 0x4000,
-    ShMF_Penetrating    = 0x8000,
+    ShMF_Slappable      = 0x00001,
+    ShMF_Navigable      = 0x00002,
+    ShMF_Boulder        = 0x00004,
+    ShMF_ReboundImmune  = 0x00008,
+    ShMF_Digging        = 0x00010,
+    ShMF_LifeDrain      = 0x00020,
+    ShMF_GroupUp        = 0x00040,
+    ShMF_NoStun         = 0x00080,
+    ShMF_NoHit          = 0x00100,
+    ShMF_StrengthBased  = 0x00200,
+    ShMF_AlarmsUnits    = 0x00400,
+    ShMF_CanCollide     = 0x00800,
+    ShMF_Disarming      = 0x01000,
+    ShMF_Exploding      = 0x02000,
+    ShMF_BlocksRebirth  = 0x04000,
+    ShMF_Penetrating    = 0x08000,
+    ShMF_Stealing       = 0x10000,
+    ShMF_Looting        = 0x20000,
+    ShMF_Charming       = 0x40000,
 };
 
 enum PowerCanCastFlags {
@@ -316,6 +334,11 @@ struct ShotConfigStats {
     unsigned char update_logic; // see enum ShotUpdateLogics
     unsigned short effect_spacing;
     unsigned char effect_amount;
+    unsigned short periodical;
+    unsigned char dexterity_percent;
+    unsigned char break_percent;
+    unsigned char gold_percent;
+    unsigned char slab_kind;
 };
 
 typedef unsigned char (*Expand_Check_Func)(void);

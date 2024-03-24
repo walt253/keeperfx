@@ -86,7 +86,15 @@ const struct NamedCommand player_state_commands[] = {
     {"PLAYER_STATE_FLIGHT",           PSt_Flight},
     {"PLAYER_STATE_VISION",           PSt_Vision},
     {"PLAYER_STATE_RAGE",             PSt_Rage},
-    {NULL,                            0},  
+    {"PLAYER_STATE_DIVINESHIELD",     PSt_DivineShield},
+    {"PLAYER_STATE_METEORSTORM",      PSt_MeteorStorm},
+    {"PLAYER_STATE_INDOCTRINATION",   PSt_Indoctrination},
+    {"PLAYER_STATE_MAGICMIST",        PSt_MagicMist},
+    {"PLAYER_STATE_MASSTELEPORT",     PSt_MassTeleport},
+    {"PLAYER_STATE_FART",             PSt_Fart},
+    {"PLAYER_STATE_SUMMONCREATURE",   PSt_SummonCreature},
+    {"PLAYER_STATE_ERUPTION",         PSt_Eruption},
+    {NULL,                            0},
 };
 /******************************************************************************/
 /******************************************************************************/

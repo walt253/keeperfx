@@ -1452,32 +1452,32 @@ long get_combat_score(const struct Thing *thing, const struct Thing *enmtng, CrA
         if ((attack_type == AttckT_Ranged) || creature_has_ranged_weapon(thing))
         {
             score_extra = 258;
-            score_base = 258 * (4 - enmctrl->opponents_ranged_count) + score_extra;
+            score_base = 258 * (COMBAT_RANGED_OPPONENTS_LIMIT - enmctrl->opponents_ranged_count) + score_extra;
         } else
         if (attack_type != AttckT_Ranged)
         {
             score_extra = 1;
-            score_base = 258 * (4 - enmctrl->opponents_melee_count) + score_extra + 128;
+            score_base = 258 * (COMBAT_MELEE_OPPONENTS_LIMIT - enmctrl->opponents_melee_count) + score_extra + 128;
         } else
         {
             score_extra = 1;
-            score_base = 258 * (4 - enmctrl->opponents_ranged_count) + score_extra;
+            score_base = 258 * (COMBAT_RANGED_OPPONENTS_LIMIT - enmctrl->opponents_ranged_count) + score_extra;
         }
     } else
     {
         if (attack_type == AttckT_Ranged)
         {
             score_extra = 1;
-            score_base = 258 * (4 - enmctrl->opponents_ranged_count) + score_extra;
+            score_base = 258 * (COMBAT_RANGED_OPPONENTS_LIMIT - enmctrl->opponents_ranged_count) + score_extra;
         } else
         if (attack_type != AttckT_Ranged)
         {
             score_extra = 258;
-            score_base = 258 * (4 - enmctrl->opponents_melee_count) + score_extra + 128;
+            score_base = 258 * (COMBAT_MELEE_OPPONENTS_LIMIT - enmctrl->opponents_melee_count) + score_extra + 128;
         } else
         {
             score_extra = 258;
-            score_base = 258 * (4 - enmctrl->opponents_ranged_count) + score_extra;
+            score_base = 258 * (COMBAT_RANGED_OPPONENTS_LIMIT - enmctrl->opponents_ranged_count) + score_extra;
         }
     }
     if (a4 >= 5376)
@@ -1826,6 +1826,22 @@ CrInstance get_best_self_preservation_instance_to_use(const struct Thing *thing)
     {
         INSTANCE_RET_IF_AVAIL(thing, CrInst_FLY);
     }
+    if (!creature_affected_by_spell(thing, SplK_Rage))
+    {
+        INSTANCE_RET_IF_AVAIL(thing, CrInst_RAGE);
+    }
+    if (!creature_affected_by_spell(thing, SplK_DivineShield))
+    {
+        INSTANCE_RET_IF_AVAIL(thing, CrInst_DIVINE_SHIELD);
+    }
+    if (!creature_affected_by_spell(thing, SplK_MagicMist))
+    {
+        INSTANCE_RET_IF_AVAIL(thing, CrInst_MAGIC_MIST);
+    }
+    if (!creature_affected_by_spell(thing, SplK_Kamikaze))
+    {
+        INSTANCE_RET_IF_AVAIL(thing, CrInst_KAMIKAZE);
+    }
     INSTANCE_RET_IF_AVAIL(thing, CrInst_SUMMON);
     INSTANCE_RET_IF_AVAIL(thing, CrInst_FAMILIAR);
     for (int i = CrInst_LISTEND; i < game.conf.crtr_conf.instances_count; i++)
@@ -1851,8 +1867,9 @@ CrInstance get_self_spell_casting(const struct Thing *thing)
     {
         INSTANCE_RET_IF_AVAIL(thing, CrInst_HEAL);
     }
+    // Check if thing is a digger doing digger activity.
     if (thing_is_creature_special_digger(thing) && creature_is_doing_digger_activity(thing))
-    {   
+    {
         // Casting wind when under influence of gas.
         if ((cctrl->spell_flags & CSAfF_PoisonCloud) != 0)
         {
@@ -1881,6 +1898,10 @@ CrInstance get_self_spell_casting(const struct Thing *thing)
         if (!creature_affected_by_spell(thing, SplK_Sight))
         {
             INSTANCE_RET_IF_AVAIL(thing, CrInst_SIGHT);
+        }
+        if (!creature_affected_by_spell(thing, SplK_MagicMist))
+        {
+            INSTANCE_RET_IF_AVAIL(thing, CrInst_MAGIC_MIST);
         }
         if (!creature_is_kept_in_custody(thing))
         {
@@ -3422,9 +3443,8 @@ long project_creature_attack_target_damage(const struct Thing *firing, const str
         shot_model = inst_inf->func_params[0];
     }
     long damage = project_creature_shot_damage(firing, shot_model);
-    // Adjust the damage with target creature defense
-    struct CreatureControl* cctrl = creature_control_get_from_thing(firing);
-    long dexterity = compute_creature_max_dexterity(crstat->dexterity, cctrl->explevel);
+    // Adjust the damage with target creature defense.
+    long dexterity = calculate_correct_creature_dexterity(firing);
     damage = project_damage_of_melee_shot(dexterity, damage, target);
     return damage;
 }

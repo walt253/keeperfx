@@ -151,14 +151,15 @@ enum InstancePropertiesFlags {
 };
 
 enum InstanceActivationFlags {
-    InstAF_None               = 0x00000,
-    InstAF_Digging            = 0x00001,
-    InstAF_Fighting           = 0x00002,
-    InstAF_Idling             = 0x00004,
-    InstAF_Working            = 0x00008,
-    InstAF_WhileImprisoned    = 0x00010,
-    InstAF_WhileInjured       = 0x00020,
-    InstAF_WhileUnderGas      = 0x00040,
+    InstAF_None                = 0x00000,
+    InstAF_Digging             = 0x00001,
+    InstAF_Fighting            = 0x00002,
+    InstAF_Idling              = 0x00004,
+    InstAF_Working             = 0x00008,
+    InstAF_WhileImprisoned     = 0x00010,
+    InstAF_WhileInjured        = 0x00020,
+    InstAF_WhileUnderGas       = 0x00040,
+    InstAF_OnToxicTerrain      = 0x00080,
 };
 
 enum CreatureDeathKind {

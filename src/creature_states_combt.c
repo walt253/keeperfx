@@ -1832,6 +1832,7 @@ CrInstance get_self_spell_casting(const struct Thing *thing)
 {
     struct InstanceInfo* inst_inf;
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    long state_type = get_creature_state_type(thing);
     int i;
     for (i = 0; i < game.conf.crtr_conf.instances_count; i++)
     {

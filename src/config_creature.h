@@ -160,6 +160,8 @@ enum InstanceActivationFlags {
     InstAF_WhileInjured        = 0x00020,
     InstAF_WhileUnderGas       = 0x00040,
     InstAF_OnToxicTerrain      = 0x00080,
+    InstAF_AgainstDoor         = 0x00100,
+    InstAF_AgainstObject       = 0x00200,
 };
 
 enum CreatureDeathKind {

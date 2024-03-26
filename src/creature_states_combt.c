@@ -1834,103 +1834,22 @@ CrInstance get_self_spell_casting(const struct Thing *thing)
         inst_inf = creature_instance_info_get(i);
         if (!creature_affected_by_spell(thing, inst_inf->func_params[1]))
         {
-            if (!creature_is_kept_in_custody(thing))
-            {
-                if ((flag_is_set(inst_inf->activation_flags, InstAF_Digging)) && (thing_is_creature_special_digger(thing)) && (creature_is_doing_digger_activity(thing)))
-                {
-                    if (flag_is_set(inst_inf->activation_flags, InstAF_WhileInjured))
-                    {
-                        if (creature_would_benefit_from_healing(thing))
-                        {
-                            INSTANCE_RET_IF_AVAIL(thing, i);
-                        } else {
-                            continue;
-                        }
-                    }
-                    if (flag_is_set(inst_inf->activation_flags, InstAF_WhileUnderGas))
-                    {
-                        if ((cctrl->spell_flags & CSAfF_PoisonCloud) != 0)
-                        {
-                            INSTANCE_RET_IF_AVAIL(thing, i);
-                        } else {
-                            continue;
-                        }
-                    }
-                    INSTANCE_RET_IF_AVAIL(thing, i);
-                }
-                if ((flag_is_set(inst_inf->activation_flags, InstAF_OutOfBattle)) && ((get_creature_state_type(thing) != CrStTyp_FightCrtr) && (get_creature_state_type(thing) != CrStTyp_FightDoor) && (get_creature_state_type(thing) != CrStTyp_FightObj)))
-                {
-                    if (!is_hero_thing(thing))
-                    {
-                        if (flag_is_set(inst_inf->activation_flags, InstAF_WhileInjured))
-                        {
-                            if (creature_would_benefit_from_healing(thing))
-                            {
-                                INSTANCE_RET_IF_AVAIL(thing, i);
-                            } else {
-                                continue;
-                            }
-                        }
-                        if (flag_is_set(inst_inf->activation_flags, InstAF_WhileUnderGas))
-                        {
-                            if ((cctrl->spell_flags & CSAfF_PoisonCloud) != 0)
-                            {
-                                INSTANCE_RET_IF_AVAIL(thing, i);
-                            } else {
-                                continue;
-                            }
-                        }
-                        INSTANCE_RET_IF_AVAIL(thing, i);
-                    } else {
-                        if ((flag_is_set(inst_inf->activation_flags, InstAF_Waiting) || (get_creature_state_type(thing) != CrStTyp_Idle)))
-                        {
-                            if (flag_is_set(inst_inf->activation_flags, InstAF_WhileInjured))
-                            {
-                                if (creature_would_benefit_from_healing(thing))
-                                {
-                                    INSTANCE_RET_IF_AVAIL(thing, i);
-                                } else {
-                                    continue;
-                                }
-                            }
-                            if (flag_is_set(inst_inf->activation_flags, InstAF_WhileUnderGas))
-                            {
-                                if ((cctrl->spell_flags & CSAfF_PoisonCloud) != 0)
-                                {
-                                    INSTANCE_RET_IF_AVAIL(thing, i);
-                                } else {
-                                    continue;
-                                }
-                            }
-                            INSTANCE_RET_IF_AVAIL(thing, i);
-                        }
-                    }
-                }
-            } else {
-                if (flag_is_set(inst_inf->activation_flags, InstAF_WhileImprisoned))
-                {
-                    if (flag_is_set(inst_inf->activation_flags, InstAF_WhileInjured))
-                    {
-                        if (creature_would_benefit_from_healing(thing))
-                        {
-                            INSTANCE_RET_IF_AVAIL(thing, i);
-                        } else {
-                            continue;
-                        }
-                    }
-                    if (flag_is_set(inst_inf->activation_flags, InstAF_WhileUnderGas))
-                    {
-                        if ((cctrl->spell_flags & CSAfF_PoisonCloud) != 0)
-                        {
-                            INSTANCE_RET_IF_AVAIL(thing, i);
-                        } else {
-                            continue;
-                        }
-                    }
-                    INSTANCE_RET_IF_AVAIL(thing, i);
-                }
-            }
-            if ((flag_is_set(inst_inf->activation_flags, InstAF_OnToxicTerrain)) && (terrain_toxic_for_creature_at_position(thing, coord_subtile(thing->mappos.x.val), coord_subtile(thing->mappos.y.val))))
+            if ( // Start of the condition block.
+((!creature_is_kept_in_custody(thing)) && // Not on custody condition block start here.
+    (      // Digging activities.
+        ((flag_is_set(inst_inf->activation_flags, InstAF_Digging)) && (thing_is_creature_special_digger(thing)) && (creature_is_doing_digger_activity(thing)))
+        || // OutOfBattle and Waiting heroes.
+        (((flag_is_set(inst_inf->activation_flags, InstAF_OutOfBattle)) && (get_creature_state_type(thing) != CrStTyp_FightCrtr) && (get_creature_state_type(thing) != CrStTyp_FightDoor) && (get_creature_state_type(thing) != CrStTyp_FightObj)) && ((!is_hero_thing(thing)) || ((is_hero_thing(thing)) && ((flag_is_set(inst_inf->activation_flags, InstAF_Waiting)) || (get_creature_state_type(thing) != CrStTyp_Idle)))))
+        || // OnToxicTerrain reaction.
+        ((flag_is_set(inst_inf->activation_flags, InstAF_OnToxicTerrain)) && (terrain_toxic_for_creature_at_position(thing, coord_subtile(thing->mappos.x.val), coord_subtile(thing->mappos.y.val))))
+        || // AgainstDoor reaction.
+        ((flag_is_set(inst_inf->activation_flags, InstAF_AgainstDoor)) && (get_creature_state_type(thing) == CrStTyp_FightDoor))
+        || // AgainstObject reaction.
+        ((flag_is_set(inst_inf->activation_flags, InstAF_AgainstObject)) && (get_creature_state_type(thing) == CrStTyp_FightObj))
+    ) // Not on custody condition block end here.
+) // Then if on custody then check if WhileImprisoned flag is set.
+|| ((creature_is_kept_in_custody(thing)) && (flag_is_set(inst_inf->activation_flags, InstAF_WhileImprisoned)))
+                ) // End of the condition block.
             {
                 if (flag_is_set(inst_inf->activation_flags, InstAF_WhileInjured))
                 {

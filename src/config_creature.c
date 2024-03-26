@@ -123,6 +123,8 @@ const struct NamedCommand creaturetype_instance_activation[] = {
   {"WHILE_INJURED",          InstAF_WhileInjured},
   {"WHILE_UNDERGAS",         InstAF_WhileUnderGas},
   {"ON_TOXIC_TERRAIN",       InstAF_OnToxicTerrain},
+  {"AGAINST_DOOR",           InstAF_AgainstDoor},
+  {"AGAINST_OBJECT",         InstAF_AgainstObject},
   {NULL,                     0},
   };
 

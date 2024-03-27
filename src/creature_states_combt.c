@@ -1827,7 +1827,7 @@ CrInstance get_self_spell_casting(const struct Thing *thing)
 {
     struct InstanceInfo* inst_inf;
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    long state_type = get_creature_state_type(thing);
+    CrtrStateId state_type = get_creature_state_type(thing);
     for (int i = 0; i < game.conf.crtr_conf.instances_count; i++)
     {
         inst_inf = creature_instance_info_get(i);
@@ -1838,7 +1838,7 @@ CrInstance get_self_spell_casting(const struct Thing *thing)
     (      // Digging activities.
         ((flag_is_set(inst_inf->flags, InstPF_DiggerTask)) && (thing_is_creature_special_digger(thing)) && (creature_is_doing_digger_activity(thing)))
         || // OutOfBattle and Waiting heroes.
-        (((flag_is_set(inst_inf->flags, InstPF_OutOfBattle)) && (cctrl->combat_flags != 0)) && ((!is_hero_thing(thing)) || ((is_hero_thing(thing)) && ((flag_is_set(inst_inf->flags, InstPF_Waiting)) || (state_type != CrStTyp_Idle)))))
+        (((flag_is_set(inst_inf->flags, InstPF_OutOfBattle)) && (!creature_is_fighting(thing))) && ((!is_hero_thing(thing)) || ((is_hero_thing(thing)) && ((flag_is_set(inst_inf->flags, InstPF_Waiting)) || (state_type != CrStTyp_Idle)))))
         || // OnToxicTerrain reaction.
         ((flag_is_set(inst_inf->flags, InstPF_OnToxicTerrain)) && (terrain_toxic_for_creature_at_position(thing, coord_subtile(thing->mappos.x.val), coord_subtile(thing->mappos.y.val))))
         || // AgainstDoor reaction.

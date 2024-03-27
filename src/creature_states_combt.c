@@ -1820,6 +1820,8 @@ CrInstance get_best_self_preservation_instance_to_use(const struct Thing *thing)
                     }
                 }
                 INSTANCE_RET_IF_AVAIL(thing, i);
+            } else {
+                continue;
             }
         }
     }
@@ -1875,6 +1877,8 @@ CrInstance get_self_spell_casting(const struct Thing *thing)
                     }
                     INSTANCE_RET_IF_AVAIL(thing, i);
                 }
+            } else {
+                continue;
             }
         }
     }
@@ -1935,6 +1939,8 @@ CrInstance get_best_combat_weapon_instance_to_use(const struct Thing *thing, lon
                         inst_id = -i;
                     }
                 }
+            } else {
+                continue;
             }
         }
     }
@@ -1971,6 +1977,8 @@ CrInstance get_best_combat_weapon_instance_to_use_versus_trap(const struct Thing
                         inst_id = -i;
                     }
                 }
+            } else {
+                continue;
             }
         }
     }

@@ -153,9 +153,9 @@ enum InstancePropertiesFlags {
     InstPF_OutOfBattle         = 0x001000,
     InstPF_OnlyInjured         = 0x002000,
     InstPF_OnlyUnderGas        = 0x004000,
-    InstPF_OnToxicTerrain      = 0x008000,
-    InstPF_Waiting             = 0x010000,
-    InstPF_WhileImprisoned     = 0x020000,
+    InstPF_Waiting             = 0x008000,
+    InstPF_WhileImprisoned     = 0x010000,
+    InstPF_OnToxicTerrain      = 0x020000,
     InstPF_AgainstDoor         = 0x040000,
     InstPF_AgainstObject       = 0x080000,
 };

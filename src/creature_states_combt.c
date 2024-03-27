@@ -1801,7 +1801,7 @@ CrInstance get_best_self_preservation_instance_to_use(const struct Thing *thing)
             inst_inf = creature_instance_info_get(i);
             if ((flag_is_set(inst_inf->flags, InstPF_SelfBuff)) && (!creature_affected_by_spell(thing, inst_inf->func_params[1])) && (inst_inf->priority >= p))
             {
-                if (flag_is_set(inst_inf->flags, InstPF_WhileInjured))
+                if (flag_is_set(inst_inf->flags, InstPF_OnlyInjured))
                 {
                     if (creature_requires_healing(thing))
                     {
@@ -1810,7 +1810,7 @@ CrInstance get_best_self_preservation_instance_to_use(const struct Thing *thing)
                         continue;
                     }
                 }
-                if (flag_is_set(inst_inf->flags, InstPF_WhileUnderGas))
+                if (flag_is_set(inst_inf->flags, InstPF_OnlyUnderGas))
                 {
                     if ((cctrl->spell_flags & CSAfF_PoisonCloud) != 0)
                     {
@@ -1855,7 +1855,7 @@ CrInstance get_self_spell_casting(const struct Thing *thing)
 || ((creature_is_kept_in_custody(thing)) && (flag_is_set(inst_inf->flags, InstPF_WhileImprisoned)))
                     ) // End of the condition block.
                 {
-                    if (flag_is_set(inst_inf->flags, InstPF_WhileInjured))
+                    if (flag_is_set(inst_inf->flags, InstPF_OnlyInjured))
                     {
                         if (creature_would_benefit_from_healing(thing))
                         {
@@ -1864,7 +1864,7 @@ CrInstance get_self_spell_casting(const struct Thing *thing)
                             continue;
                         }
                     }
-                    if (flag_is_set(inst_inf->flags, InstPF_WhileUnderGas))
+                    if (flag_is_set(inst_inf->flags, InstPF_OnlyUnderGas))
                     {
                         if ((cctrl->spell_flags & CSAfF_PoisonCloud) != 0)
                         {

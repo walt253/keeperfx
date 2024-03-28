@@ -335,6 +335,9 @@ struct ShotConfigStats {
     unsigned short effect_spacing;
     unsigned char effect_amount;
     unsigned short periodical;
+    short spread_xy;
+    short spread_z;
+    short speed_deviation;
     unsigned char dexterity_percent;
     unsigned char break_percent;
     unsigned char gold_percent;

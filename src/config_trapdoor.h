@@ -54,7 +54,7 @@ struct DoorConfigStats {
     long pointer_sprite_idx;
     long place_sound_idx;
     unsigned short slbkind[2];
-    long health;
+    HitPoints health;
     unsigned short open_speed;
     unsigned short model_flags;
     short unsellable;
@@ -66,6 +66,9 @@ enum DoorModelFlags {
     DoMF_ResistNonMagic = 0x0001,
     DoMF_Secret         = 0x0002,
     DoMF_Thick          = 0x0004,
+    DoMF_Wooden         = 0x0008,
+    DoMF_Steelen        = 0x0010,
+    DoMF_Golden         = 0x0020,
 };
 
 struct TrapConfigStats {

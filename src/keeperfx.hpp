@@ -287,6 +287,7 @@ void process_objective(const char *msg_text, long target, long x, long y);
 void set_general_objective(long msg_id, long target, long x, long y);
 void turn_off_power_sight_of_evil(PlayerNumber plridx);
 void turn_off_power_obey(PlayerNumber plyr_idx);
+void turn_off_power_mighty_infusion(PlayerNumber plyr_idx);
 
 short dump_first_held_thing_on_map(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, TbBool update_hand);
 int dump_all_held_things_on_map(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
@@ -302,7 +303,7 @@ void initialise_map_collides(void);
 void initialise_map_health(void);
 void setup_3d(void);
 void setup_stuff(void);
-void give_shooter_drained_health(struct Thing *shooter, long health_delta);
+void give_shooter_drained_health(struct Thing *shooter, HitPoints health_delta);
 long get_foot_creature_has_down(struct Thing *thing);
 void process_keeper_spell_aura(struct Thing *thing);
 void init_seeds();

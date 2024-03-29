@@ -1917,7 +1917,17 @@ struct Thing *find_interesting_object_laying_around_thing(struct Thing *creatng)
             {
                 struct Thing* thing = find_gold_pile_or_chicken_laying_on_mapblk(mapblk);
                 if (!thing_is_invalid(thing))
-                    return thing;
+                {
+                    if ((is_hero_thing(creatng)) || (is_neutral_thing(creatng)))
+                    {
+                        if (thing->model == ObjMdl_Goldl)
+                        {
+                            return thing;
+                        }
+                    } else {
+                        return thing;
+                    }
+                }
             }
         }
     }

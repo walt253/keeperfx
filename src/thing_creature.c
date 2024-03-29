@@ -1886,7 +1886,7 @@ struct Thing *find_gold_pile_or_chicken_laying_on_mapblk(struct Map *mapblk)
         i = thing->next_on_mapblk;
         if (thing->class_id == TCls_Object)
         {
-            if ((thing->model == ObjMdl_Goldl) && thing_touching_floor(thing))
+            if (object_is_gold_laying_on_ground(thing) && thing_touching_floor(thing))
                 return thing;
             if (object_is_mature_food(thing))
             {
@@ -1921,7 +1921,17 @@ struct Thing *find_interesting_object_laying_around_thing(struct Thing *creatng)
             {
                 struct Thing* thing = find_gold_pile_or_chicken_laying_on_mapblk(mapblk);
                 if (!thing_is_invalid(thing))
-                    return thing;
+                {
+                    if ((is_hero_thing(creatng)) || (is_neutral_thing(creatng)))
+                    {
+                        if (thing->model == ObjMdl_Goldl)
+                        {
+                            return thing;
+                        }
+                    } else {
+                        return thing;
+                    }
+                }
             }
         }
     }

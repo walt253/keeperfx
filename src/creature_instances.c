@@ -407,6 +407,10 @@ void process_creature_instance(struct Thing *thing)
             {
                 SYNCDBG(18,"Executing %s for %s index %d.",creature_instance_code_name(cctrl->instance_id),thing_model_name(thing),(int)thing->index);
                 creature_instances_func_list[inst_inf->func_idx](thing, inst_inf->func_params);
+                if (thing->creature.volley_repeat > 0)
+                {
+                    return;
+                }
             }
         }
         if (cctrl->inst_turn >= cctrl->inst_total_turns)
@@ -420,6 +424,7 @@ void process_creature_instance(struct Thing *thing)
             // Instances sometimes failed to reach this. More reliable to set instance_use_turn sooner
             // cctrl->instance_use_turn[cctrl->instance_id] = game.play_gameturn; // so this code has been moved to another location
             cctrl->instance_id = CrInst_NULL;
+            thing->creature.volley_fire = false;
         }
         cctrl->inst_repeat = 0;
     }
@@ -751,7 +756,8 @@ long instf_eat(struct Thing *creatng, long *param)
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     if (cctrl->hunger_amount > 0)
         cctrl->hunger_amount--;
-    apply_health_to_thing_and_display_health(creatng, game.conf.rules.health.food_health_gain);
+    HitPoints food_health_gain = (cctrl->max_health * game.conf.rules.health.food_health_gain) / 100;
+    apply_health_to_thing_and_display_health(creatng, food_health_gain);
     cctrl->hunger_level = 0;
     return 1;
 }

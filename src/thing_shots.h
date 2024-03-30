@@ -58,10 +58,11 @@ enum ShotModels {
     ShM_Disease,
     ShM_Chicken,
     ShM_TimeBomb,
-    ShM_TrapLightning, // 29
-    ShM_WordOfPower, 
+    ShM_TrapLightning,
+    ShM_WordOfPower, // 30
     ShM_TrapWordOfPower,
     ShM_TrapTNT = 32,
+    ShM_MeteorStorm = 33,
 };
 
 enum ShotFireLogics {
@@ -69,7 +70,8 @@ enum ShotFireLogics {
     ShFL_Beam,
     ShFL_Breathe,
     ShFL_Hail,
-    ShFL_Lizard
+    ShFL_Lizard,
+    ShFL_Volley,
 };
 
 enum ShotUpdateLogics {
@@ -82,6 +84,7 @@ enum ShotUpdateLogics {
     ShUL_GodLightBall,
     ShUL_TrapTNT,
     ShUL_TrapLightning,
+    ShUL_MeteorStorm,
 };
 
 /******************************************************************************/

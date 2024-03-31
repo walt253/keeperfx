@@ -1918,14 +1918,20 @@ struct Thing *find_interesting_object_laying_around_thing(struct Thing *creatng)
                 struct Thing* thing = find_gold_pile_or_chicken_laying_on_mapblk(mapblk);
                 if (!thing_is_invalid(thing))
                 {
-                    if ((is_hero_thing(creatng)) || (is_neutral_thing(creatng)))
+                    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
+                    if ((thing->model == ObjMdl_Goldl) || (crstat->is_thief != 0))
                     {
-                        if (thing->model == ObjMdl_Goldl)
-                        {
-                            return thing;
-                        }
-                    } else {
                         return thing;
+                    } else {
+                        if ((!is_hero_thing(creatng)) && (!is_neutral_thing(creatng)))
+                        {
+                            unsigned char luck = CREATURE_RANDOM(creatng, (calculate_correct_creature_luck(creatng)));
+                            unsigned long chance = CREATURE_RANDOM(creatng, ((thing->valuable.gold_stored * (100 - luck)) / 100));
+                            if (luck >= chance)
+                            {
+                                return thing;
+                            }
+                        }
                     }
                 }
             }

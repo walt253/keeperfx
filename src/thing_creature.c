@@ -3282,6 +3282,14 @@ void thing_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot
         shot_set_start_pos(firing, shotst, &pos1);
         for (i = 0; i < shotst->effect_amount; i++)
         {
+            if (shotst->speed_deviation)
+            {
+                speed = (short)(shotst->speed - (shotst->speed_deviation/2) + (CREATURE_RANDOM(firing, shotst->speed_deviation)));
+            }
+            else
+            {
+                speed = shotst->speed;
+            }
             tmptng = create_thing(&pos1, TCls_Shot, shot_model, firing->owner, -1);
             if (thing_is_invalid(tmptng))
                 break;
@@ -3289,7 +3297,7 @@ void thing_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot
             shotng->shot.hit_type = hit_type;
             shotng->move_angle_xy = (short)((angle_xy + CREATURE_RANDOM(firing, 2 * shotst->spread_xy + 1) - shotst->spread_xy) & LbFPMath_AngleMask);
             shotng->move_angle_z = (short)((angle_yz + CREATURE_RANDOM(firing, 2 * shotst->spread_z + 1) - shotst->spread_z) & LbFPMath_AngleMask);
-            angles_to_vector(shotng->move_angle_xy, shotng->move_angle_z, shotst->speed, &cvect);
+            angles_to_vector(shotng->move_angle_xy, shotng->move_angle_z, speed, &cvect);
             shotng->veloc_push_add.x.val += cvect.x;
             shotng->veloc_push_add.y.val += cvect.y;
             shotng->veloc_push_add.z.val += cvect.z;
@@ -3321,7 +3329,7 @@ void thing_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot
         }
         if (shotst->speed_deviation)
         {
-            speed = (short)(shotst->speed + CREATURE_RANDOM(firing, shotst->speed_deviation));
+            speed = (short)(shotst->speed - (shotst->speed_deviation / 2) + (CREATURE_RANDOM(firing, shotst->speed_deviation)));
         }
         else
         {
@@ -5935,6 +5943,147 @@ void process_creature_using_gold(struct Thing *thing)
     {
         unsigned long frequency = ((100 * crstat->pay) / thing->creature.gold_carried);
         unsigned long cost = (crstat->pay + (crstat->pay * cctrl->total_upgrade));
+        if ((((game.play_gameturn + thing->index) % frequency) == 0) && (thing->active_state == CrStTyp_FightCrtr))
+        {
+            unsigned long potion_cost = CREATURE_RANDOM(creatng, thing->health);
+            unsigned char potion_kind = GAME_RANDOM(10);
+            switch (potion_kind)
+            {
+                case 1: // SplK_Armour
+                {
+                    if (!creature_affected_by_spell(thing, SplK_Armour))
+                    {
+                        potion_cost += 250;
+                        if (thing->creature.gold_carried >= potion_cost)
+                        {
+                            first_apply_spell_effect_to_thing(thing, SplK_Armour, cctrl->explevel);
+                            thing->creature.gold_carried -= potion_cost;
+                        }
+                    }
+                    break;
+                }
+                case 2: // SplK_Rebound
+                {
+                    if (!creature_affected_by_spell(thing, SplK_Rebound))
+                    {
+                        potion_cost += 250;
+                        if (thing->creature.gold_carried >= potion_cost)
+                        {
+                            first_apply_spell_effect_to_thing(thing, SplK_Rebound, cctrl->explevel);
+                            thing->creature.gold_carried -= potion_cost;
+                        }
+                    }
+                    break;
+                }
+                case 3: // SplK_Heal
+                {
+                    if (thing->health >= cctrl->max_health / 2)
+                    {
+                        potion_cost += 50;
+                        if (thing->creature.gold_carried >= potion_cost)
+                        {
+                            first_apply_spell_effect_to_thing(thing, SplK_Heal, cctrl->explevel);
+                            thing->creature.gold_carried -= potion_cost;
+                        }
+                    }
+                    break;
+                }
+                case 4: // SplK_Invisibility
+                {
+                    if (!creature_affected_by_spell(thing, SplK_Invisibility))
+                    {
+                        potion_cost += 100;
+                        if (thing->creature.gold_carried >= potion_cost)
+                        {
+                            first_apply_spell_effect_to_thing(thing, SplK_Invisibility, cctrl->explevel);
+                            thing->creature.gold_carried -= potion_cost;
+                        }
+                    }
+                    break;
+                }
+                case 5: // SplK_Speed
+                {
+                    if (!creature_affected_by_spell(thing, SplK_Speed))
+                    {
+                        potion_cost += 400;
+                        if (thing->creature.gold_carried >= potion_cost)
+                        {
+                            first_apply_spell_effect_to_thing(thing, SplK_Speed, cctrl->explevel);
+                            thing->creature.gold_carried -= potion_cost;
+                        }
+                    }
+                    break;
+                }
+                case 6: // SplK_Fly
+                {
+                    if (!creature_affected_by_spell(thing, SplK_Fly))
+                    {
+                        potion_cost += 100;
+                        if (thing->creature.gold_carried >= potion_cost)
+                        {
+                            first_apply_spell_effect_to_thing(thing, SplK_Fly, cctrl->explevel);
+                            thing->creature.gold_carried -= potion_cost;
+                        }
+                    }
+                    break;
+                }
+                case 7: // SplK_Sight
+                {
+                    if (!creature_affected_by_spell(thing, SplK_Sight))
+                    {
+                        potion_cost += 100;
+                        if (thing->creature.gold_carried >= potion_cost)
+                        {
+                            first_apply_spell_effect_to_thing(thing, SplK_Sight, cctrl->explevel);
+                            thing->creature.gold_carried -= potion_cost;
+                        }
+                    }
+                    break;
+                }
+                case 8: // SplK_Rage
+                {
+                    if (!creature_affected_by_spell(thing, SplK_Rage))
+                    {
+                        potion_cost += 500;
+                        if (thing->creature.gold_carried >= potion_cost)
+                        {
+                            first_apply_spell_effect_to_thing(thing, SplK_Rage, cctrl->explevel);
+                            thing->creature.gold_carried -= potion_cost;
+                        }
+                    }
+                    break;
+                }
+                case 9: // SplK_DivineShield
+                {
+                    if (!creature_affected_by_spell(thing, SplK_DivineShield))
+                    {
+                        potion_cost += 700;
+                        if (thing->creature.gold_carried >= potion_cost)
+                        {
+                            first_apply_spell_effect_to_thing(thing, SplK_DivineShield, cctrl->explevel);
+                            thing->creature.gold_carried -= potion_cost;
+                        }
+                    }
+                    break;
+                }
+                case 10: // SplK_MagicMist
+                {
+                    if (!creature_affected_by_spell(thing, SplK_MagicMist))
+                    {
+                        potion_cost += 550;
+                        if (thing->creature.gold_carried >= potion_cost)
+                        {
+                            first_apply_spell_effect_to_thing(thing, SplK_MagicMist, cctrl->explevel);
+                            thing->creature.gold_carried -= potion_cost;
+                        }
+                    }
+                    break;
+                }
+                default:
+                    break;
+            }
+            return;
+        }
         if ((((game.play_gameturn + thing->index) % frequency) == 0) && (thing->creature.gold_carried >= cost))
         {
             unsigned char upgrade_kind = GAME_RANDOM(8);

@@ -664,7 +664,8 @@ void food_eaten_by_creature(struct Thing *foodtng, struct Thing *creatng)
         if (cctrl->hunger_loss < 255) {
               cctrl->hunger_loss++;
         }
-        apply_health_to_thing_and_display_health(creatng, game.conf.rules.health.food_health_gain);
+        HitPoints food_health_gain = (cctrl->max_health * game.conf.rules.health.food_health_gain) / 100;
+        apply_health_to_thing_and_display_health(creatng, food_health_gain);
         cctrl->hunger_level = 0;
     }
     // Food is destroyed just below, so the sound must be made by creature
@@ -738,6 +739,8 @@ TbBool creature_affected_by_spell(const struct Thing *thing, SpellKind spkind)
         return ((cctrl->spell_flags & CSAfF_Invisibility) != 0);
     case SplK_Teleport:
         return ((cctrl->stateblock_flags & CCSpl_Teleport) != 0);
+    case SplK_Rage:
+        return ((cctrl->spell_flags & CSAfF_Rage) != 0);
     case SplK_Speed:
         return ((cctrl->spell_flags & CSAfF_Speed) != 0);
     case SplK_Slow:
@@ -746,10 +749,18 @@ TbBool creature_affected_by_spell(const struct Thing *thing, SpellKind spkind)
         return ((cctrl->spell_flags & CSAfF_Flying) != 0);
     case SplK_Sight:
         return ((cctrl->spell_flags & CSAfF_Sight) != 0);
+    case SplK_DivineShield:
+        return ((cctrl->spell_flags & CSAfF_DivineShield) != 0);
     case SplK_Disease:
         return ((cctrl->spell_flags & CSAfF_Disease) != 0);
     case SplK_Chicken:
         return ((cctrl->spell_flags & CSAfF_Chicken) != 0);
+    case SplK_Indoctrination:
+        return ((cctrl->spell_flags & CSAfF_MadKilling) != 0);
+    case SplK_MagicMist:
+        return ((cctrl->spell_flags & CSAfF_MagicMist) != 0);
+    case SplK_Kamikaze:
+        return ((cctrl->spell_flags & CSAfF_Timebomb) != 0);
     case SplK_TimeBomb:
         return ((cctrl->spell_flags & CSAfF_Timebomb) != 0);
     // Handle spells with no continuous effect
@@ -1041,7 +1052,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
             }
         }
     } else
-    if (spell_idx == SplK_TimeBomb)
+    if ((spell_idx == SplK_TimeBomb) || (spell_idx == SplK_Kamikaze))
     {
         if (i != -1)
         {
@@ -1061,13 +1072,21 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
         switch (spell_idx)
         {
         case SplK_Freeze:
-            cctrl->stateblock_flags |= CCSpl_Freeze;
-            if ((thing->movement_flags & TMvF_Flying) != 0)
+            crstat = creature_stats_get_from_thing(thing);
+            if ((crstat->immune_to_freeze == 0) || (cctrl->force_to_freeze != 0))
+            {
+                cctrl->stateblock_flags |= CCSpl_Freeze;
+                if ((thing->movement_flags & TMvF_Flying) != 0)
                 {
                     cctrl->spell_flags |= CSAfF_Grounded;
                     thing->movement_flags &= ~TMvF_Flying;
                 }
-            creature_set_speed(thing, 0);
+                creature_set_speed(thing, 0);
+                if (cctrl->force_to_freeze != 0)
+                {
+                    cctrl->force_to_freeze = false;
+                }
+            }
             break;
         case SplK_Armour:
             n = 0;
@@ -1098,14 +1117,22 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
         case SplK_Teleport:
             cctrl->stateblock_flags |= CCSpl_Teleport;
             break;
+        case SplK_Rage:
         case SplK_Speed:
-        case SplK_Slow:
             cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
+            break;
+        case SplK_Slow:
+            crstat = creature_stats_get_from_thing(thing);
+            if (crstat->immune_to_slow == 0)
+            {
+                cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
+            } else {
+                terminate_thing_spell_effect(thing, SplK_Slow);
+            }
             break;
         case SplK_Fly:
             thing->movement_flags |= TMvF_Flying;
             break;
-
         }
         if (spconf->aura_effect != 0)
         {
@@ -1233,6 +1260,10 @@ void terminate_thing_spell_effect(struct Thing *thing, SpellKind spkind)
     case SplK_Teleport:
         cctrl->stateblock_flags &= ~CCSpl_Teleport;
         break;
+    case SplK_Rage:
+        cctrl->spell_flags &= ~CSAfF_Rage;
+        cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
+        break;
     case SplK_Speed:
         cctrl->spell_flags &= ~CSAfF_Speed;
         cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
@@ -1249,6 +1280,9 @@ void terminate_thing_spell_effect(struct Thing *thing, SpellKind spkind)
         break;
     case SplK_Sight:
         cctrl->spell_flags &= ~CSAfF_Sight;
+        break;
+    case SplK_DivineShield:
+        cctrl->spell_flags &= ~CSAfF_DivineShield;
         break;
     case SplK_Disease:
         cctrl->spell_flags &= ~CSAfF_Disease;
@@ -1267,6 +1301,12 @@ void terminate_thing_spell_effect(struct Thing *thing, SpellKind spkind)
         cctrl->spell_flags &= ~CSAfF_Chicken;
         external_set_thing_state(thing, CrSt_CreatureChangeFromChicken);
         cctrl->countdown_282 = 10;
+        break;
+    case SplK_Indoctrination:
+        cctrl->spell_flags &= ~CSAfF_MadKilling;
+        break;
+    case SplK_MagicMist:
+        cctrl->spell_flags &= ~CSAfF_MagicMist;
         break;
     case SplK_Light:
     crstat = creature_stats_get(thing->model);
@@ -1842,7 +1882,7 @@ struct Thing *find_gold_pile_or_chicken_laying_on_mapblk(struct Map *mapblk)
         i = thing->next_on_mapblk;
         if (thing->class_id == TCls_Object)
         {
-            if ((thing->model == ObjMdl_Goldl) && thing_touching_floor(thing))
+            if (object_is_gold_laying_on_ground(thing) && thing_touching_floor(thing))
                 return thing;
             if (object_is_mature_food(thing))
             {
@@ -1877,7 +1917,23 @@ struct Thing *find_interesting_object_laying_around_thing(struct Thing *creatng)
             {
                 struct Thing* thing = find_gold_pile_or_chicken_laying_on_mapblk(mapblk);
                 if (!thing_is_invalid(thing))
-                    return thing;
+                {
+                    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
+                    if ((thing->model == ObjMdl_Goldl) || (crstat->is_thief != 0))
+                    {
+                        return thing;
+                    } else {
+                        if ((!is_hero_thing(creatng)) && (!is_neutral_thing(creatng)))
+                        {
+                            unsigned char luck = CREATURE_RANDOM(creatng, (calculate_correct_creature_luck(creatng)));
+                            unsigned long chance = CREATURE_RANDOM(creatng, ((thing->valuable.gold_stored * (100 - luck)) / 100));
+                            if (luck >= chance)
+                            {
+                                return thing;
+                            }
+                        }
+                    }
+                }
             }
         }
     }
@@ -1975,6 +2031,7 @@ TngUpdateRet process_creature_state(struct Thing *thing)
     SYNCDBG(19,"Starting for %s index %d owned by player %d",thing_model_name(thing),(int)thing->index,(int)thing->owner);
     TRACE_THING(thing);
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     unsigned long model_flags = get_creature_model_flags(thing);
 
     process_person_moods_and_needs(thing);
@@ -2030,13 +2087,39 @@ TngUpdateRet process_creature_state(struct Thing *thing)
         set_start_state(thing);
     }
 
-    // Creatures that are not special diggers will pick up any nearby gold or food
+    // Creatures that are not special diggers will pick up any nearby gold or food.
     if (((thing->movement_flags & TMvF_Flying) == 0) && ((model_flags & CMF_IsSpecDigger) == 0))
     {
         if (!creature_is_being_unconscious(thing) && !creature_is_dying(thing) &&
             !thing_is_picked_up(thing) && !creature_is_being_dropped(thing))
         {
             creature_pick_up_interesting_object_laying_nearby(thing);
+        }
+    }
+    // Mechanical creature can and will self heal at anytime.
+    if ((crstat->toking_recovery > 0) && (cctrl->max_health > thing->health) && ((model_flags & CMF_Mechanical) != 0) && (!creature_is_being_tortured(thing)))
+    {
+        HitPoints mechanical_frequency = thing->health / crstat->toking_recovery;
+        if (mechanical_frequency < crstat->toking_recovery) {
+            mechanical_frequency = crstat->toking_recovery;
+        }
+        if (((game.play_gameturn + thing->index) % mechanical_frequency) == 0)
+        {
+            HitPoints recover = compute_creature_max_health(crstat->toking_recovery, cctrl->explevel, thing->owner);
+            apply_health_to_thing_and_display_health(thing, recover);
+        }
+    }
+    // Self Recovery creature can and will self heal at anytime.
+    if ((crstat->sleep_recovery > 0) && (cctrl->max_health > thing->health) && (crstat->self_recovery != 0) && (!creature_is_being_tortured(thing)))
+    {
+        HitPoints recover = compute_creature_max_health(crstat->sleep_recovery, cctrl->explevel, thing->owner);
+        HitPoints self_frequency = cctrl->max_health / recover;
+        if (self_frequency < crstat->sleep_recovery) {
+            self_frequency = crstat->sleep_recovery;
+        }
+        if (((game.play_gameturn + thing->index) % self_frequency) == 0)
+        {
+            apply_health_to_thing_and_display_health(thing, recover);
         }
     }
     // Enable this to know which function hangs on update_creature.
@@ -2958,9 +3041,9 @@ void process_creature_standing_on_corpses_at(struct Thing *creatng, struct Coord
 long calculate_melee_damage(struct Thing *creatng)
 {
     const struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    const struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
-    long strength = compute_creature_max_strength(crstat->strength, cctrl->explevel);
-    return compute_creature_attack_melee_damage(strength, crstat->luck, cctrl->explevel, creatng);
+    long strength = calculate_correct_creature_strength(creatng);
+    long luck = calculate_correct_creature_luck(creatng);
+    return compute_creature_attack_melee_damage(strength, luck, cctrl->explevel, creatng);
 }
 
 /**
@@ -2971,9 +3054,9 @@ long calculate_melee_damage(struct Thing *creatng)
 long project_melee_damage(const struct Thing *creatng)
 {
     const struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    const struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
-    long strength = compute_creature_max_strength(crstat->strength, cctrl->explevel);
-    return project_creature_attack_melee_damage(strength, crstat->luck, cctrl->explevel, creatng);
+    long strength = calculate_correct_creature_strength(creatng);
+    long luck = calculate_correct_creature_luck(creatng);
+    return project_creature_attack_melee_damage(strength, luck, cctrl->explevel, creatng);
 }
 
 /**
@@ -2985,8 +3068,13 @@ long calculate_shot_damage(struct Thing *creatng, ThingModel shot_model)
 {
     const struct ShotConfigStats* shotst = get_shot_model_stats(shot_model);
     const struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    const struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
-    return compute_creature_attack_spell_damage(shotst->damage, crstat->luck, cctrl->explevel, creatng);
+    long luck = calculate_correct_creature_luck(creatng);
+    long damage = compute_creature_attack_spell_damage(shotst->damage, luck, cctrl->explevel, creatng);
+    if (((shotst->model_flags & ShMF_Digging) != 0) && ((shotst->model_flags & ShMF_NoHit) != 0) && (damage < shotst->damage))
+    {
+        damage = shotst->damage;
+    }
+    return damage;
 }
 
 /**
@@ -2999,17 +3087,17 @@ long project_creature_shot_damage(const struct Thing *thing, ThingModel shot_mod
 {
     const struct ShotConfigStats* shotst = get_shot_model_stats(shot_model);
     const struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    const struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     long damage;
-    if ((shotst->model_flags & ShMF_StrengthBased) != 0 )
+    long luck = calculate_correct_creature_luck(thing);
+    if ((shotst->model_flags & ShMF_StrengthBased) != 0)
     {
-        // Project melee damage
-        long strength = compute_creature_max_strength(crstat->strength, cctrl->explevel);
-        damage = project_creature_attack_melee_damage(strength, crstat->luck, cctrl->explevel, thing);
+        // Project melee damage.
+        long strength = calculate_correct_creature_strength(thing);
+        damage = project_creature_attack_melee_damage(strength, luck, cctrl->explevel, thing);
     } else
     {
-        // Project shot damage
-        damage = project_creature_attack_spell_damage(shotst->damage, crstat->luck, cctrl->explevel, thing);
+        // Project shot damage.
+        damage = project_creature_attack_spell_damage(shotst->damage, luck, cctrl->explevel, thing);
     }
     return damage;
 }
@@ -3050,10 +3138,9 @@ void thing_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot
     short speed;
     long damage;
     unsigned char dexterity, max_dexterity;
-
     struct ShotConfigStats* shotst = get_shot_model_stats(shot_model);
     TbBool flag1 = false;
-    // Prepare source position
+    // Prepare source position.
     struct Coord3d pos1;
     pos1.x.val = firing->mappos.x.val;
     pos1.y.val = firing->mappos.y.val;
@@ -3065,7 +3152,7 @@ void thing_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot
             if (!firing->trap.volley_fire)
             {
                 firing->trap.volley_fire = true;
-                firing->trap.volley_repeat = shotst->effect_amount - 1; // N x shots + (N - 1) x pauses and one shot is this one
+                firing->trap.volley_repeat = shotst->effect_amount - 1; // N x shots + (N - 1) x pauses and one shot is this one.
                 firing->trap.volley_delay = shotst->effect_spacing;
                 firing->trap.firing_at = thing_is_invalid(target)? 0 : target->index;
             }
@@ -3078,13 +3165,12 @@ void thing_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot
             }
         }
         struct TrapStats* trapstat = &game.conf.trap_stats[firing->model];
-        firing->move_angle_xy = get_angle_xy_to(&firing->mappos, &target->mappos); //visually rotates the trap
+        firing->move_angle_xy = get_angle_xy_to(&firing->mappos, &target->mappos); // Visually rotates the trap.
         pos1.x.val += distance_with_angle_to_coord_x(trapstat->shot_shift_x, firing->move_angle_xy + LbFPMath_PI / 2);
         pos1.y.val += distance_with_angle_to_coord_y(trapstat->shot_shift_x, firing->move_angle_xy + LbFPMath_PI / 2);
         pos1.x.val += distance_with_angle_to_coord_x(trapstat->shot_shift_y, firing->move_angle_xy);
         pos1.y.val += distance_with_angle_to_coord_y(trapstat->shot_shift_y, firing->move_angle_xy);
         pos1.z.val += trapstat->shot_shift_z;
-
         max_dexterity = UCHAR_MAX;
         dexterity = max_dexterity/4 + CREATURE_RANDOM(firing, max_dexterity/2);
     }
@@ -3098,7 +3184,7 @@ void thing_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot
             {
                 firing->creature.volley_fire = true;
                 firing->creature.volley_repeat = shotst->effect_amount - 1; // N x shots + (N - 1) x pauses and one shot is this one
-                cctrl->inst_action_turns += shotst->effect_spacing + 1; // because of post check
+                cctrl->inst_action_turns += shotst->effect_spacing + 1; // Because of post check.
             }
             else
             {
@@ -3108,17 +3194,15 @@ void thing_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot
                 firing->creature.volley_repeat--;
             }
         }
-
-        dexterity = compute_creature_max_dexterity(crstat->dexterity, cctrl->explevel);
+        dexterity = calculate_correct_creature_dexterity(firing);
         max_dexterity = crstat->dexterity + ((crstat->dexterity * cctrl->explevel * game.conf.crtr_conf.exp.dexterity_increase_on_exp) / 100);
-
         pos1.x.val += distance_with_angle_to_coord_x((cctrl->shot_shift_x + (cctrl->shot_shift_x * game.conf.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100), firing->move_angle_xy + LbFPMath_PI / 2);
         pos1.y.val += distance_with_angle_to_coord_y((cctrl->shot_shift_x + (cctrl->shot_shift_x * game.conf.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100), firing->move_angle_xy + LbFPMath_PI / 2);
         pos1.x.val += distance_with_angle_to_coord_x((cctrl->shot_shift_y + (cctrl->shot_shift_y * game.conf.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100), firing->move_angle_xy);
         pos1.y.val += distance_with_angle_to_coord_y((cctrl->shot_shift_y + (cctrl->shot_shift_y * game.conf.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100), firing->move_angle_xy);
         pos1.z.val += (cctrl->shot_shift_z + (cctrl->shot_shift_z * game.conf.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100);
     }
-    // Compute launch angles
+    // Compute launch angles.
     if (thing_is_invalid(target))
     {
         angle_xy = firing->move_angle_xy;
@@ -3137,7 +3221,7 @@ void thing_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot
         angle_xy = get_angle_xy_to(&pos1, &pos2);
         angle_yz = get_angle_yz_to(&pos1, &pos2);
     }
-    // Compute shot damage
+    // Compute shot damage.
     damage = shotst->damage;
     if (shotst->fixed_damage == 0)
     {
@@ -3156,13 +3240,12 @@ void thing_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot
     }
     struct Thing* shotng = NULL;
     long target_idx = 0;
-    // Set target index for navigating shots
+    // Set target index for navigating shots.
     if (!thing_is_invalid(target))
     {
         target_idx = target->index;
     }
     struct ComponentVector cvect;
-
     switch (shotst->fire_logic)
     {
     case ShFL_Beam:
@@ -3172,7 +3255,7 @@ void thing_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot
         }
         shotng = create_thing(&pos2, TCls_Shot, shot_model, firing->owner, -1);
         if (thing_is_invalid(shotng))
-          return;
+            return;
         draw_lightning(&pos1, &pos2, shotst->effect_spacing, shotst->effect_id);
         shotng->health = shotst->health;
         shotng->shot.damage = damage;
@@ -3180,11 +3263,10 @@ void thing_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot
         break;
     case ShFL_Breathe:
         if ((thing_is_invalid(target)) || (get_2d_distance(&firing->mappos, &pos2) > shotst->max_range))
-          project_point_to_wall_on_angle(&pos1, &pos2, firing->move_angle_xy, firing->move_angle_z, COORD_PER_STL, shotst->max_range/COORD_PER_STL);
+            project_point_to_wall_on_angle(&pos1, &pos2, firing->move_angle_xy, firing->move_angle_z, COORD_PER_STL, shotst->max_range/COORD_PER_STL);
         shotng = create_thing(&pos2, TCls_Shot, shot_model, firing->owner, -1);
         if (thing_is_invalid(shotng))
-          return;
-
+            return;
         draw_flame_breath(&pos1, &pos2, shotst->effect_spacing, shotst->effect_amount,shotst->effect_id);
         shotng->health = shotst->health;
         shotng->shot.damage = damage;
@@ -3206,7 +3288,7 @@ void thing_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot
             }
             tmptng = create_thing(&pos1, TCls_Shot, shot_model, firing->owner, -1);
             if (thing_is_invalid(tmptng))
-              break;
+                break;
             shotng = tmptng;
             shotng->shot.hit_type = hit_type;
             shotng->move_angle_xy = (short)((angle_xy + CREATURE_RANDOM(firing, 2 * shotst->spread_xy + 1) - shotst->spread_xy) & LbFPMath_AngleMask);
@@ -3223,7 +3305,7 @@ void thing_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot
         break;
     }
     case ShFL_Volley:
-        // fallthrough
+        // Fallthrough.
     case ShFL_Lizard:
     case ShFL_Default:
     default:
@@ -3269,23 +3351,22 @@ void thing_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot
     {
 #if (BFDEBUG_LEVEL > 0)
       damage = shotng->shot.damage;
-      // Special debug code that shows amount of damage the shot will make
+      // Special debug code that shows amount of damage the shot will make.
       if ((start_params.debug_flags & DFlg_ShotsDamage) != 0)
           create_price_effect(&pos1, my_player_number, damage);
       if ((damage < 0) || (damage > 2000))
       {
-        WARNLOG("Shot of type %d carries %d damage",(int)shot_model,(int)damage);
+          WARNLOG("Shot of type %d carries %d damage",(int)shot_model,(int)damage);
       }
 #endif
       shotng->shot.hit_type = hit_type;
       if (shotst->firing_sound > 0)
       {
-        thing_play_sample(firing, shotst->firing_sound + UNSYNC_RANDOM(shotst->firing_sound_variants),
-            100, 0, 3, 0, 3, FULL_LOUDNESS);
+          thing_play_sample(firing, shotst->firing_sound + UNSYNC_RANDOM(shotst->firing_sound_variants),100, 0, 3, 0, 3, FULL_LOUDNESS);
       }
       if (shotst->shot_sound > 0)
       {
-        thing_play_sample(shotng, shotst->shot_sound, NORMAL_PITCH, 0, 3, 0, shotst->sound_priority, FULL_LOUDNESS);
+          thing_play_sample(shotng, shotst->shot_sound, NORMAL_PITCH, 0, 3, 0, shotst->sound_priority, FULL_LOUDNESS);
       }
       set_flag_value(shotng->movement_flags, TMvF_Unknown10, flag1);
     }
@@ -3528,6 +3609,16 @@ void get_creature_instance_times(const struct Thing *thing, long inst_idx, long 
             aitime -= aitime / 4;
             itime -= itime / 4;
         }
+        if (player_uses_power_mighty_infusion(thing->owner))
+        {
+            aitime -= aitime / 4;
+            itime -= itime / 4;
+        }
+    }
+    if (creature_affected_by_spell(thing, SplK_Rage))
+    {
+        aitime /= 2;
+        itime /= 2;
     }
     if (aitime <= 1)
         aitime = 1;
@@ -4067,6 +4158,7 @@ struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumbe
     crtng->owner = owner;
     crtng->move_angle_xy = 0;
     crtng->move_angle_z = 0;
+    cctrl->speed_upgrade = 0;
     cctrl->max_speed = calculate_correct_creature_maxspeed(crtng);
     cctrl->shot_shift_x = creatures[model].shot_shift_x;
     cctrl->shot_shift_y = creatures[model].shot_shift_y;
@@ -4083,11 +4175,36 @@ struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumbe
     crtng->creation_turn = game.play_gameturn;
     cctrl->joining_age = 17 + CREATURE_RANDOM(crtng, 13);
     cctrl->blood_type = CREATURE_RANDOM(crtng, BLOOD_TYPES_COUNT);
+    if (crstat->boss == 0)
+    {
+        cctrl->strength_upgrade = CREATURE_RANDOM(crtng, (crstat->strength / 10)) - CREATURE_RANDOM(crtng, (crstat->strength / 10));
+        cctrl->armour_upgrade = CREATURE_RANDOM(crtng, (crstat->armour / 10)) - CREATURE_RANDOM(crtng, (crstat->armour / 10));
+        cctrl->defense_upgrade = CREATURE_RANDOM(crtng, (crstat->defense / 10)) - CREATURE_RANDOM(crtng, (crstat->defense / 10));
+        cctrl->dexterity_upgrade = CREATURE_RANDOM(crtng, (crstat->dexterity / 10)) - CREATURE_RANDOM(crtng, (crstat->dexterity / 10));
+        cctrl->luck_upgrade = CREATURE_RANDOM(crtng, (crstat->luck / 5)) - CREATURE_RANDOM(crtng, (crstat->luck / 5));
+        cctrl->loyalty_upgrade = CREATURE_RANDOM(crtng, (crstat->scavenge_require / 5)) - CREATURE_RANDOM(crtng, (crstat->scavenge_require / 5));
+        cctrl->magic_upgrade = CREATURE_RANDOM(crtng, (crstat->magic / 10)) - CREATURE_RANDOM(crtng, (crstat->magic / 10));
+        cctrl->salary_upgrade = CREATURE_RANDOM(crtng, (crstat->pay / 10)) - CREATURE_RANDOM(crtng, (crstat->pay / 10));
+        cctrl->training_cost_upgrade = CREATURE_RANDOM(crtng, (crstat->training_cost / 10)) - CREATURE_RANDOM(crtng, (crstat->training_cost / 10));
+        cctrl->scavenging_cost_upgrade = CREATURE_RANDOM(crtng, (crstat->scavenger_cost / 10)) - CREATURE_RANDOM(crtng, (crstat->scavenger_cost / 10));
+    } else {
+        cctrl->strength_upgrade = 0;
+        cctrl->armour_upgrade = 0;
+        cctrl->defense_upgrade = 0;
+        cctrl->dexterity_upgrade = 0;
+        cctrl->luck_upgrade = 0;
+        cctrl->loyalty_upgrade = 0;
+        cctrl->magic_upgrade = 0;
+        cctrl->salary_upgrade = 0;
+        cctrl->training_cost_upgrade = 0;
+        cctrl->scavenging_cost_upgrade = 0;
+    }
     if (owner == game.hero_player_num)
     {
-      cctrl->hero.sbyte_89 = -1;
-      cctrl->hero.byte_8C = 1;
+        cctrl->hero.sbyte_89 = -1;
+        cctrl->hero.byte_8C = 1;
     }
+    cctrl->total_upgrade = 0;
     cctrl->flee_pos.x.val = crtng->mappos.x.val;
     cctrl->flee_pos.y.val = crtng->mappos.y.val;
     cctrl->flee_pos.z.val = crtng->mappos.z.val;
@@ -5315,6 +5432,33 @@ short update_creature_movements(struct Thing *thing)
     }
 }
 
+void check_for_creature_escape_from_water(struct Thing *thing)
+{
+    if (((thing->alloc_flags & TAlF_IsControlled) == 0) && ((thing->movement_flags & TMvF_IsOnWater) != 0))
+    {
+        struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+        if (crstat->hurt_by_water > 0)
+        {
+            struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+            if ((!creature_is_escaping_death(thing)) && (cctrl->water_escape_since + 64 < game.play_gameturn))
+            {
+                cctrl->water_escape_since = game.play_gameturn;
+                if (cleanup_current_thing_state(thing))
+                {
+                    if (setup_move_out_of_cave_in(thing))
+                    {
+                        thing->continue_state = CrSt_CreatureEscapingDeath;
+                    }
+                    else
+                    {
+                        set_start_state(thing);
+                    }
+                }
+            }
+        }
+    }
+}
+
 void check_for_creature_escape_from_lava(struct Thing *thing)
 {
     if (((thing->alloc_flags & TAlF_IsControlled) == 0) && ((thing->movement_flags & TMvF_IsOnLava) != 0))
@@ -5338,7 +5482,7 @@ void check_for_creature_escape_from_lava(struct Thing *thing)
                     }
                 }
             }
-      }
+        }
     }
 }
 
@@ -5430,13 +5574,15 @@ void process_landscape_affecting_creature(struct Thing *thing)
     thing->movement_flags &= ~TMvF_IsOnLava;
     thing->movement_flags &= ~TMvF_IsOnSnow;
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    HitPoints recover;
+    HitPoints frequency;
     if (creature_control_invalid(cctrl))
     {
         ERRORLOG("Invalid creature control; no action");
         return;
     }
     cctrl->corpse_to_piss_on = 0;
-
     int stl_idx = get_subtile_number(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
     unsigned long navheight = get_navigation_map_floor_height(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
     if (subtile_coord(navheight,0) == thing->mappos.z.val)
@@ -5444,17 +5590,52 @@ void process_landscape_affecting_creature(struct Thing *thing)
         int i = get_top_cube_at_pos(stl_idx);
         if (cube_is_lava(i))
         {
-            struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-            apply_damage_to_thing_and_display_health(thing, crstat->hurt_by_lava, DmgT_Heatburn, -1);
+            if (crstat->hurt_by_lava == 0)
+            {
+                if (creature_affected_by_spell(thing, SplK_Freeze))
+                {
+                    terminate_thing_spell_effect(thing, SplK_Freeze);
+                }
+            } else {
+                apply_damage_to_thing_and_display_health(thing, crstat->hurt_by_lava, DmgT_Heatburn, -1);
+            }
+            if ((crstat->lava_recovery > 0) && (cctrl->max_health > thing->health))
+            {
+                recover = compute_creature_max_health(crstat->lava_recovery, cctrl->explevel, thing->owner);
+                frequency = cctrl->max_health / recover;
+                if (frequency < crstat->lava_recovery) {
+                    frequency = crstat->lava_recovery;
+                }
+                if (((game.play_gameturn + thing->index) % frequency) == 0)
+                {
+                    apply_health_to_thing_and_display_health(thing, recover);
+                }
+            }
             thing->movement_flags |= TMvF_IsOnLava;
         } else
         if (cube_is_water(i))
         {
+            if (crstat->hurt_by_water > 0) {
+                apply_damage_to_thing_and_display_health(thing, crstat->hurt_by_water, DmgT_Physical, -1);
+            }
+            if ((crstat->water_recovery > 0) && (cctrl->max_health > thing->health))
+            {
+                recover = compute_creature_max_health(crstat->water_recovery, cctrl->explevel, thing->owner);
+                frequency = cctrl->max_health / recover;
+                if (frequency < crstat->water_recovery) {
+                    frequency = crstat->water_recovery;
+                }
+                if (((game.play_gameturn + thing->index) % frequency) == 0)
+                {
+                    apply_health_to_thing_and_display_health(thing, recover);
+                }
+            }
             thing->movement_flags |= TMvF_IsOnWater;
         }
         process_creature_leave_footsteps(thing);
         process_creature_standing_on_corpses_at(thing, &thing->mappos);
     }
+    check_for_creature_escape_from_water(thing);
     check_for_creature_escape_from_lava(thing);
     SYNCDBG(19,"Finished");
 }
@@ -5551,23 +5732,93 @@ void transfer_creature_data_and_gold(struct Thing *oldtng, struct Thing *newtng)
 {
     struct CreatureControl* oldcctrl = creature_control_get_from_thing(oldtng);
     struct CreatureControl* newcctrl = creature_control_get_from_thing(newtng);
-    struct CreatureStats* ncrstat = creature_stats_get_from_thing(newtng);
-
+    struct CreatureStats* oldcrstat = creature_stats_get_from_thing(oldtng);
+    struct CreatureStats* newcrstat = creature_stats_get_from_thing(newtng);
+    // Transfer blood type, creature name, kill count and joining age to the new creature.
     strcpy(newcctrl->creature_name, oldcctrl->creature_name);
     newcctrl->blood_type = oldcctrl->blood_type;
     newcctrl->kills_num = oldcctrl->kills_num;
     newcctrl->joining_age = oldcctrl->joining_age;
+    // Transfer strength_upgrade and gives a bonus.
+    newcctrl->strength_upgrade = oldcctrl->strength_upgrade + CREATURE_RANDOM(newtng, (oldcrstat->strength / 10)) + CREATURE_RANDOM(newtng, (newcrstat->strength / 10));
+    // Make sure strength_upgrade is not above the max allowed.
+    if (newcctrl->strength_upgrade > newcrstat->strength)
+    {
+        newcctrl->strength_upgrade = newcrstat->strength;
+    }
+    // Transfer armour_upgrade and gives a bonus.
+    newcctrl->armour_upgrade = oldcctrl->armour_upgrade + CREATURE_RANDOM(newtng, (oldcrstat->armour / 10)) + CREATURE_RANDOM(newtng, (newcrstat->armour / 10));
+    // Make sure armour_upgrade is not above the max allowed.
+    if (newcctrl->armour_upgrade > newcrstat->armour)
+    {
+        newcctrl->armour_upgrade = newcrstat->armour;
+    }
+    // Transfer defense_upgrade and gives a bonus.
+    newcctrl->defense_upgrade = oldcctrl->defense_upgrade + CREATURE_RANDOM(newtng, (oldcrstat->defense / 10)) + CREATURE_RANDOM(newtng, (newcrstat->defense / 10));
+    // Make sure defense_upgrade is not above the max allowed.
+    if (newcctrl->defense_upgrade > newcrstat->defense)
+    {
+        newcctrl->defense_upgrade = newcrstat->defense;
+    }
+    // Transfer dexterity_upgrade and gives a bonus.
+    newcctrl->dexterity_upgrade = oldcctrl->dexterity_upgrade + CREATURE_RANDOM(newtng, (oldcrstat->dexterity / 10)) + CREATURE_RANDOM(newtng, (newcrstat->dexterity / 10));
+    // Make sure dexterity_upgrade is not above the max allowed.
+    if (newcctrl->dexterity_upgrade > newcrstat->dexterity)
+    {
+        newcctrl->dexterity_upgrade = newcrstat->dexterity;
+    }
+    // Transfer luck_upgrade and gives a bonus.
+    newcctrl->luck_upgrade = oldcctrl->luck_upgrade + CREATURE_RANDOM(newtng, (oldcrstat->luck / 5)) + CREATURE_RANDOM(newtng, (newcrstat->luck / 5));
+    // Make sure luck_upgrade is not above the max allowed.
+    if (newcctrl->luck_upgrade > newcrstat->luck)
+    {
+        newcctrl->luck_upgrade = newcrstat->luck;
+    }
+    // Transfer loyalty_upgrade and gives a bonus.
+    newcctrl->loyalty_upgrade = oldcctrl->loyalty_upgrade + CREATURE_RANDOM(newtng, (oldcrstat->scavenge_require / 5)) + CREATURE_RANDOM(newtng, (newcrstat->scavenge_require / 5));
+    // Make sure loyalty_upgrade is not above the max allowed.
+    if (newcctrl->loyalty_upgrade > newcrstat->scavenge_require)
+    {
+        newcctrl->loyalty_upgrade = newcrstat->scavenge_require;
+    }
+    // Transfer magic_upgrade and gives a bonus.
+    newcctrl->magic_upgrade = oldcctrl->magic_upgrade + CREATURE_RANDOM(newtng, (oldcrstat->magic / 10)) + CREATURE_RANDOM(newtng, (newcrstat->magic / 10));
+    // Make sure magic_upgrade is not above the max allowed.
+    if (newcctrl->magic_upgrade > newcrstat->magic)
+    {
+        newcctrl->magic_upgrade = newcrstat->magic;
+    }
+    // Transfer speed_upgrade and gives a bonus.
+    newcctrl->speed_upgrade = oldcctrl->speed_upgrade;
+    if (oldcrstat->base_speed > newcrstat->base_speed)
+    {
+        newcctrl->speed_upgrade += ((oldcrstat->base_speed) - (newcrstat->base_speed));
+    } else {
+        newcctrl->speed_upgrade += newcrstat->base_speed / 16;
+    }
+    // Make sure speed_upgrade is not above the max allowed.
+    if (newcctrl->speed_upgrade > newcrstat->base_speed)
+    {
+        newcctrl->speed_upgrade = newcrstat->base_speed;
+    }
+    // Update the max speed.
+    newcctrl->max_speed = calculate_correct_creature_maxspeed(newtng);
+    // Transfer the salary, training cost and scavenging cost modifier to the new creature.
+    newcctrl->salary_upgrade = oldcctrl->salary_upgrade;
+    newcctrl->training_cost_upgrade = oldcctrl->training_cost_upgrade;
+    newcctrl->scavenging_cost_upgrade = oldcctrl->scavenging_cost_upgrade;
+    // Transfer the creation turn.
     newtng->creation_turn = oldtng->creation_turn;
-
-    if (ncrstat->gold_hold >= oldtng->creature.gold_carried)
+    // Transfer the gold carried.
+    if (newcrstat->gold_hold >= oldtng->creature.gold_carried)
     {
         newtng->creature.gold_carried += oldtng->creature.gold_carried;
         oldtng->creature.gold_carried = 0;
     }
     else
     {
-        newtng->creature.gold_carried = ncrstat->gold_hold;
-        oldtng->creature.gold_carried -= ncrstat->gold_hold;
+        newtng->creature.gold_carried += newcrstat->gold_hold;
+        oldtng->creature.gold_carried -= newcrstat->gold_hold;
     }
     return;
 }
@@ -5674,6 +5925,371 @@ long update_creature_levels(struct Thing *thing)
     }
     kill_creature(thing, INVALID_THING, -1, CrDed_NoEffects|CrDed_NoUnconscious|CrDed_NotReallyDying);
     return -1;
+}
+
+void process_creature_using_gold(struct Thing *thing)
+{
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    if (creature_control_invalid(cctrl))
+    {
+        return;
+    }
+    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    if ((thing->creature.gold_carried > 0) && (crstat->pay > 0))
+    {
+        unsigned long frequency = ((100 * crstat->pay) / thing->creature.gold_carried);
+        unsigned long cost = (crstat->pay + (crstat->pay * cctrl->total_upgrade));
+        if ((((game.play_gameturn + thing->index) % frequency) == 0) && (thing->active_state == CrStTyp_FightCrtr))
+        {
+            unsigned long potion_cost = CREATURE_RANDOM(creatng, thing->health);
+            unsigned char potion_kind = GAME_RANDOM(10);
+            switch (potion_kind)
+            {
+                case 1: // SplK_Armour
+                {
+                    if (!creature_affected_by_spell(thing, SplK_Armour))
+                    {
+                        potion_cost += 250;
+                        if (thing->creature.gold_carried >= potion_cost)
+                        {
+                            first_apply_spell_effect_to_thing(thing, SplK_Armour, cctrl->explevel);
+                            thing->creature.gold_carried -= potion_cost;
+                        }
+                    }
+                    break;
+                }
+                case 2: // SplK_Rebound
+                {
+                    if (!creature_affected_by_spell(thing, SplK_Rebound))
+                    {
+                        potion_cost += 250;
+                        if (thing->creature.gold_carried >= potion_cost)
+                        {
+                            first_apply_spell_effect_to_thing(thing, SplK_Rebound, cctrl->explevel);
+                            thing->creature.gold_carried -= potion_cost;
+                        }
+                    }
+                    break;
+                }
+                case 3: // SplK_Heal
+                {
+                    if (thing->health >= cctrl->max_health / 2)
+                    {
+                        potion_cost += 50;
+                        if (thing->creature.gold_carried >= potion_cost)
+                        {
+                            first_apply_spell_effect_to_thing(thing, SplK_Heal, cctrl->explevel);
+                            thing->creature.gold_carried -= potion_cost;
+                        }
+                    }
+                    break;
+                }
+                case 4: // SplK_Invisibility
+                {
+                    if (!creature_affected_by_spell(thing, SplK_Invisibility))
+                    {
+                        potion_cost += 100;
+                        if (thing->creature.gold_carried >= potion_cost)
+                        {
+                            first_apply_spell_effect_to_thing(thing, SplK_Invisibility, cctrl->explevel);
+                            thing->creature.gold_carried -= potion_cost;
+                        }
+                    }
+                    break;
+                }
+                case 5: // SplK_Speed
+                {
+                    if (!creature_affected_by_spell(thing, SplK_Speed))
+                    {
+                        potion_cost += 400;
+                        if (thing->creature.gold_carried >= potion_cost)
+                        {
+                            first_apply_spell_effect_to_thing(thing, SplK_Speed, cctrl->explevel);
+                            thing->creature.gold_carried -= potion_cost;
+                        }
+                    }
+                    break;
+                }
+                case 6: // SplK_Fly
+                {
+                    if (!creature_affected_by_spell(thing, SplK_Fly))
+                    {
+                        potion_cost += 100;
+                        if (thing->creature.gold_carried >= potion_cost)
+                        {
+                            first_apply_spell_effect_to_thing(thing, SplK_Fly, cctrl->explevel);
+                            thing->creature.gold_carried -= potion_cost;
+                        }
+                    }
+                    break;
+                }
+                case 7: // SplK_Sight
+                {
+                    if (!creature_affected_by_spell(thing, SplK_Sight))
+                    {
+                        potion_cost += 100;
+                        if (thing->creature.gold_carried >= potion_cost)
+                        {
+                            first_apply_spell_effect_to_thing(thing, SplK_Sight, cctrl->explevel);
+                            thing->creature.gold_carried -= potion_cost;
+                        }
+                    }
+                    break;
+                }
+                case 8: // SplK_Rage
+                {
+                    if (!creature_affected_by_spell(thing, SplK_Rage))
+                    {
+                        potion_cost += 500;
+                        if (thing->creature.gold_carried >= potion_cost)
+                        {
+                            first_apply_spell_effect_to_thing(thing, SplK_Rage, cctrl->explevel);
+                            thing->creature.gold_carried -= potion_cost;
+                        }
+                    }
+                    break;
+                }
+                case 9: // SplK_DivineShield
+                {
+                    if (!creature_affected_by_spell(thing, SplK_DivineShield))
+                    {
+                        potion_cost += 700;
+                        if (thing->creature.gold_carried >= potion_cost)
+                        {
+                            first_apply_spell_effect_to_thing(thing, SplK_DivineShield, cctrl->explevel);
+                            thing->creature.gold_carried -= potion_cost;
+                        }
+                    }
+                    break;
+                }
+                case 10: // SplK_MagicMist
+                {
+                    if (!creature_affected_by_spell(thing, SplK_MagicMist))
+                    {
+                        potion_cost += 550;
+                        if (thing->creature.gold_carried >= potion_cost)
+                        {
+                            first_apply_spell_effect_to_thing(thing, SplK_MagicMist, cctrl->explevel);
+                            thing->creature.gold_carried -= potion_cost;
+                        }
+                    }
+                    break;
+                }
+                default:
+                    break;
+            }
+            return;
+        }
+        if ((((game.play_gameturn + thing->index) % frequency) == 0) && (thing->creature.gold_carried >= cost))
+        {
+            unsigned char upgrade_kind = GAME_RANDOM(8);
+            switch (upgrade_kind)
+            {
+                case 1: // strength_upgrade
+                {
+                    if (cctrl->strength_upgrade < crstat->strength)
+                    {
+                        cctrl->strength_upgrade += 1;
+                        cctrl->total_upgrade += 1;
+                        thing->creature.gold_carried -= cost;
+                    }
+                    break;
+                }
+                case 2: // armour_upgrade
+                {
+                    if (cctrl->armour_upgrade < crstat->armour)
+                    {
+                        cctrl->armour_upgrade += 1;
+                        cctrl->total_upgrade += 1;
+                        thing->creature.gold_carried -= cost;
+                    }
+                    break;
+                }
+                case 3: // defense_upgrade
+                {
+                    if (cctrl->defense_upgrade < crstat->defense)
+                    {
+                        cctrl->defense_upgrade += 1;
+                        cctrl->total_upgrade += 1;
+                        thing->creature.gold_carried -= cost;
+                    }
+                    break;
+                }
+                case 4: // dexterity_upgrade
+                {
+                    if (cctrl->dexterity_upgrade < crstat->dexterity)
+                    {
+                        cctrl->dexterity_upgrade += 1;
+                        cctrl->total_upgrade += 1;
+                        thing->creature.gold_carried -= cost;
+                    }
+                    break;
+                }
+                case 5: // luck_upgrade
+                {
+                    if (cctrl->luck_upgrade < crstat->luck)
+                    {
+                        cctrl->luck_upgrade += 1;
+                        cctrl->total_upgrade += 1;
+                        thing->creature.gold_carried -= cost;
+                    }
+                    break;
+                }
+                case 6: // speed_upgrade
+                {
+                    if (cctrl->speed_upgrade < crstat->base_speed)
+                    {
+                        cctrl->speed_upgrade += 1;
+                        cctrl->total_upgrade += 1;
+                        thing->creature.gold_carried -= cost;
+                    }
+                    break;
+                }
+                case 7: // loyalty_upgrade
+                {
+                    if (cctrl->loyalty_upgrade < crstat->scavenge_require)
+                    {
+                        cctrl->loyalty_upgrade += 1;
+                        cctrl->total_upgrade += 1;
+                        thing->creature.gold_carried -= cost;
+                    }
+                    break;
+                }
+                case 8: // magic_upgrade
+                {
+                    if (cctrl->magic_upgrade < crstat->magic)
+                    {
+                        cctrl->magic_upgrade += 1;
+                        cctrl->total_upgrade += 1;
+                        thing->creature.gold_carried -= cost;
+                    }
+                    break;
+                }
+                default:
+                    break;
+            }
+        }
+    }
+    return;
+}
+
+void process_creature_pooping_thing(struct Thing *thing)
+{
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    if (creature_control_invalid(cctrl))
+    {
+        return;
+    }
+    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    if ((crstat->poop_frequency > 0) && (crstat->poop_type > 0))
+    {
+        if (((game.play_gameturn + thing->index) % crstat->poop_frequency) == 0)
+        {
+            struct Thing* objtng = create_thing(&thing->mappos, TCls_Object, crstat->poop_type, thing->owner, -1);
+            if (thing_is_invalid(objtng))
+            {
+                return;
+            }
+            if (thing_is_dungeon_heart(objtng))
+            {
+                struct Dungeon* dungeon = get_dungeon(objtng->owner);
+                if (dungeon->backup_heart_idx == 0)
+                {
+                    dungeon->backup_heart_idx = objtng->index;
+                }
+            }
+            struct ObjectConfigStats* objst = get_object_model_stats(objtng->model);
+            switch (objst->genre)
+            {
+                case OCtg_Valuable:
+                {
+                    if (crstat->poop_amount > 0)
+                    {
+                        if (crstat->poop_random == 0)
+                        {
+                            objtng->valuable.gold_stored = crstat->poop_amount;
+                        } else {
+                            objtng->valuable.gold_stored = (crstat->poop_random + GAME_RANDOM(crstat->poop_amount));
+                        }
+                    } else {
+                        objtng->valuable.gold_stored = 1;
+                    }
+                    break;
+                }
+                case OCtg_GoldHoard:
+                {
+                    if (crstat->poop_amount > 0)
+                    {
+                        if (crstat->poop_random == 0)
+                        {
+                            drop_gold_pile(crstat->poop_amount, &thing->mappos);
+                        } else {
+                            drop_gold_pile((crstat->poop_random + GAME_RANDOM(crstat->poop_amount)), &thing->mappos);
+                        }
+                    } else {
+                        drop_gold_pile(1, &thing->mappos);
+                    }
+                    delete_thing_structure(objtng, 0);
+                    break;
+                }
+                case OCtg_SpecialBox:
+                {
+                    if (crstat->poop_amount > 255)
+                    {
+                        if (crstat->poop_random == 0)
+                        {
+                            objtng->custom_box.box_kind = 0;
+                        } else {
+                            objtng->custom_box.box_kind = GAME_RANDOM(255);
+                        }
+                    } else {
+                        if (crstat->poop_random == 0)
+                        {
+                            objtng->custom_box.box_kind = crstat->poop_amount;
+                        } else {
+                            objtng->custom_box.box_kind = GAME_RANDOM(crstat->poop_amount);
+                        }
+                    }
+                    break;
+                }
+                case OCtg_Effect:
+                case OCtg_Power:
+                {
+                    delete_thing_structure(objtng, 0);
+                    break;
+                }
+                case OCtg_LairTotem:
+                {
+                    struct Thing* creatng = create_creature(&objtng->mappos, objst->related_creatr_model, objtng->owner);
+                    if (thing_is_invalid(creatng))
+                    {
+                        delete_thing_structure(objtng, 0);
+                        break;
+                    }
+                    unsigned short level = crstat->poop_amount;
+                    if (level >= CREATURE_MAX_LEVEL)
+                    {
+                        level = CREATURE_MAX_LEVEL;
+                    }
+                    if (level == 0)
+                    {
+                        level = cctrl->explevel;
+                    }
+                    if (crstat->poop_random == 0)
+                    {
+                        set_creature_level(creatng, level);
+                    } else {
+                        set_creature_level(creatng, GAME_RANDOM(level));
+                    }
+                    delete_thing_structure(objtng, 0);
+                    break;
+                }
+                default:
+                    break;
+            }
+        }
+    }
+    return;
 }
 
 TngUpdateRet update_creature(struct Thing *thing)
@@ -5825,6 +6441,8 @@ TngUpdateRet update_creature(struct Thing *thing)
     {
         return TUFRet_Deleted;
     }
+    process_creature_using_gold(thing);
+    process_creature_pooping_thing(thing);
     process_creature_self_spell_casting(thing);
     cctrl->moveaccel.x.val = 0;
     cctrl->moveaccel.y.val = 0;

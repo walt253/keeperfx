@@ -1455,32 +1455,32 @@ long get_combat_score(const struct Thing *thing, const struct Thing *enmtng, CrA
         if ((attack_type == AttckT_Ranged) || creature_has_ranged_weapon(thing))
         {
             score_extra = 258;
-            score_base = 258 * (4 - enmctrl->opponents_ranged_count) + score_extra;
+            score_base = 258 * (COMBAT_RANGED_OPPONENTS_LIMIT - enmctrl->opponents_ranged_count) + score_extra;
         } else
         if (attack_type != AttckT_Ranged)
         {
             score_extra = 1;
-            score_base = 258 * (4 - enmctrl->opponents_melee_count) + score_extra + 128;
+            score_base = 258 * (COMBAT_MELEE_OPPONENTS_LIMIT - enmctrl->opponents_melee_count) + score_extra + 128;
         } else
         {
             score_extra = 1;
-            score_base = 258 * (4 - enmctrl->opponents_ranged_count) + score_extra;
+            score_base = 258 * (COMBAT_RANGED_OPPONENTS_LIMIT - enmctrl->opponents_ranged_count) + score_extra;
         }
     } else
     {
         if (attack_type == AttckT_Ranged)
         {
             score_extra = 1;
-            score_base = 258 * (4 - enmctrl->opponents_ranged_count) + score_extra;
+            score_base = 258 * (COMBAT_RANGED_OPPONENTS_LIMIT - enmctrl->opponents_ranged_count) + score_extra;
         } else
         if (attack_type != AttckT_Ranged)
         {
             score_extra = 258;
-            score_base = 258 * (4 - enmctrl->opponents_melee_count) + score_extra + 128;
+            score_base = 258 * (COMBAT_MELEE_OPPONENTS_LIMIT - enmctrl->opponents_melee_count) + score_extra + 128;
         } else
         {
             score_extra = 258;
-            score_base = 258 * (4 - enmctrl->opponents_ranged_count) + score_extra;
+            score_base = 258 * (COMBAT_RANGED_OPPONENTS_LIMIT - enmctrl->opponents_ranged_count) + score_extra;
         }
     }
     if (a4 >= 5376)
@@ -3382,9 +3382,8 @@ long project_creature_attack_target_damage(const struct Thing *firing, const str
         shot_model = inst_inf->func_params[0];
     }
     long damage = project_creature_shot_damage(firing, shot_model);
-    // Adjust the damage with target creature defense
-    struct CreatureControl* cctrl = creature_control_get_from_thing(firing);
-    long dexterity = compute_creature_max_dexterity(crstat->dexterity, cctrl->explevel);
+    // Adjust the damage with target creature defense.
+    long dexterity = calculate_correct_creature_dexterity(firing);
     damage = project_damage_of_melee_shot(dexterity, damage, target);
     return damage;
 }

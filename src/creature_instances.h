@@ -119,6 +119,75 @@ struct InstanceInfo {
 extern const struct NamedCommand creature_instances_func_type[];
 extern Creature_Instf_Func creature_instances_func_list[];
 /******************************************************************************/
+long instf_attack_room_slab(struct Thing *creatng, long *param);
+long instf_creature_cast_spell(struct Thing *creatng, long *param);
+long instf_creature_fire_shot(struct Thing *creatng, long *param);
+long instf_damage_wall(struct Thing *creatng, long *param);
+long instf_destroy(struct Thing *creatng, long *param);
+long instf_dig(struct Thing *creatng, long *param);
+long instf_eat(struct Thing *creatng, long *param);
+long instf_fart(struct Thing *creatng, long *param);
+long instf_first_person_do_imp_task(struct Thing *creatng, long *param);
+long instf_pretty_path(struct Thing *creatng, long *param);
+long instf_reinforce(struct Thing *creatng, long *param);
+long instf_tortured(struct Thing *creatng, long *param);
+long instf_tunnel(struct Thing *creatng, long *param);
+
+const struct NamedCommand creature_instances_func_type[] = {
+  {"attack_room_slab",         1},
+  {"creature_cast_spell",      2},
+  {"creature_fire_shot",       3},
+  {"creature_damage_wall",     4},
+  {"creature_destroy",         5},
+  {"creature_dig",             6},
+  {"creature_eat",             7},
+  {"creature_fart",            8},
+  {"first_person_do_imp_task", 9},
+  {"creature_pretty_path",     10},
+  {"creature_reinforce",       11},
+  {"creature_tortured",        12},
+  {"creature_tunnel",          13},
+  {"none",                     14},
+  {NULL,                       0},
+};
+
+Creature_Instf_Func creature_instances_func_list[] = {
+  NULL,
+  instf_attack_room_slab,
+  instf_creature_cast_spell,
+  instf_creature_fire_shot,
+  instf_damage_wall,
+  instf_destroy,
+  instf_dig,
+  instf_eat,
+  instf_fart,
+  instf_first_person_do_imp_task,
+  instf_pretty_path, //[10]
+  instf_reinforce,
+  instf_tortured,
+  instf_tunnel,
+  NULL,
+  NULL,
+};
+
+enum creature_instances_func {
+  CrInstFn_none = 0,
+  CrInstFn_attack_room_slab = 1,
+  CrInstFn_creature_cast_spell = 2,
+  CrInstFn_creature_fire_shot = 3,
+  CrInstFn_damage_wall = 4,
+  CrInstFn_destroy = 5,
+  CrInstFn_dig = 6,
+  CrInstFn_eat = 7,
+  CrInstFn_fart = 8,
+  CrInstFn_first_person_do_imp_tasK = 9,
+  CrInstFn_pretty_path = 10,
+  CrInstFn_reinforce = 11,
+  CrInstFn_tortured = 12,
+  CrInstFn_tunnel = 13,
+};
+
+/******************************************************************************/
 /** Returns creature instance info structure for given instance index. */
 #define creature_instance_info_get(inst_idx) creature_instance_info_get_f(inst_idx,__func__)
 struct InstanceInfo *creature_instance_info_get_f(CrInstance inst_idx,const char *func_name);

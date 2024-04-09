@@ -1149,6 +1149,7 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
                 break;
             case 24: // CHARMING
                 shotst->model_flags |= ShMF_Charming;
+                n++;
                 break;
             default:
                 CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in [%s] block of %s file.",

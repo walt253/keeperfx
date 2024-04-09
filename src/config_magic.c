@@ -207,9 +207,10 @@ const struct NamedCommand shotmodel_properties_commands[] = {
   {"DISARMING",           18},
   {"BLOCKS_REBIRTH",      19},
   {"PENETRATING",         20},
-  {"STEALING",            21},
-  {"LOOTING",             22},
-  {"CHARMING",            23},
+  {"NEVER_BLOCK",         21},
+  {"STEALING",            22},
+  {"LOOTING",             23},
+  {"CHARMING",            24},
   {NULL,                   0},
   };
 
@@ -1136,15 +1137,19 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
                 shotst->model_flags |= ShMF_Penetrating;
                 n++;
                 break;
-            case 21: // STEALING
+            case 21: // NEVER_BLOCK
+                shotst->model_flags |= ShMF_NeverBlock;
+                n++;
+                break;
+            case 22: // STEALING
                 shotst->model_flags |= ShMF_Stealing;
                 n++;
                 break;
-            case 22: // LOOTING
+            case 23: // LOOTING
                 shotst->model_flags |= ShMF_Looting;
                 n++;
                 break;
-            case 23: // CHARMING
+            case 24: // CHARMING
                 shotst->model_flags |= ShMF_Charming;
                 n++;
                 break;

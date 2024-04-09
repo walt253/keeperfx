@@ -135,6 +135,8 @@ const struct NamedCommand hand_rule_desc[] = {
   {"WANDERING",             HandRule_Wandering},
   {"WORKING",               HandRule_Working},
   {"FIGHTING",              HandRule_Fighting},
+  {"DROPPED_TIME_HIGHER",   HandRule_DroppedTimeHigher},
+  {"DROPPED_TIME_LOWER",    HandRule_DroppedTimeLower},
   {NULL,                    0},
 };
 
@@ -246,6 +248,7 @@ const struct NamedCommand trap_config_desc[] = {
   {"RechargeAnimationID", 39},
   {"AttackAnimationID",   40},
   {"DestroyedEffect",     41},
+  {"InitialDelay",        42},
   {NULL,                   0},
 };
 
@@ -573,9 +576,9 @@ TbBool script_change_creatures_annoyance(PlayerNumber plyr_idx, ThingModel crmod
     return true;
 }
 
-long parse_creature_name(const char *creature_name)
+ThingModel parse_creature_name(const char *creature_name)
 {
-    long ret = get_rid(creature_desc, creature_name);
+    ThingModel ret = get_rid(creature_desc, creature_name);
     if (ret == -1)
     {
         if (0 == strcasecmp(creature_name, "ANY_CREATURE"))
@@ -897,7 +900,7 @@ static void conceal_map_rect_process(struct ScriptContext *context)
  * @param criteria the creature selection criterion
  * @param count the amount of units to transfer
  */
-short script_transfer_creature(long plyr_idx, long crmodel, long criteria, int count)
+static int script_transfer_creature(PlayerNumber plyr_idx, ThingModel crmodel, long criteria, int count)
 {
     short transferred = 0;
     struct Thing* thing;
@@ -1087,7 +1090,6 @@ static void set_trap_configuration_check(const struct ScriptLine* scline)
         }
         else
         {
-
             SCRPTERRLOG("Trap property %s needs a number value, '%s' is invalid.", scline->tp[1], scline->tp[2]);
             DEALLOCATE_SCRIPT_VALUE
             return;
@@ -1159,7 +1161,7 @@ static void set_room_configuration_check(const struct ScriptLine* scline)
         if (parameter_is_number(valuestring))
         {
             newvalue = atoi(valuestring);
-            if ((newvalue > 16) || (newvalue < 0))
+            if ((newvalue > 32) || (newvalue < 0))
             {
                 SCRPTERRLOG("Value out of range: %d", newvalue);
                 DEALLOCATE_SCRIPT_VALUE
@@ -1859,6 +1861,9 @@ static void set_trap_configuration_process(struct ScriptContext *context)
         case 41: // DestroyedEffect
             trapst->destroyed_effect = value;
             break;
+        case 42: // InitialDelay
+            trapstat->initial_delay = value;
+            break;
         default:
             WARNMSG("Unsupported Trap configuration, variable %d.", context->value->shorts[1]);
             break;
@@ -2297,18 +2302,18 @@ static void set_door_configuration_process(struct ScriptContext *context)
 static void create_effect_process(struct ScriptContext *context)
 {
     struct Coord3d pos;
-    set_coords_to_subtile_center(&pos, context->value->bytes[1], context->value->bytes[2], 0);
+    set_coords_to_subtile_center(&pos, context->value->shorts[1], context->value->shorts[2], 0);
     pos.z.val += get_floor_height(pos.x.stl.num, pos.y.stl.num);
-    TbBool Price = (context->value->chars[0] == -(TngEffElm_Price));
+    TbBool Price = (context->value->shorts[0] == -(TngEffElm_Price));
     if (Price)
     {
         pos.z.val += 128;
     }
     else
     {
-        pos.z.val += context->value->arg1;
+        pos.z.val += context->value->arg2;
     }
-    struct Thing* efftng = create_used_effect_or_element(&pos, context->value->chars[0], game.neutral_player_num);
+    struct Thing* efftng = create_used_effect_or_element(&pos, context->value->shorts[0], game.neutral_player_num);
     if (!thing_is_invalid(efftng))
     {
         if (thing_in_wall_at(efftng, &efftng->mappos))
@@ -2317,7 +2322,7 @@ static void create_effect_process(struct ScriptContext *context)
         }
         if (Price)
         {
-            efftng->price_effect.number = context->value->arg1;
+            efftng->price_effect.number = context->value->arg2;
         }
     }
 }
@@ -2495,14 +2500,14 @@ static void create_effects_line_check(const struct ScriptLine *scline)
     value->bytes[10] = scline->np[4]; // temporal stepping
     const char* effect_name = scline->tp[5];
 
-    long effct_id = effect_or_effect_element_id(effect_name);
+    EffectOrEffElModel effct_id = effect_or_effect_element_id(effect_name);
     if (effct_id == 0)
     {
         SCRPTERRLOG("Unrecognised effect: %s", effect_name);
         return;
     }
 
-    value->chars[11] = effct_id; // effect
+    value->shorts[6] = effct_id; // effect
 
     PROCESS_SCRIPT_VALUE(scline->command);
 }
@@ -2527,10 +2532,10 @@ static void create_effects_line_process(struct ScriptContext *context)
     }
     find_location_pos(context->value->arg0, context->player_idx, &fx_line->from, __func__);
     find_location_pos(context->value->arg1, context->player_idx, &fx_line->to, __func__);
-    fx_line->curvature = context->value->chars[8];
+    fx_line->curvature = (int)context->value->chars[8];
     fx_line->spatial_step = context->value->bytes[9] * 32;
     fx_line->steps_per_turn = context->value->bytes[10];
-    fx_line->effect = context->value->chars[11];
+    fx_line->effect = context->value->shorts[6];
     fx_line->here = fx_line->from;
     fx_line->step = 0;
 
@@ -3152,7 +3157,7 @@ static void create_effect_check(const struct ScriptLine *scline)
         SCRPTERRLOG("Unrecognised effect: %s", effect_name);
         return;
     }
-    value->chars[0] = effct_id;
+    value->shorts[0] = effct_id;
     const char *locname = scline->tp[1];
     if (!get_map_location_id(locname, &location))
     {
@@ -3161,9 +3166,9 @@ static void create_effect_check(const struct ScriptLine *scline)
     long stl_x;
     long stl_y;
     find_map_location_coords(location, &stl_x, &stl_y, 0, __func__);
-    value->bytes[1] = stl_x;
-    value->bytes[2] = stl_y;
-    value->arg1 = scline->np[2];
+    value->shorts[1] = stl_x;
+    value->shorts[2] = stl_y;
+    value->arg2 = scline->np[2];
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
@@ -3177,15 +3182,15 @@ static void create_effect_at_pos_check(const struct ScriptLine *scline)
         SCRPTERRLOG("Unrecognised effect: %s", effect_name);
         return;
     }
-    value->chars[0] = effct_id;
+    value->shorts[0] = effct_id;
     if (subtile_coords_invalid(scline->np[1], scline->np[2]))
     {
         SCRPTERRLOG("Invalid coordinates: %ld, %ld", scline->np[1], scline->np[2]);
         return;
     }
-    value->bytes[1] = scline->np[1];
-    value->bytes[2] = scline->np[2];
-    value->arg1 = scline->np[3];
+    value->shorts[1] = scline->np[1];
+    value->shorts[2] = scline->np[2];
+    value->arg2 = scline->np[3];
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
@@ -4457,14 +4462,14 @@ static void add_effectgen_to_level_check(const struct ScriptLine* scline)
     long range = scline->np[2];
 
     TbMapLocation location;
-    long gen_id;
+    ThingModel gen_id;
     if (parameter_is_number(generator_name))
     {
         gen_id = atoi(generator_name);
     }
     else
     {
-        gen_id = get_rid(effectgen_desc, generator_name);
+        gen_id = get_id(effectgen_desc, generator_name);
     }
     if (gen_id <= 0)
     {
@@ -4485,7 +4490,7 @@ static void add_effectgen_to_level_check(const struct ScriptLine* scline)
         DEALLOCATE_SCRIPT_VALUE;
         return;
     }
-    value->shorts[0] = gen_id;
+    value->shorts[0] = (short)gen_id;
     value->shorts[1] = location;
     value->shorts[2] = range;
     PROCESS_SCRIPT_VALUE(scline->command);
@@ -4493,7 +4498,7 @@ static void add_effectgen_to_level_check(const struct ScriptLine* scline)
 
 static void add_effectgen_to_level_process(struct ScriptContext* context)
 {
-    short gen_id = context->value->shorts[0];
+    ThingModel gen_id = context->value->shorts[0];
     short location = context->value->shorts[1];
     short range = context->value->shorts[2];
     if (get_script_current_condition() == CONDITION_ALWAYS)
@@ -4523,7 +4528,7 @@ static void set_effectgen_configuration_check(const struct ScriptLine* scline)
     const char* property = scline->tp[1];
     short value1 = 0;
 
-    char effgen_id = get_id(effectgen_desc, effgenname);
+    ThingModel effgen_id = get_id(effectgen_desc, effgenname);
     if (effgen_id == -1)
     {
         SCRPTERRLOG("Unknown effect generator, '%s'", effgenname);
@@ -4583,7 +4588,7 @@ static void set_effectgen_configuration_check(const struct ScriptLine* scline)
 
 
     SCRIPTDBG(7, "Setting effect generator %s property %s to %d", effectgenerator_code_name(effgen_id), property, value1);
-    value->shorts[0] = effgen_id;
+    value->shorts[0] = (short)effgen_id;
     value->shorts[1] = property_id;
     value->shorts[2] = value1;
     value->shorts[3] = scline->np[3];
@@ -4594,7 +4599,7 @@ static void set_effectgen_configuration_check(const struct ScriptLine* scline)
 
 static void set_effectgen_configuration_process(struct ScriptContext* context)
 {
-    short effgen_id = context->value->shorts[0];
+    ThingModel effgen_id = context->value->shorts[0];
     short property_id = context->value->shorts[1];
 
     struct EffectGeneratorConfigStats* effgencst = &game.conf.effects_conf.effectgen_cfgstats[effgen_id];
@@ -5504,6 +5509,33 @@ static void set_creature_max_level_process(struct ScriptContext* context)
     }
 }
 
+static void reset_action_point_check(const struct ScriptLine* scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+    long apt_idx = action_point_number_to_index(scline->np[0]);
+    if (!action_point_exists_idx(apt_idx))
+    {
+        SCRPTERRLOG("Non-existing Action Point, no %d", scline->np[0]);
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    }
+    value->arg0 = apt_idx;
+    PlayerNumber plyr_idx = (scline->tp[1][0] == '\0') ? ALL_PLAYERS : get_id(player_desc, scline->tp[1]);
+    if (plyr_idx == -1)
+    {
+        SCRPTERRLOG("Invalid player: %s", scline->tp[1]);
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    }
+    value->chars[4] = plyr_idx;
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void reset_action_point_process(struct ScriptContext* context)
+{
+    action_point_reset_idx(context->value->arg0, context->value->chars[4]);
+}
+
 /**
  * Descriptions of script commands for parser.
  * Arguments are: A-string, N-integer, C-creature model, P- player, R- room kind, L- location, O- operator, S- slab kind
@@ -5544,7 +5576,7 @@ const struct CommandDesc command_desc[] = {
   {"DISPLAY_INFORMATION_WITH_POS",      "NNN     ", Cmd_DISPLAY_INFORMATION_WITH_POS, NULL, NULL},
   {"ADD_TUNNELLER_PARTY_TO_LEVEL",      "PAAANNN ", Cmd_ADD_TUNNELLER_PARTY_TO_LEVEL, NULL, NULL},
   {"ADD_CREATURE_TO_POOL",              "CN      ", Cmd_ADD_CREATURE_TO_POOL, NULL, NULL},
-  {"RESET_ACTION_POINT",                "N       ", Cmd_RESET_ACTION_POINT, NULL, NULL},
+  {"RESET_ACTION_POINT",                "Na      ", Cmd_RESET_ACTION_POINT, &reset_action_point_check, &reset_action_point_process},
   {"SET_CREATURE_MAX_LEVEL",            "PC!N    ", Cmd_SET_CREATURE_MAX_LEVEL, &set_creature_max_level_check, &set_creature_max_level_process},
   {"SET_MUSIC",                         "A       ", Cmd_SET_MUSIC, &set_music_check, &set_music_process},
   {"TUTORIAL_FLASH_BUTTON",             "NN      ", Cmd_TUTORIAL_FLASH_BUTTON, NULL, NULL},
@@ -5694,7 +5726,7 @@ const struct CommandDesc dk1_command_desc[] = {
   {"DISPLAY_INFORMATION_WITH_POS", "NNN     ", Cmd_DISPLAY_INFORMATION_WITH_POS, NULL, NULL},
   {"ADD_TUNNELLER_PARTY_TO_LEVEL", "PAAANNN ", Cmd_ADD_TUNNELLER_PARTY_TO_LEVEL, NULL, NULL},
   {"ADD_CREATURE_TO_POOL",         "CN      ", Cmd_ADD_CREATURE_TO_POOL, NULL, NULL},
-  {"RESET_ACTION_POINT",           "N       ", Cmd_RESET_ACTION_POINT, NULL, NULL},
+  {"RESET_ACTION_POINT",           "N       ", Cmd_RESET_ACTION_POINT, &reset_action_point_check, &reset_action_point_process},
   {"SET_CREATURE_MAX_LEVEL",       "PC!N    ", Cmd_SET_CREATURE_MAX_LEVEL, &set_creature_max_level_check, &set_creature_max_level_process},
   {"SET_MUSIC",                    "N       ", Cmd_SET_MUSIC, NULL, NULL},
   {"TUTORIAL_FLASH_BUTTON",        "NN      ", Cmd_TUTORIAL_FLASH_BUTTON, NULL, NULL},

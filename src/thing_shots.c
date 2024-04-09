@@ -442,7 +442,7 @@ SubtlCodedCoords process_dig_shot_hit_wall(struct Thing *thing, long blocked_fla
     return result;
 }
 
-struct Thing *create_shot_hit_effect(struct Coord3d *effpos, long effowner, long eff_kind, long snd_idx, long snd_range)
+struct Thing *create_shot_hit_effect(struct Coord3d *effpos, long effowner, EffectOrEffElModel eff_kind, long snd_idx, long snd_range)
 {
     struct Thing* efftng = INVALID_THING;
     if (eff_kind != 0) {
@@ -484,7 +484,7 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
     TbBool digging = (shotst->model_flags & ShMF_Digging);
     SubtlCodedCoords hit_stl_num;
     HitPoints old_health;
-    short eff_kind;
+    EffectOrEffElModel eff_kind;
     short smpl_idx;
     unsigned char range;
     struct SlabMap* slb;
@@ -951,8 +951,12 @@ static TbBool shot_hit_object_at(struct Thing *shotng, struct Thing *target, str
     return damage_done > 0;
 }
 
-long get_damage_of_melee_shot(struct Thing *shotng, const struct Thing *target)
+long get_damage_of_melee_shot(struct Thing *shotng, const struct Thing *target, TbBool NeverBlock)
 {
+    if (NeverBlock)
+    {
+        return shotng->shot.damage;
+    }
     long crdefense = calculate_correct_creature_defense(target);
     long hitchance = ((long)shotng->shot.dexterity - crdefense) / 2;
     if (hitchance < -96)
@@ -1084,7 +1088,8 @@ long melee_shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, stru
     struct Thing* shooter = INVALID_THING;
     if (shotng->parent_idx != shotng->index)
         shooter = thing_get(shotng->parent_idx);
-    long damage = get_damage_of_melee_shot(shotng, trgtng);
+    trgtcctrl = creature_control_get_from_thing(trgtng);
+    long damage = get_damage_of_melee_shot(shotng, trgtng, flag_is_set(shotst->model_flags, ShMF_NeverBlock));
     if (damage > 0)
     {
       if (shotst->hit_creature.sndsample_idx > 0)
@@ -1356,7 +1361,7 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
             change_creature_owner(trgtng, shooter->owner);
         }
     }
-    if ((shotst->model_flags & ShMF_StrengthBased) != 0)
+    if (flag_is_set(shotst->model_flags, ShMF_StrengthBased))
     {
         return melee_shot_hit_creature_at(shotng, trgtng, pos);
     }
@@ -1921,7 +1926,7 @@ TngUpdateRet update_shot(struct Thing *thing)
     return move_shot(thing);
 }
 
-struct Thing *create_shot(struct Coord3d *pos, unsigned short model, unsigned short owner)
+struct Thing *create_shot(struct Coord3d *pos, ThingModel model, unsigned short owner)
 {
     if ( !i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots) )
     {

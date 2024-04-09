@@ -1126,7 +1126,7 @@ HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, DamageType d
         return 0;
     HitPoints cdamage;
     switch (thing->class_id)
-    {//TODO: make own function for Weaknesses&Resistances system and rewrite it entirely.
+    {// TODO: make own function for Weaknesses&Resistances system and rewrite it entirely.
     case TCls_Creature:
         // Weaknesses&Resistances to Physical damage type.
         if (damage_type == DmgT_Physical) {

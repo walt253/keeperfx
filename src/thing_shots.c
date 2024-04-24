@@ -1181,7 +1181,7 @@ long melee_shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, stru
         if (shotst->cast_spell_kind != 0)
         {
             cctrl = creature_control_get_from_thing(shooter);
-            if (!creature_control_invalid(scctrl)) {
+            if (!creature_control_invalid(cctrl)) {
                 n = cctrl->explevel;
             }
             else {

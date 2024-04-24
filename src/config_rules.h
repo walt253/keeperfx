@@ -132,7 +132,6 @@ struct MagicRulesConfig {
     MapSubtlDelta min_distance_for_teleport;
     long collapse_dungeon_damage;
     GameTurnDelta turns_per_collapse_dngn_dmg;
-    GoldAmount power_hand_gold_grab_amount;
     long friendly_fight_area_damage_percent;
     long friendly_fight_area_range_percent;
     TbBool armageddon_teleport_neutrals;
@@ -144,8 +143,6 @@ struct RoomRulesConfig {
     unsigned long temple_scavenge_protection_turns;
     GameTurnDelta train_cost_frequency;
     unsigned char ghost_convert_chance;
-    unsigned short default_generate_speed;
-    unsigned long default_max_crtrs_gen_entrance;
     GameTurnDelta food_generation_speed;
     unsigned char prison_skeleton_chance;
     unsigned char bodies_for_vampire;

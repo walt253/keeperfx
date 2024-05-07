@@ -54,7 +54,7 @@ struct DoorConfigStats {
     long pointer_sprite_idx;
     long place_sound_idx;
     unsigned short slbkind[2];
-    long health;
+    HitPoints health;
     unsigned short open_speed;
     unsigned short model_flags;
     short unsellable;
@@ -78,14 +78,15 @@ struct TrapConfigStats {
     long pointer_sprite_idx;
     short place_sound_idx;
     short trigger_sound_idx;
-    unsigned char hidden;
-    unsigned char slappable;
-    char destructible;
-    char unstable;
-    unsigned char notify;
-    unsigned char unsellable;
-    unsigned char placeonbridge;
-    unsigned char placeonroom;
+    TbBool hidden;
+    short slappable;
+    short destructible;
+    short unstable;
+    TbBool notify;
+    TbBool unsellable;
+    TbBool placeonbridge;
+    TbBool placeonsubtile;
+    TbBool placeonroom;
     EffectOrEffElModel destroyed_effect;
 };
 

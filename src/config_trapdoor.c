@@ -113,7 +113,8 @@ const struct NamedCommand trapdoor_trap_commands[] = {
   {"ATTACKANIMATIONID",    41},
   {"DESTROYEDEFFECT",      42},
   {"INITIALDELAY",         43},
-  {"PLACEONROOM",          44},
+  {"PLACEONSUBTILE",       44},
+  {"PLACEONROOM",          45},
   {NULL,                    0},
 };
 
@@ -283,14 +284,15 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
           trapst->place_sound_idx = 117; 
           trapst->trigger_sound_idx = 176;
           trapst->panel_tab_idx = 0;
-          trapst->hidden = 0;
+          trapst->hidden = false;
           trapst->slappable = 0;
           trapst->destructible = 0;
           trapst->unstable = 0;
-          trapst->unsellable = 0;
-          trapst->notify = 0;
-          trapst->placeonbridge = 0;
-          trapst->placeonroom = 0;
+          trapst->unsellable = false;
+          trapst->notify = false;
+          trapst->placeonbridge = false;
+          trapst->placeonsubtile = false;
+          trapst->placeonroom = false;
           // Default destroyed_effect is TngEffElm_Blast2.
           trapst->destroyed_effect = -39;
 
@@ -1105,7 +1107,23 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
                   COMMAND_TEXT(cmd_num), block_buf, config_textname);
           }
           break;
-      case 44: // PLACEONROOM
+      case 44: // PLACEONSUBTILE
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              if (k >= 0)
+              {
+                  trapst->placeonsubtile = k;
+                  n++;
+              }
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 45: // PLACEONROOM
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);

@@ -195,7 +195,7 @@ TbBool creature_is_for_dungeon_diggers_list(const struct Thing *creatng)
 TbBool creature_kind_is_for_dungeon_diggers_list(PlayerNumber plyr_idx, ThingModel crmodel)
 {
     //TODO DIGGERS For now, only player-specific and non-hero special diggers are on the diggers list
-    if (plyr_idx == game.hero_player_num)
+    if (player_is_roaming(plyr_idx))
         return false;
     return (crmodel == get_players_special_digger_model(plyr_idx));
     //struct CreatureModelConfig *crconf;
@@ -2061,7 +2061,7 @@ TngUpdateRet process_creature_state(struct Thing *thing)
                 long x = stl_num_decode_x(cctrl->collided_door_subtile);
                 long y = stl_num_decode_y(cctrl->collided_door_subtile);
                 struct Thing* doortng = get_door_for_position(x, y);
-                if ((!thing_is_invalid(doortng)) && (thing->owner != neutral_player_number))
+                if ((!thing_is_invalid(doortng)) && (thing->owner != PLAYER_NEUTRAL))
                 {
                     if (thing->owner != doortng->owner)
                     {
@@ -4199,7 +4199,7 @@ struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumbe
         cctrl->training_cost_upgrade = 0;
         cctrl->scavenging_cost_upgrade = 0;
     }
-    if (owner == game.hero_player_num)
+    if (player_is_roaming(owner))
     {
         cctrl->hero.sbyte_89 = -1;
         cctrl->hero.byte_8C = 1;
@@ -6735,7 +6735,7 @@ struct Thing *script_create_creature_at_location(PlayerNumber plyr_idx, ThingMod
     switch (effect)
     {
     case 1:
-        if (plyr_idx == game.hero_player_num)
+        if (player_is_roaming(plyr_idx))
         {
             thing->mappos.z.val = get_ceiling_height(&thing->mappos);
             create_effect(&thing->mappos, TngEff_CeilingBreach, thing->owner);

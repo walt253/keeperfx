@@ -292,8 +292,8 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
           trapst->unstable = 0;
           trapst->unsellable = false;
           trapst->notify = false;
-          trapst->placeonbridge = false;
-          trapst->placeonsubtile = false;
+          trapst->place_on_bridge = false;
+          trapst->place_on_subtile = false;
           // Default destroyed_effect is TngEffElm_Blast2.
           trapst->destroyed_effect = -39;
 
@@ -963,7 +963,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
               k = atoi(word_buf);
               if (k >= 0)
               {
-                  trapst->placeonbridge = k;
+                  trapst->place_on_bridge = k;
                   n++;
               }
           }
@@ -1114,7 +1114,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
               k = atoi(word_buf);
               if (k >= 0)
               {
-                  trapst->placeonsubtile = k;
+                  trapst->place_on_subtile = k;
                   n++;
               }
           }

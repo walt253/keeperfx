@@ -105,7 +105,7 @@ struct InstanceInfo {
     long reset_time;
     long fp_reset_time;
     unsigned char graphics_idx;
-    short flags;
+    unsigned long flags;
     short force_visibility;
     unsigned char primary_target;
     unsigned char func_idx;
@@ -114,6 +114,7 @@ struct InstanceInfo {
     long range_max;
     long symbol_spridx;
     short tooltip_stridx;
+    unsigned char priority;
 };
 
 /******************************************************************************/

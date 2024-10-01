@@ -306,10 +306,6 @@ long compute_creature_kind_score(ThingModel crkind, unsigned short crlevel)
 long compute_creature_max_health(HitPoints base_health, unsigned short crlevel, PlayerNumber plyr_idx)
 {
     struct Dungeon* dungeon;
-    if (base_health < -100000)
-        base_health = -100000;
-    if (base_health > 100000)
-        base_health = 100000;
     if (crlevel >= CREATURE_MAX_LEVEL)
         crlevel = CREATURE_MAX_LEVEL-1;
     HitPoints max_health = base_health + (game.conf.crtr_conf.exp.health_increase_on_exp * base_health * (long)crlevel) / 100;
@@ -318,7 +314,7 @@ long compute_creature_max_health(HitPoints base_health, unsigned short crlevel, 
         unsigned short modifier = dungeon->modifier.health;
         max_health = (max_health * modifier) / 100;
     }
-    return saturate_set_signed(max_health, 16);
+    return max_health;
 }
 
 /**
@@ -1119,7 +1115,7 @@ HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, DamageType d
         return 0;
     HitPoints cdamage;
     switch (thing->class_id)
-    {//TODO: make own function for Weaknesses&Resistances system and rewrite it entirely.
+    {// TODO: make own function for Weaknesses&Resistances system and rewrite it entirely.
     case TCls_Creature:
         // Weaknesses&Resistances to Physical damage type.
         if (damage_type == DmgT_Physical) {

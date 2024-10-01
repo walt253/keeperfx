@@ -1618,10 +1618,10 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
 
 TbBool shot_hit_shootable_thing_at(struct Thing *shotng, struct Thing *target, struct Coord3d *pos)
 {
+    struct ShotConfigStats* shotst = get_shot_model_stats(shotng->model);
     if (!thing_exists(target)) {
         return false;
     } else {
-        struct ShotConfigStats* shotst = get_shot_model_stats(shotng->model);
         if (shotst->slab_kind > 0)
         {
             MapSubtlCoord stl_x = target->mappos.x.stl.num;
@@ -1643,6 +1643,10 @@ TbBool shot_hit_shootable_thing_at(struct Thing *shotng, struct Thing *target, s
         return shot_hit_object_at(shotng, target, pos);
     }
     if (target->class_id == TCls_Creature) {
+        if ((target->owner == shotng->owner) && (shotst->no_trigger_on_friendly != 0))
+        {
+            return false;
+        }
         return shot_hit_creature_at(shotng, target, pos);
     }
     if (target->class_id == TCls_Trap) {

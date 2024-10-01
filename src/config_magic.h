@@ -343,6 +343,7 @@ struct ShotConfigStats {
     unsigned char break_percent;
     unsigned char gold_percent;
     unsigned char slab_kind;
+    unsigned char no_trigger_on_friendly;
 };
 
 typedef unsigned char (*Expand_Check_Func)(void);

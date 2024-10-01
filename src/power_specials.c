@@ -101,13 +101,14 @@ void ragnarok_creatures_in_dungeon_list(struct Dungeon *dungeon, long list_start
             creature_level = cctrl->explevel;
             pos = thing->mappos;
             remove_thing_from_power_hand_list(thing, dungeon->owner);
-            kill_creature(thing, INVALID_THING, -1, CrDed_NoEffects|CrDed_NotReallyDying);
             rgnrk = create_creature(&pos, creature_id, dungeon->owner);
             if (thing_is_invalid(rgnrk))
             {
                 WARNLOG("Can't create a new creature from Ragnarok");
                 break;
             }
+            transfer_creature_data_and_gold(thing, rgnrk);
+            kill_creature(thing, INVALID_THING, -1, CrDed_NoEffects|CrDed_NotReallyDying);
             create_effect(&rgnrk->mappos, imp_spangle_effects[get_player_color_idx(dungeon->owner)], dungeon->owner);
             set_creature_level(rgnrk, creature_level);
             initialise_thing_state(rgnrk, CrSt_CreatureInHoldAudience);

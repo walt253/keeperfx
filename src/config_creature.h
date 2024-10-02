@@ -31,35 +31,39 @@
 extern "C" {
 #endif
 
-#define CREATURE_NONE 255
-#define CREATURE_ANY  254
-#define CREATURE_NOT_A_DIGGER  253
-#define CREATURE_DIGGER  252
+#define CREATURE_NONE            255
+#define CREATURE_ANY             254
+#define CREATURE_NOT_A_DIGGER    253
+#define CREATURE_DIGGER          252
 
 /** Percentage of creature parameter increase for every experience level.
  *  Used as default value, should be replaced in config file. */
 #define CREATURE_PROPERTY_INCREASE_ON_EXP  35
 /******************************************************************************/
 enum CreatureModelFlags {
-    CMF_IsSpecDigger     = 0x00001, // Imp and Tunneller.
-    CMF_IsArachnid       = 0x00002, // simply, Spider.
-    CMF_IsDiptera        = 0x00004, // simply, Fly.
-    CMF_IsLordOTLand     = 0x00008, // simply, Knight.
-    CMF_IsSpectator      = 0x00010, // simply, Floating Spirit.
-    CMF_IsEvil           = 0x00020, // All evil creatures.
-    CMF_NeverChickens    = 0x00040, // Cannot be affected by Chicken (for Avatar).
-    CMF_ImmuneToBoulder  = 0x00080, // Boulder traps are destroyed at the moment they touch the creature.
-    CMF_NoCorpseRotting  = 0x00100, // Corpse cannot rot in graveyard.
-    CMF_NoEnmHeartAttack = 0x00200, // Creature will not attack enemy heart on sight.
-    CMF_Trembling        = 0x00400, // Creature causes ground to tremble when dropped.
-    CMF_Female           = 0x00800, // Creature is female.
-    CMF_Insect           = 0x01000, // Creature is kind of insect.
-    CMF_OneOfKind        = 0x02000, // Only one creature of that kind may exist on one level. Unit name is type name.
-    CMF_NoImprisonment   = 0x04000, // Creature will not faint.
-    CMF_NeverSick        = 0x08000, // Creature will not get disease.
-    CMF_NoResurrect      = 0x10000, // Creature will not resurrect.
-    CMF_NoTransfer       = 0x20000, // Creature cannot be transferred.
-    CMF_Fat              = 0x40000, // Creature to fat too walk a full animation
+    CMF_IsSpecDigger     = 0x000001, // Imp and Tunneller.
+    CMF_IsArachnid       = 0x000002, // Simply, Spider.
+    CMF_IsDiptera        = 0x000004, // Simply, Fly.
+    CMF_IsLordOTLand     = 0x000008, // Simply, Knight and Avatar.
+    CMF_IsSpectator      = 0x000010, // Simply, Floating Spirit.
+    CMF_IsEvil           = 0x000020, // All evil creatures.
+    CMF_NeverChickens    = 0x000040, // Cannot be affected by Chicken (for Avatar).
+    CMF_ImmuneToBoulder  = 0x000080, // Boulder traps are destroyed at the moment they touch the creature.
+    CMF_NoCorpseRotting  = 0x000100, // Corpse cannot rot in graveyard.
+    CMF_NoEnmHeartAttack = 0x000200, // Creature will not attack enemy heart on sight.
+    CMF_Trembling        = 0x000400, // Creature causes ground to tremble when dropped.
+    CMF_Female           = 0x000800, // Creature is female.
+    CMF_Insect           = 0x001000, // Creature is kind of insect.
+    CMF_OneOfKind        = 0x002000, // Only one creature of that kind may exist on one level. Unit name is type name.
+    CMF_NoImprisonment   = 0x004000, // Creature will not faint.
+    CMF_NeverSick        = 0x008000, // Creature will not get disease.
+    CMF_NoResurrect      = 0x010000, // Creature will not resurrect.
+    CMF_NoTransfer       = 0x020000, // Creature cannot be transferred.
+    CMF_Fat              = 0x040000, // Creature to fat too walk a full animation.
+    CMF_NoCharm          = 0x080000, // Creature cannot be charmed.
+    CMF_Mechanical       = 0x100000, // Creature is mechanical, as a result can self repair itself to heal.
+    CMF_Undead           = 0x200000, // Creature is kind of undead.
+    CMF_Ethereal         = 0x400000, // Creature is immune to physical damage type.
 };
 
 enum CreatureJobFlags {
@@ -137,18 +141,27 @@ enum JobKindFlags {
 };
 
 enum InstancePropertiesFlags {
-    InstPF_None               = 0x0000,
-    InstPF_RepeatTrigger      = 0x0001,
-    InstPF_RangedAttack       = 0x0002,
-    InstPF_MeleeAttack        = 0x0004,
-    InstPF_SelfBuff           = 0x0008,
-    InstPF_RangedDebuff       = 0x0010,
-    InstPF_Dangerous          = 0x0020,
-    InstPF_Destructive        = 0x0040,
-    InstPF_Quick              = 0x0080,
-    InstPF_Disarming          = 0x0100,
-    InstPF_UsesSwipe          = 0x0200,
-    InstPF_RangedBuff         = 0x0400,
+    InstPF_None                = 0x000000,
+    InstPF_RepeatTrigger       = 0x000001,
+    InstPF_RangedAttack        = 0x000002,
+    InstPF_MeleeAttack         = 0x000004,
+    InstPF_SelfBuff            = 0x000008,
+    InstPF_RangedDebuff        = 0x000010,
+    InstPF_Dangerous           = 0x000020,
+    InstPF_Destructive         = 0x000040,
+    InstPF_Quick               = 0x000080,
+    InstPF_Disarming           = 0x000100,
+    InstPF_UsesSwipe           = 0x000200,
+    InstPF_RangedBuff          = 0x000400,
+    InstPF_DiggerTask          = 0x000800,
+    InstPF_OutOfBattle         = 0x001000,
+    InstPF_Waiting             = 0x002000,
+    InstPF_WhileImprisoned     = 0x004000,
+    InstPF_OnlyInjured         = 0x008000,
+    InstPF_OnlyUnderGas        = 0x010000,
+    InstPF_OnToxicTerrain      = 0x020000,
+    InstPF_AgainstDoor         = 0x040000,
+    InstPF_AgainstObject       = 0x080000,
 };
 
 enum CreatureDeathKind {

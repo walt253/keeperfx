@@ -649,10 +649,10 @@ TbBool jonty_creature_can_see_thing_including_lava_check(const struct Thing *cre
     eyepos.z.val += get_creature_eye_height(creatng);
     if (thing->class_id == TCls_Door)
     {
-        // If we're immune to lava, or we're already on it - don't care, travel over it
-        if (lava_at_position(srcpos) || creature_can_travel_over_lava(creatng))
+        // If we're immune to lava/water, or we're already on it - don't care, travel over it
+        if ((lava_at_position(srcpos) || creature_can_travel_over_lava(creatng)) || (water_at_position(srcpos) || creature_can_travel_over_water(creatng)))
         {
-            SYNCDBG(17, "The %s index %d owned by player %d checks w/o lava %s index %d",
+            SYNCDBG(17, "The %s index %d owned by player %d checks w/o lava or water %s index %d",
                 thing_model_name(creatng),(int)creatng->index,(int)creatng->owner,thing_model_name(thing),(int)thing->index);
             // Check bottom of the thing
             if (line_of_sight_3d_ignoring_specific_door(&eyepos, &tgtpos, thing))
@@ -677,10 +677,10 @@ TbBool jonty_creature_can_see_thing_including_lava_check(const struct Thing *cre
         }
     } else
     {
-        // If we're immune to lava, or we're already on it - don't care, travel over it
-        if (lava_at_position(srcpos) || creature_can_travel_over_lava(creatng))
+        // If we're immune to lava/water, or we're already on it - don't care, travel over it
+        if ((lava_at_position(srcpos) || creature_can_travel_over_lava(creatng)) || (water_at_position(srcpos) || creature_can_travel_over_water(creatng)))
         {
-            SYNCDBG(17, "The %s index %d owned by player %d checks w/o lava %s index %d",
+            SYNCDBG(17, "The %s index %d owned by player %d checks w/o lava or water %s index %d",
                 thing_model_name(creatng),(int)creatng->index,(int)creatng->owner,thing_model_name(thing),(int)thing->index);
             // Check bottom of the thing
             if (line_of_sight_3d(&eyepos, &tgtpos))

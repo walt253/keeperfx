@@ -381,7 +381,7 @@ TbBool terrain_toxic_for_creature_at_position(const struct Thing *creatng, MapSu
         if (!flag_is_set(creatng->movement_flags, TMvF_Flying) || (!crstat->flying))
             return true;
     }
-    // If the position is over watar, and we can't continuously fly, then it's toxic if creature is hurt by water.
+    // If the position is over water, and we can't continuously fly, then it's toxic if creature is hurt by water.
     if ((crstat->hurt_by_water > 0) && map_pos_is_water(stl_x,stl_y)) {
         // Check not only if a creature is now flying, but also whether it's natural ability.
         if (!flag_is_set(creatng->movement_flags, TMvF_Flying) || (!crstat->flying))

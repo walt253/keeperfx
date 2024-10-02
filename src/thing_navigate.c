@@ -375,9 +375,15 @@ TbBool can_step_on_unsafe_terrain_at_position(const struct Thing *creatng, MapSu
 TbBool terrain_toxic_for_creature_at_position(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
     struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
-    // If the position is over lava, and we can't continuously fly, then it's toxic
+    // If the position is over lava, and we can't continuously fly, then it's toxic if creature is hurt by lava.
     if ((crstat->hurt_by_lava > 0) && map_pos_is_lava(stl_x,stl_y)) {
-        // Check not only if a creature is now flying, but also whether it's natural ability
+        // Check not only if a creature is now flying, but also whether it's natural ability.
+        if (!flag_is_set(creatng->movement_flags, TMvF_Flying) || (!crstat->flying))
+            return true;
+    }
+    // If the position is over watar, and we can't continuously fly, then it's toxic if creature is hurt by water.
+    if ((crstat->hurt_by_water > 0) && map_pos_is_water(stl_x,stl_y)) {
+        // Check not only if a creature is now flying, but also whether it's natural ability.
         if (!flag_is_set(creatng->movement_flags, TMvF_Flying) || (!crstat->flying))
             return true;
     }

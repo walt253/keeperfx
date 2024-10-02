@@ -5438,7 +5438,7 @@ void check_for_creature_escape_from_water(struct Thing *thing)
                 cctrl->lava_escape_since = game.play_gameturn; // I still use lava_escape_since as there is no point making one for water, you can't be on both slab at the same time.
                 if (cleanup_current_thing_state(thing))
                 {
-                    if (setup_move_off_water(thing))
+                    if (setup_move_out_of_cave_in(thing)) // Placeholder for now but maybe the behaviour is appropriate too.
                     {
                         thing->continue_state = CrSt_CreatureEscapingDeath;
                     }

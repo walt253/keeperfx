@@ -5421,7 +5421,34 @@ void check_for_creature_escape_from_lava(struct Thing *thing)
                     }
                 }
             }
-      }
+        }
+    }
+}
+
+void check_for_creature_escape_from_water(struct Thing *thing)
+{
+    if (((thing->alloc_flags & TAlF_IsControlled) == 0) && ((thing->movement_flags & TMvF_IsOnWater) != 0))
+    {
+        struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+        if (crstat->hurt_by_water > 0)
+        {
+            struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+            if ((!creature_is_escaping_death(thing)) && (cctrl->lava_escape_since + 64 < game.play_gameturn))
+            {
+                cctrl->lava_escape_since = game.play_gameturn; // I still use lava_escape_since as there is no point making one for water, you can't be on both slab at the same time.
+                if (cleanup_current_thing_state(thing))
+                {
+                    if (setup_move_out_of_cave_in(thing)) // Placeholder for now but maybe the behaviour is appropriate too.
+                    {
+                        thing->continue_state = CrSt_CreatureEscapingDeath;
+                    }
+                    else
+                    {
+                        set_start_state(thing);
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -5537,20 +5564,22 @@ void process_landscape_affecting_creature(struct Thing *thing)
     if (subtile_coord(navheight,0) == thing->mappos.z.val)
     {
         int i = get_top_cube_at_pos(stl_idx);
+        struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
         if (cube_is_lava(i))
         {
-            struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
             apply_damage_to_thing_and_display_health(thing, crstat->hurt_by_lava, DmgT_Heatburn, -1);
             thing->movement_flags |= TMvF_IsOnLava;
         } else
         if (cube_is_water(i))
         {
+            apply_damage_to_thing_and_display_health(thing, crstat->hurt_by_water, DmgT_Heatburn, -1);
             thing->movement_flags |= TMvF_IsOnWater;
         }
         process_creature_leave_footsteps(thing);
         process_creature_standing_on_corpses_at(thing, &thing->mappos);
     }
     check_for_creature_escape_from_lava(thing);
+    check_for_creature_escape_from_water(thing);
     SYNCDBG(19,"Finished");
 }
 

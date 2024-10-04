@@ -816,7 +816,7 @@ TbBool parse_creaturetype_experience_blocks(char *buf, long len, const char *con
 TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
 {
     struct InstanceInfo* inst_inf;
-    int i = 0, k = 0;
+    int i;
     // Block name and parameter word store variables
     // Initialize the array
     int arr_size = INSTANCE_TYPES_MAX;
@@ -855,19 +855,14 @@ TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *confi
         }
     }
     // Load the file blocks
-    const char * blockname = NULL;
-    int blocknamelen = 0;
-    long pos = 0;
-    while (iterate_conf_blocks(buf, &pos, len, &blockname, &blocknamelen))
+    for (i=0; i < arr_size; i++)
     {
-        // look for blocks starting with "instance", followed by one or more digits
-        if (blocknamelen < 9) {
-            continue;
-        } else if (memcmp(blockname, "instance", 8) != 0) {
-            continue;
-        }
-        i = natoi(&blockname[8], blocknamelen - 8);
-        if (i < 0 || i >= arr_size) {
+        char block_buf[COMMAND_WORD_LEN];
+        sprintf(block_buf, "instance%d", i);
+        long pos = 0;
+        int k = find_conf_block(buf, &pos, len, block_buf);
+        if (k < 0)
+        {
             continue;
         }
         inst_inf = &game.conf.magic_conf.instance_info[i];
@@ -891,7 +886,7 @@ TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *confi
         case 1: // NAME
             if (get_conf_parameter_single(buf,&pos,len,game.conf.crtr_conf.instances[i].name,COMMAND_WORD_LEN) <= 0)
             {
-                CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.", COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+                CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.", COMMAND_TEXT(cmd_num),block_buf,config_textname);
                 break;
             }
             if (instance_desc[i].name == NULL)
@@ -914,8 +909,8 @@ TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *confi
             }
             if (n < 1)
             {
-                CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
-                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+                CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
         case 3: // ACTIONTIME
@@ -927,8 +922,8 @@ TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *confi
             }
             if (n < 1)
             {
-                CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
-                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+                CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
         case 4: // RESETTIME
@@ -940,8 +935,8 @@ TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *confi
             }
             if (n < 1)
             {
-                CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
-                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+                CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
         case 5: // FPTIME
@@ -953,8 +948,8 @@ TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *confi
             }
             if (n < 1)
             {
-                CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
-                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+                CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
         case 6: // FPACTIONTIME
@@ -966,8 +961,8 @@ TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *confi
             }
             if (n < 1)
             {
-                CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
-                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+                CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
         case 7: // FPRESETTIME
@@ -979,8 +974,8 @@ TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *confi
             }
             if (n < 1)
             {
-                CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
-                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+                CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
         case 8: // FORCEVISIBILITY
@@ -992,8 +987,8 @@ TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *confi
             }
             if (n < 1)
             {
-                CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
-                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+                CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
         case 9: // TOOLTIPTEXTID
@@ -1008,8 +1003,8 @@ TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *confi
             }
             if (n < 1)
             {
-                CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
-                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+                CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
         case 10: // SYMBOLSPRITES
@@ -1024,8 +1019,8 @@ TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *confi
             }
             if (n < 1)
             {
-                CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
-                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+                CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
         case 11: // GRAPHICS
@@ -1040,8 +1035,8 @@ TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *confi
             }
             if (n < 1)
             {
-                CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
-                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+                CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
         case 12: // FUNCTION
@@ -1088,8 +1083,8 @@ TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *confi
             }
             if (n < 3)
             {
-                CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
-                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+                CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
         case 13: //RANGEMIN
@@ -1105,8 +1100,8 @@ TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *confi
             }
             if (n < 1)
             {
-                CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
-                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+                CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num), block_buf, config_textname);
             }
             break;
         case 14: //RANGEMAX
@@ -1122,8 +1117,8 @@ TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *confi
             }
             if (n < 1)
             {
-                CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
-                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+                CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
         case 15: // PROPERTIES
@@ -1136,8 +1131,8 @@ TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *confi
                     inst_inf->instance_property_flags |= k;
                     n++;
                 } else {
-                    CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in [%.*s] block of %s file.",
-                        COMMAND_TEXT(cmd_num), word_buf, blocknamelen, blockname, config_textname);
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in [%s] block of %s file.",
+                        COMMAND_TEXT(cmd_num),word_buf,block_buf,config_textname);
                     break;
                 }
             }
@@ -1151,8 +1146,8 @@ TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *confi
             }
             if (n < 1)
             {
-                CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
-                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+                CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
         case 17: // PRIMARYTARGET
@@ -1164,8 +1159,8 @@ TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *confi
             }
             if (n < 1)
             {
-                CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
-                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+                CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num), block_buf, config_textname);
             }
             break;
         case 18: // VALIDATE_FUNC
@@ -1208,8 +1203,8 @@ TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *confi
         case -1: // end of buffer
             break;
         default:
-            CONFWRNLOG("Unrecognized command (%d) in [%.*s] block of %s file.",
-                cmd_num, blocknamelen, blockname, config_textname);
+            CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
+                cmd_num,block_buf,config_textname);
             break;
         }
         skip_conf_to_next_line(buf,&pos,len);
@@ -1222,7 +1217,7 @@ TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *confi
 TbBool parse_creaturetype_job_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
 {
     struct CreatureJobConfig *jobcfg;
-    int i = 0, k = 0;
+    int i;
     // Block name and parameter word store variables
     int arr_size;
     // Initialize the array
@@ -1257,25 +1252,21 @@ TbBool parse_creaturetype_job_blocks(char *buf, long len, const char *config_tex
     }
     arr_size = game.conf.crtr_conf.jobs_count;
     // Load the file blocks
-    const char * blockname = NULL;
-    int blocknamelen = 0;
-    long pos = 0;
-    TbBool seen[arr_size];
-    LbMemorySet(seen, 0, sizeof(seen));
-    while (iterate_conf_blocks(buf, &pos, len, &blockname, &blocknamelen))
+    for (i=0; i < arr_size; i++)
     {
-        // look for blocks starting with "job", followed by one or more digits
-        if (blocknamelen < 4) {
-            continue;
-        } else if (memcmp(blockname, "job", 3) != 0) {
-            continue;
-        }
-        i = natoi(&blockname[3], blocknamelen - 3);
-        if (i < 0 || i >= arr_size) {
+        char block_buf[COMMAND_WORD_LEN];
+        sprintf(block_buf, "job%d", i);
+        long pos = 0;
+        int k = find_conf_block(buf, &pos, len, block_buf);
+        if (k < 0)
+        {
+            if ((flags & CnfLd_AcceptPartial) == 0) {
+                WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
+                return false;
+            }
             continue;
         }
         jobcfg = &game.conf.crtr_conf.jobs[i];
-        seen[i] = true;
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(creaturetype_job_commands,cmd_num)
         while (pos<len)
         {
@@ -1296,8 +1287,8 @@ TbBool parse_creaturetype_job_blocks(char *buf, long len, const char *config_tex
             case 1: // NAME
                 if (get_conf_parameter_single(buf,&pos,len,game.conf.crtr_conf.jobs[i].name,COMMAND_WORD_LEN) <= 0)
                 {
-                    CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
-                        COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+                    CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                        COMMAND_TEXT(cmd_num),block_buf,config_textname);
                     break;
                 }
                 n++;
@@ -1319,8 +1310,8 @@ TbBool parse_creaturetype_job_blocks(char *buf, long len, const char *config_tex
                 }
                 if (n < 1)
                 {
-                  CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
-                      COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+                  CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                      COMMAND_TEXT(cmd_num),block_buf,config_textname);
                 }
                 break;
             case 3: // RELATEDEVENT
@@ -1336,8 +1327,8 @@ TbBool parse_creaturetype_job_blocks(char *buf, long len, const char *config_tex
                 }
                 if (n < 1)
                 {
-                  CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
-                      COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+                  CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                      COMMAND_TEXT(cmd_num),block_buf,config_textname);
                 }
                 break;
             case 4: // ASSIGN
@@ -1353,8 +1344,8 @@ TbBool parse_creaturetype_job_blocks(char *buf, long len, const char *config_tex
                         jobcfg->job_flags |= k;
                       n++;
                     } else {
-                        CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in [%.*s] block of %s file.",
-                            COMMAND_TEXT(cmd_num), word_buf, blocknamelen, blockname, config_textname);
+                        CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in [%s] block of %s file.",
+                            COMMAND_TEXT(cmd_num),word_buf,block_buf,config_textname);
                         break;
                     }
                 }
@@ -1376,8 +1367,8 @@ TbBool parse_creaturetype_job_blocks(char *buf, long len, const char *config_tex
                 }
                 if (n < 1)
                 {
-                  CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
-                      COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+                  CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                      COMMAND_TEXT(cmd_num),block_buf,config_textname);
                 }
                 break;
             case 6: // CONTINUESTATE
@@ -1397,8 +1388,8 @@ TbBool parse_creaturetype_job_blocks(char *buf, long len, const char *config_tex
                 }
                 if (n < 1)
                 {
-                  CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
-                      COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+                  CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                      COMMAND_TEXT(cmd_num),block_buf,config_textname);
                 }
                 break;
             case 7: // PLAYERFUNCTIONS
@@ -1418,8 +1409,8 @@ TbBool parse_creaturetype_job_blocks(char *buf, long len, const char *config_tex
                 }
                 if (n < 2)
                 {
-                    CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
-                        COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+                    CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                        COMMAND_TEXT(cmd_num),block_buf,config_textname);
                 }
                 break;
             case 8: // COORDSFUNCTIONS
@@ -1439,8 +1430,8 @@ TbBool parse_creaturetype_job_blocks(char *buf, long len, const char *config_tex
                 }
                 if (n < 2)
                 {
-                    CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
-                        COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+                    CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                        COMMAND_TEXT(cmd_num),block_buf,config_textname);
                 }
                 break;
             case 9: // PROPERTIES
@@ -1453,8 +1444,8 @@ TbBool parse_creaturetype_job_blocks(char *buf, long len, const char *config_tex
                         jobcfg->job_flags |= k;
                       n++;
                     } else {
-                        CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in [%.*s] block of %s file.",
-                            COMMAND_TEXT(cmd_num), word_buf, blocknamelen, blockname,config_textname);
+                        CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in [%s] block of %s file.",
+                            COMMAND_TEXT(cmd_num),word_buf,block_buf,config_textname);
                         break;
                     }
                 }
@@ -1464,30 +1455,17 @@ TbBool parse_creaturetype_job_blocks(char *buf, long len, const char *config_tex
             case -1: // end of buffer
                 break;
             default:
-                CONFWRNLOG("Unrecognized command (%d) in [%.*s] block of %s file.",
-                    cmd_num, blocknamelen, blockname, config_textname);
+                CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
+                    cmd_num,block_buf,config_textname);
                 break;
             }
             skip_conf_to_next_line(buf,&pos,len);
         }
         if (((jobcfg->job_flags & JoKF_NeedsHaveJob) != 0) && ((jobcfg->job_flags & JoKF_AssignOneTime) != 0))
         {
-            WARNLOG("Job configured to need to have worker primary or secondary job set, but is one time job which cannot; in [%.*s] block of %s file.",
-                blocknamelen, blockname, config_textname);
+            WARNLOG("Job configured to need to have worker primary or secondary job set, but is one time job which cannot; in [%s] block of %s file.",block_buf,config_textname);
         }
 #undef COMMAND_TEXT
-    }
-    if ((flags & CnfLd_AcceptPartial) == 0) {
-        TbBool jobs_missing = false;
-        char block_buf[COMMAND_WORD_LEN];
-        for (i = 0; i < arr_size; i++) {
-            if (!seen[i]) {
-                snprintf(block_buf, sizeof(block_buf), "job%d", i);
-                jobs_missing = true;
-                WARNMSG("Block [%s] not found in %s file.", block_buf, config_textname);
-            }
-        }
-        return !jobs_missing;
     }
     return true;
 }
@@ -1522,25 +1500,21 @@ TbBool parse_creaturetype_angerjob_blocks(char *buf, long len, const char *confi
     }
     arr_size = game.conf.crtr_conf.angerjobs_count;
     // Load the file blocks
-    const char * blockname = NULL;
-    int blocknamelen = 0;
-    long pos = 0;
-    TbBool seen[arr_size];
-    LbMemorySet(seen, 0, sizeof(seen));
-    while (iterate_conf_blocks(buf, &pos, len, &blockname, &blocknamelen))
+    for (i=0; i < arr_size; i++)
     {
-        // look for blocks starting with "angerjob", followed by one or more digits
-        if (blocknamelen < 9) {
-            continue;
-        } else if (memcmp(blockname, "angerjob", 8) != 0) {
-            continue;
-        }
-        i = natoi(&blockname[8], blocknamelen - 8);
-        if (i < 0 || i >= arr_size) {
+        char block_buf[COMMAND_WORD_LEN];
+        sprintf(block_buf, "angerjob%d", i);
+        long pos = 0;
+        int k = find_conf_block(buf, &pos, len, block_buf);
+        if (k < 0)
+        {
+            if ((flags & CnfLd_AcceptPartial) == 0) {
+                WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
+                return false;
+            }
             continue;
         }
         agjobcfg = &game.conf.crtr_conf.angerjobs[i];
-        seen[i] = true;
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(creaturetype_angerjob_commands,cmd_num)
         while (pos<len)
         {
@@ -1560,8 +1534,8 @@ TbBool parse_creaturetype_angerjob_blocks(char *buf, long len, const char *confi
             case 1: // NAME
                 if (get_conf_parameter_single(buf,&pos,len,game.conf.crtr_conf.angerjobs[i].name,COMMAND_WORD_LEN) <= 0)
                 {
-                    CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
-                        COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+                    CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                        COMMAND_TEXT(cmd_num),block_buf,config_textname);
                     break;
                 }
                 n++;
@@ -1571,25 +1545,13 @@ TbBool parse_creaturetype_angerjob_blocks(char *buf, long len, const char *confi
             case -1: // end of buffer
                 break;
             default:
-                CONFWRNLOG("Unrecognized command (%d) in [%.*s] block of %s file.",
-                    cmd_num, blocknamelen, blockname, config_textname);
+                CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
+                    cmd_num,block_buf,config_textname);
                 break;
             }
             skip_conf_to_next_line(buf,&pos,len);
         }
 #undef COMMAND_TEXT
-    }
-    if ((flags & CnfLd_AcceptPartial) == 0) {
-        TbBool jobs_missing = false;
-        char block_buf[COMMAND_WORD_LEN];
-        for (i = 0; i < arr_size; i++) {
-            if (!seen[i]) {
-                snprintf(block_buf, sizeof(block_buf), "angerjob%d", i);
-                jobs_missing = true;
-                WARNMSG("Block [%s] not found in %s file.", block_buf, config_textname);
-            }
-        }
-        return !jobs_missing;
     }
     return true;
 }
@@ -1619,25 +1581,20 @@ TbBool parse_creaturetype_attackpref_blocks(char *buf, long len, const char *con
     }
     arr_size = game.conf.crtr_conf.attacktypes_count;
     // Load the file blocks
-    const char * blockname = NULL;
-    int blocknamelen = 0;
-    long pos = 0;
-    TbBool seen[arr_size];
-    LbMemorySet(seen, 0, sizeof(seen));
-    while (iterate_conf_blocks(buf, &pos, len, &blockname, &blocknamelen))
+    for (i=0; i < arr_size; i++)
     {
-        // look for blocks starting with "attackpref", followed by one or more digits
-        if (blocknamelen < 11) {
-            continue;
-        } else if (memcmp(blockname, "attackpref", 10) != 0) {
+        char block_buf[COMMAND_WORD_LEN];
+        sprintf(block_buf, "attackpref%d", i);
+        long pos = 0;
+        int k = find_conf_block(buf, &pos, len, block_buf);
+        if (k < 0)
+        {
+            if ((flags & CnfLd_AcceptPartial) == 0) {
+                WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
+                return false;
+            }
             continue;
         }
-        i = natoi(&blockname[10], blocknamelen - 10);
-        if (i < 0 || i >= arr_size) {
-            continue;
-        }
-        seen[i] = true;
-        struct CommandWord * attacktype = &game.conf.crtr_conf.attacktypes[i];
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(creaturetype_attackpref_commands,cmd_num)
         while (pos<len)
         {
@@ -1655,10 +1612,10 @@ TbBool parse_creaturetype_attackpref_blocks(char *buf, long len, const char *con
             switch (cmd_num)
             {
             case 1: // NAME
-                if (get_conf_parameter_single(buf,&pos,len, attacktype->text,COMMAND_WORD_LEN) <= 0)
+                if (get_conf_parameter_single(buf,&pos,len,game.conf.crtr_conf.attacktypes[i].text,COMMAND_WORD_LEN) <= 0)
                 {
-                    CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
-                        COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+                    CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                        COMMAND_TEXT(cmd_num),block_buf,config_textname);
                     break;
                 }
                 n++;
@@ -1668,25 +1625,13 @@ TbBool parse_creaturetype_attackpref_blocks(char *buf, long len, const char *con
             case -1: // end of buffer
                 break;
             default:
-                CONFWRNLOG("Unrecognized command (%d) in [%.*s] block of %s file.",
-                    cmd_num, blocknamelen, blockname, config_textname);
+                CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
+                    cmd_num,block_buf,config_textname);
                 break;
             }
             skip_conf_to_next_line(buf,&pos,len);
         }
 #undef COMMAND_TEXT
-    }
-    if ((flags & CnfLd_AcceptPartial) == 0) {
-        TbBool jobs_missing = false;
-        char block_buf[COMMAND_WORD_LEN];
-        for (i = 0; i < arr_size; i++) {
-            if (!seen[i]) {
-                snprintf(block_buf, sizeof(block_buf), "attackpref%d", i);
-                jobs_missing = true;
-                WARNMSG("Block [%s] not found in %s file.", block_buf, config_textname);
-            }
-        }
-        return !jobs_missing;
     }
     return true;
 }

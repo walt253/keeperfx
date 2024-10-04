@@ -3045,7 +3045,7 @@ long project_creature_shot_damage(const struct Thing *thing, ThingModel shot_mod
     if ((shotst->model_flags & ShMF_StrengthBased) != 0 )
     {
         // Project melee damage.
-        long strength = calculate_correct_creature_strength(creatng);
+        long strength = calculate_correct_creature_strength(thing);
         damage = project_creature_attack_melee_damage(strength, crstat->luck, cctrl->explevel, thing);
     } else
     {

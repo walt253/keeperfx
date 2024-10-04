@@ -112,6 +112,7 @@ const struct NamedCommand creaturetype_instance_properties[] = {
   {"DISARMING",                InstPF_Disarming},
   {"DISPLAY_SWIPE",            InstPF_UsesSwipe},
   {"RANGED_BUFF",              InstPF_RangedBuff},
+  {"NEEDS_TARGET",         InstPF_NeedsTarget},
   {"DIGGER_TASK",              InstPF_DiggerTask},
   {"OUT_OF_BATTLE",            InstPF_OutOfBattle},
   {"WAITING",                  InstPF_Waiting},

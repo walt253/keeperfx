@@ -510,8 +510,8 @@ CrCheckRet process_torture_function(struct Thing *creatng)
     anger_apply_anger_to_creature(creatng, crstat->annoy_in_torture, AngR_Other, 1);
     if ((long)game.play_gameturn >= cctrl->turns_at_job + game.conf.rules.health.turns_per_torture_health_loss)
     {
-        i = compute_creature_max_health(game.conf.rules.health.torture_health_loss,cctrl->explevel,creatng->owner);
-        remove_health_from_thing_and_display_health(creatng, i);
+        HitPoints torture_health_loss = (cctrl->max_health * game.conf.rules.health.torture_health_loss) / 100;
+        remove_health_from_thing_and_display_health(creatng, torture_health_loss);
         cctrl->turns_at_job = (long)game.play_gameturn;
     }
     // Check if we should convert the creature into ghost

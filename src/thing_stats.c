@@ -684,8 +684,6 @@ long calculate_correct_creature_defense(const struct Thing *thing)
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     long max_param = compute_creature_max_defense(crstat->defense,cctrl->explevel);
-    if (creature_affected_by_spell(thing, SplK_Rage))
-        max_param = 0;
     return max_param;
 }
 

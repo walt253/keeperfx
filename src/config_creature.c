@@ -1190,17 +1190,17 @@ TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *confi
                 n++;
             }
             break;
-        case 18: // PRIORITY
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+        case 20: // PRIORITY
+            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
             {
-              k = atoi(word_buf);
-              inst_inf->priority = k;
-              n++;
+                k = atoi(word_buf);
+                inst_inf->priority = k;
+                n++;
             }
             if (n < 1)
             {
-                CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
             }
             break;
         case 0: // comment

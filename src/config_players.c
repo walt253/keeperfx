@@ -85,7 +85,7 @@ const struct NamedCommand player_state_commands[] = {
     {"PLAYER_STATE_SLOW",             PSt_Slow},
     {"PLAYER_STATE_FLIGHT",           PSt_Flight},
     {"PLAYER_STATE_VISION",           PSt_Vision},
-    {NULL,                            0},
+    {NULL,                            0},  
 };
 /******************************************************************************/
 /******************************************************************************/

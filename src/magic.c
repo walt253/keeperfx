@@ -1566,7 +1566,6 @@ static TbResult magic_use_power_mass_teleport(PowerKind power_kind, PlayerNumber
     while (i != 0)
     {
         struct CreatureControl *cctrl;
-        struct Thing *thing;
         thing = thing_get(i);
         TRACE_THING(thing);
         cctrl = creature_control_get_from_thing(thing);
@@ -1638,7 +1637,6 @@ static TbResult magic_use_power_fart(PowerKind power_kind, PlayerNumber plyr_idx
 
 static TbResult magic_use_power_summon_creature(PowerKind power_kind, PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel, unsigned long mod_flags)
 {
-    struct Thing *thing;
     struct Thing *heartng;
     const struct MagicStats *pwrdynst;
     struct PowerConfigStats *powerst;

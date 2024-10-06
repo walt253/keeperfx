@@ -670,7 +670,7 @@ long calculate_correct_creature_armour(const struct Thing *thing)
         max_param = (320 * max_param) / 256;
     if (creature_affected_by_spell(thing, SplK_MagicMist))
         max_param = (320 * max_param) / 256;
-    // This limit makes armour absorb up to 80% of damage even with buff.
+    // This limit makes armour absorb up to 80% of damage even with the buff.
     if (max_param > 204)
         max_param = 204;
     if (max_param < 0)
@@ -709,7 +709,7 @@ long calculate_correct_creature_defense(const struct Thing *thing)
         if (player_uses_power_mighty_infusion(thing->owner))
             max_param = (320 * max_param) / 256;
     }
-    // Value cannot exceed 255.
+    // Value cannot exceed 255 with modifier.
     if (max_param >= 255)
         max_param = 255;
     return max_param;

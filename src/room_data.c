@@ -4725,6 +4725,7 @@ TbBool add_item_to_room_capacity(struct Room *room, TbBool force)
 static void change_ownership_or_delete_object_thing_in_room(struct Room *room, struct Thing *thing, long parent_idx, PlayerNumber newowner)
 {
     struct ObjectConfigStats* objst = get_object_model_stats(thing->model);
+    struct Dungeon* dungeon;
     // If thing is only dragged through the room, do not interrupt
     if (thing_is_dragged_or_pulled(thing)) {
         return;
@@ -4772,7 +4773,6 @@ static void change_ownership_or_delete_object_thing_in_room(struct Room *room, s
      else if(room_role_matches(room->kind,RoRoF_GoldStorage) && object_is_gold_hoard(thing))
      {
          oldowner = thing->owner;
-         struct Dungeon *dungeon;
          {
              dungeon = get_dungeon(newowner);
              dungeon->total_money_owned += thing->valuable.gold_stored;
@@ -4810,6 +4810,14 @@ static void change_ownership_or_delete_object_thing_in_room(struct Room *room, s
                 ERRORLOG("Lair totem %d has no owner!",(int)thing->index);
             }
             return;
+        }
+    }
+    else if (room_role_matches(room->kind, RoRoF_KeeperStorage) && thing_is_dungeon_heart(thing))
+    {
+        dungeon = get_dungeon(newowner);
+        if (dungeon->backup_heart_idx == 0)
+        {
+            dungeon->backup_heart_idx = thing->index;
         }
     }
 

@@ -30,10 +30,10 @@ extern "C" {
 #endif
 
 /******************************************************************************/
-#define MAGIC_ITEMS_MAX        255
+#define MAGIC_ITEMS_MAX        2000
 #define SPELL_MAX_LEVEL         8
 #define MAGIC_OVERCHARGE_LEVELS (SPELL_MAX_LEVEL+1)
-#define POWER_TYPES_MAX      64
+#define POWER_TYPES_MAX      2000
 
 enum SpellKinds {
     SplK_None = 0,
@@ -66,6 +66,8 @@ enum SpellKinds {
     SplK_Chicken,
     SplK_TimeBomb,//[28]
     SplK_Lizard,
+    Splk_SummonFamiliar,
+    Splk_SummonCreature,
 };
 
 enum CreatureSpellAffectedFlags {
@@ -88,6 +90,7 @@ enum CreatureSpellAffectedFlags {
     /** For creature which are normally flying, this informs that its grounded due to spells or its condition. */
     CSAfF_Grounded     = 0x8000,
     CSAfF_Timebomb     = 0x10000,
+    CSAfF_Wind         = 0x20000,
 };
 
 enum PowerKinds {
@@ -224,6 +227,14 @@ enum PowerConfigFlags {
     PwCF_IsParent     = 0x0004, /**< Set if the power has children and is just an aggregate. */
 };
 
+enum OverchargeChecks {
+    OcC_Null,
+    OcC_General_expand,
+    OcC_SightOfEvil_expand,
+    OcC_CallToArms_expand,
+    OcC_do_not_expand
+};
+
 /**
  * Configuration parameters for spells.
  */
@@ -347,6 +358,9 @@ struct PowerConfigStats {
     long panel_tab_idx;
     unsigned short select_sound_idx;
     short cast_cooldown;
+    SpellKind spell_idx;
+    EffectOrEffElModel effect_id;
+    short magic_use_func_idx;
 };
 
 /**
@@ -407,7 +421,7 @@ struct MagicConfig {
     struct PowerConfigStats power_cfgstats[MAGIC_ITEMS_MAX];
     long special_types_count;
     struct SpecialConfigStats special_cfgstats[MAGIC_ITEMS_MAX];
-    struct InstanceInfo instance_info[MAGIC_ITEMS_MAX]; //count in crtr_conf
+    struct InstanceInfo instance_info[INSTANCE_TYPES_MAX]; //count in crtr_conf
     struct MagicStats keeper_power_stats[POWER_TYPES_MAX]; // should get merged into PowerConfigStats
 };
 

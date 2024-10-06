@@ -81,6 +81,9 @@ enum CreatureInstances {
     CrInst_FAMILIAR,
     CrInst_SUMMON,
     CrInst_RANGED_HEAL, // 50
+    CrInst_RANGED_SPEED,
+    CrInst_RANGED_ARMOUR,
+    CrInst_RANGED_REBOUND,
     //CrInst_CAST_SPELL_GROUP,
     CrInst_LISTEND,
 };
@@ -112,11 +115,11 @@ struct InstanceInfo {
     long range_max;
     long symbol_spridx;
     short tooltip_stridx;
-    unsigned char priority;
     // [0] for source, [1] for target. Refer to creature_instances_validate_func_list
     unsigned char validate_func_idx[2];
     // Refer to creature_instances_search_targets_func_list
     unsigned char search_func_idx;
+    unsigned char priority;
 };
 
 /******************************************************************************/

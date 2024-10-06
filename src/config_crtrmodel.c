@@ -279,7 +279,6 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
       crstat->hunger_fill = 1;
       crstat->lair_size = 1;
       crstat->hurt_by_lava = 1;
-      crstat->hurt_by_water = 0;
       crstat->base_speed = 1;
       crstat->gold_hold = 100;
       crstat->size_xy = 1;

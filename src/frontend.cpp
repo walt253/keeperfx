@@ -77,7 +77,7 @@
 #include "magic.h"
 #include "player_instances.h"
 #include "player_utils.h"
-#include "player_states.h"
+#include "config_players.h"
 #include "gui_frontmenu.h"
 #include "gui_frontbtns.h"
 #include "gui_soundmsgs.h"
@@ -329,42 +329,42 @@ struct FrontEndButtonData frontend_button_info[] = {
 
 // bttn_sprite, tooltip_stridx, msg_stridx, lifespan_turns, turns_between_events, replace_event_kind_button;
 struct EventTypeInfo event_button_info[] = {
-  {260, GUIStr_Empty,                       GUIStr_Empty,                      1,   1, EvKind_Nothing},
-  {260, GUIStr_EventDnHeartAttackedDesc,    GUIStr_EventHeartAttacked,       300, 250, EvKind_Nothing},
-  {262, GUIStr_EventFightDesc,              GUIStr_EventFight,                -1,   0, EvKind_FriendlyFight},
-  {258, GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective},
-  {260, GUIStr_EventBreachDesc,             GUIStr_EventBreach,              300,   0, EvKind_Nothing},
-  {250, GUIStr_EventNewRoomResrchDesc,      GUIStr_EventNewRoomResearched,  1200,   0, EvKind_Nothing},
-  {256, GUIStr_EventNewCreatureDesc,        GUIStr_EventNewCreature,        1200,   0, EvKind_Nothing},
-  {252, GUIStr_EventNewSpellResrchDesc,     GUIStr_EventNewSpellResearched, 1200,   0, EvKind_Nothing},
-  {254, GUIStr_EventNewTrapDesc,            GUIStr_EventNewTrap,            1200,   0, EvKind_Nothing},
-  {254, GUIStr_EventNewDoorDesc,            GUIStr_EventNewDoor,            1200,   0, EvKind_Nothing},
-  {260, GUIStr_EventCreatrScavngDesc,       GUIStr_EventScavengingDetected, 1200,   0, EvKind_Nothing}, // EvKind_CreatrScavenged
-  {266, GUIStr_EventTreasrRoomFullDesc,     GUIStr_EventTreasureRoomFull,   1200, 500, EvKind_Nothing},
-  {266, GUIStr_EventCreaturePaydayDesc,     GUIStr_EventCreaturePayday,     1200,   0, EvKind_Nothing},
-  {266, GUIStr_EventAreaDiscoveredDesc,     GUIStr_EventAreaDiscovered,     1200,   0, EvKind_Nothing},
-  {266, GUIStr_EventSpellPickedUpDesc,      GUIStr_EventNewSpellPickedUp,   1200,   0, EvKind_Nothing},
-  {266, GUIStr_EventRoomTakenOverDesc,      GUIStr_EventNewRoomTakenOver,   1200,   0, EvKind_Nothing},
-  {260, GUIStr_EventCreatrAnnoyedDesc,      GUIStr_EventCreatureAnnoyed,    1200,   0, EvKind_Nothing},
-  {260, GUIStr_EventNoMoreLivingSetDesc,    GUIStr_EventNoMoreLivingSpace,  1200, 500, EvKind_Nothing},
-  {260, GUIStr_EventAlarmTriggeredDesc,     GUIStr_EventAlarmTriggered,      300, 200, EvKind_Nothing},
-  {260, GUIStr_EventRoomUnderAttackDesc,    GUIStr_EventRoomUnderAttack,     300, 250, EvKind_Nothing},
-  {260, GUIStr_EventNeedTreasrRoomDesc,     GUIStr_EventTreasureRoomNeeded,  300, 500, EvKind_Nothing}, // EvKind_NeedTreasureRoom
-  {268, GUIStr_EventInformationDesc,        GUIStr_Empty,                   1200,   0, EvKind_Nothing},
-  {260, GUIStr_EventRoomLostDesc,           GUIStr_EventRoomLost,           1200,   0, EvKind_Nothing},
-  {260, GUIStr_EventCreaturesHungryDesc,    GUIStr_EventCreaturesHungry,     300, 500, EvKind_Nothing},
-  {266, GUIStr_EventTrapCrateFoundDesc,     GUIStr_EventTrapCrateFound,      300,   0, EvKind_Nothing},
-  {266, GUIStr_EventDoorCrateFoundDesc,     GUIStr_EventDoorCrateFound,      300,   0, EvKind_Nothing}, // EvKind_DoorCrateFound
-  {266, GUIStr_EventDnSpecialFoundDesc,     GUIStr_EventDnSpecialFound,      300,   0, EvKind_Nothing},
-  {268, GUIStr_EventInformationDesc,        GUIStr_Empty,                   1200,   0, EvKind_Nothing},
-  {262, GUIStr_EventFightDesc,              GUIStr_EventFight,                -1,   0, EvKind_EnemyFight},
-  {260, GUIStr_EventWorkRoomUnreachblDesc,  GUIStr_EventWorkRoomUnreachbl,  1200, 500, EvKind_Nothing}, // EvKind_WorkRoomUnreachable
-  {260, GUIStr_EventStorgRoomUnreachblDesc, GUIStr_EventStorgRoomUnreachbl, 1200, 500, EvKind_Nothing}, // EvKind_StorageRoomUnreachable
-  {  0, GUIStr_Empty,                       GUIStr_Empty,                     50,  10, EvKind_Nothing}, // EvKind_PrisonerStarving
-  {  0, GUIStr_Empty,                       GUIStr_Empty,                   1200,  50, EvKind_Nothing}, // EvKind_TorturedHurt
-  {  0, GUIStr_Empty,                       GUIStr_Empty,                   1200,  50, EvKind_Nothing}, // EvKind_EnemyDoor
-  {260, GUIStr_EventSecretDoorDiscovDesc,   GUIStr_EventSecretDoorDiscovered,300, 200, EvKind_Nothing},
-  {260, GUIStr_EventSecretDoorSpottedDesc,  GUIStr_EventSecretDoorSpotted,   300, 200, EvKind_Nothing},
+  {GPS_message_rpanel_msg_exclam_act,     GUIStr_Empty,                       GUIStr_Empty,                      1,   1, EvKind_Nothing},
+  {GPS_message_rpanel_msg_exclam2_act,    GUIStr_EventDnHeartAttackedDesc,    GUIStr_EventHeartAttacked,       300, 250, EvKind_Nothing},
+  {GPS_message_rpanel_msg_battle_act,     GUIStr_EventFightDesc,              GUIStr_EventFight,                -1,   0, EvKind_FriendlyFight},
+  {GPS_message_rpanel_msg_questn_act,     GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective},
+  {GPS_message_rpanel_msg_exclam_act,     GUIStr_EventBreachDesc,             GUIStr_EventBreach,              300,   0, EvKind_Nothing},
+  {GPS_message_rpanel_msg_room_act,       GUIStr_EventNewRoomResrchDesc,      GUIStr_EventNewRoomResearched,  1200,   0, EvKind_Nothing},
+  {GPS_message_rpanel_msg_creatr_act,     GUIStr_EventNewCreatureDesc,        GUIStr_EventNewCreature,        1200,   0, EvKind_Nothing},
+  {GPS_message_rpanel_msg_spell_act,      GUIStr_EventNewSpellResrchDesc,     GUIStr_EventNewSpellResearched, 1200,   0, EvKind_Nothing},
+  {GPS_message_rpanel_msg_manufct_act,    GUIStr_EventNewTrapDesc,            GUIStr_EventNewTrap,            1200,   0, EvKind_Nothing},
+  {GPS_message_rpanel_msg_manufct_act,    GUIStr_EventNewDoorDesc,            GUIStr_EventNewDoor,            1200,   0, EvKind_Nothing},
+  {GPS_message_rpanel_msg_exclam_act,     GUIStr_EventCreatrScavngDesc,       GUIStr_EventScavengingDetected, 1200,   0, EvKind_Nothing}, // EvKind_CreatrScavenged
+  {GPS_message_rpanel_msg_inforb_act,     GUIStr_EventTreasrRoomFullDesc,     GUIStr_EventTreasureRoomFull,   1200, 500, EvKind_Nothing},
+  {GPS_message_rpanel_msg_payday_act,     GUIStr_EventCreaturePaydayDesc,     GUIStr_EventCreaturePayday,     1200,   0, EvKind_Nothing},
+  {GPS_message_rpanel_msg_inforb_act,     GUIStr_EventAreaDiscoveredDesc,     GUIStr_EventAreaDiscovered,     1200,   0, EvKind_Nothing},
+  {GPS_message_rpanel_msg_inforb_act,     GUIStr_EventSpellPickedUpDesc,      GUIStr_EventNewSpellPickedUp,   1200,   0, EvKind_Nothing},
+  {GPS_message_rpanel_msg_inforb_act,     GUIStr_EventRoomTakenOverDesc,      GUIStr_EventNewRoomTakenOver,   1200,   0, EvKind_Nothing},
+  {GPS_message_rpanel_msg_exclam_act,     GUIStr_EventCreatrAnnoyedDesc,      GUIStr_EventCreatureAnnoyed,    1200,   0, EvKind_Nothing},
+  {GPS_message_rpanel_msg_exclam_act,     GUIStr_EventNoMoreLivingSetDesc,    GUIStr_EventNoMoreLivingSpace,  1200, 500, EvKind_Nothing},
+  {GPS_message_rpanel_msg_exclam_act,     GUIStr_EventAlarmTriggeredDesc,     GUIStr_EventAlarmTriggered,      300, 200, EvKind_Nothing},
+  {GPS_message_rpanel_msg_exclam_act,     GUIStr_EventRoomUnderAttackDesc,    GUIStr_EventRoomUnderAttack,     300, 250, EvKind_Nothing},
+  {GPS_message_rpanel_msg_exclam_act,     GUIStr_EventNeedTreasrRoomDesc,     GUIStr_EventTreasureRoomNeeded,  300, 500, EvKind_Nothing}, // EvKind_NeedTreasureRoom
+  {GPS_message_rpanel_msg_inforg_act,     GUIStr_EventInformationDesc,        GUIStr_Empty,                   1200,   0, EvKind_Nothing},
+  {GPS_message_rpanel_msg_exclam_act,     GUIStr_EventRoomLostDesc,           GUIStr_EventRoomLost,           1200,   0, EvKind_Nothing},
+  {GPS_message_rpanel_msg_exclam_act,     GUIStr_EventCreaturesHungryDesc,    GUIStr_EventCreaturesHungry,     300, 500, EvKind_Nothing},
+  {GPS_message_rpanel_msg_inforb_act,     GUIStr_EventTrapCrateFoundDesc,     GUIStr_EventTrapCrateFound,      300,   0, EvKind_Nothing},
+  {GPS_message_rpanel_msg_inforb_act,     GUIStr_EventDoorCrateFoundDesc,     GUIStr_EventDoorCrateFound,      300,   0, EvKind_Nothing}, // EvKind_DoorCrateFound
+  {GPS_message_rpanel_msg_inforb_act,     GUIStr_EventDnSpecialFoundDesc,     GUIStr_EventDnSpecialFound,      300,   0, EvKind_Nothing},
+  {GPS_message_rpanel_msg_inforg_act,     GUIStr_EventInformationDesc,        GUIStr_Empty,                   1200,   0, EvKind_Nothing},
+  {GPS_message_rpanel_msg_battle_act,     GUIStr_EventFightDesc,              GUIStr_EventFight,                -1,   0, EvKind_EnemyFight},
+  {GPS_message_rpanel_msg_exclam_act,     GUIStr_EventWorkRoomUnreachblDesc,  GUIStr_EventWorkRoomUnreachbl,  1200, 500, EvKind_Nothing}, // EvKind_WorkRoomUnreachable
+  {GPS_message_rpanel_msg_exclam_act,     GUIStr_EventStorgRoomUnreachblDesc, GUIStr_EventStorgRoomUnreachbl, 1200, 500, EvKind_Nothing}, // EvKind_StorageRoomUnreachable
+  {0,                                     GUIStr_Empty,                       GUIStr_Empty,                     50,  10, EvKind_Nothing}, // EvKind_PrisonerStarving
+  {0,                                     GUIStr_Empty,                       GUIStr_Empty,                   1200,  50, EvKind_Nothing}, // EvKind_TorturedHurt
+  {0,                                     GUIStr_Empty,                       GUIStr_Empty,                   1200,  50, EvKind_Nothing}, // EvKind_EnemyDoor
+  {GPS_message_rpanel_msg_inforb_act,     GUIStr_EventSecretDoorDiscovDesc,   GUIStr_EventSecretDoorDiscovered,300, 200, EvKind_Nothing},
+  {GPS_message_rpanel_msg_exclam_act,     GUIStr_EventSecretDoorSpottedDesc,  GUIStr_EventSecretDoorSpotted,   300, 200, EvKind_Nothing},
 };
 
 const unsigned long alliance_grid[4][4] = {
@@ -732,9 +732,11 @@ short game_is_busy_doing_gui(void)
       return true;
     PowerKind pwkind;
     pwkind = 0;
-    if (player->work_state < PLAYER_STATES_COUNT)
-      pwkind = player_state_to_power_kind[player->work_state];
+    if (player->work_state < PLAYER_STATES_COUNT_MAX)
     {
+        struct PlayerStateConfigStats* plrst_cfg_stat = get_player_state_stats(player->work_state);
+        pwkind = plrst_cfg_stat->power_kind;
+
         struct Thing *thing;
         thing = thing_get(battle_creature_over);
         if (can_cast_power_on_thing(player->id_number, thing, pwkind))
@@ -863,7 +865,7 @@ void maintain_scroll_up(struct GuiButton *gbtn)
     gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled * (scrollwnd->start_y < 0)) & LbBtnF_Enabled;
     if (!check_current_gui_layer(GuiLayer_OneClick))
     {
-        if (wheel_scrolled_up & lbKeyOn[KC_LCONTROL])
+        if (wheel_scrolled_up && (is_game_key_pressed(Gkey_RotateMod, NULL, true)))
         {
             scrollwnd->action = 1;
         }
@@ -878,7 +880,7 @@ void maintain_scroll_down(struct GuiButton *gbtn)
         * (scrollwnd->window_height - scrollwnd->text_height + 2 < scrollwnd->start_y)) & LbBtnF_Enabled;
     if (!check_current_gui_layer(GuiLayer_OneClick))
     {
-        if (wheel_scrolled_down & lbKeyOn[KC_LCONTROL])
+        if (wheel_scrolled_down && (is_game_key_pressed(Gkey_RotateMod, NULL, true)))
         {
             scrollwnd->action = 2;
         }
@@ -949,7 +951,6 @@ TbResult frontend_load_data(void)
     TbResult ret;
     long len;
     ret = Lb_SUCCESS;
-    wait_for_cd_to_be_available();
     frontend_background = (unsigned char *)game.map;
 #ifdef SPRITE_FORMAT_V2
     fname = prepare_file_fmtpath(FGrp_LoData,"front-%d.raw",64);
@@ -1007,7 +1008,7 @@ void activate_room_build_mode(RoomKind rkind, TextStringId tooltip_id)
     game.chosen_room_tooltip = tooltip_id;
 }
 
-long player_state_to_packet(long work_state, PowerKind pwkind, TbBool already_in)
+long player_state_to_packet(PlayerState work_state, PowerKind pwkind, TbBool already_in)
 {
     switch (work_state)
     {
@@ -2139,7 +2140,7 @@ int create_button(struct GuiMenu *gmnu, struct GuiButtonInit *gbinit, int units_
     gbtn->maxval = gbinit->maxval;
     gbtn->maintain_call = gbinit->maintain_call;
     gbtn->flags |= LbBtnF_Enabled;
-    gbtn->flags &= ~LbBtnF_Unknown10;
+    gbtn->flags &= ~LbBtnF_MouseOver;
     gbtn->gbactn_1 = 0;
     gbtn->flags |= LbBtnF_Visible;
     gbtn->flags ^= (gbtn->flags ^ LbBtnF_Unknown20 * (gbinit->gbifield_5 >> 8)) & LbBtnF_Unknown20;
@@ -2622,7 +2623,7 @@ char *mdlf_for_cd(struct TbLoadFiles * tb_load_files)
     result = tb_load_files;
     if ( tb_load_files->FName[0] != 42 )
     {
-        sprintf(path_string, "%s/%s", install_info.inst_path, tb_load_files->FName);
+        sprintf(path_string, "%s/%s", install_info.inst_path, tb_load_files->FName); // todo check out
         return path_string;
     }
     return result->FName;
@@ -2723,11 +2724,9 @@ void frontend_shutdown_state(FrontendMenuState pstate)
     {
     case FeSt_INITIAL:
         init_gui();
-        wait_for_cd_to_be_available();
         fname = prepare_file_path(FGrp_LoData,"front.pal");
         if (LbFileLoadAt(fname, frontend_palette) != PALETTE_SIZE)
             ERRORLOG("Unable to load FRONTEND PALETTE");
-        wait_for_cd_to_be_available();
         LbMoveGameCursorToHostCursor(); // set the initial cursor position for the main menu
         update_mouse();
         break;

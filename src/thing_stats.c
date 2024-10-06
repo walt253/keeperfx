@@ -93,8 +93,7 @@ const char *thing_class_code_name(int class_id)
 
 /**
  * Gives name of a thing model.
- * @note This function cannot be called more than once in a parameter to something
- *  - it has only one static buffer.
+ * @note This function cannot be called more than once in a parameter to something - it has only one static buffer.
  * @param thing The thing which model is to be described.
  * @return The model name string, static buffer.
  */
@@ -106,31 +105,31 @@ const char *thing_class_and_model_name(int class_id, int model)
     switch (class_id)
     {
     case TCls_Creature:
-        snprintf(name_buffer[bid],sizeof(name_buffer[0]),"creature %s",creature_code_name(model));
+        snprintf(name_buffer[bid], sizeof(name_buffer[0]), "creature %s", creature_code_name(model));
         break;
     case TCls_DeadCreature:
-        snprintf(name_buffer[bid],sizeof(name_buffer[0]),"dead %s",creature_code_name(model));
+        snprintf(name_buffer[bid], sizeof(name_buffer[0]), "dead %s", creature_code_name(model));
         break;
     case TCls_Trap:
-        snprintf(name_buffer[bid],sizeof(name_buffer[0]),"%s trap",trap_code_name(model));
+        snprintf(name_buffer[bid], sizeof(name_buffer[0]), "%s trap", trap_code_name(model));
         break;
     case TCls_Door:
-        snprintf(name_buffer[bid],sizeof(name_buffer[0]),"%s door",door_code_name(model));
+        snprintf(name_buffer[bid], sizeof(name_buffer[0]), "%s door", door_code_name(model));
         break;
     case TCls_Shot:
-        snprintf(name_buffer[bid],sizeof(name_buffer[0]),"%s shot",shot_code_name(model));
+        snprintf(name_buffer[bid], sizeof(name_buffer[0]), "%s shot", shot_code_name(model));
         break;
     case TCls_Object:
-        snprintf(name_buffer[bid],sizeof(name_buffer[0]),"object %s",object_code_name(model));
+        snprintf(name_buffer[bid], sizeof(name_buffer[0]), "object %s", object_code_name(model));
         break;
     case TCls_Effect:
-        snprintf(name_buffer[bid],sizeof(name_buffer[0]),"%s effect",effect_code_name(model));
+        snprintf(name_buffer[bid], sizeof(name_buffer[0]), "%s effect", effect_code_name(model));
         break;
     case TCls_EffectGen:
-        snprintf(name_buffer[bid],sizeof(name_buffer[0]),"%s effectgenerator",effectgenerator_code_name(model));
+        snprintf(name_buffer[bid], sizeof(name_buffer[0]), "%s effectgenerator", effectgenerator_code_name(model));
         break;
     default:
-        snprintf(name_buffer[bid],sizeof(name_buffer[0]),"%s model %d",thing_class_code_name(class_id),(int)model);
+        snprintf(name_buffer[bid], sizeof(name_buffer[0]), "%s model %d", thing_class_code_name(class_id), (int)model);
         break;
     }
     return name_buffer[bid];
@@ -138,8 +137,7 @@ const char *thing_class_and_model_name(int class_id, int model)
 
 /**
  * Gives name of a thing model.
- * @note This function cannot be called more than once in a parameter to something
- *  - it has only one static buffer.
+ * @note This function cannot be called more than once in a parameter to something - it has only one static buffer.
  * @param thing The thing which model is to be described.
  * @return The model name string, static buffer.
  */
@@ -244,7 +242,7 @@ TbBool is_hero_thing(const struct Thing *thing)
  * @param distance Distance at which we want to compute the value.
  * @return Value at specified distance from epicenter.
  */
-long get_radially_decaying_value(long magnitude,long decay_start,long decay_length,long distance)
+long get_radially_decaying_value(long magnitude, long decay_start, long decay_length, long distance)
 {
   if (distance >= decay_start+decay_length)
     return 0;
@@ -294,18 +292,16 @@ long get_radially_growing_value(long magnitude, long decay_start, long decay_len
 
 long compute_creature_kind_score(ThingModel crkind, unsigned short crlevel)
 {
-    //modifier shouldn't affect the computation for the creature kind score so compute_creature_max_health has 'game.neutral_player_num' as last argument.
+    // Modifiers shouldn't affect the computation for the creature kind score so compute_creature_max_health has 'game.neutral_player_num' as last argument.
     struct CreatureStats* crstat = creature_stats_get(crkind);
-    return compute_creature_max_health(crstat->health,crlevel,game.neutral_player_num)
-        + compute_creature_max_defense(crstat->defense,crlevel)
-        + compute_creature_max_dexterity(crstat->dexterity,crlevel)
-        + compute_creature_max_armour(crstat->armour,crlevel)
-        + compute_creature_max_strength(crstat->strength,crlevel);
+    return compute_creature_max_health(crstat->health, crlevel, game.neutral_player_num)
+        + compute_creature_max_defense(crstat->defense, crlevel)
+        + compute_creature_max_dexterity(crstat->dexterity, crlevel)
+        + compute_creature_max_armour(crstat->armour, crlevel)
+        + compute_creature_max_strength(crstat->strength, crlevel);
 }
 
-/**
- * Computes max health of a creature on given level.
- */
+/* Computes max health of a creature on given level. */
 long compute_creature_max_health(HitPoints base_health, unsigned short crlevel, PlayerNumber plyr_idx)
 {
     struct Dungeon* dungeon;
@@ -320,9 +316,7 @@ long compute_creature_max_health(HitPoints base_health, unsigned short crlevel, 
     return max_health;
 }
 
-/**
- * Computes strength of a creature on given level.
- */
+/* Computes strength of a creature on given level. */
 long compute_creature_max_strength(long base_param, unsigned short crlevel)
 {
     if (base_param <= 0)
@@ -335,9 +329,7 @@ long compute_creature_max_strength(long base_param, unsigned short crlevel)
     return saturate_set_unsigned(max_param, 15);
 }
 
-/**
- * Computes armour of a creature on given level.
- */
+/* Computes armour of a creature on given level. */
 long compute_creature_max_armour(long base_param, unsigned short crlevel)
 {
     if (base_param <= 0)
@@ -350,9 +342,7 @@ long compute_creature_max_armour(long base_param, unsigned short crlevel)
     return max_param;
 }
 
-/**
- * Computes defense of a creature on given level.
- */
+/* Computes defense of a creature on given level. */
 long compute_creature_max_defense(long base_param, unsigned short crlevel)
 {
     if (base_param <= 0)
@@ -365,9 +355,7 @@ long compute_creature_max_defense(long base_param, unsigned short crlevel)
     return saturate_set_unsigned(max_param, 8);
 }
 
-/**
- * Computes dexterity of a creature on given level.
- */
+/* Computes dexterity of a creature on given level. */
 long compute_creature_max_dexterity(long base_param, unsigned short crlevel)
 {
     if (base_param <= 0)
@@ -380,24 +368,7 @@ long compute_creature_max_dexterity(long base_param, unsigned short crlevel)
     return saturate_set_unsigned(max_param, 8);
 }
 
-/**
- * Computes loyalty of a creature on given level.
- */
-long compute_creature_max_loyalty(long base_param, unsigned short crlevel)
-{
-    if (base_param <= 0)
-        return 0;
-    if (base_param > 60000)
-        base_param = 60000;
-    if (crlevel >= CREATURE_MAX_LEVEL)
-        crlevel = CREATURE_MAX_LEVEL-1;
-    long max_param = base_param + (game.conf.crtr_conf.exp.loyalty_increase_on_exp * base_param * (long)crlevel) / 100;
-    return saturate_set_unsigned(max_param, 24);
-}
-
-/**
- * Computes magic of a creature on given level.
- */
+/* Computes magic of a creature on given level. */
 long compute_creature_max_magic(long base_param, unsigned short crlevel)
 {
     if (base_param <= 0)
@@ -410,9 +381,20 @@ long compute_creature_max_magic(long base_param, unsigned short crlevel)
     return saturate_set_unsigned(base_param, 15);
 }
 
-/**
- * Computes gold pay of a creature on given level.
- */
+/* Computes loyalty of a creature on given level. */
+long compute_creature_max_loyalty(long base_param, unsigned short crlevel)
+{
+    if (base_param <= 0)
+        return 0;
+    if (base_param > 60000)
+        base_param = 60000;
+    if (crlevel >= CREATURE_MAX_LEVEL)
+        crlevel = CREATURE_MAX_LEVEL-1;
+    long max_param = base_param + (game.conf.crtr_conf.exp.loyalty_increase_on_exp * base_param * (long)crlevel) / 100;
+    return saturate_set_unsigned(max_param, 24);
+}
+
+/* Computes salary of a creature on given level. */
 GoldAmount compute_creature_max_pay(GoldAmount base_param, unsigned short crlevel)
 {
     if (base_param <= 0)
@@ -425,9 +407,7 @@ GoldAmount compute_creature_max_pay(GoldAmount base_param, unsigned short crleve
     return saturate_set_signed(max_param, 16);
 }
 
-/**
- * Computes training cost of a creature on given level.
- */
+/* Computes training cost of a creature on given level. */
 GoldAmount compute_creature_max_training_cost(GoldAmount base_param, unsigned short crlevel)
 {
     if (base_param <= 0)
@@ -440,9 +420,7 @@ GoldAmount compute_creature_max_training_cost(GoldAmount base_param, unsigned sh
     return saturate_set_signed(max_param, 16);
 }
 
-/**
- * Computes training cost of a creature on given level.
- */
+/* Computes scavenging cost of a creature on given level. */
 GoldAmount compute_creature_max_scavenging_cost(GoldAmount base_param, unsigned short crlevel)
 {
     if (base_param <= 0)
@@ -463,7 +441,7 @@ GoldAmount compute_creature_max_scavenging_cost(GoldAmount base_param, unsigned 
  * @param luck Creature luck, scaled 0..100.
  * @param crlevel Creature level, 0..9.
  */
-long project_creature_attack_melee_damage(long base_param,long luck,unsigned short crlevel, const struct Thing* thing)
+long project_creature_attack_melee_damage(long base_param, long luck, unsigned short crlevel, const struct Thing* thing)
 {
     if (base_param < -60000)
         base_param = -60000;
@@ -486,7 +464,7 @@ long project_creature_attack_melee_damage(long base_param,long luck,unsigned sho
  * @param luck Creature luck, scaled 0..100.
  * @param crlevel Creature level, 0..9.
  */
-long project_creature_attack_spell_damage(long base_param,long luck,unsigned short crlevel, const struct Thing* thing)
+long project_creature_attack_spell_damage(long base_param, long luck, unsigned short crlevel, const struct Thing* thing)
 {
     struct Dungeon* dungeon;
     if (base_param < -60000)
@@ -501,7 +479,8 @@ long project_creature_attack_spell_damage(long base_param,long luck,unsigned sho
     if (creature_affected_by_spell(thing, SplK_MagicMist))
         max_param = (384 * max_param) / 256;
     // Apply modifier.
-    if (!is_neutral_thing(thing)) {
+    if (!is_neutral_thing(thing))
+    {
         dungeon = get_dungeon(thing->owner);
         unsigned short modifier = dungeon->modifier.spell_damage;
         max_param = (max_param * modifier) / 100;
@@ -556,7 +535,8 @@ long compute_creature_attack_spell_damage(long base_param, long luck, unsigned s
     if (creature_affected_by_spell(thing, SplK_MagicMist))
         max_param = (384 * max_param) / 256;
     // Apply modifier.
-    if (!is_neutral_thing(thing)) {
+    if (!is_neutral_thing(thing))
+    {
         dungeon = get_dungeon(thing->owner);
         unsigned short modifier = dungeon->modifier.spell_damage;
         max_param = (max_param * modifier) / 100;
@@ -569,9 +549,7 @@ long compute_creature_attack_spell_damage(long base_param, long luck, unsigned s
     return saturate_set_signed(max_param, 16);
 }
 
-/**
- * Computes spell range/area of effect for a creature on given level.
- */
+/* Computes spell range/area of effect for a creature on given level. */
 long compute_creature_attack_range(long base_param, long luck, unsigned short crlevel)
 {
     if (base_param <= 0)
@@ -591,18 +569,18 @@ long compute_creature_attack_range(long base_param, long luck, unsigned short cr
  * @param efficiency Room efficiency, scaled 0..ROOM_EFFICIENCY_MAX.
  * @param crlevel Creature level.
  */
-long compute_creature_work_value(long base_param,long efficiency,unsigned short crlevel)
+long compute_creature_work_value(long base_param, long efficiency, unsigned short crlevel)
 {
-  if (base_param < -100000)
-      base_param = -100000;
-  if (base_param > 100000)
-      base_param = 100000;
-  if (crlevel >= CREATURE_MAX_LEVEL)
-      crlevel = CREATURE_MAX_LEVEL-1;
-  if (efficiency > 1024)
-      efficiency = 1024;
-  long max_param = base_param + (game.conf.crtr_conf.exp.job_value_increase_on_exp * base_param * (long)crlevel) / 100;
-  return (max_param * efficiency) / ROOM_EFFICIENCY_MAX;
+    if (base_param < -100000)
+        base_param = -100000;
+    if (base_param > 100000)
+        base_param = 100000;
+    if (crlevel >= CREATURE_MAX_LEVEL)
+        crlevel = CREATURE_MAX_LEVEL-1;
+    if (efficiency > 1024)
+        efficiency = 1024;
+    long max_param = base_param + (game.conf.crtr_conf.exp.job_value_increase_on_exp * base_param * (long)crlevel) / 100;
+    return (max_param * efficiency) / ROOM_EFFICIENCY_MAX;
 }
 
 long compute_creature_work_value_for_room_role(const struct Thing *creatng, RoomRole rrole, long efficiency)
@@ -620,7 +598,7 @@ long compute_creature_work_value_for_room_role(const struct Thing *creatng, Room
     }
     if ((rrole & RoRoF_CrTrainExp) != 0)
     {
-        // Training speed does not grow with experience - otherwise it would be too fast
+        // Training speed does not grow with experience - otherwise it would be too fast.
         i = compute_creature_work_value(crstat->training_value*256, efficiency, 0);
     }
     if ((rrole & RoRoF_CrScavenge) != 0)
@@ -669,7 +647,8 @@ long calculate_correct_creature_strength(const struct Thing *thing)
     if (creature_affected_by_spell(thing, SplK_Rage))
         max_param = (384 * max_param) / 256;
     // Apply modifier.
-    if (!is_neutral_thing(thing)) {
+    if (!is_neutral_thing(thing))
+    {
         dungeon = get_dungeon(thing->owner);
         unsigned short modifier = dungeon->modifier.strength;
         max_param = (max_param * modifier) / 100;
@@ -697,7 +676,8 @@ long calculate_correct_creature_armour(const struct Thing *thing)
     if (max_param < 0)
         max_param = 0;
     // Apply modifier.
-    if (!is_neutral_thing(thing)) {
+    if (!is_neutral_thing(thing))
+    {
         dungeon = get_dungeon(thing->owner);
         unsigned short modifier = dungeon->modifier.armour;
         max_param = (max_param * modifier) / 100;
@@ -721,7 +701,8 @@ long calculate_correct_creature_defense(const struct Thing *thing)
     if (creature_affected_by_spell(thing, SplK_MagicMist))
         max_param = (320 * max_param) / 256;
     // Apply modifier.
-    if (!is_neutral_thing(thing)) {
+    if (!is_neutral_thing(thing))
+    {
         dungeon = get_dungeon(thing->owner);
         unsigned short modifier = dungeon->modifier.defense;
         max_param = (max_param * modifier) / 100;
@@ -743,7 +724,8 @@ long calculate_correct_creature_dexterity(const struct Thing *thing)
     if (creature_affected_by_spell(thing, SplK_MagicMist))
         max_param = (320 * max_param) / 256;
     // Apply modifier.
-    if (!is_neutral_thing(thing)) {
+    if (!is_neutral_thing(thing))
+    {
         dungeon = get_dungeon(thing->owner);
         unsigned short modifier = dungeon->modifier.dexterity;
         max_param = (max_param * modifier) / 100;
@@ -756,21 +738,28 @@ long calculate_correct_creature_dexterity(const struct Thing *thing)
     return max_param;
 }
 
-long calculate_correct_creature_luck(const struct Thing *thing)
+long calculate_correct_creature_magic(const struct Thing *thing)
 {
+    // If not a creature, then skip this function and return 100% magic.
+    if (thing->class_id != TCls_Creature) {
+        return 100;
+    }
     struct Dungeon* dungeon;
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-    long max_param = compute_creature_max_luck(crstat->luck + cctrl->luck_upgrade, cctrl->explevel);
+    long max_param = compute_creature_max_magic(crstat->magic + cctrl->magic_upgrade, cctrl->explevel);
     // Apply modifier.
-    if (!is_neutral_thing(thing)) {
+    if (!is_neutral_thing(thing))
+    {
         dungeon = get_dungeon(thing->owner);
-        unsigned short modifier = dungeon->modifier.luck;
+        unsigned short modifier = dungeon->modifier.magic;
         max_param = (max_param * modifier) / 100;
+        if (player_uses_power_mighty_infusion(thing->owner))
+            max_param = (320 * max_param) / 256;
     }
-    // Luck cannot exceed 100.
-    if (max_param >= 100)
-        max_param = 100;
+    // Magic cannot exceed 32767.
+    if (max_param >= 32767)
+        max_param = 32767;
     return max_param;
 }
 
@@ -811,35 +800,12 @@ long calculate_correct_creature_loyalty(const struct Thing *thing)
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     long max_param = compute_creature_max_loyalty(crstat->scavenge_require + cctrl->loyalty_upgrade, cctrl->explevel);
     // Apply modifier.
-    if (!is_neutral_thing(thing)) {
+    if (!is_neutral_thing(thing))
+    {
         dungeon = get_dungeon(thing->owner);
         unsigned short modifier = dungeon->modifier.loyalty;
         max_param = (max_param * modifier) / 100;
     }
-    return max_param;
-}
-
-long calculate_correct_creature_magic(const struct Thing *thing)
-{
-    // If not a creature, then skip this function and return 100% magic.
-    if (thing->class_id != TCls_Creature) {
-        return 100;
-    }
-    struct Dungeon* dungeon;
-    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-    long max_param = compute_creature_max_magic(crstat->magic + cctrl->magic_upgrade, cctrl->explevel);
-    // Apply modifier.
-    if (!is_neutral_thing(thing)) {
-        dungeon = get_dungeon(thing->owner);
-        unsigned short modifier = dungeon->modifier.magic;
-        max_param = (max_param * modifier) / 100;
-        if (player_uses_power_mighty_infusion(thing->owner))
-            max_param = (320 * max_param) / 256;
-    }
-    // Magic cannot exceed 32767.
-    if (max_param >= 32767)
-        max_param = 32767;
     return max_param;
 }
 
@@ -850,11 +816,12 @@ GoldAmount calculate_correct_creature_pay(const struct Thing *thing)
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     GoldAmount pay = compute_creature_max_pay(crstat->pay - cctrl->salary_upgrade, cctrl->explevel);
     // Apply modifier.
-    if (!is_neutral_thing(thing)) {
+    if (!is_neutral_thing(thing))
+    {
         dungeon = get_dungeon(thing->owner);
         unsigned short modifier = dungeon->modifier.pay;
         pay = (pay * modifier) / 100;
-        // If torturing creature of that model, changes the salary with a percentage set in rules.cfg.
+        // If torturing creature of that model, change the salary with a percentage set in rules.cfg.
         if (dungeon->tortured_creatures[thing->model] > 0)
             pay = (pay * game.conf.rules.game.torture_payday) / 100;
     }
@@ -868,11 +835,12 @@ GoldAmount calculate_correct_creature_training_cost(const struct Thing *thing)
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     GoldAmount training_cost = compute_creature_max_training_cost(crstat->training_cost - cctrl->training_cost_upgrade, cctrl->explevel);
     // Apply modifier.
-    if (!is_neutral_thing(thing)) {
+    if (!is_neutral_thing(thing))
+    {
         dungeon = get_dungeon(thing->owner);
         unsigned short modifier = dungeon->modifier.training_cost;
         training_cost = (training_cost * modifier) / 100;
-        // If torturing creature of that model, changes the training cost with a percentage set in rules.cfg.
+        // If torturing creature of that model, change the training cost with a percentage set in rules.cfg.
         if (dungeon->tortured_creatures[thing->model] > 0)
             training_cost = (training_cost * game.conf.rules.game.torture_training_cost) / 100;
     }
@@ -886,11 +854,12 @@ GoldAmount calculate_correct_creature_scavenging_cost(const struct Thing *thing)
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     GoldAmount scavenger_cost = compute_creature_max_scavenging_cost(crstat->scavenger_cost - cctrl->scavenging_cost_upgrade, cctrl->explevel);
     // Apply modifier.
-    if (!is_neutral_thing(thing)) {
+    if (!is_neutral_thing(thing))
+    {
         dungeon = get_dungeon(thing->owner);
         unsigned short modifier = dungeon->modifier.scavenging_cost;
         scavenger_cost = (scavenger_cost * modifier) / 100;
-        // If torturing creature of that model, changes the scavenging cost with a percentage set in rules.cfg.
+        // If torturing creature of that model, change the scavenging cost with a percentage set in rules.cfg.
         if (dungeon->tortured_creatures[thing->model] > 0)
             scavenger_cost = (scavenger_cost * game.conf.rules.game.torture_scavenging_cost) / 100;
     }
@@ -904,17 +873,33 @@ long calculate_correct_creature_scavenge_required(const struct Thing *thing, Pla
     return scavngpts;
 }
 
-/**
- * Computes parameter (luck,armour) of a creature on given level.
- * Applies for situations where the level doesn't really matters.
- */
-long compute_creature_max_unaffected(long base_param,unsigned short crlevel)
+/* Computes parameter (luck, armour) of a creature on given level. Applies for situations where the level doesn't really matters. */
+long compute_creature_max_unaffected(long base_param, unsigned short crlevel)
 {
     if (base_param <= 0)
         return 0;
     if (base_param > 10000)
         base_param = 10000;
     return saturate_set_unsigned(base_param, 8);
+}
+
+long calculate_correct_creature_luck(const struct Thing *thing)
+{
+    struct Dungeon* dungeon;
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    long max_param = compute_creature_max_luck(crstat->luck + cctrl->luck_upgrade, cctrl->explevel);
+    // Apply modifier.
+    if (!is_neutral_thing(thing))
+    {
+        dungeon = get_dungeon(thing->owner);
+        unsigned short modifier = dungeon->modifier.luck;
+        max_param = (max_param * modifier) / 100;
+    }
+    // Luck cannot exceed 100.
+    if (max_param >= 100)
+        max_param = 100;
+    return max_param;
 }
 
 /** Computes percentage of given value.
@@ -927,12 +912,12 @@ long compute_value_percentage(long base_val, short npercent)
 {
     if (base_val > 0)
     {
-        if ( base_val > LONG_MAX/(abs(npercent)+1) )
+        if (base_val > LONG_MAX/(abs(npercent)+1))
             base_val = LONG_MAX/(abs(npercent)+1);
     } else
     if (base_val < 0)
     {
-        if ( base_val < LONG_MIN/(abs(npercent)+1) )
+        if (base_val < LONG_MIN/(abs(npercent)+1))
             base_val = LONG_MIN/(abs(npercent)+1);
     }
     return (base_val*(long)npercent+49)/100;
@@ -948,12 +933,12 @@ long compute_value_8bpercentage(long base_val, short npercent)
 {
     if (base_val > 0)
     {
-        if ( base_val > LONG_MAX/(abs(npercent)+1) )
+        if (base_val > LONG_MAX/(abs(npercent)+1))
             base_val = LONG_MAX/(abs(npercent)+1);
     } else
     if (base_val < 0)
     {
-        if ( base_val < LONG_MIN/(abs(npercent)+1) )
+        if (base_val < LONG_MIN/(abs(npercent)+1))
             base_val = LONG_MIN/(abs(npercent)+1);
     }
     return (base_val*(long)npercent+127)/256;
@@ -968,7 +953,7 @@ TbBool update_creature_health_to_max(struct Thing * creatng)
 {
     struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    cctrl->max_health = compute_creature_max_health(crstat->health,cctrl->explevel, creatng->owner);
+    cctrl->max_health = compute_creature_max_health(crstat->health, cctrl->explevel, creatng->owner);
     creatng->health = cctrl->max_health;
     return true;
 }
@@ -1034,7 +1019,7 @@ static HitPoints apply_damage_to_creature(struct Thing *thing, HitPoints dmg)
     if ((cctrl->flgfield_1 & CCFlg_PreventDamage) != 0) {
         return 0;
     }
-    // Compute armor value.
+    // Get correct armour value.
     long carmor = calculate_correct_creature_armour(thing);
     // Now compute damage.
     HitPoints cdamage = (dmg * (256 - carmor)) / 256;
@@ -1079,9 +1064,9 @@ static HitPoints apply_damage_to_door(struct Thing *thing, HitPoints dmg)
 
 HitPoints calculate_shot_real_damage_to_door(struct Thing *doortng, struct Thing *shotng)
 {
+    HitPoints dmg = shotng->shot.damage;
     const struct ShotConfigStats* shotst = get_shot_model_stats(shotng->model);
     const struct DoorConfigStats* doorst = get_door_model_stats(doortng->model);
-    HitPoints dmg = shotng->shot.damage;
     if (shotst->damage_type == DmgT_Respiratory) {
         return 0;
     }
@@ -1134,7 +1119,7 @@ HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, DamageType d
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     // We're here to damage, not to heal.
-    SYNCDBG(19,"Dealing %d damage to %s by player %d",(int)dmg,thing_model_name(thing),(int)dealing_plyr_idx);
+    SYNCDBG(19, "Dealing %d damage to %s by player %d", (int)dmg, thing_model_name(thing), (int)dealing_plyr_idx);
     if (dmg <= 0)
         return 0;
     // If it's already dead, then don't interfere.
@@ -1429,22 +1414,22 @@ GoldAmount calculate_gold_digged_out_of_slab_with_single_hit(long damage_did_to_
 {
     struct SlabAttr *slbattr = get_slab_attrs(slb);
     GoldAmount gold = (damage_did_to_slab * game.conf.rules.game.gold_per_gold_block) / game.block_health[slbattr->block_health_index];
-    // Returns gold-per-hit as an integer
+    // Returns gold-per-hit as an integer.
     if (slb->kind == SlbT_GEMS)
     {
         gold = gold * game.conf.rules.game.gem_effectiveness / 100;
     }
     else if (slb->health == 0)
-    // if the last hit deals the damage exactly, just drop a pile and the remainder
+    // If the last hit deals the damage exactly, just drop a pile and the remainder.
     {
         gold += (game.conf.rules.game.gold_per_gold_block % gold);
     }
     else if (slb->health < 0)
-    // If the damage dealt is more than the remaining health, then health is not divisible by damage, so this 
-    // should return whatever is left, as this is less than the gold given for a full hit.
+    // If the damage dealt is more than the remaining health, then health is not divisible by damage, 
+    // so this should return whatever is left, as this is less than the gold given for a full hit.
     {
         gold = game.conf.rules.game.gold_per_gold_block - (game.block_health[slbattr->block_health_index] / damage_did_to_slab) * gold;
-    // subtract all of the "full hits" and return what's left.
+    // Subtract all of the "full hits" and return what's left.
     }
     if (gold < 1)
     {
@@ -1460,27 +1445,22 @@ long compute_creature_weight(const struct Thing* creatng)
     long eye_height = get_creature_eye_height(creatng);
     long weight = eye_height >> 2;
     weight += (crstat->hunger_fill + crstat->lair_size + 1) * cctrl->explevel;
-
     if (!crstat->affected_by_wind)
     {
         weight = weight * 3 / 2;
     }
-
     if ((get_creature_model_flags(creatng) & CMF_Trembling) != 0)
     {
         weight = weight * 3 / 2;
     }
-
     if ((get_creature_model_flags(creatng) & CMF_IsDiptera) != 0)
     {
         weight = weight / 2;
     }
-
     if (crstat->can_go_locked_doors == true)
     {
         weight = weight / 10;
     }
-
     return weight;
 }
 
@@ -1502,122 +1482,122 @@ const char *creature_statistic_text(const struct Thing *creatng, CreatureLiveSta
         break;
     case CrLStat_ExpLevel:
         i = cctrl->explevel + 1;
-        snprintf(loc_text,sizeof(loc_text),"%ld", i);
+        snprintf(loc_text, sizeof(loc_text), "%ld", i);
         text = loc_text;
         break;
     case CrLStat_Health:
         i = creatng->health;
-        snprintf(loc_text,sizeof(loc_text),"%ld", i);
+        snprintf(loc_text, sizeof(loc_text), "%ld", i);
         text = loc_text;
         break;
     case CrLStat_MaxHealth:
-        i = compute_creature_max_health(crstat->health,cctrl->explevel,creatng->owner);
-        snprintf(loc_text,sizeof(loc_text),"%ld", i);
+        i = compute_creature_max_health(crstat->health, cctrl->explevel, creatng->owner);
+        snprintf(loc_text, sizeof(loc_text), "%ld", i);
         text = loc_text;
         break;
     case CrLStat_Strength:
         i = calculate_correct_creature_strength(creatng);
-        snprintf(loc_text,sizeof(loc_text),"%ld", i);
+        snprintf(loc_text, sizeof(loc_text), "%ld", i);
         text = loc_text;
         break;
     case CrLStat_Armour:
         i = calculate_correct_creature_armour(creatng);
-        snprintf(loc_text,sizeof(loc_text),"%ld", i);
+        snprintf(loc_text, sizeof(loc_text), "%ld", i);
         text = loc_text;
         break;
     case CrLStat_Defence:
         i = calculate_correct_creature_defense(creatng);
-        snprintf(loc_text,sizeof(loc_text),"%ld", i);
+        snprintf(loc_text, sizeof(loc_text), "%ld", i);
         text = loc_text;
         break;
     case CrLStat_Dexterity:
         i = calculate_correct_creature_dexterity(creatng);
-        snprintf(loc_text,sizeof(loc_text),"%ld", i);
+        snprintf(loc_text, sizeof(loc_text), "%ld", i);
         text = loc_text;
         break;
     case CrLStat_Luck:
         i = calculate_correct_creature_luck(creatng);
-        snprintf(loc_text,sizeof(loc_text),"%ld", i);
+        snprintf(loc_text, sizeof(loc_text), "%ld", i);
         text = loc_text;
         break;
     case CrLStat_Speed:
         i = calculate_correct_creature_maxspeed(creatng);
-        snprintf(loc_text,sizeof(loc_text),"%ld", i);
+        snprintf(loc_text, sizeof(loc_text), "%ld", i);
         text = loc_text;
         break;
     case CrLStat_Loyalty:
         i = calculate_correct_creature_loyalty(creatng);
-        snprintf(loc_text,sizeof(loc_text),"%ld", i/256);
+        snprintf(loc_text, sizeof(loc_text), "%ld", i/256);
         text = loc_text;
         break;
     case CrLStat_AgeTime:
         i = (game.play_gameturn-creatng->creation_turn) / 1200; // + cctrl->joining_age;
         if (i >= 999)
           i = 999;
-        snprintf(loc_text,sizeof(loc_text),"%ld", i);
+        snprintf(loc_text, sizeof(loc_text), "%ld", i);
         text = loc_text;
         break;
     case CrLStat_Kills:
         i = cctrl->kills_num;
-        snprintf(loc_text,sizeof(loc_text),"%ld", i);
+        snprintf(loc_text, sizeof(loc_text), "%ld", i);
         text = loc_text;
         break;
     case CrLStat_GoldHeld:
         i = creatng->creature.gold_carried;
-        snprintf(loc_text,sizeof(loc_text),"%ld", i);
+        snprintf(loc_text, sizeof(loc_text), "%ld", i);
         text = loc_text;
         break;
     case CrLStat_GoldWage:
         i = calculate_correct_creature_pay(creatng);
-        snprintf(loc_text,sizeof(loc_text),"%ld", i);
+        snprintf(loc_text, sizeof(loc_text), "%ld", i);
         text = loc_text;
         break;
     case CrLStat_Score:
-        i = compute_creature_kind_score(creatng->model,cctrl->explevel);
-        snprintf(loc_text,sizeof(loc_text),"%ld", i);
+        i = compute_creature_kind_score(creatng->model, cctrl->explevel);
+        snprintf(loc_text, sizeof(loc_text), "%ld", i);
         text = loc_text;
         break;
     case CrLStat_ResearchSkill:
         i = compute_creature_work_value_for_room_role(creatng, RoRoF_Research, ROOM_EFFICIENCY_MAX);
-        snprintf(loc_text,sizeof(loc_text),"%ld", i/256);
+        snprintf(loc_text, sizeof(loc_text), "%ld", i/256);
         text = loc_text;
         break;
     case CrLStat_ManufactureSkill:
         i = compute_creature_work_value_for_room_role(creatng, RoRoF_CratesManufctr, ROOM_EFFICIENCY_MAX);
-        snprintf(loc_text,sizeof(loc_text),"%ld", i/256);
+        snprintf(loc_text, sizeof(loc_text), "%ld", i/256);
         text = loc_text;
         break;
     case CrLStat_TrainingSkill:
         i = compute_creature_work_value_for_room_role(creatng, RoRoF_CrTrainExp, ROOM_EFFICIENCY_MAX);
-        snprintf(loc_text,sizeof(loc_text),"%ld", i/256);
+        snprintf(loc_text, sizeof(loc_text), "%ld", i/256);
         text = loc_text;
         break;
     case CrLStat_ScavengeSkill:
         i = compute_creature_work_value_for_room_role(creatng, RoRoF_CrScavenge, ROOM_EFFICIENCY_MAX);
-        snprintf(loc_text,sizeof(loc_text),"%ld", i/256);
+        snprintf(loc_text, sizeof(loc_text), "%ld", i/256);
         text = loc_text;
         break;
     case CrLStat_TrainingCost:
         i = calculate_correct_creature_training_cost(creatng);
-        snprintf(loc_text,sizeof(loc_text),"%ld", i);
+        snprintf(loc_text, sizeof(loc_text), "%ld", i);
         text = loc_text;
         break;
     case CrLStat_ScavengeCost:
         i = calculate_correct_creature_scavenging_cost(creatng);
-        snprintf(loc_text,sizeof(loc_text),"%ld", i);
+        snprintf(loc_text, sizeof(loc_text), "%ld", i);
         text = loc_text;
         break;
     case CrLStat_Weight:
         i = compute_creature_weight(creatng);
-        snprintf(loc_text,sizeof(loc_text),"%ld", i);
+        snprintf(loc_text, sizeof(loc_text), "%ld", i);
         text = loc_text;
         break;
     case CrLStat_BestDamage:
-        //TODO compute damage of best attack
+        // TODO: (???) compute damage of best attack.
         text = lbEmptyString;
         break;
     default:
-        ERRORLOG("Invalid statistic %d",(int)clstat_id);
+        ERRORLOG("Invalid statistic %d", (int)clstat_id);
         text = lbEmptyString;
         break;
     }

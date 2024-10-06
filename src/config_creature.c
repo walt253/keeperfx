@@ -77,42 +77,52 @@ const struct NamedCommand creaturetype_experience_commands[] = {
   };
 
 const struct NamedCommand creaturetype_instance_commands[] = {
-  {"NAME",            1},
-  {"TIME",            2},
-  {"ACTIONTIME",      3},
-  {"RESETTIME",       4},
-  {"FPTIME",          5},
-  {"FPACTIONTIME",    6},
-  {"FPRESETTIME",     7},
-  {"FORCEVISIBILITY", 8},
-  {"TOOLTIPTEXTID",   9},
-  {"SYMBOLSPRITES",  10},
-  {"GRAPHICS",       11},
-  {"FUNCTION",       12},
-  {"RANGEMIN",       13},
-  {"RANGEMAX",       14},
-  {"PROPERTIES",     15},
-  {"FPINSTANTCAST",  16},
-  {"PRIMARYTARGET",  17},
-  {"VALIDATEFUNC",   18},
+  {"NAME",               1},
+  {"TIME",               2},
+  {"ACTIONTIME",         3},
+  {"RESETTIME",          4},
+  {"FPTIME",             5},
+  {"FPACTIONTIME",       6},
+  {"FPRESETTIME",        7},
+  {"FORCEVISIBILITY",    8},
+  {"TOOLTIPTEXTID",      9},
+  {"SYMBOLSPRITES",     10},
+  {"GRAPHICS",          11},
+  {"FUNCTION",          12},
+  {"RANGEMIN",          13},
+  {"RANGEMAX",          14},
+  {"PROPERTIES",        15},
+  {"FPINSTANTCAST",     16},
+  {"PRIMARYTARGET",     17},
+  {"VALIDATEFUNC",      18},
   {"SEARCHTARGETSFUNC", 19},
-  {NULL,              0},
+  {"PRIORITY",          20},
+  {NULL,                 0},
   };
 
 const struct NamedCommand creaturetype_instance_properties[] = {
-  {"REPEAT_TRIGGER",       InstPF_RepeatTrigger},
-  {"RANGED_ATTACK",        InstPF_RangedAttack},
-  {"MELEE_ATTACK",         InstPF_MeleeAttack},
-  {"RANGED_DEBUFF",        InstPF_RangedDebuff},
-  {"SELF_BUFF",            InstPF_SelfBuff},
-  {"DANGEROUS",            InstPF_Dangerous},
-  {"DESTRUCTIVE",          InstPF_Destructive},
-  {"QUICK",                InstPF_Quick},
-  {"DISARMING",            InstPF_Disarming},
-  {"DISPLAY_SWIPE",        InstPF_UsesSwipe},
-  {"RANGED_BUFF",          InstPF_RangedBuff},
-  {"NEEDS_TARGET",         InstPF_NeedsTarget},
-  {NULL,                     0},
+  {"REPEAT_TRIGGER",           InstPF_RepeatTrigger},
+  {"RANGED_ATTACK",            InstPF_RangedAttack},
+  {"MELEE_ATTACK",             InstPF_MeleeAttack},
+  {"RANGED_DEBUFF",            InstPF_RangedDebuff},
+  {"SELF_BUFF",                InstPF_SelfBuff},
+  {"DANGEROUS",                InstPF_Dangerous},
+  {"DESTRUCTIVE",              InstPF_Destructive},
+  {"QUICK",                    InstPF_Quick},
+  {"DISARMING",                InstPF_Disarming},
+  {"DISPLAY_SWIPE",            InstPF_UsesSwipe},
+  {"RANGED_BUFF",              InstPF_RangedBuff},
+  {"NEEDS_TARGET",             InstPF_NeedsTarget},
+  {"DIGGER_TASK",              InstPF_DiggerTask},
+  {"OUT_OF_BATTLE",            InstPF_OutOfBattle},
+  {"WAITING",                  InstPF_Waiting},
+  {"WHILE_IMPRISONED",         InstPF_WhileImprisoned},
+  {"ONLY_INJURED",             InstPF_OnlyInjured},
+  {"ONLY_UNDERGAS",            InstPF_OnlyUnderGas},
+  {"ON_TOXIC_TERRAIN",         InstPF_OnToxicTerrain},
+  {"AGAINST_DOOR",             InstPF_AgainstDoor},
+  {"AGAINST_OBJECT",           InstPF_AgainstObject},
+  {NULL,                       0},
   };
 
 const struct NamedCommand creaturetype_job_commands[] = {
@@ -837,6 +847,7 @@ TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *confi
                 game.conf.magic_conf.instance_info[i].tooltip_stridx = 0;
                 game.conf.magic_conf.instance_info[i].range_min = -1;
                 game.conf.magic_conf.instance_info[i].range_max = -1;
+                game.conf.magic_conf.instance_info[i].priority = 0;
                 game.conf.magic_conf.instance_info[i].validate_func_idx[0] = 1;
                 game.conf.magic_conf.instance_info[i].validate_func_idx[1] = 2;
                 game.conf.magic_conf.instance_info[i].search_func_idx = 1;
@@ -1172,6 +1183,19 @@ TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *confi
             {
                 inst_inf->search_func_idx = k;
                 n++;
+            }
+            break;
+        case 20: // PRIORITY
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+              k = atoi(word_buf);
+              inst_inf->priority = k;
+              n++;
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
         case 0: // comment

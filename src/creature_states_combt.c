@@ -1820,9 +1820,9 @@ CrInstance get_best_self_preservation_instance_to_use(const struct Thing *thing)
             inst_inf = creature_instance_info_get(i);
             if (inst_inf->priority < p) // Instances with low priority are used last.
                 continue;
-            if ((flag_is_set(inst_inf->flags, InstPF_SelfBuff)) && ((inst_inf->func_idx != 2) || (!creature_affected_by_spell(thing, inst_inf->func_params[0]))))
+            if ((flag_is_set(inst_inf->instance_property_flags, InstPF_SelfBuff)) && ((inst_inf->func_idx != 2) || (!creature_affected_by_spell(thing, inst_inf->func_params[0]))))
             {
-                if (flag_is_set(inst_inf->flags, InstPF_OnlyInjured))
+                if (flag_is_set(inst_inf->instance_property_flags, InstPF_OnlyInjured))
                 {
                     if (creature_requires_healing(thing))
                     {
@@ -1831,7 +1831,7 @@ CrInstance get_best_self_preservation_instance_to_use(const struct Thing *thing)
                         continue;
                     }
                 }
-                if (flag_is_set(inst_inf->flags, InstPF_OnlyUnderGas))
+                if (flag_is_set(inst_inf->instance_property_flags, InstPF_OnlyUnderGas))
                 {
                     if ((cctrl->spell_flags & CSAfF_PoisonCloud) != 0)
                     {
@@ -1864,21 +1864,21 @@ CrInstance get_self_spell_casting(const struct Thing *thing)
                 if ( // Start of the condition block.
 ((!creature_is_kept_in_custody(thing)) && // Not on custody condition block start here.
     (      // Digging activities.
-        ((flag_is_set(inst_inf->flags, InstPF_DiggerTask)) && (thing_is_creature_special_digger(thing)) && (creature_is_doing_digger_activity(thing)))
+        ((flag_is_set(inst_inf->instance_property_flags, InstPF_DiggerTask)) && (thing_is_creature_special_digger(thing)) && (creature_is_doing_digger_activity(thing)))
         || // OutOfBattle and Waiting heroes.
-        (((flag_is_set(inst_inf->flags, InstPF_OutOfBattle)) && (!creature_is_fighting(thing))) && ((!is_hero_thing(thing)) || ((is_hero_thing(thing)) && ((flag_is_set(inst_inf->flags, InstPF_Waiting)) || (state_type != CrStTyp_Idle)))))
+        (((flag_is_set(inst_inf->instance_property_flags, InstPF_OutOfBattle)) && (!creature_is_fighting(thing))) && ((!is_hero_thing(thing)) || ((is_hero_thing(thing)) && ((flag_is_set(inst_inf->instance_property_flags, InstPF_Waiting)) || (state_type != CrStTyp_Idle)))))
         || // OnToxicTerrain reaction.
-        ((flag_is_set(inst_inf->flags, InstPF_OnToxicTerrain)) && (terrain_toxic_for_creature_at_position(thing, coord_subtile(thing->mappos.x.val), coord_subtile(thing->mappos.y.val))))
+        ((flag_is_set(inst_inf->instance_property_flags, InstPF_OnToxicTerrain)) && (terrain_toxic_for_creature_at_position(thing, coord_subtile(thing->mappos.x.val), coord_subtile(thing->mappos.y.val))))
         || // AgainstDoor reaction.
-        ((flag_is_set(inst_inf->flags, InstPF_AgainstDoor)) && (state_type == CrStTyp_FightDoor))
+        ((flag_is_set(inst_inf->instance_property_flags, InstPF_AgainstDoor)) && (state_type == CrStTyp_FightDoor))
         || // AgainstObject reaction.
-        ((flag_is_set(inst_inf->flags, InstPF_AgainstObject)) && (state_type == CrStTyp_FightObj))
+        ((flag_is_set(inst_inf->instance_property_flags, InstPF_AgainstObject)) && (state_type == CrStTyp_FightObj))
     ) // Not on custody condition block end here.
 ) // Then if on custody then check if WhileImprisoned flag is set.
-|| ((creature_is_kept_in_custody(thing)) && (flag_is_set(inst_inf->flags, InstPF_WhileImprisoned)))
+|| ((creature_is_kept_in_custody(thing)) && (flag_is_set(inst_inf->instance_property_flags, InstPF_WhileImprisoned)))
                     ) // End of the condition block.
                 {
-                    if (flag_is_set(inst_inf->flags, InstPF_OnlyInjured))
+                    if (flag_is_set(inst_inf->instance_property_flags, InstPF_OnlyInjured))
                     {
                         if (creature_would_benefit_from_healing(thing))
                         {
@@ -1887,7 +1887,7 @@ CrInstance get_self_spell_casting(const struct Thing *thing)
                             continue;
                         }
                     }
-                    if (flag_is_set(inst_inf->flags, InstPF_OnlyUnderGas))
+                    if (flag_is_set(inst_inf->instance_property_flags, InstPF_OnlyUnderGas))
                     {
                         if ((cctrl->spell_flags & CSAfF_PoisonCloud) != 0)
                         {
@@ -1914,7 +1914,7 @@ CrInstance get_best_quick_range_instance_to_use(const struct Thing *thing)
             inst_inf = creature_instance_info_get(i);
             if (inst_inf->priority < p) // Instances with low priority are used last.
                 continue;
-            if (flag_is_set(inst_inf->flags, InstPF_Quick))
+            if (flag_is_set(inst_inf->instance_property_flags, InstPF_Quick))
             {
                 INSTANCE_RET_IF_AVAIL(thing, i);
             }
@@ -1948,10 +1948,10 @@ CrInstance get_best_combat_weapon_instance_to_use(const struct Thing *thing, lon
                 continue;
             if (creature_instance_is_available(thing, i))
             {
-                if ( ( ((inst_inf->flags & (InstPF_RangedAttack | InstPF_RangedDebuff | InstPF_MeleeAttack)) && (atktype & InstPF_RangedAttack)) ||
-                       ((inst_inf->flags & (InstPF_MeleeAttack | InstPF_RangedDebuff))  && (atktype & InstPF_MeleeAttack)) ) &&
-                     (!(inst_inf->flags & InstPF_Dangerous)   || !(atktype & InstPF_Dangerous)) &&
-                     ((inst_inf->flags & InstPF_Destructive)  >=  (atktype & InstPF_Destructive)) )
+                if ( ( ((inst_inf->instance_property_flags & (InstPF_RangedAttack | InstPF_RangedDebuff | InstPF_MeleeAttack)) && (atktype & InstPF_RangedAttack)) ||
+                       ((inst_inf->instance_property_flags & (InstPF_MeleeAttack | InstPF_RangedDebuff))  && (atktype & InstPF_MeleeAttack)) ) &&
+                     (!(inst_inf->instance_property_flags & InstPF_Dangerous)   || !(atktype & InstPF_Dangerous)) &&
+                     ((inst_inf->instance_property_flags & InstPF_Destructive)  >=  (atktype & InstPF_Destructive)) )
                 {
                     if (creature_instance_has_reset(thing, i))
                     {
@@ -1984,11 +1984,11 @@ CrInstance get_best_combat_weapon_instance_to_use_versus_trap(const struct Thing
                 continue;
             if (creature_instance_is_available(thing, i))
             {
-                if ((((inst_inf->flags & (InstPF_RangedAttack | InstPF_RangedDebuff | InstPF_MeleeAttack)) && (atktype & InstPF_RangedAttack)) ||
-                    ((inst_inf->flags & (InstPF_MeleeAttack | InstPF_RangedDebuff)) && (atktype & InstPF_MeleeAttack))) &&
-                    (!(inst_inf->flags & InstPF_Dangerous) || !(atktype & InstPF_Dangerous)) &&
-                    ((inst_inf->flags & InstPF_Destructive) >= (atktype & InstPF_Destructive)) &&
-                    (inst_inf->flags & InstPF_Disarming) )
+                if ((((inst_inf->instance_property_flags & (InstPF_RangedAttack | InstPF_RangedDebuff | InstPF_MeleeAttack)) && (atktype & InstPF_RangedAttack)) ||
+                    ((inst_inf->instance_property_flags & (InstPF_MeleeAttack | InstPF_RangedDebuff)) && (atktype & InstPF_MeleeAttack))) &&
+                    (!(inst_inf->instance_property_flags & InstPF_Dangerous) || !(atktype & InstPF_Dangerous)) &&
+                    ((inst_inf->instance_property_flags & InstPF_Destructive) >= (atktype & InstPF_Destructive)) &&
+                    (inst_inf->instance_property_flags & InstPF_Disarming) )
                 {
                     if (creature_instance_has_reset(thing, i))
                     {

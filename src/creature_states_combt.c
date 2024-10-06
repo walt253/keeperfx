@@ -3469,7 +3469,8 @@ long project_creature_attack_target_damage(const struct Thing *firing, const str
     }
     long damage = project_creature_shot_damage(firing, shot_model);
     // Adjust the damage with target creature defense.
-    long dexterity = calculate_correct_creature_dexterity(firing);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(firing);
+    long dexterity = compute_creature_max_dexterity(crstat->dexterity, cctrl->explevel);
     damage = project_damage_of_melee_shot(dexterity, damage, target);
     return damage;
 }

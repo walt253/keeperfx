@@ -705,6 +705,11 @@ TbBool map_pos_is_unsafe(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
     return ((navmap & NAVMAP_UNSAFE_SURFACE) != 0);
 }
 
+TbBool map_pos_is_water(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+{
+    return subtile_has_water_on_top(stl_x, stl_y);
+}
+
 TbBool map_pos_is_lava(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
     return subtile_has_lava_on_top(stl_x, stl_y);

@@ -523,12 +523,8 @@ long process_creature_self_spell_casting(struct Thing* creatng)
     if (cctrl->instance_id != CrInst_NULL) {
         return 0;
     }
-    if (cctrl->combat_flags != 0) {
-        return 0;
-    }
-
     long inst_idx = get_self_spell_casting(creatng);
-    if (inst_idx <= 0) {
+    if (inst_idx == CrInst_NULL) {
         return 0;
     }
     set_creature_instance(creatng, inst_idx, creatng->index, 0);
@@ -761,7 +757,8 @@ long instf_eat(struct Thing *creatng, long *param)
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     if (cctrl->hunger_amount > 0)
         cctrl->hunger_amount--;
-    apply_health_to_thing_and_display_health(creatng, game.conf.rules.health.food_health_gain);
+    HitPoints food_health_gain = (cctrl->max_health * game.conf.rules.health.food_health_gain) / 100;
+    apply_health_to_thing_and_display_health(creatng, food_health_gain);
     cctrl->hunger_level = 0;
     return 1;
 }

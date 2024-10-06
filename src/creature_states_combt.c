@@ -1863,7 +1863,7 @@ CrInstance get_self_spell_casting(const struct Thing *thing)
                 continue;
             if ((inst_inf->func_idx != 2) || (!creature_affected_by_spell(thing, inst_inf->func_params[0])))
             {
-                if ( !(thing_is_creature_special_digger(thing) && creature_is_doing_digger_activity(thing)) || (flag_is_set(inst_inf->instance_property_flags, InstPF_DiggerTask)) )
+                if (!(thing_is_creature_special_digger(thing) && creature_is_doing_digger_activity(thing)) || (flag_is_set(inst_inf->instance_property_flags, InstPF_DiggerTask)))
                 {
                     if ((!in_custody) || (flag_is_set(inst_inf->instance_property_flags, InstPF_WhileImprisoned)))
                     {

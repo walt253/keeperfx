@@ -332,3 +332,57 @@ Name = "PLAYER_STATE_VISION"
 PowerKind = "POWER_VISION"
 PointerGroup = "SPELL"
 StopOwnUnits = true
+
+[playerstate55]
+Name = "PLAYER_STATE_RAGE"
+PowerKind = "POWER_RAGE"
+PointerGroup = "SPELL"
+StopOwnUnits = true
+
+[playerstate56]
+Name = "PLAYER_STATE_DIVINE_SHIELD"
+PowerKind = "POWER_DIVINE_SHIELD"
+PointerGroup = "SPELL"
+StopOwnUnits = true
+
+[playerstate57]
+Name = "PLAYER_STATE_METEOR_STORM"
+PowerKind = "POWER_METEOR_STORM"
+PointerGroup = "SPELL"
+StopOwnUnits = false
+
+[playerstate58]
+Name = "PLAYER_STATE_INDOCTRINATION"
+PowerKind = "POWER_INDOCTRINATION"
+PointerGroup = "SPELL"
+StopOwnUnits = false
+
+[playerstate59]
+Name = "PLAYER_STATE_MAGIC_MIST"
+PowerKind = "POWER_MAGIC_MIST"
+PointerGroup = "SPELL"
+StopOwnUnits = true
+
+[playerstate60]
+Name = "PLAYER_STATE_MASS_TELEPORT"
+PowerKind = "POWER_MASS_TELEPORT"
+PointerGroup = "SPELL"
+StopOwnUnits = false
+
+[playerstate61]
+Name = "PLAYER_STATE_FART"
+PowerKind = "POWER_FART"
+PointerGroup = "SPELL"
+StopOwnUnits = false
+
+[playerstate62]
+Name = "PLAYER_STATE_SUMMON_CREATURE"
+PowerKind = "POWER_SUMMON_CREATURE"
+PointerGroup = "SPELL"
+StopOwnUnits = false
+
+[playerstate63]
+Name = "PLAYER_STATE_ERUPTION"
+PowerKind = "POWER_ERUPTION"
+PointerGroup = "SPELL"
+StopOwnUnits = false

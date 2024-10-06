@@ -3100,6 +3100,9 @@ static void set_creature_configuration_process(struct ScriptContext* context)
                 crstat->lair_object = value;
             }
             break;
+        case 35: // HURTBYWATER
+            crstat->hurt_by_water = value;
+            break;
         case 0: // comment
             break;
         case -1: // end of buffer

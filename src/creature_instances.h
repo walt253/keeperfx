@@ -80,8 +80,12 @@ enum CreatureInstances {
     CrInst_RELAXING,
     CrInst_FAMILIAR,
     CrInst_SUMMON,
-    CrInst_RAGE, // 50
-    CrInst_DIVINE_SHIELD,
+    CrInst_RANGED_HEAL, // 50
+    CrInst_RANGED_SPEED,
+    CrInst_RANGED_ARMOUR,
+    CrInst_RANGED_REBOUND,
+    CrInst_RAGE,
+    CrInst_DIVINE_SHIELD, // 55
     CrInst_INDOCTRINATION,
     CrInst_MAGIC_MIST,
     CrInst_KAMIKAZE,
@@ -95,6 +99,8 @@ enum CreatureInstances {
 struct Thing;
 
 typedef long (*Creature_Instf_Func)(struct Thing *, long *);
+typedef TbBool (*Creature_Validate_Func)(struct Thing *, struct Thing *, CrInstance);
+typedef TbBool (*Creature_Target_Search_Func)(struct Thing *, CrInstance, ThingIndex **, unsigned short *);
 
 struct InstanceInfo {
     TbBool instant;
@@ -105,7 +111,7 @@ struct InstanceInfo {
     long reset_time;
     long fp_reset_time;
     unsigned char graphics_idx;
-    unsigned long flags;
+    unsigned long instance_property_flags;
     short force_visibility;
     unsigned char primary_target;
     unsigned char func_idx;
@@ -114,6 +120,10 @@ struct InstanceInfo {
     long range_max;
     long symbol_spridx;
     short tooltip_stridx;
+    // [0] for source, [1] for target. Refer to creature_instances_validate_func_list
+    unsigned char validate_func_idx[2];
+    // Refer to creature_instances_search_targets_func_list
+    unsigned char search_func_idx;
     unsigned char priority;
 };
 
@@ -123,12 +133,17 @@ struct InstanceInfo {
 /******************************************************************************/
 extern const struct NamedCommand creature_instances_func_type[];
 extern Creature_Instf_Func creature_instances_func_list[];
+extern const struct NamedCommand creature_instances_validate_func_type[];
+extern Creature_Validate_Func creature_instances_validate_func_list[];
+extern const struct NamedCommand creature_instances_search_targets_func_type[];
+extern Creature_Target_Search_Func creature_instances_search_targets_func_list[];
 /******************************************************************************/
 /** Returns creature instance info structure for given instance index. */
 #define creature_instance_info_get(inst_idx) creature_instance_info_get_f(inst_idx,__func__)
 struct InstanceInfo *creature_instance_info_get_f(CrInstance inst_idx,const char *func_name);
 void process_creature_instance(struct Thing *thing);
 long process_creature_self_spell_casting(struct Thing* thing);
+CrInstance process_creature_ranged_buff_spell_casting(struct Thing* thing);
 
 TbBool creature_instance_info_invalid(const struct InstanceInfo *inst_inf);
 TbBool creature_instance_is_available(const struct Thing *thing, CrInstance inum);
@@ -139,6 +154,7 @@ TbBool creature_has_ranged_weapon(const struct Thing *thing);
 TbBool creature_has_disarming_weapon(const struct Thing* creatng);
 TbBool creature_has_ranged_object_weapon(const struct Thing *creatng);
 TbBool creature_has_quick_range_weapon(const struct Thing *creatng);
+TbBool creature_has_melee_attack(const struct Thing *creatng);
 
 int creature_instance_get_available_pos_for_id(struct Thing *thing, CrInstance req_inst_id);
 int creature_instance_get_available_number_for_pos(struct Thing *thing, int req_avail_pos);
@@ -148,6 +164,14 @@ TbBool instance_draws_possession_swipe(CrInstance inum);
 
 void delay_teleport(struct Thing *creatng);
 void delay_heal_sleep(struct Thing *creatng);
+/******************************************************************************/
+TbBool validate_source_generic(struct Thing *source, struct Thing *target, CrInstance inst_idx);
+TbBool validate_target_generic(struct Thing *source, struct Thing *target, CrInstance inst_idx);
+TbBool validate_source_ranged_heal(struct Thing *source, struct Thing *target, CrInstance inst_idx);
+TbBool validate_target_ranged_heal(struct Thing *source, struct Thing *target, CrInstance inst_idx);
+
+TbBool search_target_generic(struct Thing *source, CrInstance inst_idx, ThingIndex **targets, unsigned short *found_count);
+TbBool search_target_ranged_heal(struct Thing *source, CrInstance inst_idx, ThingIndex **targets, unsigned short *found_count);
 /******************************************************************************/
 #ifdef __cplusplus
 }

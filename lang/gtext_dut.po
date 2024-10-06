@@ -6970,4 +6970,3 @@ msgstr "Maak Ongelukkig: Alle wezens van de vijand worden ongelukkig."
 msgctxt "Dungeon special decription"
 msgid "Weaken Walls: Destroys the fortifications of enemy walls."
 msgstr "Zwakke Muren: Vernietigt de versterkingen van vijandelijke muren."
-

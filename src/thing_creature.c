@@ -5725,7 +5725,6 @@ void process_landscape_affecting_creature(struct Thing *thing)
     thing->movement_flags &= ~TMvF_IsOnLava;
     thing->movement_flags &= ~TMvF_IsOnSnow;
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     HitPoints recover;
     HitPoints frequency;
     if (creature_control_invalid(cctrl))

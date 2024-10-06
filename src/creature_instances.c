@@ -142,6 +142,7 @@ Creature_Target_Search_Func creature_instances_search_targets_func_list[] = {
     search_target_ranged_heal,
     NULL,
 };
+
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -349,7 +350,7 @@ TbBool creature_has_ranged_weapon(const struct Thing *creatng)
 }
 
 /**
- * Informs whether the creature has an instance which is ranged weapon useable against other creatures.
+ * Informs whether the creature has an instance which is ranged weapon useable against traps.
  * The instances currently in use and currently in cooldown are included.
  * @param creatng The creature to be checked.
  * @return True if the creature has ranged weapon, false otherwise.
@@ -565,12 +566,8 @@ long process_creature_self_spell_casting(struct Thing* creatng)
     if (cctrl->instance_id != CrInst_NULL) {
         return 0;
     }
-    if (cctrl->combat_flags != 0) {
-        return 0;
-    }
-
     long inst_idx = get_self_spell_casting(creatng);
-    if (inst_idx <= 0) {
+    if (inst_idx == CrInst_NULL) {
         return 0;
     }
     set_creature_instance(creatng, inst_idx, creatng->index, 0);

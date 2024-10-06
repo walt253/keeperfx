@@ -166,11 +166,12 @@ TbResult script_use_spell_on_creature(PlayerNumber plyr_idx, ThingModel crmodel,
     }
     SpellKind spkind = (fmcl_bytes >> 8) & 255;
     const struct SpellConfig* spconf = get_spell_config(spkind);
-
+    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     if (spconf->caster_affected ||
-            (spkind == SplK_Freeze) || (spkind == SplK_Slow) || // These two should be also marked at configs somehow?
-            ( (spkind == SplK_Disease) && ((get_creature_model_flags(thing) & CMF_NeverSick) == 0) ) ||
-            ( (spkind == SplK_Chicken) && ((get_creature_model_flags(thing) & CMF_NeverChickens) == 0) ) )
+      ((spkind == SplK_Disease) && ((get_creature_model_flags(thing) & CMF_NeverSick) == 0))
+      || ((spkind == SplK_Chicken) && ((get_creature_model_flags(thing) & CMF_NeverChickens) == 0))
+      || ((spkind == SplK_Freeze) && (crstat->immune_to_freeze == 0))
+      || ((spkind == SplK_Slow) && (crstat->immune_to_slow == 0)))
     {
         if (thing_is_picked_up(thing))
         {

@@ -324,7 +324,12 @@ long compute_creature_max_strength(long base_param, unsigned short crlevel)
     if (crlevel >= CREATURE_MAX_LEVEL)
         crlevel = CREATURE_MAX_LEVEL-1;
     long max_param = base_param + (game.conf.crtr_conf.exp.strength_increase_on_exp * base_param * (long)crlevel) / 100;
-    return saturate_set_unsigned(max_param, 15);
+    long strength = saturate_set_unsigned(max_param, 15);
+    if (flag_is_set(game.conf.rules.game.classic_bugs_flags, ClscBug_Overflow8bitVal))
+    {
+        return min(strength, UCHAR_MAX+1); // DK1 limited shot damage to 256, not 255.
+    }
+    return strength;
 }
 
 /* Computes armour of a creature on given level. */
@@ -350,6 +355,9 @@ long compute_creature_max_defense(long base_param, unsigned short crlevel)
     if (crlevel >= CREATURE_MAX_LEVEL)
         crlevel = CREATURE_MAX_LEVEL-1;
     long max_param = base_param + (game.conf.crtr_conf.exp.defense_increase_on_exp * base_param * (long)crlevel) / 100;
+    //unsigned long long overflow = (1 << (8)) - 1;
+    //if ((max_param >= overflow) && (!emulate_integer_overflow(8)))
+    //    return overflow; // This is for maps with ClscBug_Overflow8bitVal flag enabled.
     return saturate_set_unsigned(max_param, 8);
 }
 
@@ -682,7 +690,7 @@ long calculate_correct_creature_armour(const struct Thing *thing)
         if (player_uses_power_mighty_infusion(thing->owner))
             max_param = (320 * max_param) / 256;
     }
-    // Value cannot exceed 255.
+    // Value cannot exceed 255 with modifier.
     if (max_param >= 255)
         max_param = 255;
     return max_param;
@@ -730,7 +738,7 @@ long calculate_correct_creature_dexterity(const struct Thing *thing)
         if (player_uses_power_mighty_infusion(thing->owner))
             max_param = (320 * max_param) / 256;
     }
-    // Value cannot exceed 255.
+    // Value cannot exceed 255 with modifier.
     if (max_param >= 255)
         max_param = 255;
     return max_param;
@@ -878,6 +886,7 @@ long compute_creature_max_unaffected(long base_param, unsigned short crlevel)
         return 0;
     if (base_param > 10000)
         base_param = 10000;
+    // TODO: Need to remove this and make new function 'compute_creature_max_luck' along with 'calculate_correct_creature_luck' for a luck dungeon modifier.
     return saturate_set_unsigned(base_param, 8);
 }
 
@@ -1122,7 +1131,7 @@ HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, DamageType d
         return 0;
     HitPoints cdamage;
     switch (thing->class_id)
-    {// TODO: make own function for Weaknesses&Resistances system and rewrite it entirely.
+    { // TODO: make own function for Weaknesses&Resistances system and rewrite it entirely.
     case TCls_Creature:
         // Weaknesses&Resistances to Physical damage type.
         if (damage_type == DmgT_Physical) {

@@ -94,7 +94,7 @@ long compute_creature_max_strength(long base_param, unsigned short crlevel);
 long compute_creature_max_armour(long base_param, unsigned short crlevel);
 long compute_creature_max_defense(long base_param, unsigned short crlevel);
 long compute_creature_max_dexterity(long base_param, unsigned short crlevel);
-long compute_creature_max_magic(long base_param,unsigned short crlevel);
+long compute_creature_max_magic(long base_param, unsigned short crlevel);
 long compute_creature_max_loyalty(long base_param, unsigned short crlevel);
 long compute_creature_max_unaffected(long base_param, unsigned short crlevel);
 #define compute_creature_max_luck compute_creature_max_unaffected

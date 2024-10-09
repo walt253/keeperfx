@@ -235,7 +235,6 @@ TbBool is_hero_thing(const struct Thing *thing)
 
 /**
  * Returns a value which decays around some epicenter, like blast damage.
- *
  * @param magnitude Magnitude in nearest whereabouts of the epicenter.
  * @param decay_start Distance after which the magnitude starts decaying.
  * @param decay_length Length of the decaying region.
@@ -255,7 +254,6 @@ long get_radially_decaying_value(long magnitude, long decay_start, long decay_le
 
 /**
  * Returns a value which is stronger around some epicenter but can't go beyond, like implosion damage.
- *
  * @param magnitude Magnitude in nearest whereabouts of the epicenter.
  * @param decay_start Distance after which the magnitude starts decaying.
  * @param decay_length Length of the decaying region.
@@ -326,7 +324,12 @@ long compute_creature_max_strength(long base_param, unsigned short crlevel)
     if (crlevel >= CREATURE_MAX_LEVEL)
         crlevel = CREATURE_MAX_LEVEL-1;
     long max_param = base_param + (game.conf.crtr_conf.exp.strength_increase_on_exp * base_param * (long)crlevel) / 100;
-    return saturate_set_unsigned(max_param, 15);
+    long strength = saturate_set_unsigned(max_param, 15);
+    if (flag_is_set(game.conf.rules.game.classic_bugs_flags, ClscBug_Overflow8bitVal))
+    {
+        return min(strength, UCHAR_MAX+1); // DK1 limited shot damage to 256, not 255.
+    }
+    return strength;
 }
 
 /* Computes armour of a creature on given level. */
@@ -352,6 +355,9 @@ long compute_creature_max_defense(long base_param, unsigned short crlevel)
     if (crlevel >= CREATURE_MAX_LEVEL)
         crlevel = CREATURE_MAX_LEVEL-1;
     long max_param = base_param + (game.conf.crtr_conf.exp.defense_increase_on_exp * base_param * (long)crlevel) / 100;
+    //unsigned long long overflow = (1 << (8)) - 1;
+    //if ((max_param >= overflow) && (!emulate_integer_overflow(8)))
+    //    return overflow; // This is for maps with ClscBug_Overflow8bitVal flag enabled.
     return saturate_set_unsigned(max_param, 8);
 }
 
@@ -684,7 +690,7 @@ long calculate_correct_creature_armour(const struct Thing *thing)
         if (player_uses_power_mighty_infusion(thing->owner))
             max_param = (320 * max_param) / 256;
     }
-    // Value cannot exceed 255.
+    // Value cannot exceed 255 with modifier.
     if (max_param >= 255)
         max_param = 255;
     return max_param;
@@ -732,7 +738,7 @@ long calculate_correct_creature_dexterity(const struct Thing *thing)
         if (player_uses_power_mighty_infusion(thing->owner))
             max_param = (320 * max_param) / 256;
     }
-    // Value cannot exceed 255.
+    // Value cannot exceed 255 with modifier.
     if (max_param >= 255)
         max_param = 255;
     return max_param;
@@ -880,6 +886,7 @@ long compute_creature_max_unaffected(long base_param, unsigned short crlevel)
         return 0;
     if (base_param > 10000)
         base_param = 10000;
+    // TODO: Need to remove this and make new function 'compute_creature_max_luck' along with 'calculate_correct_creature_luck' for a luck dungeon modifier.
     return saturate_set_unsigned(base_param, 8);
 }
 
@@ -903,7 +910,6 @@ long calculate_correct_creature_luck(const struct Thing *thing)
 }
 
 /** Computes percentage of given value.
- *
  * @param base_val Value to compute percentage of.
  * @param npercent Percentage; 0..100%, but may be higher too.
  * @return Gives npercent of base_val, with proper rounding.
@@ -924,7 +930,6 @@ long compute_value_percentage(long base_val, short npercent)
 }
 
 /** Computes 8-bit percentage of given value.
- *
  * @param base_val Value to compute percentage of.
  * @param npercent Percentage; 0..256, but may be higher too.
  * @return Gives npercent of base_val, with proper rounding.
@@ -1107,7 +1112,6 @@ HitPoints calculate_shot_real_damage_to_door(struct Thing *doortng, struct Thing
  * Applies given damage points to a thing.
  * In case of targeting creature, uses its defense values to compute the actual damage.
  * Can be used only to make damage - never to heal creature.
- *
  * @param thing
  * @param dmg
  * @param damage_type
@@ -1127,7 +1131,7 @@ HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, DamageType d
         return 0;
     HitPoints cdamage;
     switch (thing->class_id)
-    {// TODO: make own function for Weaknesses&Resistances system and rewrite it entirely.
+    { // TODO: make own function for Weaknesses&Resistances system and rewrite it entirely.
     case TCls_Creature:
         // Weaknesses&Resistances to Physical damage type.
         if (damage_type == DmgT_Physical) {

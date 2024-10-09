@@ -712,8 +712,7 @@ unsigned short find_battle_for_thing(const struct Thing *fighter, const struct T
     {
         struct CreatureBattle* battle = creature_battle_get(i);
         // If the battle exists, check who is fighting.
-        if (battle->fighters_num != 0)
-        
+        if (battle->fighters_num != 0) {
             if (battle_any_of_things_in_specific_battle(battle, fighter, enmtng)) {
                 battle_id = i;
                 break;

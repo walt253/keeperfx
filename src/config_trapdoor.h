@@ -73,6 +73,8 @@ enum DoorModelFlags {
     DoMF_Golden         = 0x0040,
 };
 
+/** Also see TrapStats
+*/
 struct TrapConfigStats {
     char code_name[COMMAND_WORD_LEN];
     TextStringId name_stridx;

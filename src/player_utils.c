@@ -28,7 +28,7 @@
 #include "api.h"
 #include "player_data.h"
 #include "player_instances.h"
-#include "player_states.h"
+#include "config_players.h"
 #include "player_computer.h"
 #include "dungeon_data.h"
 #include "power_hand.h"
@@ -750,6 +750,7 @@ void init_player(struct PlayerInfo *player, short no_explore)
     player->minimap_zoom = settings.minimap_zoom;
     player->isometric_view_zoom_level = settings.isometric_view_zoom_level;
     player->frontview_zoom_level = settings.frontview_zoom_level;
+    player->isometric_tilt = settings.isometric_tilt;
     if (is_my_player(player))
     {
         set_flag(game.operation_flags, GOF_ShowPanel);
@@ -1054,6 +1055,13 @@ void init_players_local_game(void)
     struct PlayerInfo* player = get_my_player();
     player->id_number = my_player_number;
     player->allocflags |= PlaF_Allocated;
+
+    if( player->id_number == PLAYER_GOOD)
+    {
+        player->allocflags &= ~PlaF_CompCtrl;
+        player->player_type = PT_Keeper;
+    }
+
     switch (settings.video_rotate_mode) {
         case 0: player->view_mode_restore = PVM_IsoWibbleView; break;
         case 1: player->view_mode_restore = PVM_IsoStraightView; break;

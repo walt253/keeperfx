@@ -123,7 +123,6 @@ MapSubtlCoord stl_slab_center_subtile(MapSubtlCoord stl_v);
 MapSubtlCoord stl_slab_starting_subtile(MapSubtlCoord stl_v);
 MapSubtlCoord stl_slab_ending_subtile(MapSubtlCoord stl_v);
 
-TbBool map_pos_is_water(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 TbBool map_pos_is_lava(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 TbBool map_pos_is_water(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 TbBool lava_at_position(const struct Coord3d *pos);

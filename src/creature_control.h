@@ -553,9 +553,9 @@ struct CreatureStats { // These stats are not compatible with original DK - they
     unsigned short good_start_state;
     unsigned char natural_death_kind;
     unsigned char swipe_idx;
+    unsigned char lava_recovery;
     unsigned char hurt_by_water;
     unsigned char water_recovery;
-    unsigned char lava_recovery;
     unsigned short magic;
     unsigned short poop_amount;
     unsigned short poop_frequency;

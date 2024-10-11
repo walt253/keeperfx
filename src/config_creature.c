@@ -1493,8 +1493,6 @@ TbBool parse_creaturetype_angerjob_blocks(char *buf, long len, const char *confi
             continue;
         } else if (memcmp(blockname, "angerjob", 8) != 0) {
             continue;
-        } else if (i >= game.conf.crtr_conf.angerjobs_count) {
-            game.conf.crtr_conf.angerjobs_count = i + 1;
         }
         const int i = natoi(&blockname[8], blocknamelen - 8);
         if (i < 0 || i >= INSTANCE_TYPES_MAX) {

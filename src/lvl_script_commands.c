@@ -3108,12 +3108,33 @@ static void set_creature_configuration_process(struct ScriptContext* context)
                 crstat->lair_object = value;
             }
             break;
-        case 35: // HURTBYWATER
+        case 35: // LAVARECOVERY
+            crstat->lava_recovery = value;
+            break;
+        case 36: // HURTBYWATER
             crstat->hurt_by_water = value;
             break;
-        case 0: // comment
+        case 37: // WATERRECOVERY
+            crstat->water_recovery = value;
             break;
-        case -1: // end of buffer
+        case 38: // MAGIC
+            crstat->magic = value;
+            break;
+        case 39: // POOPAMOUNT
+            crstat->poop_amount = value;
+            break;
+        case 40: // POOPFREQUENCY
+            crstat->poop_frequency = value;
+            break;
+        case 41: // POOPRANDOM
+            crstat->poop_random = value;
+            break;
+        case 42: // POOPTYPE
+            crstat->poop_type = value;
+            break;
+        case ccr_comment:
+            break;
+        case ccr_endOfFile:
             break;
         default:
             CONFWRNLOG("Unrecognized attribute (%d)", creature_variable);

@@ -1788,39 +1788,41 @@ TbBool creature_would_benefit_from_healing(const struct Thing* thing)
 CrInstance get_self_spell_casting(const struct Thing *thing)
 {
     TbBool ok = false;
-    for (int i = 0; i < game.conf.crtr_conf.instances_count; i++)
+    for (int p = PRIORITY_MAX; p >= 0; p--)
     {
-        struct InstanceInfo* inst_inf = creature_instance_info_get(i);
-        if (inst_inf->validate_source_func != 0)
+        for (int i = 0; i < game.conf.crtr_conf.instances_count; i++)
         {
-            ok = creature_instances_validate_func_list[inst_inf->validate_source_func]((struct Thing *)thing,
-                (struct Thing *)thing, i, inst_inf->validate_source_func_params[0],
-                inst_inf->validate_source_func_params[1]);
-            if(!ok)
-            {
+            struct InstanceInfo* inst_inf = creature_instance_info_get(i);
+            if (inst_inf->priority < p) // Instances with low priority are used last.
                 continue;
-            }
-        }
-        if (inst_inf->validate_target_func != 0)
-        {
-            ok = creature_instances_validate_func_list[inst_inf->validate_target_func]((struct Thing *)thing,
-                (struct Thing *)thing, i, inst_inf->validate_target_func_params[0],
-                inst_inf->validate_target_func_params[1]);
-            if(!ok)
+            if (inst_inf->validate_source_func != 0)
             {
-                continue;
+                ok = creature_instances_validate_func_list[inst_inf->validate_source_func]((struct Thing *)thing, (struct Thing *)thing, i, inst_inf->validate_source_func_params[0], inst_inf->validate_source_func_params[1]);
+                if(!ok)
+                {
+                    continue;
+                }
             }
-        }
-        if (!ok)
-        {
-            // If we reach here, it means that this instance has no validate function for source and target, such as TOKING.
-            // Just check some basic conditions and check if the instance has SELF_BUFF flag, this should cover IMP's case.
-            if (!flag_is_set(inst_inf->instance_property_flags, InstPF_SelfBuff) || !validate_source_basic((struct Thing *)thing, (struct Thing *)thing, i, 0, 0))
+            if (inst_inf->validate_target_func != 0)
             {
-                continue;
+                ok = creature_instances_validate_func_list[inst_inf->validate_target_func]((struct Thing *)thing, (struct Thing *)thing, i, inst_inf->validate_target_func_params[0], inst_inf->validate_target_func_params[1]);
+                if(!ok)
+                {
+                    continue;
+                }
             }
+            if (!ok)
+            {
+                // If we reach here, it means that this instance has no validate function for source and target, such as TOKING.
+                // Just check some basic conditions and check if the instance has SELF_BUFF flag, this should cover IMP's case.
+                //if (!flag_is_set(inst_inf->instance_property_flags, InstPF_SelfBuff) || !validate_source_basic((struct Thing *)thing, (struct Thing *)thing, i, 0, 0))
+                //{
+                //    continue;
+                //}
+                return CrInst_NULL;
+            }
+            return i;
         }
-        return i;
     }
     return CrInst_NULL;
 }
@@ -1870,6 +1872,63 @@ CrInstance get_best_self_preservation_instance_to_use(const struct Thing *thing)
                     }
                 }
                 INSTANCE_RET_IF_AVAIL(thing, i);
+            }
+        }
+    }
+    return CrInst_NULL;
+}
+
+CrInstance get_instance_casting(const struct Thing *thing)
+{
+    struct InstanceInfo* inst_inf;
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    CrtrStateId state_type = get_creature_state_type(thing);
+    for (int p = PRIORITY_MAX; p >= 0; p--)
+    {
+        for (int i = 0; i < game.conf.crtr_conf.instances_count; i++)
+        {
+            inst_inf = creature_instance_info_get(i);
+            if (inst_inf->priority < p) // Instances with low priority are used last.
+                continue;
+            if ((inst_inf->func_idx != 2) || (!creature_affected_by_spell(thing, inst_inf->func_params[0])))
+            {
+                if ( // Start of the condition block.
+((!creature_is_kept_in_custody(thing)) && // Not on custody condition block start here.
+    (      // Digging activities.
+        ((flag_is_set(inst_inf->instance_property_flags, InstPF_DiggerTask)) && (thing_is_creature_special_digger(thing)) && (creature_is_doing_digger_activity(thing)))
+        || // OutOfBattle and Waiting heroes.
+        (((flag_is_set(inst_inf->instance_property_flags, InstPF_OutOfBattle)) && (!creature_is_fighting(thing))) && ((!is_hero_thing(thing)) || ((is_hero_thing(thing)) && ((flag_is_set(inst_inf->instance_property_flags, InstPF_Waiting)) || (state_type != CrStTyp_Idle)))))
+        || // OnToxicTerrain reaction.
+        ((flag_is_set(inst_inf->instance_property_flags, InstPF_OnToxicTerrain)) && (terrain_toxic_for_creature_at_position(thing, coord_subtile(thing->mappos.x.val), coord_subtile(thing->mappos.y.val))))
+        || // AgainstDoor reaction.
+        ((flag_is_set(inst_inf->instance_property_flags, InstPF_AgainstDoor)) && (state_type == CrStTyp_FightDoor))
+        || // AgainstObject reaction.
+        ((flag_is_set(inst_inf->instance_property_flags, InstPF_AgainstObject)) && (state_type == CrStTyp_FightObj))
+    ) // Not on custody condition block end here.
+) // Then if on custody then check if WhileImprisoned flag is set.
+|| ((creature_is_kept_in_custody(thing)) && (flag_is_set(inst_inf->instance_property_flags, InstPF_WhileImprisoned)))
+                    ) // End of the condition block.
+                {
+                    if (flag_is_set(inst_inf->instance_property_flags, InstPF_OnlyInjured))
+                    {
+                        if (creature_would_benefit_from_healing(thing))
+                        {
+                            INSTANCE_RET_IF_AVAIL(thing, i);
+                        } else {
+                            continue;
+                        }
+                    }
+                    if (flag_is_set(inst_inf->instance_property_flags, InstPF_OnlyUnderGas))
+                    {
+                        if ((cctrl->spell_flags & CSAfF_PoisonCloud) != 0)
+                        {
+                            INSTANCE_RET_IF_AVAIL(thing, i);
+                        } else {
+                            continue;
+                        }
+                    }
+                    INSTANCE_RET_IF_AVAIL(thing, i);
+                }
             }
         }
     }

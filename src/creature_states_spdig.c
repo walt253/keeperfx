@@ -1062,12 +1062,7 @@ short imp_converts_dungeon(struct Thing *spdigtng)
     {
         if (cctrl->instance_id == CrInst_NULL)
         {
-            CrInstance inst_idx = get_self_spell_casting(spdigtng);
-            if (inst_idx == CrInst_NULL)
-            {
-                // If get_self_spell_casting return CrInst_NULL check if the digger can do something else.
-                inst_idx = get_instance_casting(spdigtng);
-            }
+            CrInstance inst_idx = get_instance_casting(spdigtng);
             if (inst_idx != CrInst_NULL) 
             {
                 set_creature_instance(spdigtng, inst_idx, 0, 0);

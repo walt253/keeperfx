@@ -1123,7 +1123,7 @@ TbBool trap_on_bridge(ThingModel trpkind)
 TbBool trap_on_room(ThingModel trpkind)
 {
     struct TrapConfigStats* trapst = &game.conf.trapdoor_conf.trap_cfgstats[trpkind];
-    return trapst->placeonroom;
+    return trapst->place_on_room;
 }
 
 TbBool blocking_thing_on_map_block(struct Map* mapblk)

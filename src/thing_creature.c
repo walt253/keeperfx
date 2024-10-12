@@ -6601,7 +6601,11 @@ TngUpdateRet update_creature(struct Thing *thing)
     if (!process_creature_self_spell_casting(thing))
     {
         // If this creature didn't cast anything to itself, try to help others.
-        process_creature_ranged_buff_spell_casting(thing);
+        if (!process_creature_ranged_buff_spell_casting(thing))
+        {
+            // If this creature didn't help others, try to do something else.
+            process_creature_use_instance(thing);
+        }
     }
     process_creature_using_gold(thing);
     process_creature_pooping_thing(thing);

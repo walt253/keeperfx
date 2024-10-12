@@ -39,7 +39,9 @@ enum CreatureInstances {
     CrInst_FIRE_BOMB,
     CrInst_FREEZE,
     CrInst_ARMOUR,
-	@@ -45,7 +45,7 @@ enum CreatureInstances {
+    CrInst_LIGHTNING,
+    CrInst_REBOUND, // 10
+    CrInst_HEAL,
     CrInst_POISON_CLOUD,
     CrInst_INVISIBILITY,
     CrInst_TELEPORT,
@@ -47,7 +49,9 @@ enum CreatureInstances {
     CrInst_SLOW,
     CrInst_DRAIN,
     CrInst_FEAR,
-	@@ -55,7 +55,7 @@ enum CreatureInstances {
+    CrInst_MISSILE,
+    CrInst_NAVIGATING_MISSILE, // 20
+    CrInst_FLAME_BREATH,
     CrInst_WIND,
     CrInst_LIGHT,
     CrInst_FLY,
@@ -55,7 +59,9 @@ enum CreatureInstances {
     CrInst_GRENADE,
     CrInst_HAILSTORM,
     CrInst_WORD_OF_POWER,
-	@@ -65,22 +65,31 @@ enum CreatureInstances {
+    CrInst_FART,
+    CrInst_DIG, // 30
+    CrInst_PRETTY_PATH,
     CrInst_DESTROY_AREA,
     CrInst_TUNNEL,
     CrInst_CELEBRATE_SHORT,
@@ -142,6 +148,8 @@ struct InstanceInfo *creature_instance_info_get_f(CrInstance inst_idx,const char
 void process_creature_instance(struct Thing *thing);
 TbBool process_creature_self_spell_casting(struct Thing* thing);
 CrInstance process_creature_ranged_buff_spell_casting(struct Thing* thing);
+
+TbBool process_creature_use_instance(struct Thing* thing);
 
 TbBool creature_instance_info_invalid(const struct InstanceInfo *inst_inf);
 TbBool creature_instance_is_available(const struct Thing *thing, CrInstance inum);

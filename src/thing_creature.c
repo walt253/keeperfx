@@ -6478,7 +6478,6 @@ TngUpdateRet update_creature(struct Thing *thing)
         return TUFRet_Deleted;
     }
     process_armageddon_influencing_creature(thing);
-
     if (cctrl->frozen_on_hit > 0)
         cctrl->frozen_on_hit--;
     if (cctrl->force_visible > 0)
@@ -6528,11 +6527,9 @@ TngUpdateRet update_creature(struct Thing *thing)
             }
         }
     }
-
     if (update_creature_movements(thing))
     {
-        SYNCDBG(19,"The %s index %d acceleration is (%d,%d,%d)",thing_model_name(thing),
-            (int)thing->index,(int)cctrl->moveaccel.x.val,(int)cctrl->moveaccel.y.val,(int)cctrl->moveaccel.z.val);
+        SYNCDBG(19,"The %s index %d acceleration is (%d,%d,%d)",thing_model_name(thing),(int)thing->index,(int)cctrl->moveaccel.x.val,(int)cctrl->moveaccel.y.val,(int)cctrl->moveaccel.z.val);
         thing->velocity.x.val += cctrl->moveaccel.x.val;
         thing->velocity.y.val += cctrl->moveaccel.y.val;
         thing->velocity.z.val += cctrl->moveaccel.z.val;
@@ -6557,7 +6554,6 @@ TngUpdateRet update_creature(struct Thing *thing)
     {
         process_keeper_spell_aura(thing);
     }
-
     if (thing->creature.health_bar_turns > 0)
         thing->creature.health_bar_turns--;
 
@@ -6569,7 +6565,7 @@ TngUpdateRet update_creature(struct Thing *thing)
     }
     else
     {
-        if (((game.play_gameturn + thing->index) % 41) == 0) //Check sometimes to move the familiar back into the group
+        if (((game.play_gameturn + thing->index) % 41) == 0) // Check sometimes to move the familiar back into the group.
         {
             if (cctrl->summoner_idx > 0)
             {
@@ -6578,7 +6574,6 @@ TngUpdateRet update_creature(struct Thing *thing)
             }
         }
     }
-
     if (cctrl->dragtng_idx > 0)
     {
         struct Thing* tngp = thing_get(cctrl->dragtng_idx);
@@ -6591,7 +6586,7 @@ TngUpdateRet update_creature(struct Thing *thing)
             pvpos.z.val = tngpos->z.val;
 
             move_thing_in_map(tngp, &pvpos);
-            tngp->move_angle_xy = thing->move_angle_xy; //corpse gets rotated along with creature
+            tngp->move_angle_xy = thing->move_angle_xy; // Corpse gets rotated along with creature.
         }
     }
     if (update_creature_levels(thing) == -1)

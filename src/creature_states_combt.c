@@ -1770,12 +1770,6 @@ long ranged_combat_move(struct Thing *thing, struct Thing *enmtng, MapCoordDelta
     return thing_in_field_of_view(thing, enmtng);
 }
 
-#define INSTANCE_RET_IF_AVAIL(thing, inst_id) \
-    if (creature_instance_is_available(thing, inst_id) \
-      && creature_instance_has_reset(thing, inst_id)) { \
-        return inst_id; \
-    }
-
 TbBool creature_would_benefit_from_healing(const struct Thing* thing)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
@@ -1785,6 +1779,59 @@ TbBool creature_would_benefit_from_healing(const struct Thing* thing)
         return true;
     return false;
 }
+
+/**
+ * @brief Get suitable spell for the caster itself.
+ * @param thing The creature to use spell.
+ * @return CrInstance The index of the instance.
+ */
+CrInstance get_self_spell_casting(const struct Thing *thing)
+{
+    TbBool ok = false;
+    for (int p = PRIORITY_MAX; p >= 0; p--)
+    {
+        for (int i = 0; i < game.conf.crtr_conf.instances_count; i++)
+        {
+            struct InstanceInfo* inst_inf = creature_instance_info_get(i);
+            if (inst_inf->priority < p) // Instances with low priority are used last.
+                continue;
+            if (inst_inf->validate_source_func != 0)
+            {
+                ok = creature_instances_validate_func_list[inst_inf->validate_source_func]((struct Thing *)thing, (struct Thing *)thing, i, inst_inf->validate_source_func_params[0], inst_inf->validate_source_func_params[1]);
+                if(!ok)
+                {
+                    continue;
+                }
+            }
+            if (inst_inf->validate_target_func != 0)
+            {
+                ok = creature_instances_validate_func_list[inst_inf->validate_target_func]((struct Thing *)thing, (struct Thing *)thing, i, inst_inf->validate_target_func_params[0], inst_inf->validate_target_func_params[1]);
+                if(!ok)
+                {
+                    continue;
+                }
+            }
+            if (!ok)
+            {
+                // If we reach here, it means that this instance has no validate function for source and target, such as TOKING.
+                // Just check some basic conditions and check if the instance has SELF_BUFF flag, this should cover IMP's case.
+                //if (!flag_is_set(inst_inf->instance_property_flags, InstPF_SelfBuff) || !validate_source_basic((struct Thing *)thing, (struct Thing *)thing, i, 0, 0))
+                //{
+                //    continue;
+                //}
+                return CrInst_NULL;
+            }
+            return i;
+        }
+    }
+    return CrInst_NULL;
+}
+
+#define INSTANCE_RET_IF_AVAIL(thing, inst_id) \
+    if (creature_instance_is_available(thing, inst_id) \
+      && creature_instance_has_reset(thing, inst_id)) { \
+        return inst_id; \
+    }
 
 /**
  * @brief Get the best self buff instance.
@@ -1831,7 +1878,7 @@ CrInstance get_best_self_preservation_instance_to_use(const struct Thing *thing)
     return CrInst_NULL;
 }
 
-CrInstance get_self_spell_casting(const struct Thing *thing)
+CrInstance get_instance_casting(const struct Thing *thing)
 {
     struct InstanceInfo* inst_inf;
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);

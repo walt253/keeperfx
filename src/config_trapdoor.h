@@ -90,6 +90,7 @@ struct TrapConfigStats {
     TbBool unsellable;
     TbBool place_on_bridge;
     TbBool place_on_subtile;
+    TbBool place_on_room;
     EffectOrEffElModel destroyed_effect;
     struct FlameProperties flame;
 };

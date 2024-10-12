@@ -3456,7 +3456,7 @@ void set_creature_level(struct Thing *thing, long nlvl)
     cctrl->max_health = max_health;
     set_creature_size_stuff(thing);
     if (old_max_health > 0)
-        thing->health = saturate_set_signed( (thing->health*max_health)/old_max_health, 16);
+        thing->health = saturate_set_signed((thing->health * max_health) / old_max_health, 32);
     else
         thing->health = -1;
     creature_increase_available_instances(thing);
@@ -4325,7 +4325,7 @@ struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumbe
     set_thing_draw(crtng, i, 256, game.conf.crtr_conf.sprite_size, 0, 0, ODC_Default);
     cctrl->explevel = 1;
     crtng->health = crstat->health;
-    cctrl->max_health = compute_creature_max_health(crstat->health,cctrl->explevel, owner);
+    cctrl->max_health = compute_creature_max_health(crstat->health, cctrl->explevel, owner);
     crtng->owner = owner;
     crtng->mappos.x.val = pos->x.val;
     crtng->mappos.y.val = pos->y.val;
@@ -4376,7 +4376,7 @@ struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumbe
     add_thing_to_its_class_list(crtng);
     place_thing_in_mapwho(crtng);
     if (owner <= PLAYERS_COUNT)
-      set_first_creature(crtng);
+        set_first_creature(crtng);
     set_start_state(crtng);
     add_creature_score_to_owner(crtng);
     cctrl->active_instance_id = creature_choose_first_available_instance(crtng);

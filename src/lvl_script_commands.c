@@ -1922,6 +1922,7 @@ static void set_trap_configuration_process(struct ScriptContext *context)
             break;
         case 50: // PlaceOnRoom
             trapst->place_on_room = value;
+            break;
         default:
             WARNMSG("Unsupported Trap configuration, variable %d.", context->value->shorts[1]);
             break;

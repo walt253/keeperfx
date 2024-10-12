@@ -1122,7 +1122,7 @@ TbBool trap_on_bridge(ThingModel trpkind)
 
 TbBool trap_on_room(ThingModel trpkind)
 {
-    struct TrapConfigStats* trapst = &gameadd.trapdoor_conf.trap_cfgstats[trpkind];
+    struct TrapConfigStats* trapst = &game.conf.trapdoor_conf.trap_cfgstats[trpkind];
     return trapst->placeonroom;
 }
 

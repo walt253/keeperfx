@@ -62,6 +62,7 @@ const struct NamedCommand terrain_slab_commands[] = {
   {"ANIMATED",       14},
   {"ISOWNABLE",      15},
   {"INDESTRUCTIBLE", 16},
+  {"TRAPPABLE",      17},
   {NULL,              0},
 };
 
@@ -132,6 +133,7 @@ extern void count_slabs_all_wth_effcncy(struct Room *room);
 extern void count_slabs_div2_wth_effcncy(struct Room *room);
 extern void count_gold_slabs_wth_effcncy(struct Room *room);
 extern void count_gold_slabs_full(struct Room *room);
+extern void count_room_efficiency_max(struct Room *room);
 
 const struct NamedCommand terrain_room_total_capacity_func_type[] = {
   {"slabs_all_only",          1},
@@ -139,7 +141,8 @@ const struct NamedCommand terrain_room_total_capacity_func_type[] = {
   {"slabs_div2_wth_effcncy",  3},
   {"gold_slabs_wth_effcncy",  4},
   {"gold_slabs_full",         5},
-  {"none",                    6},
+  {"room_efficiency_max",     6},
+  {"none",                    7},
   {NULL,                      0},
 };
 
@@ -150,6 +153,7 @@ Room_Update_Func terrain_room_total_capacity_func_list[] = {
   count_slabs_div2_wth_effcncy,
   count_gold_slabs_wth_effcncy,
   count_gold_slabs_full,
+  count_room_efficiency_max,
   NULL,
   NULL,
 };
@@ -693,6 +697,22 @@ TbBool parse_terrain_slab_blocks(char *buf, long len, const char *config_textnam
                 if (k >= 0)
                 {
                     slbattr->indestructible = k;
+                    n++;
+                }
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+            }
+            break;
+        case 17: //TRAPPABLE
+            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                if (k >= 0)
+                {
+                    slbattr->trappable = k;
                     n++;
                 }
             }

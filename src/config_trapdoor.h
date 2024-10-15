@@ -68,6 +68,9 @@ enum DoorModelFlags {
     DoMF_Secret         = 0x0002,
     DoMF_Thick          = 0x0004,
     DoMF_Midas          = 0x0008,
+    DoMF_Wooden         = 0x0010,
+    DoMF_Steelen        = 0x0020,
+    DoMF_Golden         = 0x0040,
 };
 
 /** Also see TrapStats
@@ -90,6 +93,7 @@ struct TrapConfigStats {
     TbBool unsellable;
     TbBool place_on_bridge;
     TbBool place_on_subtile;
+    TbBool place_on_room;
     EffectOrEffElModel destroyed_effect;
     struct FlameProperties flame;
 };

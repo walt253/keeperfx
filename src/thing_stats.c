@@ -1109,8 +1109,7 @@ HitPoints calculate_shot_real_damage_to_door(struct Thing *doortng, struct Thing
     {
         HitPoints absorbed = reduce_damage_for_midas(doortng->owner, dmg, doorst->health);
         dmg -= absorbed;
-      
-        // Generate effects for the gold taken
+        // Generate effects for the gold taken.
         for (int i = absorbed; i > 0; i -= 32)
         {
             create_effect(&shotng->mappos, TngEff_CoinFountain, doortng->owner);

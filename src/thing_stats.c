@@ -1067,6 +1067,15 @@ static HitPoints apply_damage_to_door(struct Thing *thing, HitPoints dmg)
     return cdamage;
 }
 
+HitPoints reduce_damage_for_midas(PlayerNumber owner, HitPoints damage, short multiplier)
+{
+    if (multiplier == 0)
+        return 0;
+    HitPoints cost = (damage + multiplier - 1) / multiplier; // This ensures we round up the division.
+    GoldAmount received = take_money_from_dungeon(owner, cost, 0); // Take gold from the player.
+    return (received * multiplier);
+}
+
 HitPoints calculate_shot_real_damage_to_door(struct Thing *doortng, struct Thing *shotng)
 {
     HitPoints dmg = shotng->shot.damage;
@@ -1098,9 +1107,10 @@ HitPoints calculate_shot_real_damage_to_door(struct Thing *doortng, struct Thing
     }
     if (flag_is_set(doorst->model_flags, DoMF_Midas))
     {
-        GoldAmount received = take_money_from_dungeon(doortng->owner, dmg, 0);
-        dmg -= received;
-        for (int i = received; i > 0; i -= 32)
+        HitPoints absorbed = reduce_damage_for_midas(doortng->owner, dmg, doorst->health);
+        dmg -= absorbed;
+        // Generate effects for the gold taken.
+        for (int i = absorbed; i > 0; i -= 32)
         {
             create_effect(&shotng->mappos, TngEff_CoinFountain, doortng->owner);
         }

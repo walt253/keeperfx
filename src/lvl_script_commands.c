@@ -6175,6 +6175,7 @@ static void computer_player_process(struct ScriptContext* context)
                 }
             }
         }
+        recalculate_player_creature_digger_lists(i);
     }
 }
 

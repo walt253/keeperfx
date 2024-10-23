@@ -233,9 +233,9 @@ TbBool is_hero_thing(const struct Thing *thing)
     return (player_is_roaming(thing->owner));
 }
 
-TbBool is_valid_player_id(const struct Thing *thing)
+TbBool is_owner_invalid_player_id(const struct Thing *thing)
 {
-    return (thing->owner >= 0) && (thing->owner < PLAYERS_COUNT);
+    return (thing->owner >= PLAYERS_COUNT);
 }
 
 /**
@@ -494,7 +494,7 @@ long project_creature_attack_spell_damage(long base_param, long luck, unsigned s
     if (creature_affected_by_spell(thing, SplK_MagicMist))
         max_param = (384 * max_param) / 256;
     // Apply modifier.
-    if ((!is_neutral_thing(thing)) && (!is_valid_player_id(thing)))
+    if ((!is_neutral_thing(thing)) && (!is_owner_invalid_player_id(thing)))
     {
         dungeon = get_dungeon(thing->owner);
         unsigned short modifier = dungeon->modifier.spell_damage;
@@ -550,7 +550,7 @@ long compute_creature_attack_spell_damage(long base_param, long luck, unsigned s
     if (creature_affected_by_spell(thing, SplK_MagicMist))
         max_param = (384 * max_param) / 256;
     // Apply modifier.
-    if ((!is_neutral_thing(thing)) && (!is_valid_player_id(thing)))
+    if ((!is_neutral_thing(thing)) && (!is_owner_invalid_player_id(thing)))
     {
         dungeon = get_dungeon(thing->owner);
         unsigned short modifier = dungeon->modifier.spell_damage;
@@ -662,7 +662,7 @@ long calculate_correct_creature_strength(const struct Thing *thing)
     if (creature_affected_by_spell(thing, SplK_Rage))
         max_param = (384 * max_param) / 256;
     // Apply modifier.
-    if ((!is_neutral_thing(thing)) && (!is_valid_player_id(thing)))
+    if ((!is_neutral_thing(thing)) && (!is_owner_invalid_player_id(thing)))
     {
         dungeon = get_dungeon(thing->owner);
         unsigned short modifier = dungeon->modifier.strength;
@@ -691,7 +691,7 @@ long calculate_correct_creature_armour(const struct Thing *thing)
     if (max_param < 0)
         max_param = 0;
     // Apply modifier.
-    if ((!is_neutral_thing(thing)) && (!is_valid_player_id(thing)))
+    if ((!is_neutral_thing(thing)) && (!is_owner_invalid_player_id(thing)))
     {
         dungeon = get_dungeon(thing->owner);
         unsigned short modifier = dungeon->modifier.armour;
@@ -716,7 +716,7 @@ long calculate_correct_creature_defense(const struct Thing *thing)
     if (creature_affected_by_spell(thing, SplK_MagicMist))
         max_param = (320 * max_param) / 256;
     // Apply modifier.
-    if ((!is_neutral_thing(thing)) && (!is_valid_player_id(thing)))
+    if ((!is_neutral_thing(thing)) && (!is_owner_invalid_player_id(thing)))
     {
         dungeon = get_dungeon(thing->owner);
         unsigned short modifier = dungeon->modifier.defense;
@@ -739,7 +739,7 @@ long calculate_correct_creature_dexterity(const struct Thing *thing)
     if (creature_affected_by_spell(thing, SplK_MagicMist))
         max_param = (320 * max_param) / 256;
     // Apply modifier.
-    if ((!is_neutral_thing(thing)) && (!is_valid_player_id(thing)))
+    if ((!is_neutral_thing(thing)) && (!is_owner_invalid_player_id(thing)))
     {
         dungeon = get_dungeon(thing->owner);
         unsigned short modifier = dungeon->modifier.dexterity;
@@ -764,7 +764,7 @@ long calculate_correct_creature_magic(const struct Thing *thing)
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     long max_param = compute_creature_max_magic(crstat->magic + cctrl->magic_upgrade, cctrl->explevel);
     // Apply modifier.
-    if ((!is_neutral_thing(thing)) && (!is_valid_player_id(thing)))
+    if ((!is_neutral_thing(thing)) && (!is_owner_invalid_player_id(thing)))
     {
         dungeon = get_dungeon(thing->owner);
         unsigned short modifier = dungeon->modifier.magic;
@@ -793,7 +793,7 @@ long calculate_correct_creature_maxspeed(const struct Thing *thing)
     if (creature_affected_by_spell(thing, SplK_Slow))
         speed /= 2;
     // Apply modifier.
-    if ((!is_neutral_thing(thing)) && (!is_valid_player_id(thing)))
+    if ((!is_neutral_thing(thing)) && (!is_owner_invalid_player_id(thing)))
     {
         dungeon = get_dungeon(thing->owner);
         unsigned short modifier = dungeon->modifier.speed;
@@ -815,7 +815,7 @@ long calculate_correct_creature_loyalty(const struct Thing *thing)
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     long max_param = compute_creature_max_loyalty(crstat->scavenge_require + cctrl->loyalty_upgrade, cctrl->explevel);
     // Apply modifier.
-    if ((!is_neutral_thing(thing)) && (!is_valid_player_id(thing)))
+    if ((!is_neutral_thing(thing)) && (!is_owner_invalid_player_id(thing)))
     {
         dungeon = get_dungeon(thing->owner);
         unsigned short modifier = dungeon->modifier.loyalty;
@@ -831,7 +831,7 @@ GoldAmount calculate_correct_creature_pay(const struct Thing *thing)
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     GoldAmount pay = compute_creature_max_pay(crstat->pay - cctrl->salary_upgrade, cctrl->explevel);
     // Apply modifier.
-    if ((!is_neutral_thing(thing)) && (!is_valid_player_id(thing)))
+    if ((!is_neutral_thing(thing)) && (!is_owner_invalid_player_id(thing)))
     {
         dungeon = get_dungeon(thing->owner);
         unsigned short modifier = dungeon->modifier.pay;
@@ -850,7 +850,7 @@ GoldAmount calculate_correct_creature_training_cost(const struct Thing *thing)
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     GoldAmount training_cost = compute_creature_max_training_cost(crstat->training_cost - cctrl->training_cost_upgrade, cctrl->explevel);
     // Apply modifier.
-    if ((!is_neutral_thing(thing)) && (!is_valid_player_id(thing)))
+    if ((!is_neutral_thing(thing)) && (!is_owner_invalid_player_id(thing)))
     {
         dungeon = get_dungeon(thing->owner);
         unsigned short modifier = dungeon->modifier.training_cost;
@@ -869,7 +869,7 @@ GoldAmount calculate_correct_creature_scavenging_cost(const struct Thing *thing)
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     GoldAmount scavenger_cost = compute_creature_max_scavenging_cost(crstat->scavenger_cost - cctrl->scavenging_cost_upgrade, cctrl->explevel);
     // Apply modifier.
-    if ((!is_neutral_thing(thing)) && (!is_valid_player_id(thing)))
+    if ((!is_neutral_thing(thing)) && (!is_owner_invalid_player_id(thing)))
     {
         dungeon = get_dungeon(thing->owner);
         unsigned short modifier = dungeon->modifier.scavenging_cost;
@@ -906,7 +906,7 @@ long calculate_correct_creature_luck(const struct Thing *thing)
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     long max_param = compute_creature_max_luck(crstat->luck + cctrl->luck_upgrade, cctrl->explevel);
     // Apply modifier.
-    if ((!is_neutral_thing(thing)) && (!is_valid_player_id(thing)))
+    if ((!is_neutral_thing(thing)) && (!is_owner_invalid_player_id(thing)))
     {
         dungeon = get_dungeon(thing->owner);
         unsigned short modifier = dungeon->modifier.luck;

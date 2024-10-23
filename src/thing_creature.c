@@ -3103,12 +3103,17 @@ void process_creature_standing_on_corpses_at(struct Thing *creatng, struct Coord
  * Calculates damage made by a creature by hand (using strength).
  * @param thing The creature which will be inflicting the damage.
  */
-long calculate_melee_damage(struct Thing *creatng)
+long calculate_melee_damage(struct Thing *creatng, short damage_percent)
 {
     const struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     long strength = calculate_correct_creature_strength(creatng);
     long luck = calculate_correct_creature_luck(creatng);
-    return compute_creature_attack_melee_damage(strength, luck, cctrl->explevel, creatng);
+    long damage = compute_creature_attack_melee_damage(strength, luck, cctrl->explevel, creatng);
+    if (damage_percent != 0)
+    {
+        damage = (damage * damage_percent) / 100;
+    }
+    return damage;
 }
 
 /**
@@ -3121,7 +3126,7 @@ long project_melee_damage(const struct Thing *creatng)
     const struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     long strength = calculate_correct_creature_strength(creatng);
     long luck = calculate_correct_creature_luck(creatng);
-    return project_creature_attack_melee_damage(strength, luck, cctrl->explevel, creatng);
+    return project_creature_attack_melee_damage(strength, 0, luck, cctrl->explevel, creatng);
 }
 
 /**
@@ -3158,7 +3163,7 @@ long project_creature_shot_damage(const struct Thing *thing, ThingModel shot_mod
     {
         // Project melee damage.
         long strength = calculate_correct_creature_strength(thing);
-        damage = project_creature_attack_melee_damage(strength, luck, cctrl->explevel, thing);
+        damage = project_creature_attack_melee_damage(strength, shotst->damage, luck, cctrl->explevel, thing);
     } else
     {
         // Project shot damage.
@@ -3292,7 +3297,7 @@ void thing_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot
     {
         if ((shotst->model_flags & ShMF_StrengthBased) != 0)
         {
-            damage = calculate_melee_damage(firing);
+            damage = calculate_melee_damage(firing,shotst->damage);
         }
         else
         {

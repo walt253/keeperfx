@@ -233,6 +233,11 @@ TbBool is_hero_thing(const struct Thing *thing)
     return (player_is_roaming(thing->owner));
 }
 
+TbBool is_valid_player_id(const struct Thing *thing)
+{
+    return (thing->owner >= 0) && (thing->owner < PLAYERS_COUNT);
+}
+
 /**
  * Returns a value which decays around some epicenter, like blast damage.
  * @param magnitude Magnitude in nearest whereabouts of the epicenter.
@@ -447,13 +452,17 @@ GoldAmount compute_creature_max_scavenging_cost(GoldAmount base_param, unsigned 
  * @param luck Creature luck, scaled 0..100.
  * @param crlevel Creature level, 0..9.
  */
-long project_creature_attack_melee_damage(long base_param, long luck, unsigned short crlevel, const struct Thing* thing)
+long project_creature_attack_melee_damage(long base_param, short damage_percent, long luck, unsigned short crlevel, const struct Thing* thing)
 {
     if (base_param < -60000)
         base_param = -60000;
     if (base_param > 60000)
         base_param = 60000;
     long max_param = base_param;
+    if (damage_percent != 0)
+    {
+        max_param = (max_param * damage_percent) / 100;
+    }
     if (luck > 0)
     {
         if (luck > 100) luck = 100;

@@ -61,7 +61,7 @@ struct Dungeon *get_dungeon_f(PlayerNumber plyr_num,const char *func_name)
 {
     if ((plyr_num < 0) || (plyr_num >= DUNGEONS_COUNT))
     {
-        ERRORLOG("%s: Tried to get non-existing dungeon %d!", func_name, plyr_num);
+        // ERRORLOG("%s: Tried to get non-existing dungeon %d!", func_name, plyr_num);
         return INVALID_DUNGEON;
     }
     return &(game.dungeon[(int)plyr_num]);

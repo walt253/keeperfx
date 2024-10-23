@@ -2072,8 +2072,6 @@ short creature_explore_dungeon(struct Thing *creatng)
     }
     if (!ret)
     {
-        SYNCLOG("The %s owned by player %d can't navigate to subtile (%d,%d) for exploring",
-            thing_model_name(creatng),(int)creatng->owner, (int)pos.x.stl.num, (int)pos.y.stl.num);
         set_start_state(creatng);
         return CrCkRet_Available;
     }

@@ -191,34 +191,6 @@ void increase_level(struct PlayerInfo *player, int count)
     }    
 }
 
-TbBool is_there_any_model_you_can_steal()
-{
-    for (ThingModel crkind = 0; crkind < game.conf.crtr_conf.model_count; crkind++)
-    {
-        if (flag_is_set(get_creature_model_flags(thing), CMF_PreferSteal))
-        {
-            return true;
-        }
-    }
-    return false;
-}
-
-void prefer_steal_models(long model_count)
-{
-    ThingModel steal_idx = GAME_RANDOM(model_count);
-    while ()
-    {
-        for (ThingModel crkind = 0; crkind < model_count; crkind++)
-        {
-            if (flag_is_set(game.conf.crtr_conf.model[steal_idx].model_flags, CMF_PreferSteal))
-            {
-                return steal_idx;
-            }
-        }
-    }
-    return -1;
-}
-
 // Static array to store the IDs of 'PreferSteal' creatures kinds.
 static ThingModel prefer_steal_array[CREATURE_TYPES_MAX];
 // Counter for the number of 'PreferSteal' creatures kinds found.

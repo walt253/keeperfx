@@ -7124,9 +7124,7 @@ TbBool creature_can_be_transferred(const struct Thing* thing)
     return ((get_creature_model_flags(thing) & CMF_NoTransfer) == 0);
 }
 
-/* Returns a random creature kind with model flags as argument.
- * On the first call, the function creates a cache of all creature kind with the flag.
- * The function then get a random creature kind from this list. */
+/* Returns a random creature kind with model flags as argument. */
 ThingModel get_random_creature_kind_with_model_flags(unsigned long model_flags)
 {
     // Array to store the IDs of creatures kinds with model flags.

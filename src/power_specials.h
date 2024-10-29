@@ -68,7 +68,8 @@ void transfer_creature(struct Thing *tng1, struct Thing *tng2, unsigned char ply
 void start_resurrect_creature(struct PlayerInfo *player, struct Thing *thing);
 void start_transfer_creature(struct PlayerInfo *player, struct Thing *thing);
 long create_transferred_creatures_on_level(void);
-
+ThingModel prefer_steal_creatures_kinds(long model_count)
+void reset_prefer_steal_array_cache();
 /******************************************************************************/
 #ifdef __cplusplus
 }

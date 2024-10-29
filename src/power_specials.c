@@ -191,10 +191,88 @@ void increase_level(struct PlayerInfo *player, int count)
     }    
 }
 
+TbBool is_there_any_model_you_can_steal()
+{
+    for (ThingModel crkind = 0; crkind < game.conf.crtr_conf.model_count; crkind++)
+    {
+        if (flag_is_set(get_creature_model_flags(thing), CMF_PreferSteal))
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+void prefer_steal_models(long model_count)
+{
+    ThingModel steal_idx = GAME_RANDOM(model_count);
+    while ()
+    {
+        for (ThingModel crkind = 0; crkind < model_count; crkind++)
+        {
+            if (flag_is_set(game.conf.crtr_conf.model[steal_idx].model_flags, CMF_PreferSteal))
+            {
+                return steal_idx;
+            }
+        }
+    }
+    return -1;
+}
+
+// Static array to store the IDs of 'PreferSteal' creatures kinds.
+static ThingModel prefer_steal_array[CREATURE_TYPES_MAX];
+// Counter for the number of 'PreferSteal' creatures kinds found.
+static short prefer_steal_count = 0;
+// Flag to indicate if the cache has been initialized.
+static TbBool prefer_steal_cache = false;
+
+/* Returns a random creature kind with 'PreferSteal' flag.
+ * On the first call, the function creates a cache of all 'PreferSteal' creature kind.
+ * The function then chooses a random 'PreferSteal' creature kind from this list. */
+ThingModel prefer_steal_creatures_kinds(long model_count)
+{
+    // Initialize the cache only once.
+    if (!prefer_steal_cache)
+    {
+        // Loop through all available creatures kinds.
+        for (ThingModel crkind = 0; crkind < model_count; crkind++)
+        {
+            // Check if the creature kind has "CMF_PreferSteal" flag.
+            if (flag_is_set(game.conf.crtr_conf.model[crkind].model_flags, CMF_PreferSteal))
+            {
+                // Ensure we don't exceed the maximum array size.
+                if (prefer_steal_count < CREATURE_TYPES_MAX)
+                {
+                    // Add the creature kind to the cache.
+                    prefer_steal_array[prefer_steal_count++] = crkind;
+                } else {
+                    break;
+                }
+            }
+        }
+        // Mark the cache as initialized.
+        prefer_steal_cache = true;
+    }
+    if (prefer_steal_count > 0)
+    {
+        // Choose a random index from the list of 'PreferSteal' creatures kinds.
+        short steal_idx = GAME_RANDOM(prefer_steal_count);
+        return prefer_steal_array[steal_idx];
+    }
+    // Return -1 if no suitable creature kind is found.
+    return -1;
+}
+
+void reset_prefer_steal_array_cache()
+{
+    // Reset the cache variables.
+    prefer_steal_count = 0;
+    prefer_steal_cache = false;
+    memset(prefer_steal_array, 0, sizeof(prefer_steal_array));
+}
+
 TbBool steal_hero(struct PlayerInfo *player, struct Coord3d *pos)
 {
-    // TODO CONFIG creature models dependency put them in config files.
-    static ThingModel prefer_steal_models[] = {3, 12}; // 3 = ARCHER, 12 = THIEF.
     struct Thing* herotng = INVALID_THING;
     int heronum;
     ThingIndex tng_idx;
@@ -262,8 +340,13 @@ TbBool steal_hero(struct PlayerInfo *player, struct Coord3d *pos)
             SYNCDBG(7, "Failed to generate a stolen hero due to map creature limit");
             return false;
         }
-        unsigned char steal_idx = GAME_RANDOM(sizeof(prefer_steal_models)/sizeof(prefer_steal_models[0]));
-        struct Thing* creatng = create_creature(pos, prefer_steal_models[steal_idx], player->id_number);
+        ThingModel crkind = prefer_steal_creatures_kinds(game.conf.crtr_conf.model_count);
+        if (crkind == -1)
+        {
+            SYNCDBG(7, "Failed to generate a stolen hero due to lack of model with the property");
+            return false;
+        }
+        struct Thing* creatng = create_creature(pos, crkind, player->id_number);
         if (thing_is_invalid(creatng))
             return false;
         SYNCDBG(3, "Created %s owner %d", thing_model_name(creatng), (int)player->id_number);

@@ -6365,7 +6365,7 @@ struct Thing *script_create_creature_at_location(PlayerNumber plyr_idx, ThingMod
         }
     }
 
-    if ((get_creature_model_flags(thing) & CMF_IsLordOTLand) != 0)
+    if ((get_creature_model_flags(thing) & CMF_IsLordOfLand) != 0)
     {
         output_message(SMsg_LordOfLandComming, MESSAGE_DELAY_LORD, 1);
         output_message(SMsg_EnemyLordQuote + UNSYNC_RANDOM(8), MESSAGE_DELAY_LORD, 1);

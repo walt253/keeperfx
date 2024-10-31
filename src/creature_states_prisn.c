@@ -314,9 +314,15 @@ CrStateRet creature_in_prison(struct Thing *thing)
 
 TbBool prison_convert_creature_to_skeleton(struct Room *room, struct Thing *thing)
 {
+    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct Thing* crthing = INVALID_THING;
-    long crmodel = get_room_create_creature_model(room->kind); // That normally returns skeleton breed
+    long crmodel = crstat->prison_kind;
+    if ((crmodel < 1) || (crmodel >= game.conf.crtr_conf.model_count))
+    {
+        // If not assigned or is unknown default to the room creature_creation.
+        crmodel = get_room_create_creature_model(room->kind);
+    }
     if (creature_count_below_map_limit(1))
     {
         crthing = create_creature(&thing->mappos, crmodel, room->owner);

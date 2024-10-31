@@ -320,7 +320,7 @@ TbBool prison_convert_creature_to_skeleton(struct Room *room, struct Thing *thin
     ThindModel crmodel = crstat->prison_kind;
     if ((crmodel > game.conf.crtr_conf.model_count) || (crmodel <= 0))
     {
-        // If not assigned or is unknown default to the room creature_creation.
+        // If not assigned or is unknown default to the room creature creation.
         crmodel = get_room_create_creature_model(room->kind);
     }
     if (creature_count_below_map_limit(1))
@@ -351,7 +351,7 @@ TbBool prison_convert_creature_to_skeleton(struct Room *room, struct Thing *thin
 TbBool process_prisoner_skelification(struct Thing *thing, struct Room *room)
 {
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-    if ((thing->health >= 0) || ((!crstat->humanoid_creature) && ((thing->model > game.conf.crtr_conf.model_count) || (thing->model <= 0)))) {
+    if ((thing->health >= 0) || ((!crstat->humanoid_creature) && ((crstat->prison_kind > game.conf.crtr_conf.model_count) || (crstat->prison_kind <= 0)))) {
         return false;
     }
     // TODO CONFIG: (?) Allow 'skelification' only if spent specific amount of turns in prison (set it to low value). (?)
@@ -453,7 +453,7 @@ CrCheckRet process_prison_function(struct Thing *creatng)
     {
         return CrCkRet_Deleted;
     }
-    else if ((creatng->health < 0) && ((!crstat->humanoid_creature) && ((creatng->model > game.conf.crtr_conf.model_count) || (creatng->model <= 0))))
+    else if ((creatng->health < 0) && ((!crstat->humanoid_creature) && ((crstat->prison_kind > game.conf.crtr_conf.model_count) || (crstat->prison_kind <= 0))))
     {
         if (is_my_player_number(room->owner))
         {

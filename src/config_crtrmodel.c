@@ -280,6 +280,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
       crstat->flying = false;
       crstat->can_see_invisible = false;
       crstat->can_go_locked_doors = false;
+      crstat->prison_kind = 0;
       crconf->namestr_idx = 0;
       crconf->model_flags = 0;
   }

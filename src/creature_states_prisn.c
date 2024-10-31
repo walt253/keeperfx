@@ -317,7 +317,7 @@ TbBool prison_convert_creature_to_skeleton(struct Room *room, struct Thing *thin
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct Thing* crthing = INVALID_THING;
-    ThindModel crmodel = crstat->prison_kind;
+    ThingModel crmodel = crstat->prison_kind;
     if ((crmodel > game.conf.crtr_conf.model_count) || (crmodel <= 0))
     {
         // If not assigned or is unknown default to the room creature creation.

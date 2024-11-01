@@ -538,11 +538,15 @@ struct CreatureStats { // These stats are not compatible with original DK - they
     short annoy_going_postal;
     short toking_recovery;
     TbBool illuminated;
-    TbBool is_thief;
-    TbBool resist_to_magic;
+    TbBool immune_to_charm;
     TbBool immune_to_freeze;
     TbBool immune_to_slow;
     TbBool self_recovery;
+    TbBool resist_to_magic;
+    TbBool is_mechanical;
+    TbBool is_undead;
+    TbBool is_thief;
+    TbBool ethereal;
     TbBool hoarfrost;
     TbBool boss;
     unsigned char transparency_flags;

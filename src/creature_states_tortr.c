@@ -273,6 +273,7 @@ CrCheckRet process_kinky_function(struct Thing *thing)
 
 void convert_creature_to_ghost(struct Room *room, struct Thing *thing)
 {
+    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     ThingModel crmodel = crstat->torture_kind;
     if ((crmodel > game.conf.crtr_conf.model_count) || (crmodel <= 0))
     {

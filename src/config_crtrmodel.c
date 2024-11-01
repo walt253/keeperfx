@@ -127,17 +127,18 @@ const struct NamedCommand creatmodel_properties_commands[] = {
   {"NO_TRANSFER",       29},
   {"TREMBLING",         30},
   {"FAT",               31},
-  {"IMMUNE_TO_CHARM",   32},
-  {"THIEF",             33},
-  {"RESIST_TO_MAGIC",   34},
-  {"MECHANICAL",        35},
-  {"UNDEAD",            36},
-  {"IMMUNE_TO_FREEZE",  37},
-  {"IMMUNE_TO_SLOW",    38},
-  {"SELF_RECOVERY",     39},
-  {"ETHEREAL",          40},
-  {"HOARFROST",         41},
-  {"BOSS",              42},
+  {"NO_STEAL_HERO",     32},
+  {"IMMUNE_TO_CHARM",   33},
+  {"IMMUNE_TO_FREEZE",  34},
+  {"IMMUNE_TO_SLOW",    35},
+  {"SELF_RECOVERY",     36},
+  {"RESIST_TO_MAGIC",   37},
+  {"MECHANICAL",        38},
+  {"UNDEAD",            39},
+  {"THIEF",             40},
+  {"ETHEREAL",          41},
+  {"HOARFROST",         42},
+  {"BOSS",              43},
   {NULL,                 0},
   };
 
@@ -250,6 +251,7 @@ const struct NamedCommand creatmodel_sounds_commands[] = {
   {"DIE",                  CrSnd_Die},
   {"FOOT",                 CrSnd_Foot},
   {"FIGHT",                CrSnd_Fight},
+  {"PISS",                 CrSnd_Piss},
   {NULL,                   0},
   };
 
@@ -301,11 +303,15 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
       crstat->flying = false;
       crstat->can_see_invisible = false;
       crstat->can_go_locked_doors = false;
-      crstat->is_thief = false;
-      crstat->resist_to_magic = false;
+      crstat->immune_to_charm = false;
       crstat->immune_to_freeze = false;
       crstat->immune_to_slow = false;
       crstat->self_recovery = false;
+      crstat->resist_to_magic = false;
+      crstat->is_mechanical = false;
+      crstat->is_undead = false;
+      crstat->is_thief = false;
+      crstat->ethereal = false;
       crstat->hoarfrost = false;
       crstat->boss = false;
       crconf->namestr_idx = 0;
@@ -667,11 +673,15 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
           crstat->flying = false;
           crstat->can_see_invisible = false;
           crstat->can_go_locked_doors = false;
-          crstat->is_thief = false;
-          crstat->resist_to_magic = false;
+          crstat->immune_to_charm = false;
           crstat->immune_to_freeze = false;
           crstat->immune_to_slow = false;
           crstat->self_recovery = false;
+          crstat->resist_to_magic = false;
+          crstat->is_mechanical = false;
+          crstat->is_undead = false;
+          crstat->is_thief = false;
+          crstat->ethereal = false;
           crstat->hoarfrost = false;
           crstat->boss = false;
           crconf->model_flags = 0;
@@ -801,47 +811,51 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
                 crconf->model_flags |= CMF_Fat;
                 n++;
                 break;
-            case 32: // IMMUNE_TO_CHARM
-                crconf->model_flags |= CMF_NoCharm;
+            case 32: // NO_STEAL_HERO
+                crconf->model_flags |= CMF_NoStealHero;
                 n++;
                 break;
-            case 33: // THIEF
-                crstat->is_thief = true;
+            case 33: // IMMUNE_TO_CHARM
+                crstat->immune_to_charm = true;
                 n++;
                 break;
-            case 34: // RESIST_TO_MAGIC
-                crstat->resist_to_magic = true;
-                n++;
-                break;
-            case 35: // MECHANICAL
-                crconf->model_flags |= CMF_Mechanical;
-                n++;
-                break;
-            case 36: // UNDEAD
-                crconf->model_flags |= CMF_Undead;
-                n++;
-                break;
-            case 37: // IMMUNE_TO_FREEZE
+            case 34: // IMMUNE_TO_FREEZE
                 crstat->immune_to_freeze = true;
                 n++;
                 break;
-            case 38: // IMMUNE_TO_SLOW
+            case 35: // IMMUNE_TO_SLOW
                 crstat->immune_to_slow = true;
                 n++;
                 break;
-            case 39: // SELF_RECOVERY
+            case 36: // SELF_RECOVERY
                 crstat->self_recovery = true;
                 n++;
                 break;
-            case 40: // ETHEREAL
-                crconf->model_flags |= CMF_Ethereal;
+            case 37: // RESIST_TO_MAGIC
+                crstat->resist_to_magic = true;
                 n++;
                 break;
-            case 41: // HOARFROST
+            case 38: // MECHANICAL
+                crstat->is_mechanical = true;
+                n++;
+                break;
+            case 39: // UNDEAD
+                crstat->is_undead = true;
+                n++;
+                break;
+            case 40: // THIEF
+                crstat->is_thief = true;
+                n++;
+                break;
+            case 41: // ETHEREAL
+                crstat->ethereal = true;
+                n++;
+                break;
+            case 42: // HOARFROST
                 crstat->hoarfrost = true;
                 n++;
                 break;
-            case 42: // BOSS
+            case 43: // BOSS
                 crstat->boss = true;
                 n++;
                 break;
@@ -2636,6 +2650,25 @@ TbBool parse_creaturemodel_sounds_blocks(long crtr_model,char *buf,long len,cons
             {
               k = atoi(word_buf);
               game.conf.crtr_conf.creature_sounds[crtr_model].fight.count = k;
+              n++;
+            }
+            if (n < 1)
+            {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            }
+            break;
+        case CrSnd_Piss:
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+              k = atoi(word_buf);
+              game.conf.crtr_conf.creature_sounds[crtr_model].piss.index = k;
+              n++;
+            }
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+              k = atoi(word_buf);
+              game.conf.crtr_conf.creature_sounds[crtr_model].piss.count = k;
               n++;
             }
             if (n < 1)

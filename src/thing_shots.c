@@ -1480,7 +1480,7 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
     if ((shotst->model_flags & ShMF_Charming) != 0)
     {
         trgtstat = creature_stats_get_from_thing(trgtng);
-        if (crstat->immune_to_charm == 0)
+        if (trgtstat->immune_to_charm == 0)
         {
             cctrl = creature_control_get_from_thing(shooter);
             trgtcctrl = creature_control_get_from_thing(trgtng);

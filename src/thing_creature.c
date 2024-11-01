@@ -6287,6 +6287,7 @@ void process_creature_buying_and_using_potion(struct Thing *thing)
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     if ((thing->creature.gold_carried > 0) && (crstat->pay > 0))
     {
+        unsigned long frequency = ((100 * crstat->pay) / thing->creature.gold_carried);
         if ((((game.play_gameturn + thing->index) % frequency) == 0) && (thing->active_state == CrStTyp_FightCrtr))
         {
             unsigned long potion_cost = CREATURE_RANDOM(creatng, thing->health);

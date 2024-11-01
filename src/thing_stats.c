@@ -1346,7 +1346,7 @@ HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, DamageType d
         // Weaknesses&Resistances to Darkness damage type.
         if (damage_type == DmgT_Darkness) {
             if ((crstat->bleeds != 0) && (crstat->humanoid_creature != 0)) {
-                if ((get_creature_model_flags(thing) & CMF_NoCharm) == 0) {
+                if (crstat->immune_to_charm == 0) {
                     // BLEEDS with HUMANOID_SKELETON not IMMUNE_TO_CHARM weakness.
                     dmg *= 2;
                 } else {

@@ -1600,7 +1600,7 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
     create_relevant_effect_for_shot_hitting_thing(shotng, trgtng);
     if (shotst->model_flags & ShMF_Boulder)
     {
-        if (creature_is_being_unconscious(trgtng)  && !(game.conf.rules.game.classic_bugs_flags & ClscBug_FaintedImmuneToBoulder)) // We're not actually hitting the unconscious units with a boulder.
+        if (creature_is_being_unconscious(trgtng) && !(game.conf.rules.game.classic_bugs_flags & ClscBug_FaintedImmuneToBoulder)) // We're not actually hitting the unconscious units with a boulder.
         {
             return 0;
         } 
@@ -2122,7 +2122,7 @@ static TngUpdateRet affect_thing_by_wind(struct Thing *thing, ModTngFilterParam 
                         }
                     }
                 }
-                if ((creature_distance < blow_distance) && crstat->affected_by_wind && !creatureAlreadyAffected)           
+                if ((creature_distance < blow_distance) && crstat->affected_by_wind && !creatureAlreadyAffected)
                 {
                     set_start_state(thing);
                     cctrl->idle.start_gameturn = game.play_gameturn;

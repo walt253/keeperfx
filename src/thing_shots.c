@@ -1428,14 +1428,18 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
             }
         }
     }
-    if (((shotst->model_flags & ShMF_Charming) != 0) && ((get_creature_model_flags(trgtng) & CMF_NoCharm) == 0))
+    if ((shotst->model_flags & ShMF_Charming) != 0)
     {
-        cctrl = creature_control_get_from_thing(shooter);
-        trgtcctrl = creature_control_get_from_thing(trgtng);
-        unsigned char lvlshtr = cctrl->explevel;
-        unsigned char lvltrgt = trgtcctrl->explevel;
-        if ((lvlshtr / 2) >= lvltrgt) {
-            change_creature_owner(trgtng, shooter->owner);
+        trgtstat = creature_stats_get_from_thing(trgtng);
+        if (crstat->immune_to_charm == 0)
+        {
+            cctrl = creature_control_get_from_thing(shooter);
+            trgtcctrl = creature_control_get_from_thing(trgtng);
+            unsigned char lvlshtr = cctrl->explevel;
+            unsigned char lvltrgt = trgtcctrl->explevel;
+            if ((lvlshtr / 2) >= lvltrgt) {
+                change_creature_owner(trgtng, shooter->owner);
+            }
         }
     }
     if (flag_is_set(shotst->model_flags, ShMF_StrengthBased))
@@ -1519,17 +1523,15 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
             }
         } else
         {
-            WARNDBG(8,"The %s index %d owner %d cannot group; invalid parent",thing_model_name(shotng),(int)shotng->index,(int)shotng->owner);
+            WARNDBG(8, "The %s index %d owner %d cannot group; invalid parent", thing_model_name(shotng), (int)shotng->index, (int)shotng->owner);
         }
     }
-
     adjusted_push_strength = push_strength;
     if (game.conf.rules.magic.weight_calculate_push > 0)
     {
         int weight = compute_creature_weight(trgtng);
         adjusted_push_strength = weight_calculated_push_strenght(weight, push_strength);
     }
-
     if (push_strength != 0 )
     {
         i = adjusted_push_strength * shotng->velocity.x.val;
@@ -1538,17 +1540,15 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
         trgtng->veloc_push_add.y.val += i / 16;
         trgtng->state_flags |= TF1_PushAdd;
     }
-
     if (creature_is_being_unconscious(trgtng))
     {
         if (push_strength == 0)
             push_strength++;
         if (game.conf.rules.game.classic_bugs_flags & ClscBug_FaintedImmuneToBoulder)
         {
-        push_strength *= 5;
-        int move_x = push_strength * shotng->velocity.x.val / 16.0;
-        int move_y = push_strength * shotng->velocity.y.val / 16.0;
-
+            push_strength *= 5;
+            int move_x = push_strength * shotng->velocity.x.val / 16.0;
+            int move_y = push_strength * shotng->velocity.y.val / 16.0;
             trgtng->veloc_push_add.x.val += move_x;
             trgtng->veloc_push_add.y.val += move_y;
             trgtng->state_flags |= TF1_PushAdd;
@@ -1560,7 +1560,7 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
         }
         else
         {
-            if (shotst->model_flags & ShMF_Boulder) //Boulders move units slightly but without purpose.
+            if (shotst->model_flags & ShMF_Boulder) // Boulders move units slightly but without purpose.
             {
                 if (abs(shotng->velocity.x.val) >= abs(shotng->velocity.y.val))
                 {
@@ -1600,7 +1600,7 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
     create_relevant_effect_for_shot_hitting_thing(shotng, trgtng);
     if (shotst->model_flags & ShMF_Boulder)
     {
-        if (creature_is_being_unconscious(trgtng)  && !(game.conf.rules.game.classic_bugs_flags & ClscBug_FaintedImmuneToBoulder)) //We're not actually hitting the unconscious units with a boulder
+        if (creature_is_being_unconscious(trgtng)  && !(game.conf.rules.game.classic_bugs_flags & ClscBug_FaintedImmuneToBoulder)) // We're not actually hitting the unconscious units with a boulder.
         {
             return 0;
         } 
@@ -1609,7 +1609,6 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
             trgtstat = creature_stats_get_from_thing(trgtng);
             shotng->health -= trgtstat->damage_to_boulder;
         }
-
     }
     if (trgtng->health < 0)
     {

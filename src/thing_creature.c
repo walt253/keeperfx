@@ -6184,6 +6184,109 @@ void process_creature_using_gold(struct Thing *thing)
     {
         unsigned long frequency = ((100 * crstat->pay) / thing->creature.gold_carried);
         unsigned long cost = (crstat->pay + (crstat->pay * cctrl->total_upgrade));
+        if ((((game.play_gameturn + thing->index) % frequency) == 0) && (thing->creature.gold_carried >= cost))
+        {
+            unsigned char upgrade_kind = GAME_RANDOM(8);
+            switch (upgrade_kind)
+            {
+                case 1: // strength_upgrade
+                {
+                    if (cctrl->strength_upgrade < crstat->strength)
+                    {
+                        cctrl->strength_upgrade += 1;
+                        cctrl->total_upgrade += 1;
+                        thing->creature.gold_carried -= cost;
+                    }
+                    break;
+                }
+                case 2: // armour_upgrade
+                {
+                    if (cctrl->armour_upgrade < crstat->armour)
+                    {
+                        cctrl->armour_upgrade += 1;
+                        cctrl->total_upgrade += 1;
+                        thing->creature.gold_carried -= cost;
+                    }
+                    break;
+                }
+                case 3: // defense_upgrade
+                {
+                    if (cctrl->defense_upgrade < crstat->defense)
+                    {
+                        cctrl->defense_upgrade += 1;
+                        cctrl->total_upgrade += 1;
+                        thing->creature.gold_carried -= cost;
+                    }
+                    break;
+                }
+                case 4: // dexterity_upgrade
+                {
+                    if (cctrl->dexterity_upgrade < crstat->dexterity)
+                    {
+                        cctrl->dexterity_upgrade += 1;
+                        cctrl->total_upgrade += 1;
+                        thing->creature.gold_carried -= cost;
+                    }
+                    break;
+                }
+                case 5: // luck_upgrade
+                {
+                    if (cctrl->luck_upgrade < crstat->luck)
+                    {
+                        cctrl->luck_upgrade += 1;
+                        cctrl->total_upgrade += 1;
+                        thing->creature.gold_carried -= cost;
+                    }
+                    break;
+                }
+                case 6: // speed_upgrade
+                {
+                    if (cctrl->speed_upgrade < crstat->base_speed)
+                    {
+                        cctrl->speed_upgrade += 1;
+                        cctrl->total_upgrade += 1;
+                        thing->creature.gold_carried -= cost;
+                    }
+                    break;
+                }
+                case 7: // loyalty_upgrade
+                {
+                    if (cctrl->loyalty_upgrade < crstat->scavenge_require)
+                    {
+                        cctrl->loyalty_upgrade += 1;
+                        cctrl->total_upgrade += 1;
+                        thing->creature.gold_carried -= cost;
+                    }
+                    break;
+                }
+                case 8: // magic_upgrade
+                {
+                    if (cctrl->magic_upgrade < crstat->magic)
+                    {
+                        cctrl->magic_upgrade += 1;
+                        cctrl->total_upgrade += 1;
+                        thing->creature.gold_carried -= cost;
+                    }
+                    break;
+                }
+                default:
+                    break;
+            }
+        }
+    }
+    return;
+}
+
+void process_creature_buying_and_using_potion(struct Thing *thing)
+{
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    if (creature_control_invalid(cctrl))
+    {
+        return;
+    }
+    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    if ((thing->creature.gold_carried > 0) && (crstat->pay > 0))
+    {
         if ((((game.play_gameturn + thing->index) % frequency) == 0) && (thing->active_state == CrStTyp_FightCrtr))
         {
             unsigned long potion_cost = CREATURE_RANDOM(creatng, thing->health);
@@ -6324,95 +6427,6 @@ void process_creature_using_gold(struct Thing *thing)
                     break;
             }
             return;
-        }
-        if ((((game.play_gameturn + thing->index) % frequency) == 0) && (thing->creature.gold_carried >= cost))
-        {
-            unsigned char upgrade_kind = GAME_RANDOM(8);
-            switch (upgrade_kind)
-            {
-                case 1: // strength_upgrade
-                {
-                    if (cctrl->strength_upgrade < crstat->strength)
-                    {
-                        cctrl->strength_upgrade += 1;
-                        cctrl->total_upgrade += 1;
-                        thing->creature.gold_carried -= cost;
-                    }
-                    break;
-                }
-                case 2: // armour_upgrade
-                {
-                    if (cctrl->armour_upgrade < crstat->armour)
-                    {
-                        cctrl->armour_upgrade += 1;
-                        cctrl->total_upgrade += 1;
-                        thing->creature.gold_carried -= cost;
-                    }
-                    break;
-                }
-                case 3: // defense_upgrade
-                {
-                    if (cctrl->defense_upgrade < crstat->defense)
-                    {
-                        cctrl->defense_upgrade += 1;
-                        cctrl->total_upgrade += 1;
-                        thing->creature.gold_carried -= cost;
-                    }
-                    break;
-                }
-                case 4: // dexterity_upgrade
-                {
-                    if (cctrl->dexterity_upgrade < crstat->dexterity)
-                    {
-                        cctrl->dexterity_upgrade += 1;
-                        cctrl->total_upgrade += 1;
-                        thing->creature.gold_carried -= cost;
-                    }
-                    break;
-                }
-                case 5: // luck_upgrade
-                {
-                    if (cctrl->luck_upgrade < crstat->luck)
-                    {
-                        cctrl->luck_upgrade += 1;
-                        cctrl->total_upgrade += 1;
-                        thing->creature.gold_carried -= cost;
-                    }
-                    break;
-                }
-                case 6: // speed_upgrade
-                {
-                    if (cctrl->speed_upgrade < crstat->base_speed)
-                    {
-                        cctrl->speed_upgrade += 1;
-                        cctrl->total_upgrade += 1;
-                        thing->creature.gold_carried -= cost;
-                    }
-                    break;
-                }
-                case 7: // loyalty_upgrade
-                {
-                    if (cctrl->loyalty_upgrade < crstat->scavenge_require)
-                    {
-                        cctrl->loyalty_upgrade += 1;
-                        cctrl->total_upgrade += 1;
-                        thing->creature.gold_carried -= cost;
-                    }
-                    break;
-                }
-                case 8: // magic_upgrade
-                {
-                    if (cctrl->magic_upgrade < crstat->magic)
-                    {
-                        cctrl->magic_upgrade += 1;
-                        cctrl->total_upgrade += 1;
-                        thing->creature.gold_carried -= cost;
-                    }
-                    break;
-                }
-                default:
-                    break;
-            }
         }
     }
     return;
@@ -6691,6 +6705,7 @@ TngUpdateRet update_creature(struct Thing *thing)
         }
     }
     process_creature_using_gold(thing);
+    // process_creature_buying_and_using_potion(thing); TODO: add a property so only those with it can do it.
     process_creature_pooping_thing(thing);
     cctrl->moveaccel.x.val = 0;
     cctrl->moveaccel.y.val = 0;

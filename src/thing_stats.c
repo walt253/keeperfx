@@ -1155,7 +1155,7 @@ HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, DamageType d
         // Weaknesses&Resistances to Physical damage type.
         if (damage_type == DmgT_Physical) {
             // ETHEREAL receives random damage.
-            if ((get_creature_model_flags(thing) & CMF_Ethereal) != 0) {
+            if (crstat->ethereal != 0) {
                 dmg = GAME_RANDOM(dmg) / (1 + GAME_RANDOM(calculate_correct_creature_armour(thing)));
             }
             // SplK_Armour resistance.
@@ -1168,12 +1168,12 @@ HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, DamageType d
                 unsigned short magic_reduction = calculate_correct_creature_magic(thing);
                 dmg = (dmg * 200) / (100 + magic_reduction);
                 // ETHEREAL weakness.
-                if ((get_creature_model_flags(thing) & CMF_Ethereal) != 0) {
+                if (crstat->ethereal != 0) {
                     dmg *= 2;
                 }
             } else {
                 // ETHEREAL receives random damage.
-                if ((get_creature_model_flags(thing) & CMF_Ethereal) != 0) {
+                if (crstat->ethereal != 0) {
                     dmg = GAME_RANDOM(dmg) / (1 + GAME_RANDOM(calculate_correct_creature_armour(thing)));
                 }
             }
@@ -1181,7 +1181,7 @@ HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, DamageType d
         // Weaknesses&Resistances to Magical damage type.
         if (damage_type == DmgT_Magical) {
             // MECHANICAL resistance.
-            if ((get_creature_model_flags(thing) & CMF_Mechanical) != 0) {
+            if (crstat->is_mechanical != 0) {
                 dmg /= 2;
             }
             // RESIST_TO_MAGIC resistance.
@@ -1196,7 +1196,7 @@ HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, DamageType d
         // Weaknesses&Resistances to Electric damage type.
         if (damage_type == DmgT_Electric) {
             // MECHANICAL weakness.
-            if ((get_creature_model_flags(thing) & CMF_Mechanical) != 0) {
+            if (crstat->is_mechanical != 0) {
                 dmg *= 2;
             }
             // RESIST_TO_MAGIC resistance.
@@ -1230,7 +1230,7 @@ HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, DamageType d
                 dmg *= 2;
             }
             // MECHANICAL resistance.
-            if ((get_creature_model_flags(thing) & CMF_Mechanical) != 0) {
+            if (crstat->is_mechanical != 0) {
                 dmg /= 2;
             }
             // RESIST_TO_MAGIC resistance.
@@ -1274,7 +1274,7 @@ HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, DamageType d
                 dmg *= 2;
             }
             // UNDEAD weakness.
-            if ((get_creature_model_flags(thing) & CMF_Undead) != 0) {
+            if (crstat->is_undead != 0) {
                 dmg *= 2;
             }
             // If HurtByLava is set to 0 then apply a resistance.
@@ -1282,7 +1282,7 @@ HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, DamageType d
                 dmg /= 8;
             }
             // MECHANICAL resistance.
-            if ((get_creature_model_flags(thing) & CMF_Mechanical) != 0) {
+            if (crstat->is_mechanical != 0) {
                 dmg /= 2;
             }
             // RESIST_TO_MAGIC resistance.
@@ -1301,7 +1301,7 @@ HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, DamageType d
         // Weaknesses&Resistances to Biological damage type.
         if (damage_type == DmgT_Biological) {
             // MECHANICAL resistance.
-            if ((get_creature_model_flags(thing) & CMF_Mechanical) != 0) {
+            if (crstat->is_mechanical != 0) {
                 dmg /= 2;
             }
             // SplK_Armour resistance.
@@ -1316,7 +1316,7 @@ HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, DamageType d
         // Weaknesses&Resistances to Respiratory damage type.
         if (damage_type == DmgT_Respiratory) {
             // IMMUNE_TO_GAS or MECHANICAL negates the damage.
-            if ((crstat->immune_to_gas != 0) || ((get_creature_model_flags(thing) & CMF_Mechanical) != 0)) {
+            if ((crstat->immune_to_gas != 0) || (crstat->is_mechanical != 0)) {
                 return 0;
             }
             // BLEEDS weakness.
@@ -1339,7 +1339,7 @@ HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, DamageType d
         // Weaknesses&Resistances to Holy damage type.
         if (damage_type == DmgT_Holy) {
             // UNDEAD weakness.
-            if ((get_creature_model_flags(thing) & CMF_Undead) != 0) {
+            if (crstat->is_undead != 0) {
                 dmg *= 8;
             }
         }
@@ -1355,7 +1355,7 @@ HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, DamageType d
                 }
             }
             // UNDEAD resistance.
-            if ((get_creature_model_flags(thing) & CMF_Undead) != 0) {
+            if (crstat->is_undead != 0) {
                 dmg /= 2;
             }
         }
@@ -1383,7 +1383,7 @@ HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, DamageType d
                 dmg *= 2;
             }
             // MECHANICAL resistance.
-            if ((get_creature_model_flags(thing) & CMF_Mechanical) != 0) {
+            if (crstat->is_mechanical != 0) {
                 dmg /= 2;
             }
             // RESIST_TO_MAGIC resistance.

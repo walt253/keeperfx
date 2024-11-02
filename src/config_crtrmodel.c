@@ -128,17 +128,18 @@ const struct NamedCommand creatmodel_properties_commands[] = {
   {"TREMBLING",         30},
   {"FAT",               31},
   {"NO_STEAL_HERO",     32},
-  {"IMMUNE_TO_CHARM",   33},
-  {"IMMUNE_TO_FREEZE",  34},
-  {"IMMUNE_TO_SLOW",    35},
-  {"SELF_RECOVERY",     36},
-  {"RESIST_TO_MAGIC",   37},
-  {"MECHANICAL",        38},
-  {"UNDEAD",            39},
-  {"THIEF",             40},
-  {"ETHEREAL",          41},
-  {"HOARFROST",         42},
-  {"BOSS",              43},
+  {"PREFER_STEAL",      33},
+  {"IMMUNE_TO_CHARM",   34},
+  {"IMMUNE_TO_FREEZE",  35},
+  {"IMMUNE_TO_SLOW",    36},
+  {"SELF_RECOVERY",     37},
+  {"RESIST_TO_MAGIC",   38},
+  {"MECHANICAL",        39},
+  {"UNDEAD",            40},
+  {"THIEF",             41},
+  {"ETHEREAL",          42},
+  {"HOARFROST",         43},
+  {"BOSS",              44},
   {NULL,                 0},
   };
 
@@ -735,7 +736,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
               n++;
               break;
             case 13: // LORD
-              crconf->model_flags |= CMF_IsLordOTLand;
+              crconf->model_flags |= CMF_IsLordOfLand;
               n++;
               break;
             case 14: // SPECTATOR
@@ -815,47 +816,51 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
                 crconf->model_flags |= CMF_NoStealHero;
                 n++;
                 break;
-            case 33: // IMMUNE_TO_CHARM
+            case 33: // PREFER_STEAL
+                crconf->model_flags |= CMF_PreferSteal;
+                n++;
+                break;
+            case 34: // IMMUNE_TO_CHARM
                 crstat->immune_to_charm = true;
                 n++;
                 break;
-            case 34: // IMMUNE_TO_FREEZE
+            case 35: // IMMUNE_TO_FREEZE
                 crstat->immune_to_freeze = true;
                 n++;
                 break;
-            case 35: // IMMUNE_TO_SLOW
+            case 36: // IMMUNE_TO_SLOW
                 crstat->immune_to_slow = true;
                 n++;
                 break;
-            case 36: // SELF_RECOVERY
+            case 37: // SELF_RECOVERY
                 crstat->self_recovery = true;
                 n++;
                 break;
-            case 37: // RESIST_TO_MAGIC
+            case 38: // RESIST_TO_MAGIC
                 crstat->resist_to_magic = true;
                 n++;
                 break;
-            case 38: // MECHANICAL
+            case 39: // MECHANICAL
                 crstat->is_mechanical = true;
                 n++;
                 break;
-            case 39: // UNDEAD
+            case 40: // UNDEAD
                 crstat->is_undead = true;
                 n++;
                 break;
-            case 40: // THIEF
+            case 41: // THIEF
                 crstat->is_thief = true;
                 n++;
                 break;
-            case 41: // ETHEREAL
+            case 42: // ETHEREAL
                 crstat->ethereal = true;
                 n++;
                 break;
-            case 42: // HOARFROST
+            case 43: // HOARFROST
                 crstat->hoarfrost = true;
                 n++;
                 break;
-            case 43: // BOSS
+            case 44: // BOSS
                 crstat->boss = true;
                 n++;
                 break;

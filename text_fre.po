@@ -1204,8 +1204,8 @@ msgstr " Ne faites pas ça. Vous le regretterez."
 
 #: guitext:930
 msgctxt "In-game message"
-msgid "You should have listened..."
-msgstr "Vous auriez dû écouter..."
+msgid " You should have listened..."
+msgstr " Vous auriez dû écouter..."
 
 #: guitext:931
 msgctxt "In-game message"

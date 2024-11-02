@@ -789,8 +789,8 @@ msgstr "À l'intérieur se trouve un puissant artefact dont vous aurez besoin."
 
 #: guitext:157
 msgctxt "In-game message"
-msgid "One more sacrifice and the path is revealed."
-msgstr "Un sacrifice de plus et le chemin se révélera."
+msgid " One more sacrifice and the path is revealed."
+msgstr " Un sacrifice de plus et le chemin se révélera."
 
 #: guitext:158
 msgctxt "In-game message"
@@ -824,8 +824,8 @@ msgstr "Le chemin secret est révélé ! 'Quand vous atteignez une impasse, cont
 
 #: guitext:164
 msgctxt "In-game message"
-msgid "We're so close! Soon he will be free!"
-msgstr "Nous y sommes presque ! Bientôt il sera libre !"
+msgid " We're so close! Soon he will be free!"
+msgstr " Nous y sommes presque ! Bientôt il sera libre !"
 
 #: guitext:165
 msgctxt "In-game message"
@@ -879,8 +879,8 @@ msgstr "Voici. J'ai tenu ma promesse."
 
 #: guitext:175
 msgctxt "In-game message"
-msgid "We finally have it! Activate the artefact!"
-msgstr "Nous l'avons enfin ! Activez l'artefact !"
+msgid " We finally have it! Activate the artefact!"
+msgstr " Nous l'avons enfin ! Activez l'artefact !"
 
 #: guitext:176
 msgctxt "In-game message"
@@ -889,8 +889,8 @@ msgstr "Et une chose de plus..."
 
 #: guitext:177
 msgctxt "In-game message"
-msgid "Do it!"
-msgstr "Faites-le !"
+msgid " Do it!"
+msgstr " Faites-le !"
 
 #: guitext:178
 msgctxt "In-game message"
@@ -899,13 +899,13 @@ msgstr "...j'espère que vous savez ce que vous faites."
 
 #: guitext:179 guitext:180
 msgctxt "In-game message"
-msgid "Do it!"
-msgstr "Faites-le !"
+msgid "  Do it!"
+msgstr "  Faites-le !"
 
 #: guitext:181
 msgctxt "In-game message"
-msgid "Fine. I'll do it."
-msgstr "D'accord. Je vais le faire."
+msgid " Fine. I'll do it."
+msgstr " D'accord. Je vais le faire."
 
 #: guitext:182
 msgctxt "In-game message"
@@ -914,18 +914,18 @@ msgstr "Par les dieux...qu'avons-nous fait ?"
 
 #: guitext:183
 msgctxt "In-game message"
-msgid "Great! Now we can finally grab that imp!"
-msgstr "Super ! Maintenant, nous pouvons enfin attraper ce lutin !"
+msgid " Great! Now we can finally grab that imp!"
+msgstr " Super ! Maintenant, nous pouvons enfin attraper ce lutin !"
 
 #: guitext:184
 msgctxt "In-game message"
-msgid "We're almost there...don't stop now!"
-msgstr "Nous y sommes presque...ne vous arrêtez pas maintenant !"
+msgid " We're almost there...don't stop now!"
+msgstr " Nous y sommes presque...ne vous arrêtez pas maintenant !"
 
 #: guitext:185
 msgctxt "In-game message"
-msgid "Just a few more steps, he's finally free."
-msgstr "Encore quelques pas, il est enfin libre."
+msgid " Just a few more steps, he's finally free."
+msgstr " Encore quelques pas, il est enfin libre."
 
 #: guitext:186
 msgctxt "In-game message"
@@ -1129,18 +1129,18 @@ msgstr "Hourra ! Je suis enfin libre !"
 
 #: guitext:915
 msgctxt "In-game message"
-msgid "Now that you have an imp, claim territory and build yourself back up. Then crush the heroes in the base to the north and show them you are not to be trifled with."
-msgstr "Maintenant que vous avez un lutin, revendiquez du territoire et reconstruisez-vous. Ensuite, écrasez les héros dans la base au nord et montrez-leur que vous n'êtes pas à prendre à la légère."
+msgid " Now that you have an imp, claim territory and build yourself back up. Then crush the heroes in the base to the north and show them you are not to be trifled with."
+msgstr " Maintenant que vous avez un lutin, revendiquez du territoire et reconstruisez-vous. Ensuite, écrasez les héros dans la base au nord et montrez-leur que vous n'êtes pas à prendre à la légère."
 
 #: guitext:916
 msgctxt "In-game message"
-msgid "Why did you do that? We're going to have to find a new imp now."
-msgstr "Pourquoi avez-vous fait ça ? Nous allons devoir trouver un nouveau lutin maintenant."
+msgid " Why did you do that? We're going to have to find a new imp now."
+msgstr " Pourquoi avez-vous fait ça ? Nous allons devoir trouver un nouveau lutin maintenant."
 
 #: guitext:917
 msgctxt "In-game message"
-msgid "I see you."
-msgstr "Je vous vois."
+msgid " I see you."
+msgstr " Je vous vois."
 
 #: guitext:918
 msgctxt "In-game message"
@@ -1154,28 +1154,28 @@ msgstr "Une dernière fois. Sacrifiez trois insectes."
 
 #: guitext:920
 msgctxt "In-game message"
-msgid "Now that the imp we rescued is dead, I reckon our next plan is to lay down and die like an animal. That will show them, Keeper."
-msgstr "Maintenant que le lutin que nous avons sauvé est mort, je suppose que notre prochain plan est de nous allonger et de mourir comme un animal. Cela leur montrera, Gardien."
+msgid " Now that the imp we rescued is dead, I reckon our next plan is to lay down and die like an animal. That will show them, Keeper."
+msgstr " Maintenant que le lutin que nous avons sauvé est mort, je suppose que notre prochain plan est de nous allonger et de mourir comme un animal. Cela leur montrera, Gardien."
 
 #: guitext:921
 msgctxt "In-game message"
-msgid "Master, I think your creatures have lost faith in you..."
-msgstr "Maître, je pense que vos créatures ont perdu foi en vous..."
+msgid " Master, I think your creatures have lost faith in you..."
+msgstr " Maître, je pense que vos créatures ont perdu foi en vous..."
 
 #: guitext:922
 msgctxt "In-game message"
-msgid "Stop this nonsense."
-msgstr "Arrêtez ces absurdités."
+msgid " Stop this nonsense."
+msgstr " Arrêtez ces absurdités."
 
 #: guitext:923
 msgctxt "In-game message"
-msgid "Fine. I'll stop you by force."
-msgstr "Très bien. Je vais vous arrêter par la force."
+msgid " Fine. I'll stop you by force."
+msgstr " Très bien. Je vais vous arrêter par la force."
 
 #: guitext:924
 msgctxt "In-game message"
-msgid "We've taken too long and now the lord of this realm has arrived. It's over."
-msgstr "Nous avons pris trop de temps et maintenant le seigneur de ce royaume est arrivé. C'est fini."
+msgid " We've taken too long and now the lord of this realm has arrived. It's over."
+msgstr " Nous avons pris trop de temps et maintenant le seigneur de ce royaume est arrivé. C'est fini."
 
 #: guitext:925
 msgctxt "In-game message"
@@ -1189,18 +1189,18 @@ msgstr "...vite, Gardien. Faites le vôtre."
 
 #: guitext:927
 msgctxt "In-game message"
-msgid "So there is another who would oppose me..."
-msgstr "Donc il y a un autre qui s'opposerait à moi..."
+msgid " So there is another who would oppose me..."
+msgstr " Donc il y a un autre qui s'opposerait à moi..."
 
 #: guitext:928
 msgctxt "In-game message"
-msgid "Don't do this. You will regret it."
-msgstr "Ne faites pas ça. Vous le regretterez."
+msgid " Don't do this. You will regret it."
+msgstr " Ne faites pas ça. Vous le regretterez."
 
 #: guitext:929
 msgctxt "In-game message"
-msgid "Don't do this. You will regret it."
-msgstr "Ne faites pas ça. Vous le regretterez."
+msgid " Don't do this. You will regret it."
+msgstr " Ne faites pas ça. Vous le regretterez."
 
 #: guitext:930
 msgctxt "In-game message"
@@ -1324,8 +1324,8 @@ msgstr " "
 
 #: guitext:1086
 msgctxt "In-game message"
-msgid "I should have finished you a long time ago. No more games."
-msgstr "J'aurais dû vous finir il y a longtemps. Plus de jeux."
+msgid " I should have finished you a long time ago. No more games."
+msgstr " J'aurais dû vous finir il y a longtemps. Plus de jeux."
 
 #: guitext:1087
 msgctxt "In-game message"

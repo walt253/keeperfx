@@ -1204,7 +1204,7 @@ msgstr ""
 
 #: guitext:930
 msgctxt "In-game message"
-msgid "You should have listened..."
+msgid " You should have listened..."
 msgstr ""
 
 #: guitext:931

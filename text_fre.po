@@ -389,7 +389,7 @@ msgstr "Il semble que le Nécromancien soit fort et intelligent, il y a un puiss
 
 #: guitext:77
 msgctxt "In-game message"
-msgid "You did it, you defeated the Necromancer and all dark magic is gone. Thanks for playing! Made by Crokydriver"
+msgid "You did it, you defeated the Necromancer and all dark magic is gone. Thanks for playing! Made by Crokydriver."
 msgstr "Vous l'avez fait, vous avez vaincu le Nécromancien et toute magie noire a disparu. Merci d'avoir joué ! Créé par Crokydriver."
 
 #: guitext:78

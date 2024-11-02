@@ -314,22 +314,22 @@ msgstr "Bien joué, vous avez réussi à gagner ce royaume. J'espère que vous a
 
 #: guitext:62
 msgctxt "In-game message"
-msgid "You came along these strange lands and met a Maiden who tells you the story of a Wizard who cured her after being poisoned by a powerful Necromancer. She never recovered completely and somehow she turned half human, half spider due to the poison. Today the Necromancer is still here and is stronger than ever, even the Wizard became scared. Over the years he began hiding himself deep in a booby-trapped maze he built. Although the Maiden warns you that strange, inexplicable things may happen here, self-confident as you are, you promise her to defeat the Necromancer and that you will protect her at all cost!"
+msgid "You came along these strange lands and met a Maiden who tells you the story of a Wizard who cured her after being poisoned by a powerfull Necromancer. She never recovered completely and somehow she turned half human, half spider due to the poison. Today the Necormancer is still here and is stronger than ever, even the Wizard became scared. Over the years he began hiding himself deep in a booby-trapped maze he build. Although the Maiden warnes you that strange, inexplicable things may happen here, self-confident as you are, you promise her to defeat the Necromancer and that you will protect her at all cost!"
 msgstr "Vous êtes arrivé dans ces terres étranges et avez rencontré une Demoiselle qui vous raconte l'histoire d'un Mage qui l'a guérie après avoir été empoisonnée par un puissant Nécromancien. Elle ne s'est jamais complètement remise et d'une manière ou d'une autre, elle est devenue mi-humaine, mi-araignée à cause du poison. Aujourd'hui, le Nécromancien est toujours là et est plus fort que jamais, même le Mage a commencé à avoir peur. Au fil des ans, il a commencé à se cacher profondément dans un labyrinthe piégé qu'il a construit. Bien que la Demoiselle vous avertisse que des choses étranges et inexplicables peuvent se produire ici, confiant comme vous l'êtes, vous lui promettez de vaincre le Nécromancien et que vous la protégerez à tout prix !"
 
 #: guitext:63
 msgctxt "In-game message"
-msgid "This should be the Wizard's maze right over there, the Maiden says he doesn't want visitors, but still you could use his magical help to get across that lava lake. After that is sorted, you can take care of that Necromancer once and for all!"
+msgid "This should be the Wizards maze right over there, the Maiden says he doesn't want visitors, but still you could use his magical help to get across that lava lake. After that is sorted, you can take care of that Necromancer once and for all!"
 msgstr "Cela devrait être le labyrinthe du Mage juste là-bas, la Demoiselle dit qu'il ne veut pas de visiteurs, mais vous pourriez tout de même utiliser son aide magique pour traverser ce lac de lave. Une fois cela réglé, vous pourrez vous occuper de ce Nécromancien une bonne fois pour toutes !"
 
 #: guitext:64
 msgctxt "In-game message"
-msgid "'The Wizard's Maze' is often referred to as 'The Possession Maze' because many creatures did feel a presence in there and drove insane. Even Imps were caught doing things they normally can't do, so the explanation could only be some kind of Possession."
+msgid "'The Wizards Maze' is often referred to as 'The Possession Maze' because many creatures did feel a presence in there and drove insane. Even Imps were caught doing things they normally can't do, so the explanation could only be some kind of Possession."
 msgstr "'Le Labyrinthe du Mage' est souvent appelé 'Le Labyrinthe de la Possession' car de nombreuses créatures ont ressenti une présence et en sont devenues folles. Même des lutins ont été surpris à faire des choses qu'ils ne peuvent normalement pas faire, donc l'explication ne peut être qu'une sorte de Possession."
 
 #: guitext:65
 msgctxt "In-game message"
-msgid "You have found the Wizard and after some negotiations he will help you get across, if only he knew the spell. After years of isolation, he doesn't remember. He will look it up in his books and let you know when he is ready to cast the spell. In the meantime he suggests you train up and warns you to not underestimate the Necromancer!"
+msgid "You have found the Wizard and after some negotiations he will help you get accross, if only he knew the spell. After years of isolation, he doesn't remember. He will look it up in his books and let you know when he is ready to cast the spell. In the meantime he suggest you train up and warns you to not underestimate the Necromancer!"
 msgstr "Vous avez trouvé le Mage et après quelques négociations, il vous aidera à traverser, s'il savait seulement le sort. Après des années d'isolement, il ne s'en souvient pas. Il va le chercher dans ses livres et vous informera lorsqu'il sera prêt à lancer le sort. En attendant, il vous suggère de vous entraîner et vous avertit de ne pas sous-estimer le Nécromancien !"
 
 #: guitext:66
@@ -339,7 +339,7 @@ msgstr "Le Mage a trouvé le sort et l'utilise pour drainer le lac de lave au Su
 
 #: guitext:67
 msgctxt "In-game message"
-msgid "Meanwhile you better search a solution to take those secrets! If there was only something to blow up those walls so we could steal those secrets! Oh wait didn't we saw something useful? Can somebody go and pick that up?"
+msgid "Meanwhile you better search a solution to take those secrets! If there was only something to blow up those walls so we could steal those secrets! Oh wait didn't we saw something usefull? Can somebody go and pick that up?"
 msgstr "En attendant, vous feriez mieux de chercher une solution pour obtenir ces secrets ! S'il y avait seulement quelque chose pour faire exploser ces murs afin que nous puissions voler ces secrets ! Oh attendez, n'avons-nous pas vu quelque chose d'utile ? Quelqu'un peut-il aller le ramasser ?"
 
 #: guitext:68
@@ -349,7 +349,7 @@ msgstr "Le lac de lave est drainé, rien ne se dresse maintenant sur votre chemi
 
 #: guitext:69
 msgctxt "In-game message"
-msgid "Good job! Now blow up that wall and steal those secrets! But be careful! We only have one chance!"
+msgid "Good job! Now blow up that wall and steal those secrets! But be carefull! We only have one chance!"
 msgstr "Bon travail ! Maintenant, faites exploser ce mur et volez ces secrets ! Mais soyez prudent ! Nous n'avons qu'une seule chance !"
 
 #: guitext:70
@@ -384,7 +384,7 @@ msgstr "Regardez-les ! Que font-ils ? ATTENTION, ils invoquent le Nécromancien 
 
 #: guitext:76
 msgctxt "In-game message"
-msgid "It seems the Necromancer is strong and smart, there is a powerful dark spell in this land preventing more than two summons through the temple. Looks like the Necromancer is scared for something after all. Maybe we could multiply our numbers in some other ways?"
+msgid "It seems the Necromancer is strong and smart, there is a powerfull dark spell in this land preventing more then two summons through the temple. Looks like the Necromancer is scared for something after all. Maybe we could multiply our numbers in some other ways?"
 msgstr "Il semble que le Nécromancien soit fort et intelligent, il y a un puissant sort noir dans ce pays empêchant plus de deux invocations à travers le temple. On dirait que le Nécromancien a finalement peur de quelque chose. Peut-être pourrions-nous multiplier nos nombres d'une autre manière ?"
 
 #: guitext:77

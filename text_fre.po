@@ -10,62 +10,62 @@
 #: guitext:1
 msgctxt "In-game message"
 msgid "Ghosts have hidden Spooky things in this realm. Destroy them all."
-msgstr ""
+msgstr "Des fantômes ont caché des choses effrayantes dans ce royaume. Détruisez-les toutes."
 
 #: guitext:2
 msgctxt "In-game message"
 msgid "You have the powers of halloween jesus and can resurrect on death. But on this hallowed eve there are limits to how often you can do so. Carefull."
-msgstr ""
+msgstr "Vous avez les pouvoirs de Jésus d'Halloween et pouvez ressusciter à la mort. Mais en cette veille de tous les saints, il y a des limites à la fréquence à laquelle vous pouvez le faire. Faites attention."
 
 #: guitext:3
 msgctxt "In-game message"
 msgid "You have destroyed the first of the Spooky Objects. This is like Ancient Keeper, do the same thing several more times to win. But you are stronger now so this should be easy."
-msgstr ""
+msgstr "Vous avez détruit le premier des Objets Effrayants. C'est comme le Gardien Ancien, faites la même chose plusieurs fois de plus pour gagner. Mais vous êtes plus fort maintenant, donc cela devrait être facile."
 
 #: guitext:4
 msgctxt "In-game message"
 msgid "You have destroyed a few Spooky Objects. More remain. Destroy them."
-msgstr ""
+msgstr "Vous avez détruit quelques Objets Effrayants. D'autres restent. Détruisez-les."
 
 #: guitext:5
 msgctxt "In-game message"
 msgid "I will hunt you down and kill you."
-msgstr ""
+msgstr "Je vais vous traquer et vous tuer."
 
 #: guitext:6
 msgctxt "In-game message"
 msgid "Not even death can save you from me"
-msgstr ""
+msgstr "Même la mort ne peut te sauver de moi."
 
 #: guitext:7
 msgctxt "In-game message"
 msgid "This is nothing less than your birthright!"
-msgstr ""
+msgstr "Ceci n'est rien de moins que ton droit de naissance !"
 
 #: guitext:8
 msgctxt "In-game message"
 msgid "You...all humans...are the spawn of our coupling!"
-msgstr ""
+msgstr "Vous... tous les humains... êtes le fruit de notre union !"
 
 #: guitext:9
 msgctxt "In-game message"
 msgid "Only a few Spooky Objects remain. You're doomed if you stay here! This place is cursed."
-msgstr ""
+msgstr "Il ne reste que quelques Objets Effrayants. Vous êtes condamné si vous restez ici ! Cet endroit est maudit."
 
 #: guitext:10
 msgctxt "In-game message"
 msgid "Only one remains. Nothing can stand in your way."
-msgstr ""
+msgstr "Il n'en reste qu'un. Rien ne peut se mettre en travers de votre chemin."
 
 #: guitext:11
 msgctxt "In-game message"
 msgid "Happy Halloween."
-msgstr ""
+msgstr "Joyeux Halloween."
 
 #: guitext:12
 msgctxt "In-game message"
 msgid "The worst part of being dead is knowing that you were never alive."
-msgstr ""
+msgstr "La pire partie d'être mort est de savoir que vous n'avez jamais été vivant."
 
 #: guitext:13
 msgctxt "In-game message"
@@ -1416,4 +1416,3 @@ msgstr ""
 msgctxt "In-game message"
 msgid "Good luck, and good bye."
 msgstr ""
-

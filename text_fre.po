@@ -4,7 +4,7 @@
 #   @file levels/halloween/text_fre.po
 #      KeeperFX Halloween Levels translations file
 #  @par Purpose:
-#      Holds French translations of the Halloween level pack.
+#      Holds french translations of the Halloween level pack.
 # *****************************************************************************
 
 #: guitext:1

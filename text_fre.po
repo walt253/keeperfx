@@ -15,17 +15,17 @@ msgstr "Des fantômes ont caché des choses effrayantes dans ce royaume. Détrui
 #: guitext:2
 msgctxt "In-game message"
 msgid "You have the powers of halloween jesus and can resurrect on death. But on this hallowed eve there are limits to how often you can do so. Carefull."
-msgstr "Vous avez les pouvoirs de Jésus d'Halloween et pouvez ressusciter à la mort. Mais en cette veille de tous les saints, il y a des limites à la fréquence à laquelle vous pouvez le faire. Faites attention."
+msgstr "Vous avez les pouvoirs de Jésus d'Halloween et pouvez ressusciter. Mais en cette veille de tous les saints, il y a des limites à la fréquence à laquelle vous pouvez le faire. Faites attention."
 
 #: guitext:3
 msgctxt "In-game message"
 msgid "You have destroyed the first of the Spooky Objects. This is like Ancient Keeper, do the same thing several more times to win. But you are stronger now so this should be easy."
-msgstr "Vous avez détruit le premier des Objets Effrayants. C'est comme le Gardien Ancien, faites la même chose plusieurs fois de plus pour gagner. Mais vous êtes plus fort maintenant, donc cela devrait être facile."
+msgstr "Vous avez détruit le premier des objets effrayants. C'est comme pour Ancient Keeper, faites la même chose plusieurs fois de plus pour gagner. Mais vous êtes plus fort maintenant, donc cela devrait être facile."
 
 #: guitext:4
 msgctxt "In-game message"
 msgid "You have destroyed a few Spooky Objects. More remain. Destroy them."
-msgstr "Vous avez détruit quelques Objets Effrayants. D'autres restent. Détruisez-les."
+msgstr "Vous avez détruit quelques objets effrayants. D'autres restent. Détruisez-les."
 
 #: guitext:5
 msgctxt "In-game message"
@@ -35,12 +35,12 @@ msgstr "Je vais vous traquer et vous tuer."
 #: guitext:6
 msgctxt "In-game message"
 msgid "Not even death can save you from me"
-msgstr "Même la mort ne peut te sauver de moi."
+msgstr "Même la mort ne peut vous sauver de moi."
 
 #: guitext:7
 msgctxt "In-game message"
 msgid "This is nothing less than your birthright!"
-msgstr "Ceci n'est rien de moins que ton droit de naissance !"
+msgstr "Ceci n'est rien de moins que votre droit de naissance !"
 
 #: guitext:8
 msgctxt "In-game message"
@@ -50,7 +50,7 @@ msgstr "Vous... tous les humains... êtes le fruit de notre union !"
 #: guitext:9
 msgctxt "In-game message"
 msgid "Only a few Spooky Objects remain. You're doomed if you stay here! This place is cursed."
-msgstr "Il ne reste que quelques Objets Effrayants. Vous êtes condamné si vous restez ici ! Cet endroit est maudit."
+msgstr "Il ne reste que quelques objets effrayants. Vous êtes condamné si vous restez ici ! Cet endroit est maudit."
 
 #: guitext:10
 msgctxt "In-game message"
@@ -180,7 +180,7 @@ msgstr "Le hantement commence, soyez sur vos gardes !"
 #: guitext:35
 msgctxt "In-game message"
 msgid "The next attack is here, near our base!"
-msgstr "Le prochain attaque est ici, près de notre base !"
+msgstr "La prochaine attaque est ici, près de notre base !"
 
 #: guitext:36
 msgctxt "In-game message"
@@ -265,7 +265,7 @@ msgstr "L'Avatar et le Voleur remarquèrent que la forteresse du chevalier noir 
 #: guitext:52
 msgctxt "In-game message"
 msgid "Welcome Keeper. Be sure to take care of your Imp or you will lose. Exploration is highly advised! Play in possession since your hand is frozen... saving is recommended. HAVE FUN!"
-msgstr "Bienvenue Gardien. Assurez-vous de prendre soin de votre Imp ou vous perdrez. L'exploration est fortement conseillée ! Jouez en possession puisque votre main est gelée... il est recommandé de sauvegarder. AMUSEZ-VOUS !"
+msgstr "Bienvenue Gardien. Assurez-vous de prendre soin de votre lutin ou vous perdrez. L'exploration est fortement conseillée ! Jouez en possession puisque votre main est gelée... il est recommandé de sauvegarder. AMUSEZ-VOUS !"
 
 #: guitext:53
 msgctxt "In-game message"
@@ -300,12 +300,12 @@ msgstr "On dirait que votre main a été dégagée..."
 #: guitext:59
 msgctxt "In-game message"
 msgid "Well you just walked into the lords trap... better luck next time."
-msgstr "Eh bien, vous venez de tomber dans le piège des seigneurs... meilleure chance la prochaine fois."
+msgstr "Eh bien, vous venez de tomber dans le piège des nobles... meilleure chance la prochaine fois."
 
 #: guitext:60
 msgctxt "In-game message"
 msgid "You found ancient imprisoned Imps and freed them... they brought the wisdom to call upon more Imps for your needs Sire!"
-msgstr "Vous avez trouvé des Imps anciens emprisonnés et les avez libérés... ils ont apporté la sagesse pour invoquer plus d'Imps pour vos besoins, Sire !"
+msgstr "Vous avez trouvé des lutins anciens emprisonnés et les avez libérés... ils ont apporté la sagesse pour invoquer plus de lutins pour vos besoins, Sire !"
 
 #: guitext:61
 msgctxt "In-game message"
@@ -315,27 +315,27 @@ msgstr "Bien joué, vous avez réussi à gagner ce royaume. J'espère que vous a
 #: guitext:62
 msgctxt "In-game message"
 msgid "You came along these strange lands and met a Maiden who tells you the story of a Wizard who cured her after being poisoned by a powerful Necromancer. She never recovered completely and somehow she turned half human, half spider due to the poison. Today the Necromancer is still here and is stronger than ever, even the Wizard became scared. Over the years he began hiding himself deep in a booby-trapped maze he built. Although the Maiden warns you that strange, inexplicable things may happen here, self-confident as you are, you promise her to defeat the Necromancer and that you will protect her at all cost!"
-msgstr "Vous êtes arrivé dans ces terres étranges et avez rencontré une Demoiselle qui vous raconte l'histoire d'un Sorcier qui l'a guérie après avoir été empoisonnée par un puissant Nécromancien. Elle ne s'est jamais complètement remise et d'une manière ou d'une autre, elle est devenue mi-humaine, mi-araignée à cause du poison. Aujourd'hui, le Nécromancien est toujours là et est plus fort que jamais, même le Sorcier a commencé à avoir peur. Au fil des ans, il a commencé à se cacher profondément dans un labyrinthe piégé qu'il a construit. Bien que la Demoiselle vous avertisse que des choses étranges et inexplicables peuvent se produire ici, confiant comme vous l'êtes, vous lui promettez de vaincre le Nécromancien et que vous la protégerez à tout prix !"
+msgstr "Vous êtes arrivé dans ces terres étranges et avez rencontré une Demoiselle qui vous raconte l'histoire d'un Mage qui l'a guérie après avoir été empoisonnée par un puissant Nécromancien. Elle ne s'est jamais complètement remise et d'une manière ou d'une autre, elle est devenue mi-humaine, mi-araignée à cause du poison. Aujourd'hui, le Nécromancien est toujours là et est plus fort que jamais, même le Mage a commencé à avoir peur. Au fil des ans, il a commencé à se cacher profondément dans un labyrinthe piégé qu'il a construit. Bien que la Demoiselle vous avertisse que des choses étranges et inexplicables peuvent se produire ici, confiant comme vous l'êtes, vous lui promettez de vaincre le Nécromancien et que vous la protégerez à tout prix !"
 
 #: guitext:63
 msgctxt "In-game message"
 msgid "This should be the Wizard's maze right over there, the Maiden says he doesn't want visitors, but still you could use his magical help to get across that lava lake. After that is sorted, you can take care of that Necromancer once and for all!"
-msgstr "Cela devrait être le labyrinthe du Sorcier juste là-bas, la Demoiselle dit qu'il ne veut pas de visiteurs, mais vous pourriez tout de même utiliser son aide magique pour traverser ce lac de lave. Une fois cela réglé, vous pourrez vous occuper de ce Nécromancien une bonne fois pour toutes !"
+msgstr "Cela devrait être le labyrinthe du Mage juste là-bas, la Demoiselle dit qu'il ne veut pas de visiteurs, mais vous pourriez tout de même utiliser son aide magique pour traverser ce lac de lave. Une fois cela réglé, vous pourrez vous occuper de ce Nécromancien une bonne fois pour toutes !"
 
 #: guitext:64
 msgctxt "In-game message"
 msgid "'The Wizard's Maze' is often referred to as 'The Possession Maze' because many creatures did feel a presence in there and drove insane. Even Imps were caught doing things they normally can't do, so the explanation could only be some kind of Possession."
-msgstr "'Le Labyrinthe du Sorcier' est souvent appelé 'Le Labyrinthe de la Possession' car de nombreuses créatures ont ressenti une présence et en sont devenues folles. Même des Imps ont été surpris à faire des choses qu'ils ne peuvent normalement pas faire, donc l'explication ne peut être qu'une sorte de Possession."
+msgstr "'Le Labyrinthe du Mage' est souvent appelé 'Le Labyrinthe de la Possession' car de nombreuses créatures ont ressenti une présence et en sont devenues folles. Même des lutins ont été surpris à faire des choses qu'ils ne peuvent normalement pas faire, donc l'explication ne peut être qu'une sorte de Possession."
 
 #: guitext:65
 msgctxt "In-game message"
 msgid "You have found the Wizard and after some negotiations he will help you get across, if only he knew the spell. After years of isolation, he doesn't remember. He will look it up in his books and let you know when he is ready to cast the spell. In the meantime he suggests you train up and warns you to not underestimate the Necromancer!"
-msgstr "Vous avez trouvé le Sorcier et après quelques négociations, il vous aidera à traverser, s'il savait seulement le sort. Après des années d'isolement, il ne s'en souvient pas. Il va le chercher dans ses livres et vous informera lorsqu'il sera prêt à lancer le sort. En attendant, il vous suggère de vous entraîner et vous avertit de ne pas sous-estimer le Nécromancien !"
+msgstr "Vous avez trouvé le Mage et après quelques négociations, il vous aidera à traverser, s'il savait seulement le sort. Après des années d'isolement, il ne s'en souvient pas. Il va le chercher dans ses livres et vous informera lorsqu'il sera prêt à lancer le sort. En attendant, il vous suggère de vous entraîner et vous avertit de ne pas sous-estimer le Nécromancien !"
 
 #: guitext:66
 msgctxt "In-game message"
 msgid "The Wizard has found the spell and is using it to drain the lava lake in the South, this process does take a few minutes. Although he helped you this time, he doesn't want to join you in your fight against the Necromancer and is not willing to give you access to his secrets!"
-msgstr "Le Sorcier a trouvé le sort et l'utilise pour drainer le lac de lave au Sud, ce processus prend quelques minutes. Bien qu'il vous ait aidé cette fois, il ne veut pas se joindre à vous dans votre lutte contre le Nécromancien et n'est pas prêt à vous donner accès à ses secrets !"
+msgstr "Le Mage a trouvé le sort et l'utilise pour drainer le lac de lave au Sud, ce processus prend quelques minutes. Bien qu'il vous ait aidé cette fois, il ne veut pas se joindre à vous dans votre lutte contre le Nécromancien et n'est pas prêt à vous donner accès à ses secrets !"
 
 #: guitext:67
 msgctxt "In-game message"
@@ -355,7 +355,7 @@ msgstr "Bon travail ! Maintenant, faites exploser ce mur et volez ces secrets ! 
 #: guitext:70
 msgctxt "In-game message"
 msgid "Alright, alright you can have it, take it! I'll do what you ask... please have mercy for an old Wizard like me..."
-msgstr "D'accord, d'accord, vous pouvez l'avoir, prenez-le ! Je ferai ce que vous demandez... ayez pitié d'un vieux Sorcier comme moi..."
+msgstr "D'accord, d'accord, vous pouvez l'avoir, prenez-le ! Je ferai ce que vous demandez... ayez pitié d'un vieux Mage comme moi..."
 
 #: guitext:71
 msgctxt "In-game message"
@@ -390,12 +390,12 @@ msgstr "Il semble que le Nécromancien soit fort et intelligent, il y a un puiss
 #: guitext:77
 msgctxt "In-game message"
 msgid "You did it, you defeated the Necromancer and all dark magic is gone. Thanks for playing! Made by Crokydriver"
-msgstr "Vous l'avez fait, vous avez vaincu le Nécromancien et toute magie noire a disparu. Merci d'avoir joué ! Créé par Crokydriver"
+msgstr "Vous l'avez fait, vous avez vaincu le Nécromancien et toute magie noire a disparu. Merci d'avoir joué ! Créé par Crokydriver."
 
 #: guitext:78
 msgctxt "In-game message"
 msgid "You did it, you defeated the Necromancer and all dark magic is gone. Sadly you failed to protect the Wizard and so the Maiden is left behind all by herself."
-msgstr "Vous l'avez fait, vous avez vaincu le Nécromancien et toute magie noire a disparu. Malheureusement, vous n'avez pas réussi à protéger le Sorcier et la Demoiselle est laissée seule."
+msgstr "Vous l'avez fait, vous avez vaincu le Nécromancien et toute magie noire a disparu. Malheureusement, vous n'avez pas réussi à protéger le Mage et la Demoiselle est laissée seule."
 
 #: guitext:79
 msgctxt "In-game message"
@@ -405,62 +405,62 @@ msgstr "La Demoiselle a été tuée, vous avez échoué à la protéger et avez 
 #: guitext:80
 msgctxt "In-game message"
 msgid "Trick-or-Treat: Spawn a Ghost for yourself and a Skeleton for your opponent. May have unwanted side effects."
-msgstr "Farce ou Friandise : Invoquez un Fantôme pour vous et un Squelette pour votre adversaire. Peut avoir des effets secondaires indésirables."
+msgstr "Farce-ou-Friandise : Invoquez un Fantôme pour vous et un Squelette pour votre adversaire. Peut avoir des effets secondaires indésirables."
 
 #: guitext:81
 msgctxt "In-game message"
 msgid "Doomsday: Permanently activate a Trick-or-Treat effect at random intervals based on your Dungeon Heart's health."
-msgstr "Jour du Jugement : Activez de manière permanente un effet Farce ou Friandise à des intervalles aléatoires en fonction de la santé de votre Coeur de Donjon."
+msgstr "Jour du Jugement : Activez de manière permanente un effet Farce-ou-Friandise à des intervalles aléatoires en fonction de la santé de votre Coeur de Donjon."
 
 #: guitext:82
 msgctxt "In-game message"
 msgid "Desperate Maneuver: Heal and set buffs on all your minions, then teleport them to your Dungeon Heart in a final attempt at survival. Use with caution."
-msgstr "Manoeuvre Désespérée : Soignez et appliquez des buffs à tous vos serviteurs, puis téléportez-les à votre Coeur de Donjon dans une ultime tentative de survie. À utiliser avec précaution."
+msgstr "Manoeuvre Désespérée : Soignez et appliquez des effets à tous vos serviteurs, puis téléportez-les à votre Coeur de Donjon dans une ultime tentative de survie. À utiliser avec précaution."
 
 #: guitext:83
 msgctxt "In-game message"
 msgid "Trick-or-Treat increased the level of all minions!"
-msgstr "Farce ou Friandise a augmenté le niveau de tous les serviteurs !"
+msgstr "Farce-ou-Friandise a augmenté le niveau de tous les serviteurs !"
 
 #: guitext:84
 msgctxt "In-game message"
 msgid "Trick-or-Treat decreased the level of all minions!"
-msgstr "Farce ou Friandise a diminué le niveau de tous les serviteurs !"
+msgstr "Farce-ou-Friandise a diminué le niveau de tous les serviteurs !"
 
 #: guitext:85
 msgctxt "In-game message"
 msgid "Trick-or-Treat made all minions happy!"
-msgstr "Farce ou Friandise a rendu tous les serviteurs heureux !"
+msgstr "Farce-ou-Friandise a rendu tous les serviteurs heureux !"
 
 #: guitext:86
 msgctxt "In-game message"
 msgid "Trick-or-Treat made all minions angry!"
-msgstr "Farce ou Friandise a rendu tous les serviteurs en colère !"
+msgstr "Farce-ou-Friandise a rendu tous les serviteurs en colère !"
 
 #: guitext:87
 msgctxt "In-game message"
 msgid "Trick-or-Treat increased the current spawn tier by 1!"
-msgstr "Farce ou Friandise a augmenté le niveau de spawn actuel de 1 !"
+msgstr "Farce-ou-Friandise a augmenté le niveau d'invasion actuel de 1 !"
 
 #: guitext:88
 msgctxt "In-game message"
 msgid "Trick-or-Treat decreased the current spawn tier by 1!"
-msgstr "Farce ou Friandise a diminué le niveau de spawn actuel de 1 !"
+msgstr "Farce-ou-Friandise a diminué le niveau d'invasion actuel de 1 !"
 
 #: guitext:89
 msgctxt "In-game message"
 msgid "Trick-or-Treat blessed all minions with buffs!"
-msgstr "Farce ou Friandise a béni tous les serviteurs avec des buffs !"
+msgstr "Farce-ou-Friandise a béni tous les serviteurs avec des effets !"
 
 #: guitext:90
 msgctxt "In-game message"
 msgid "Trick-or-Treat cursed all minions with debuffs!"
-msgstr "Farce ou Friandise a maudit tous les serviteurs avec des debuffs !"
+msgstr "Farce-ou-Friandise a maudit tous les serviteurs avec des maladies !"
 
 #: guitext:91
 msgctxt "In-game message"
 msgid "A gloomy deity has decided your Imps need a makeover, turning them into Ghosts with some nifty new powers. Who knew they had it in them? Meanwhile, an army of Skeletons has taken a break from their bone-tapping dance parties to zero in on you. To send these bony nuisances packing, you'll need to wrangle at least 100 of those ghostly misfits. Good luck collecting them before your own bones start rattling!"
-msgstr "Une divinité morose a décidé que vos Imps avaient besoin d'une transformation, les transformant en Fantômes avec des pouvoirs flambant neufs. Qui aurait cru qu'ils en étaient capables ? Pendant ce temps, une armée de Squelettes a fait une pause de leurs soirées dansantes osseuses pour se concentrer sur vous. Pour envoyer ces nuisibles osseux paqueter, vous devrez rassembler au moins 100 de ces marginaux fantomatiques. Bonne chance pour les collecter avant que vos propres os ne commencent à s'entrechoquer !"
+msgstr "Une divinité morose a décidé que vos lutins avaient besoin d'une transformation, les transformant en Fantômes avec des pouvoirs flambant neufs. Qui aurait cru qu'ils en étaient capables ? Pendant ce temps, une armée de Squelettes a fait une pause de leurs soirées dansantes osseuses pour se concentrer sur vous. Pour envoyer ces nuisibles osseux paqueter, vous devrez rassembler au moins 100 de ces marginaux fantomatiques. Bonne chance pour les collecter avant que vos propres os ne commencent à s'entrechoquer !"
 
 #: guitext:92
 msgctxt "In-game message"
@@ -475,12 +475,12 @@ msgstr "Vos chercheurs ont découvert un plan pour la boîte mystérieuse Voler 
 #: guitext:94
 msgctxt "In-game message"
 msgid "Your researchers discovered a blueprint for the Trick-or-Treat mysterious box! Fantastic! Just what we need to turn Halloween into a treasure hunt for lost souls!"
-msgstr "Vos chercheurs ont découvert un plan pour la boîte mystérieuse Farce ou Friandise ! Fantastique ! Juste ce dont nous avons besoin pour transformer Halloween en chasse au trésor pour les âmes perdues !"
+msgstr "Vos chercheurs ont découvert un plan pour la boîte mystérieuse Farce-ou-Friandise ! Fantastique ! Juste ce dont nous avons besoin pour transformer Halloween en chasse au trésor pour les âmes perdues !"
 
 #: guitext:95
 msgctxt "In-game message"
 msgid "Spiders... such exquisite little nightmares! With their eight legs and unsettling charm, they send shivers down spines for reasons that are as rational as a Ghost at a campfire. The ones from this realm? They're like ice-flavored powerhouses! Get them to a high level, and you might just find yourself chilling with their frosty vibes... or maybe you'll just freeze in terror!"
-msgstr "Araignées... de si exquises petites cauchemars ! Avec leurs huit pattes et leur charme troublant, elles font frémir pour des raisons aussi rationnelles qu'un Fantôme autour d'un feu de camp. Celles de ce royaume ? Elles sont comme des centrales électriques parfumées à la glace ! Amenez-les à un niveau élevé, et vous pourriez bien vous retrouver à profiter de leurs vibrations glaciales... ou peut-être que vous allez juste geler de terreur !"
+msgstr "Araignées... de si exquis petits cauchemars ! Avec leurs huit pattes et leur charme troublant, elles font frémir pour des raisons aussi rationnelles qu'un Fantôme autour d'un feu de camp. Celles de cette dimension ? Elles sont comme des centrales électriques parfumées à la glace ! Amenez-les à un niveau élevé, et vous pourriez bien vous retrouver à profiter de leurs vibrations glaciales... ou peut-être que vous allez juste geler de terreur !"
 
 #: guitext:96
 msgctxt "In-game message"
@@ -490,27 +490,27 @@ msgstr "Oh, vous ne le devineriez jamais tout seul, mais je viens de perdre un p
 #: guitext:97
 msgctxt "In-game message"
 msgid "Although it might be a bit limited in its effect, the Barracks can help slow down the invasion by cranking up the spawn rate of the invaders. But remember, it's not an exact science. So if things go awry, don't blame the architect. They were just following orders from the most confusing instructions!"
-msgstr "Bien que son effet puisse être un peu limité, la Caserne peut aider à ralentir l'invasion en augmentant le taux d'apparition des envahisseurs. Mais rappelez-vous, ce n'est pas une science exacte. Donc, si les choses tournent mal, ne blâmez pas l'architecte. Ils suivaient juste des ordres provenant des instructions les plus déroutantes !"
+msgstr "Bien que son effet puisse être un peu limité, la Caserne peut aider à ralentir l'invasion en augmentant le taux d'apparition des envahisseurs. Mais rappelez-vous, ce n'est pas une science exacte. Donc, si les choses tournent mal, ne blâmez pas les architectes. Ils suivaient juste des ordres provenant des instructions les plus déroutantes !"
 
 #: guitext:98
 msgctxt "In-game message"
 msgid "The Scavenger increases your chances of getting more high level creatures through the portal, the more tiles the better."
-msgstr "Le Voleur augmente vos chances d'obtenir davantage de créatures de haut niveau à travers le portail, plus il y a de tuiles, mieux c'est."
+msgstr "La Salle d'enrôlement augmente vos chances d'obtenir davantage de créatures de haut niveau à travers le portail, plus il y a de dalles, mieux c'est."
 
 #: guitext:99
 msgctxt "In-game message"
 msgid "Your minions forged a Spawn Trap that conjures a powerful Ghost to fight for you. Just remember, they're as petty and fragile as a glass cannon at a demolition party!"
-msgstr "Vos serviteurs ont forgé un Piège à Apparition qui invoque un puissant Fantôme pour se battre pour vous. N'oubliez pas, ils sont aussi mesquins et fragiles qu'un canon en verre lors d'une fête de démolition !"
+msgstr "Vos serviteurs ont forgé un Piège Invocateur qui invoque un puissant Fantôme pour se battre pour vous. N'oubliez pas, ils sont aussi mesquins et fragiles qu'un canon en verre lors d'une fête de démolition !"
 
 #: guitext:100
 msgctxt "In-game message"
 msgid "Your minions forged a Power Trap that keeps all your minions healthy for five glorious seconds! It's like a wellness retreat, but you'll need a miracle to get them to actually enjoy it!"
-msgstr "Vos serviteurs ont forgé un Piège de Puissance qui maintient tous vos serviteurs en bonne santé pendant cinq secondes glorieuses ! C'est comme une retraite de bien-être, mais vous aurez besoin d'un miracle pour qu'ils en profitent vraiment !"
+msgstr "Vos serviteurs ont forgé un Piège Radiant qui maintient tous vos serviteurs en bonne santé pendant cinq secondes glorieuses ! C'est comme une retraite de bien-être, mais vous aurez besoin d'un miracle pour qu'ils en profitent vraiment !"
 
 #: guitext:101
 msgctxt "In-game message"
 msgid "Your minions forged a Special Trap that lets you swap a tile for an unclaimed path. Think it's useless? Go ahead, place it on a bridge and see what happens!"
-msgstr "Vos serviteurs ont forgé un Piège Spécial qui vous permet d'échanger une tuile contre un chemin non revendiqué. Vous pensez que c'est inutile ? Allez-y, placez-le sur un pont et voyez ce qui se passe !"
+msgstr "Vos serviteurs ont forgé un Piège Spécial qui vous permet d'échanger une dalle contre un chemin non revendiqué. Vous pensez que c'est inutile ? Allez-y, placez-le sur un pont et voyez ce qui se passe !"
 
 #: guitext:102
 msgctxt "In-game message"
@@ -525,12 +525,12 @@ msgstr "Les Squelettes ont décidé qu'il est temps de battre en retraite et de 
 #: guitext:104
 msgctxt "In-game message"
 msgid "The Skeletons are primed for another raid on your dungeon. Stop goofing off and get ready to fight!"
-msgstr "Les Squelettes sont prêts pour une autre raid sur votre donjon. Arrêtez de faire le clown et préparez-vous à vous battre !"
+msgstr "Les Squelettes sont prêts pour un autre raid sur votre donjon. Arrêtez de faire le clown et préparez-vous à vous battre !"
 
 #: guitext:105
 msgctxt "In-game message"
 msgid "Incredible, you're still thriving after 24 hours in your real-time dimension. Seriously, take a break!"
-msgstr "Incroyable, vous prospérez encore après 24 heures dans votre dimension en temps réel. Sérieusement, faites une pause !"
+msgstr "Incroyable, vous prospérez encore après 24 heures passée dans votre realité. Sérieusement, faites une pause !"
 
 #: guitext:106
 msgctxt "In-game message"
@@ -540,7 +540,7 @@ msgstr "Pour votre information, dans une minute vous atteindrez la limite maxima
 #: guitext:107
 msgctxt "In-game message"
 msgid "Oh look at that, you've gathered an army of 100 Ghosts, congrats on hitting the win condition! But don't be a coward, keep playing and see how long you can last. This win condition is just for the peasants who would have cried if they didn't get a shiny trophy. So stick around, this is a survival realm, not a ghostly tea party!"
-msgstr "Oh regardez ça, vous avez rassemblé une armée de 100 Fantômes, félicitations d'avoir atteint la condition de victoire ! Mais ne soyez pas lâche, continuez à jouer et voyez combien de temps vous pouvez tenir. Cette condition de victoire est juste pour les paysans qui auraient pleuré s'ils n'avaient pas reçu un joli trophée. Alors restez ici, c'est un royaume de survie, pas une fête de thé fantomatique !"
+msgstr "Oh regardez ça, vous avez rassemblé une armée de 100 Fantômes, félicitations d'avoir atteint la condition de victoire ! Mais ne soyez pas lâche, continuez à jouer et voyez combien de temps vous pouvez tenir. Cette condition de victoire est juste pour les paysans qui auraient pleuré s'ils n'avaient pas reçu un joli trophée. Alors restez ici, c'est une dimension de survie, pas une fête de thé fantomatique !"
 
 #: guitext:108
 msgctxt "In-game message"
@@ -555,7 +555,7 @@ msgstr "Maître, je suis venu festoyer sur les âmes de vos ennemis !"
 #: guitext:110
 msgctxt "In-game message"
 msgid "If you activate another Power Trap while one is already running, you'll get a stack! But beware about diminishing returns as each extra trap only adds one more second to the pile."
-msgstr "Si vous activez un autre Piège de Puissance alors qu'un est déjà en cours, vous obtiendrez une pile ! Mais attention aux rendements décroissants, chaque piège supplémentaire n'ajoute qu'une seconde de plus à la pile."
+msgstr "Si vous activez un autre Piège Radiant alors qu'un est déjà en cours, vous obtiendrez une pile ! Mais attention aux rendements décroissants, chaque piège supplémentaire n'ajoute qu'une seconde de plus à la pile."
 
 #: guitext:111
 msgctxt "In-game message"
@@ -575,7 +575,7 @@ msgstr "Oh, vous essayez toujours d'agrandir l'atelier ? Cette fois, vous avez c
 #: guitext:114
 msgctxt "In-game message"
 msgid "Wow, you've probably built the biggest workshop this realm has ever seen! But why? It's clearly a trap, and look at you, you just walked right into it. Guess you're now the proud owner of a colossal mistake!"
-msgstr "Wow, vous avez probablement construit le plus grand atelier que ce royaume ait jamais vu ! Mais pourquoi ? C'est clairement un piège, et regardez-vous, vous venez de tomber droit dedans. Je suppose que vous êtes maintenant le fier propriétaire d'une erreur colossale !"
+msgstr "Ouah, vous avez probablement construit le plus grand atelier que cette dimension ait jamais vu ! Mais pourquoi ? C'est clairement un piège, et regardez-vous, vous venez de tomber droit dedans. Je suppose que vous êtes maintenant le fier propriétaire d'une erreur colossale !"
 
 #: guitext:115
 msgctxt "In-game message"
@@ -590,7 +590,7 @@ msgstr "Vos serviteurs ont enfin compris quoi faire avec la technologie secrète
 #: guitext:117
 msgctxt "In-game message"
 msgid "Your cheating soul's been laid bare before me, mortal. You believe you can circumvent the laws of this realm by exploiting loopholes, but you're mistaken. I'm no mere automaton, bound by the feeble rules of your playground. I'm the darkness that binds this world together, and I won't tolerate such flagrant disregard for order. You've been weighed in the scales of my judgment, and you've been found wanting."
-msgstr "Votre âme trompeuse a été mise à jour devant moi, mortel. Vous croyez pouvoir contourner les lois de ce royaume en exploitant des failles, mais vous vous trompez. Je ne suis pas un simple automate, lié par les règles faibles de votre terrain de jeu. Je suis l'obscurité qui lie ce monde ensemble, et je ne tolérerai pas un tel mépris flagrant pour l'ordre. Vous avez été pesé dans les balances de mon jugement, et vous avez été trouvé déficient."
+msgstr "Votre âme trompeuse a été mise à jour devant moi, mortel. Vous croyez pouvoir contourner les lois de cette dimension en exploitant des failles, mais vous vous trompez. Je ne suis pas un simple automate, lié par les règles faibles de votre terrain de jeu. Je suis l'obscurité qui lie ce monde ensemble, et je ne tolérerai pas un tel mépris flagrant pour l'ordre. Vous avez été pesé dans les balances de mon jugement, et vous avez été trouvé déficient."
 
 #: guitext:118
 msgctxt "In-game message"
@@ -600,17 +600,17 @@ msgstr "Une Araignée a été ajoutée au pool !"
 #: guitext:119
 msgctxt "In-game message"
 msgid "A Chicken Trap has been perfectly cooked!"
-msgstr "Un Piège à Poules a été parfaitement cuit !"
+msgstr "Un Piège Galinamorpheur a été parfaitement cuit !"
 
 #: guitext:120
 msgctxt "In-game message"
 msgid "A Freeze Trap has been found, frozen solid!"
-msgstr "Un Piège de Gel a été trouvé, gelé à bloc !"
+msgstr "Un Piège Givrant a été trouvé, gelé à bloc !"
 
 #: guitext:121
 msgctxt "In-game message"
 msgid "A Wind Trap has been blown your way!"
-msgstr "Un Piège de Vent a été soufflé dans votre direction !"
+msgstr "Un Piège Soufflant a été soufflé dans votre direction !"
 
 #: guitext:122
 msgctxt "In-game message"
@@ -625,7 +625,7 @@ msgstr "Une force sinistre vient de gifler tous vos Fantômes !"
 #: guitext:124
 msgctxt "In-game message"
 msgid "A Trick-or-Treat effect has been activated!"
-msgstr "Un effet de Trick-or-Treat a été activé !"
+msgstr "Un effet de Farce-ou-Friandise a été activé !"
 
 #: guitext:125
 msgctxt "In-game message"
@@ -635,7 +635,7 @@ msgstr "Un groupe de Squelettes a franchi les portes de votre donjon !"
 #: guitext:126
 msgctxt "In-game message"
 msgid "Welcome to the Halloween special, trick or treat, keeper!"
-msgstr "Bienvenue au spécial Halloween, farce ou friandise, gardien !"
+msgstr "Bienvenue au spécial Halloween, farce ou friandise, Gardien !"
 
 #: guitext:127
 msgctxt "In-game message"
@@ -650,12 +650,12 @@ msgstr "Je ne pense pas que cela va se briser de sitôt..."
 #: guitext:129
 msgctxt "In-game message"
 msgid "Your Imps have gone walkabout and your forces comprise of only a few weak insects. Salvage what you can from the abandoned dungeon to the northeast and pull yourself together, it's getting embarrassing."
-msgstr "Vos Imps sont partis en balade et vos forces ne se composent que de quelques insectes faibles. Récupérez ce que vous pouvez dans le donjon abandonné au nord-est et reprenez-vous, ça devient embarrassant."
+msgstr "Vos lutins sont partis en balade et vos forces ne se composent que de quelques insectes faibles. Récupérez ce que vous pouvez dans le donjon abandonné au nord-est et reprenez-vous, ça devient embarrassant."
 
 #: guitext:130
 msgctxt "In-game message"
 msgid "Your Imps have gone walkabout and your forces comprise of only a few weak insects. Salvage what you can from the abandoned dungeon to the north and pull yourself together, it's getting embarrassing."
-msgstr "Vos Imps sont partis en balade et vos forces ne se composent que de quelques insectes faibles. Récupérez ce que vous pouvez dans le donjon abandonné au nord et reprenez-vous, ça devient embarrassant."
+msgstr "Vos lutins sont partis en balade et vos forces ne se composent que de quelques insectes faibles. Récupérez ce que vous pouvez dans le donjon abandonné au nord et reprenez-vous, ça devient embarrassant."
 
 #: guitext:131
 msgctxt "In-game message"
@@ -915,7 +915,7 @@ msgstr "Par les dieux...qu'avons-nous fait ?"
 #: guitext:183
 msgctxt "In-game message"
 msgid "Great! Now we can finally grab that imp!"
-msgstr "Super ! Maintenant, nous pouvons enfin attraper cet imp !"
+msgstr "Super ! Maintenant, nous pouvons enfin attraper ce lutin !"
 
 #: guitext:184
 msgctxt "In-game message"
@@ -980,7 +980,7 @@ msgstr "Il y a une force obscure qui corrompt cette terre."
 #: guitext:196
 msgctxt "In-game message"
 msgid "To defeat it, you have t"
-msgstr "Pour la vaincre, vous devez t"
+msgstr "Pour la vaincre, vous devez-"
 
 #: guitext:197
 msgctxt "In-game message"
@@ -990,7 +990,7 @@ msgstr "Ah, bienvenue. Cela fait si longtemps que je n'ai pas eu de visite."
 #: guitext:198
 msgctxt "In-game message"
 msgid "A way to free your imp friend? I know just the thing."
-msgstr "Un moyen de libérer votre ami imp ? Je sais exactement quoi faire."
+msgstr "Un moyen de libérer votre ami lutin ? Je sais exactement quoi faire."
 
 #: guitext:199
 msgctxt "In-game message"
@@ -1005,7 +1005,7 @@ msgstr "Je n'en ai pas besoin, donc vous pouvez simplement la prendre."
 #: guitext:202
 msgctxt "Level name"
 msgid "Alone in the Dark"
-msgstr "Seul dans l'obscurité"
+msgstr "Seul dans l'Obscurité"
 
 #: guitext:203
 msgctxt "Level name"
@@ -1080,7 +1080,7 @@ msgstr "Suivez le chemin de la bibliothèque des squelettes jusqu'à la clé du 
 #: guitext:905
 msgctxt "In-game message"
 msgid "Wait! Listen to me. We don't have long."
-msgstr "Attendez ! Écoutez-moi. Nous n'avons pas longtemps."
+msgstr "Attendez ! Écoutez-moi. Nous n'avons pas beaucoup de temps."
 
 #: guitext:906
 msgctxt "In-game message"
@@ -1105,7 +1105,7 @@ msgstr "J'ai créé un raccourci vers le sud."
 #: guitext:910
 msgctxt "In-game message"
 msgid "Freeing your imp friend won't help. He will be useless."
-msgstr "Libérer votre ami imp ne servira à rien. Il sera inutile."
+msgstr "Libérer votre ami lutin ne servira à rien. Il sera inutile."
 
 #: guitext:911
 msgctxt "In-game message"
@@ -1130,12 +1130,12 @@ msgstr "Hourra ! Je suis enfin libre !"
 #: guitext:915
 msgctxt "In-game message"
 msgid "Now that you have an imp, claim territory and build yourself back up. Then crush the heroes in the base to the north and show them you are not to be trifled with."
-msgstr "Maintenant que vous avez un imp, revendiquez du territoire et reconstruisez-vous. Ensuite, écrasez les héros dans la base au nord et montrez-leur que vous n'êtes pas à prendre à la légère."
+msgstr "Maintenant que vous avez un lutin, revendiquez du territoire et reconstruisez-vous. Ensuite, écrasez les héros dans la base au nord et montrez-leur que vous n'êtes pas à prendre à la légère."
 
 #: guitext:916
 msgctxt "In-game message"
 msgid "Why did you do that? We're going to have to find a new imp now."
-msgstr "Pourquoi avez-vous fait ça ? Nous allons devoir trouver un nouvel imp maintenant."
+msgstr "Pourquoi avez-vous fait ça ? Nous allons devoir trouver un nouveau lutin maintenant."
 
 #: guitext:917
 msgctxt "In-game message"
@@ -1155,7 +1155,7 @@ msgstr "Une dernière fois. Sacrifiez trois insectes."
 #: guitext:920
 msgctxt "In-game message"
 msgid "Now that the imp we rescued is dead, I reckon our next plan is to lay down and die like an animal. That will show them, Keeper."
-msgstr "Maintenant que l'imp que nous avons sauvé est mort, je suppose que notre prochain plan est de nous allonger et de mourir comme un animal. Cela leur montrera, Gardien."
+msgstr "Maintenant que le lutin que nous avons sauvé est mort, je suppose que notre prochain plan est de nous allonger et de mourir comme un animal. Cela leur montrera, Gardien."
 
 #: guitext:921
 msgctxt "In-game message"
@@ -1255,7 +1255,7 @@ msgstr "Arachnocitrouille"
 #: guitext:1045
 msgctxt "Creature name"
 msgid "Dark Angel"
-msgstr "Ange Sombre"
+msgstr "Ange Noir"
 
 #: guitext:1046
 msgctxt "Creature name"
@@ -1270,7 +1270,7 @@ msgstr "Chevalier Noir"
 #: guitext:1048
 msgctxt "Creature name"
 msgid "Dark Maiden"
-msgstr "Dame Sombre"
+msgstr "Dame Noire"
 
 #: guitext:1049
 msgctxt "Creature name"
@@ -1285,7 +1285,7 @@ msgstr "Zombie"
 #: guitext:1073
 msgctxt "Creature name"
 msgid "Wisp"
-msgstr "Lueur"
+msgstr "Feu Follet"
 
 #: guitext:1075
 msgctxt "Creature name"
@@ -1295,12 +1295,12 @@ msgstr "Prêtresse"
 #: guitext:1080
 msgctxt "In-game message"
 msgid "That's the heroes taken care of."
-msgstr "C'est fait pour les héros."
+msgstr "C'est bien fait pour les héros."
 
 #: guitext:1081
 msgctxt "In-game message"
 msgid "The tunneller party has opened up their base."
-msgstr "Le groupe de tunnelers a ouvert leur base."
+msgstr "Le groupe de tunneliers a ouvert leur base."
 
 #: guitext:1082
 msgctxt "In-game message"
@@ -1405,12 +1405,12 @@ msgstr "Bien sûr, vous devez accomplir l'objectif."
 #: guitext:1102
 msgctxt "In-game message"
 msgid "Claim your imp and destroy the heroes to the north."
-msgstr "Revendiquez votre imp et détruisez les héros au nord."
+msgstr "Revendiquez votre lutin et détruisez les héros au nord."
 
 #: guitext:1103
 msgctxt "In-game message"
 msgid "Claim your imp and destroy the heroes to the north."
-msgstr "Revendiquez votre imp et détruisez les héros au nord."
+msgstr "Revendiquez votre lutin et détruisez les héros au nord."
 
 #: guitext:1104
 msgctxt "In-game message"

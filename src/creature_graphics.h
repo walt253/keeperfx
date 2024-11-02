@@ -51,11 +51,9 @@ enum CreatureGraphicsInstances {
     CGI_DeadSplat   = 17,
     CGI_Roar        = 18,
     CGI_Piss        = 19,
-    CGI_QuerySymbol = 20,
-    CGI_HandSymbol  = 21,
-    CGI_NewSlot1    = 22,
-    CGI_NewSlot2    = 23,
-    CGI_NewSlot3    = 24,
+    CGI_CastSpell   = 20,
+    CGI_QuerySymbol = 21,
+    CGI_HandSymbol  = 22,
 };
 /******************************************************************************/
 #pragma pack(1)

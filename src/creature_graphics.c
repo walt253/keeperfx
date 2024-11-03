@@ -306,18 +306,26 @@ short get_creature_model_graphics(long crmodel, unsigned short seq_idx)
 {
     if (seq_idx >= CREATURE_GRAPHICS_INSTANCES)
     {
-        ERRORLOG("Invalid model %d graphics sequence %d",crmodel,seq_idx);
+        ERRORLOG("Invalid model %d graphics sequence %d", crmodel,seq_idx);
         seq_idx = 0;
     }
     if ((crmodel < 0) || (crmodel >= game.conf.crtr_conf.model_count))
     {
-        ERRORLOG("Invalid model %d graphics sequence %d",crmodel,seq_idx);
+        ERRORLOG("Invalid model %d graphics sequence %d", crmodel,seq_idx);
         crmodel = 0;
     }
-    // Backward compatibility for custom creatures, set new animation slot to use the attack animation.
-    if ((seq_idx >= CGI_CastSpell) && (game.conf.crtr_conf.creature_graphics[crmodel][seq_idx] < 0))
+    // Backward compatibility for custom creatures, default to use their attack animation in case they have undefined extra animation.
+    if (game.conf.crtr_conf.creature_graphics[crmodel][seq_idx] < 0)
     {
-        return game.conf.crtr_conf.creature_graphics[crmodel][CGI_Attack];
+        if (seq_idx >= CGI_CastSpell)
+        {
+            return game.conf.crtr_conf.creature_graphics[crmodel][CGI_Attack];
+        }
+        else
+        {
+            // Default others animations to use hound walking animation if they are still set to negative value.
+            return 0;
+        }
     }
     return game.conf.crtr_conf.creature_graphics[crmodel][seq_idx];
 }
@@ -326,12 +334,12 @@ void set_creature_model_graphics(long crmodel, unsigned short seq_idx, unsigned 
 {
     if (seq_idx >= CREATURE_GRAPHICS_INSTANCES)
     {
-        ERRORLOG("Invalid model %d graphics sequence %d",crmodel,seq_idx);
+        ERRORLOG("Invalid model %d graphics sequence %d", crmodel,seq_idx);
         return;
     }
     if ((crmodel < 0) || (crmodel >= game.conf.crtr_conf.model_count))
     {
-        ERRORLOG("Invalid model %d graphics sequence %d",crmodel,seq_idx);
+        ERRORLOG("Invalid model %d graphics sequence %d", crmodel,seq_idx);
         return;
     }
     game.conf.crtr_conf.creature_graphics[crmodel][seq_idx] = val;

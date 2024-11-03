@@ -314,18 +314,14 @@ short get_creature_model_graphics(long crmodel, unsigned short seq_idx)
         ERRORLOG("Invalid model %d graphics sequence %d", crmodel,seq_idx);
         crmodel = 0;
     }
-    // Backward compatibility for custom creatures, default to use their attack animation in case they have undefined extra animation.
+    // Backward compatibility for custom creatures. Use the attack animation if extra animation is undefined, default to 0 otherwise.
     if (game.conf.crtr_conf.creature_graphics[crmodel][seq_idx] < 0)
     {
-        if (seq_idx >= CGI_CastSpell)
+        if ((seq_idx >= CGI_CastSpell) && (game.conf.crtr_conf.creature_graphics[crmodel][CGI_Attack] > 0))
         {
             return game.conf.crtr_conf.creature_graphics[crmodel][CGI_Attack];
         }
-        else
-        {
-            // Default others animations to use hound walking animation if they are still set to negative value.
-            return 0;
-        }
+        return 0;
     }
     return game.conf.crtr_conf.creature_graphics[crmodel][seq_idx];
 }

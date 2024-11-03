@@ -2196,8 +2196,6 @@ TbBool parse_creaturemodel_sprites_blocks(long crtr_model,char *buf,long len,con
   // If the file can't be partial, then initialize block data
   if ((flags & CnfLd_AcceptPartial) == 0)
   {
-      // Backward compatibility for custom creatures, set new animation slot to use the attack animation.
-      game.conf.crtr_conf.creature_graphics[crtr_model][CGI_CastSpell] = game.conf.crtr_conf.creature_graphics[crtr_model][CGI_Attack];
       for (n = 0; n < CREATURE_GRAPHICS_INSTANCES; n++)
       {
           set_creature_model_graphics(crtr_model, n, 0);

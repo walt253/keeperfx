@@ -304,32 +304,42 @@ void get_keepsprite_unscaled_dimensions(long kspr_anim, long angle, long frame, 
 
 short get_creature_model_graphics(long crmodel, unsigned short seq_idx)
 {
-  if (seq_idx >= CREATURE_GRAPHICS_INSTANCES) {
-      ERRORLOG("Invalid model %d graphics sequence %d",crmodel,seq_idx);
-      seq_idx = 0;
-  }
-  if ((crmodel < 0) || (crmodel >= game.conf.crtr_conf.model_count)) {
-      ERRORLOG("Invalid model %d graphics sequence %d",crmodel,seq_idx);
-      crmodel = 0;
-  }
-  return game.conf.crtr_conf.creature_graphics[crmodel][seq_idx];
+    if (seq_idx >= CREATURE_GRAPHICS_INSTANCES)
+    {
+        ERRORLOG("Invalid model %d graphics sequence %d",crmodel,seq_idx);
+        seq_idx = 0;
+    }
+    if ((crmodel < 0) || (crmodel >= game.conf.crtr_conf.model_count))
+    {
+        ERRORLOG("Invalid model %d graphics sequence %d",crmodel,seq_idx);
+        crmodel = 0;
+    }
+    // Backward compatibility for custom creatures, set new animation slot to use the attack animation.
+    TbBool is_defined = false;
+    if (game.conf.crtr_conf.creature_graphics[crmodel][seq_idx] >= 0)
+    {
+        is_defined = true;
+    }
+    if ((seq_idx >= CGI_CastSpell) && (!is_defined))
+    {
+        return game.conf.crtr_conf.creature_graphics[crmodel][CGI_Attack];
+    }
+    return game.conf.crtr_conf.creature_graphics[crmodel][seq_idx];
 }
 
 void set_creature_model_graphics(long crmodel, unsigned short seq_idx, unsigned long val)
 {
-    if (seq_idx >= CREATURE_GRAPHICS_INSTANCES) {
+    if (seq_idx >= CREATURE_GRAPHICS_INSTANCES)
+    {
         ERRORLOG("Invalid model %d graphics sequence %d",crmodel,seq_idx);
         return;
     }
-    if ((crmodel < 0) || (crmodel >= game.conf.crtr_conf.model_count)) {
+    if ((crmodel < 0) || (crmodel >= game.conf.crtr_conf.model_count))
+    {
         ERRORLOG("Invalid model %d graphics sequence %d",crmodel,seq_idx);
         return;
     }
     game.conf.crtr_conf.creature_graphics[crmodel][seq_idx] = val;
-    // Backward compatibility for custom creatures, set new animation slot to use the attack animation.
-    if ((seq_idx == CGI_CastSpell) && (game.conf.crtr_conf.creature_graphics[crmodel][CGI_CastSpell] == 0)) {
-        game.conf.crtr_conf.creature_graphics[crmodel][CGI_CastSpell] = game.conf.crtr_conf.creature_graphics[crmodel][CGI_Attack];
-    }
 }
 
 short get_creature_anim(struct Thing *thing, unsigned short seq_idx)

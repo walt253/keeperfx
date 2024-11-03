@@ -2194,10 +2194,10 @@ TbBool parse_creaturemodel_sprites_blocks(long crtr_model,char *buf,long len,con
   int n;
   // Block name and parameter word store variables
   // If the file can't be partial, then initialize block data
+  // Backward compatibility for custom creatures, set new animation slot to use the attack animation.
+  game.conf.crtr_conf.creature_graphics[crtr_model][20] = game.conf.crtr_conf.creature_graphics[crtr_model][3];
   if ((flags & CnfLd_AcceptPartial) == 0)
   {
-      // Backward compatibility for custom creatures, set new animation slot to use the attack animation.
-      game.conf.crtr_conf.creature_graphics[crtr_model][20] = game.conf.crtr_conf.creature_graphics[crtr_model][3];
       for (n = 0; n < CREATURE_GRAPHICS_INSTANCES; n++)
       {
           set_creature_model_graphics(crtr_model, n, 0);

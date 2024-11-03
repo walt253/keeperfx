@@ -326,6 +326,10 @@ void set_creature_model_graphics(long crmodel, unsigned short seq_idx, unsigned 
         return;
     }
     game.conf.crtr_conf.creature_graphics[crmodel][seq_idx] = val;
+    // Backward compatibility for custom creatures, set new animation slot to use the attack animation.
+    if (game.conf.crtr_conf.creature_graphics[crmodel][CGI_CastSpell] == 0) {
+        game.conf.crtr_conf.creature_graphics[crmodel][CGI_CastSpell] = game.conf.crtr_conf.creature_graphics[crtr_model][CGI_Attack];
+    }
 }
 
 short get_creature_anim(struct Thing *thing, unsigned short seq_idx)

@@ -314,7 +314,7 @@ short get_creature_model_graphics(long crmodel, unsigned short seq_idx)
         ERRORLOG("Invalid model %d graphics sequence %d", crmodel,seq_idx);
         crmodel = 0;
     }
-    // Backward compatibility for custom creatures. Use the attack animation if extra animation is undefined, default to 0 otherwise.
+    // Backward compatibility for custom creatures. Use the attack animation if the extra animation is undefined, return 0 if the attack animation is also undefined.
     if (game.conf.crtr_conf.creature_graphics[crmodel][seq_idx] < 0)
     {
         if ((seq_idx >= CGI_CastSpell) && (game.conf.crtr_conf.creature_graphics[crmodel][CGI_Attack] > 0))

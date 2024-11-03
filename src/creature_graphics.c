@@ -315,12 +315,7 @@ short get_creature_model_graphics(long crmodel, unsigned short seq_idx)
         crmodel = 0;
     }
     // Backward compatibility for custom creatures, set new animation slot to use the attack animation.
-    TbBool is_defined = false;
-    if (game.conf.crtr_conf.creature_graphics[crmodel][seq_idx] >= 0)
-    {
-        is_defined = false;
-    }
-    if ((seq_idx >= CGI_CastSpell) && (!is_defined))
+    if ((seq_idx >= CGI_CastSpell) && (game.conf.crtr_conf.creature_graphics[crmodel][seq_idx] < 0))
     {
         return game.conf.crtr_conf.creature_graphics[crmodel][CGI_Attack];
     }

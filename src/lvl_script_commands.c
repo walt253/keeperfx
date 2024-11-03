@@ -2826,13 +2826,24 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
         }
         else if (creatvar == 34) // LAIROBJECT
         {
-            if (parameter_is_number(scline->tp[2])) //support name or number for lair object
+            if (parameter_is_number(scline->tp[2])) // Support name or number for lair object.
             {
                 value1 = atoi(scline->tp[2]);
             }
             else
             {
                 value1 = get_id(object_desc, scline->tp[2]);
+            }
+        }
+        else if ((creatvar == 35) || (creatvar == 36)) // PRISONKIND or TORTUREKIND
+        {
+            if (parameter_is_number(scline->tp[2])) // Support name or number for prison kind or torture kind.
+            {
+                value1 = atoi(scline->tp[2]);
+            }
+            else
+            {
+                value1 = get_id(creature_desc, scline->tp[2]);
             }
         }
         else
@@ -3115,28 +3126,34 @@ static void set_creature_configuration_process(struct ScriptContext* context)
                 crstat->lair_object = value;
             }
             break;
-        case 35: // LAVARECOVERY
+        case 35: // PRISONKIND
+            crstat->prison_kind = value;
+            break;
+        case 36: // TORTUREKIND
+            crstat->torture_kind = value;
+            break;
+        case 37: // LAVARECOVERY
             crstat->lava_recovery = value;
             break;
-        case 36: // HURTBYWATER
+        case 38: // HURTBYWATER
             crstat->hurt_by_water = value;
             break;
-        case 37: // WATERRECOVERY
+        case 39: // WATERRECOVERY
             crstat->water_recovery = value;
             break;
-        case 38: // MAGIC
+        case 40: // MAGIC
             crstat->magic = value;
             break;
-        case 39: // POOPAMOUNT
+        case 41: // POOPAMOUNT
             crstat->poop_amount = value;
             break;
-        case 40: // POOPFREQUENCY
+        case 42: // POOPFREQUENCY
             crstat->poop_frequency = value;
             break;
-        case 41: // POOPRANDOM
+        case 43: // POOPRANDOM
             crstat->poop_random = value;
             break;
-        case 42: // POOPTYPE
+        case 44: // POOPTYPE
             crstat->poop_type = value;
             break;
         case ccr_comment:

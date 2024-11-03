@@ -85,14 +85,16 @@ const struct NamedCommand creatmodel_attributes_commands[] = {
   {"CORPSEVANISHEFFECT", 32},
   {"FOOTSTEPPITCH",      33},
   {"LAIROBJECT",         34},
-  {"LAVARECOVERY",       35},
-  {"HURTBYWATER",        36},
-  {"WATERRECOVERY",      37},
-  {"MAGIC",              38},
-  {"POOPAMOUNT",         39},
-  {"POOPFREQUENCY",      40},
-  {"POOPRANDOM",         41},
-  {"POOPTYPE",           42},
+  {"PRISONKIND",         35},
+  {"TORTUREKIND",        36},
+  {"LAVARECOVERY",       37},
+  {"HURTBYWATER",        38},
+  {"WATERRECOVERY",      39},
+  {"MAGIC",              40},
+  {"POOPAMOUNT",         41},
+  {"POOPFREQUENCY",      42},
+  {"POOPRANDOM",         43},
+  {"POOPTYPE",           44},
   {NULL,                  0},
   };
 
@@ -292,10 +294,6 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
       crstat->damage_to_boulder = 4;
       crstat->thing_size_xy = 128;
       crstat->thing_size_z = 64;
-      crstat->lava_recovery = 0;
-      crstat->hurt_by_water = 0;
-      crstat->water_recovery = 0;
-      crstat->magic = 100;
       crstat->bleeds = false;
       crstat->affected_by_wind = true;
       crstat->immune_to_gas = false;
@@ -304,6 +302,8 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
       crstat->flying = false;
       crstat->can_see_invisible = false;
       crstat->can_go_locked_doors = false;
+      crstat->prison_kind = 0;
+      crstat->torture_kind = 0;
       crstat->immune_to_charm = false;
       crstat->immune_to_freeze = false;
       crstat->immune_to_slow = false;
@@ -315,6 +315,10 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
       crstat->ethereal = false;
       crstat->hoarfrost = false;
       crstat->boss = false;
+      crstat->lava_recovery = 0;
+      crstat->hurt_by_water = 0;
+      crstat->water_recovery = 0;
+      crstat->magic = 100;
       crconf->namestr_idx = 0;
       crconf->model_flags = 0;
   }
@@ -929,7 +933,39 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
                   COMMAND_TEXT(cmd_num), block_buf, config_textname);
           }
           break;
-      case 35: // LAVARECOVERY
+      case 35: // PRISONKIND
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = get_id(creature_desc, word_buf);
+              if (k > 0)
+              {
+                  crstat->prison_kind = k;
+                  n++;
+              }
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 36: // TORTUREKIND
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = get_id(creature_desc, word_buf);
+              if (k > 0)
+              {
+                  crstat->torture_kind = k;
+                  n++;
+              }
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 37: // LAVARECOVERY
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
@@ -942,7 +978,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
                   COMMAND_TEXT(cmd_num), block_buf, creature_code_name(crtr_model), config_textname);
           }
           break;
-      case 36: // HURTBYWATER
+      case 38: // HURTBYWATER
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
@@ -955,7 +991,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
                   COMMAND_TEXT(cmd_num), block_buf, creature_code_name(crtr_model), config_textname);
           }
           break;
-      case 37: // WATERRECOVERY
+      case 39: // WATERRECOVERY
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
@@ -968,7 +1004,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
                   COMMAND_TEXT(cmd_num), block_buf, creature_code_name(crtr_model), config_textname);
           }
           break;
-      case 38: // MAGIC
+      case 40: // MAGIC
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
@@ -981,7 +1017,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
                   COMMAND_TEXT(cmd_num), block_buf, creature_code_name(crtr_model), config_textname);
           }
           break;
-      case 39: // POOPAMOUNT
+      case 41: // POOPAMOUNT
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
@@ -994,7 +1030,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
                   COMMAND_TEXT(cmd_num), block_buf, creature_code_name(crtr_model), config_textname);
           }
           break;
-      case 40: // POOPFREQUENCY
+      case 42: // POOPFREQUENCY
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
@@ -1007,7 +1043,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
                   COMMAND_TEXT(cmd_num), block_buf, creature_code_name(crtr_model), config_textname);
           }
           break;
-      case 41: // POOPRANDOM
+      case 43: // POOPRANDOM
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
@@ -1020,7 +1056,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
                   COMMAND_TEXT(cmd_num), block_buf, creature_code_name(crtr_model), config_textname);
           }
           break;
-      case 42: // POOPTYPE
+      case 44: // POOPTYPE
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = get_id(object_desc, word_buf);

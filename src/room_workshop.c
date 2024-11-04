@@ -234,7 +234,11 @@ TbBool add_workshop_item_to_amounts_f(PlayerNumber plyr_idx, ThingClass tngclass
     {
     case TCls_Trap:
         SYNCDBG(8,"%s: Adding Trap %s",func_name,trap_code_name(tngmodel));
-        dungeon->mnfct_info.trap_amount_stored[tngmodel]++;
+        if (game.conf.trapdoor_conf.trap_to_object[tngmodel] > 0) {
+            dungeon->mnfct_info.trap_amount_stored[tngmodel]++;
+        } else {
+            dungeon->mnfct_info.trap_amount_offmap[tngmodel]++;
+        }
         dungeon->mnfct_info.trap_amount_placeable[tngmodel]++;
         dungeon->mnfct_info.trap_build_flags[tngmodel] |= MnfBldF_Built;
         // In case the placeable amount lost it, do a fix

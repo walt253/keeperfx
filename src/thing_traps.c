@@ -765,9 +765,9 @@ void process_trap_charge(struct Thing* traptng)
         traptng->trap.num_shots = n - 1;
         if (traptng->trap.num_shots == 0)
         {
-            // If the trap is in strange location, destroy it after it's depleted.
+            // If the trap is in strange location or has the property 'remove_once_depleted', destroy it after it's depleted.
             struct SlabMap* slb = get_slabmap_thing_is_on(traptng);
-            if ((slb->kind != SlbT_CLAIMED) && (slb->kind != SlbT_PATH)) {
+            if (((slb->kind != SlbT_CLAIMED) && (slb->kind != SlbT_PATH)) || (trapstat->remove_once_depleted)) {
                 traptng->health = -1;
             }
             clear_flag(traptng->rendering_flags, TRF_Transpar_Flags);

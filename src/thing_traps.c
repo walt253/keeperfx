@@ -739,11 +739,11 @@ void process_trap_charge(struct Thing* traptng)
     if (game.conf.trap_stats[traptng->model].attack_sprite_anim_idx != 0)
     {
         GameTurnDelta trigger_duration;
-        if (trapstat->activation_type == 2) //Effect stays on trap, so the attack animation remains visible for as long as the effect is alive
+        if (trapstat->activation_type == 2) // Effect stays on trap, so the attack animation remains visible for as long as the effect is alive.
         {
             trigger_duration = get_effect_model_stats(trapstat->created_itm_model)->start_health;
         } else
-        if (trapstat->activation_type == 3) //Shot stays on trap, so the attack animation remains visible for as long as the trap is alive
+        if (trapstat->activation_type == 3) // Shot stays on trap, so the attack animation remains visible for as long as the trap is alive.
         {
             trigger_duration = get_shot_model_stats(trapstat->created_itm_model)->health;
         }
@@ -765,23 +765,23 @@ void process_trap_charge(struct Thing* traptng)
         traptng->trap.num_shots = n - 1;
         if (traptng->trap.num_shots == 0)
         {
-            // If the trap is in strange location or has the property 'remove_once_depleted', destroy it after it's depleted.
+            // If the trap is in strange location, destroy it after it's depleted.
             struct SlabMap* slb = get_slabmap_thing_is_on(traptng);
-            if (((slb->kind != SlbT_CLAIMED) && (slb->kind != SlbT_PATH)) || (trapstat->remove_once_depleted)) {
+            if ((slb->kind != SlbT_CLAIMED) && (slb->kind != SlbT_PATH)) {
                 traptng->health = -1;
             }
             clear_flag(traptng->rendering_flags, TRF_Transpar_Flags);
             set_flag(traptng->rendering_flags, TRF_Transpar_4);
             if (!is_neutral_thing(traptng) && !is_hero_thing(traptng))
             {
-                if (placing_offmap_workshop_item(traptng->owner, TCls_Trap, traptng->model))
+                if ((placing_offmap_workshop_item(traptng->owner, TCls_Trap, traptng->model)) || (trapstat->remove_once_depleted))
                 {
-                    //When there's only offmap traps, destroy the disarmed one so the player can place a new one.
+                    // When there's only offmap traps, destroy the disarmed one so the player can place a new one.
                     delete_thing_structure(traptng, 0);
                 }
                 else
                 {
-                    //Trap is available to be rearmed, so earmark a workshop crate for it.
+                    // Trap is available to be rearmed, so earmark a workshop crate for it.
                     remove_workshop_item_from_amount_placeable(traptng->owner, traptng->class_id, traptng->model);
                 }
             }

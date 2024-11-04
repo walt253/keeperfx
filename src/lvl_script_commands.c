@@ -268,6 +268,7 @@ const struct NamedCommand trap_config_desc[] = {
   {"FlameTransparencyFlags",  48},
   {"DetectInvisible",         49},
   {"InstantPlacement",        50},
+  {"RemoveOnceDepleted",      51},
   {NULL,                       0},
 };
 
@@ -1653,6 +1654,8 @@ static void new_trap_type_check(const struct ScriptLine* scline)
     game.conf.trap_stats[i].shotvector.x = 0;
     game.conf.trap_stats[i].shotvector.y = 0;
     game.conf.trap_stats[i].shotvector.z = 0;
+    game.conf.trap_stats[i].detect_invisible = 1; // Set to 1 by default: backward compatibility for custom traps made before this implementation.
+    game.conf.trap_stats[i].remove_once_depleted = false;
     trap_desc[i].name = trapst->code_name;
     trap_desc[i].num = i;
     struct ManfctrConfig* mconf = &game.conf.traps_config[i];
@@ -1923,6 +1926,9 @@ static void set_trap_configuration_process(struct ScriptContext *context)
             break;
         case 50: // InstantPlacement
             trapst->instant_placement = value;
+            break;
+        case 51: // RemoveOnceDepleted
+            trapstat->remove_once_depleted = value;
             break;
         default:
             WARNMSG("Unsupported Trap configuration, variable %d.", context->value->shorts[1]);

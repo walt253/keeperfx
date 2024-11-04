@@ -1195,7 +1195,7 @@ short load_configuration(void)
           {
             i = atoi(word_buf);
           }
-          if ((i > 0) && (i <= 50)) {
+          if ((i > 0) && (i <= 250)) {
               max_track = i;
           } else {
               CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",

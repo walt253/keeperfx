@@ -123,8 +123,7 @@ const struct NamedCommand door_properties_commands[] = {
   {"THICK",                3},  
   {"MIDAS",                4},
   {NULL,                   0},
-  };
-
+};
 
 /******************************************************************************/
 struct NamedCommand trap_desc[TRAPDOOR_TYPES_MAX];
@@ -177,7 +176,6 @@ int get_manufacture_data_index_for_thing(ThingClass tngclass, ThingModel tngmode
 
 TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
 {
-  struct ManfctrConfig *mconf;
   struct TrapConfigStats *trapst;
   // Block name and parameter word store variables
   SYNCDBG(19,"Starting");
@@ -208,39 +206,38 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
           // Default destroyed_effect is TngEffElm_Blast2.
           trapst->destroyed_effect = -39;
 
-          game.conf.trap_stats[i].health = 0;
-          game.conf.trap_stats[i].sprite_anim_idx = 0;
-          game.conf.trap_stats[i].recharge_sprite_anim_idx = 0;
-          game.conf.trap_stats[i].attack_sprite_anim_idx = 0;
-          game.conf.trap_stats[i].sprite_size_max = 0;
-          game.conf.trap_stats[i].unanimated = 0;
-          game.conf.trap_stats[i].anim_speed = 0;
-          game.conf.trap_stats[i].unshaded = 0;
-          game.conf.trap_stats[i].transparency_flag = 0;
-          game.conf.trap_stats[i].random_start_frame = 0;
-          game.conf.trap_stats[i].size_xy = 0;
-          game.conf.trap_stats[i].size_z = 0;
-          game.conf.trap_stats[i].trigger_type = 0;
-          game.conf.trap_stats[i].activation_type = 0;
-          game.conf.trap_stats[i].created_itm_model = 0;
-          game.conf.trap_stats[i].hit_type = 0;
-          game.conf.trap_stats[i].light_radius = 0;
-          game.conf.trap_stats[i].light_intensity = 0;
-          game.conf.trap_stats[i].light_flag = 0;
-          game.conf.trap_stats[i].shotvector.x = 0;
-          game.conf.trap_stats[i].shotvector.y = 0;
-          game.conf.trap_stats[i].shotvector.z = 0;
-          game.conf.trap_stats[i].shot_shift_x = 0;
-          game.conf.trap_stats[i].shot_shift_y = 0;
-          game.conf.trap_stats[i].shot_shift_z = 0;
-          game.conf.trap_stats[i].initial_delay = 0;
-          game.conf.trap_stats[i].detect_invisible = 1; // Set to 1 by default: backward compatibility for custom traps made before this implementation.
-          mconf = &game.conf.traps_config[i];
-          mconf->manufct_level = 0;
-          mconf->manufct_required = 0;
-          mconf->shots = 0;
-          mconf->shots_delay = 0;
-          mconf->selling_value = 0;
+          trapst->health = 0;
+          trapst->sprite_anim_idx = 0;
+          trapst->recharge_sprite_anim_idx = 0;
+          trapst->attack_sprite_anim_idx = 0;
+          trapst->sprite_size_max = 0;
+          trapst->unanimated = 0;
+          trapst->anim_speed = 0;
+          trapst->unshaded = 0;
+          trapst->transparency_flag = 0;
+          trapst->random_start_frame = 0;
+          trapst->size_xy = 0;
+          trapst->size_z = 0;
+          trapst->trigger_type = 0;
+          trapst->activation_type = 0;
+          trapst->created_itm_model = 0;
+          trapst->hit_type = 0;
+          trapst->light_radius = 0;
+          trapst->light_intensity = 0;
+          trapst->light_flag = 0;
+          trapst->shotvector.x = 0;
+          trapst->shotvector.y = 0;
+          trapst->shotvector.z = 0;
+          trapst->shot_shift_x = 0;
+          trapst->shot_shift_y = 0;
+          trapst->shot_shift_z = 0;
+          trapst->initial_delay = 0;
+          trapst->detect_invisible = 1; // Set to 1 by default: backward compatibility for custom traps made before this implementation.
+          trapst->manufct_level = 0;
+          trapst->manufct_required = 0;
+          trapst->shots = 0;
+          trapst->shots_delay = 0;
+          trapst->selling_value = 0;
           trap_desc[i].name = trapst->code_name;
           trap_desc[i].num = i;
       }
@@ -265,7 +262,6 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
     } else if (i >= game.conf.trapdoor_conf.trap_types_count) {
         game.conf.trapdoor_conf.trap_types_count = i + 1;
     }
-    mconf = &game.conf.traps_config[i];
     trapst = &game.conf.trapdoor_conf.trap_cfgstats[i];
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(trapdoor_trap_commands,cmd_num)
     while (pos<len)
@@ -297,7 +293,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            mconf->manufct_level = k;
+            trapst->manufct_level = k;
             n++;
           }
           if (n < 1)
@@ -310,7 +306,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            mconf->manufct_required = k;
+            trapst->manufct_required = k;
             n++;
           }
           if (n < 1)
@@ -323,7 +319,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            mconf->shots = k;
+            trapst->shots = k;
             n++;
           }
           if (n < 1)
@@ -336,7 +332,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            mconf->shots_delay = k;
+            trapst->shots_delay = k;
             n++;
           }
           if (n < 1)
@@ -349,7 +345,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            mconf->selling_value = k;
+            trapst->selling_value = k;
             n++;
           }
           if (n < 1)
@@ -471,7 +467,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
             k = atoi(word_buf);
             if (k >= 0)
             {
-                game.conf.trap_stats[i].trigger_type = k;
+                trapst->trigger_type = k;
                 n++;
             }
           }
@@ -487,7 +483,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
             k = atoi(word_buf);
             if (k >= 0)
             {
-                game.conf.trap_stats[i].activation_type = k;
+                trapst->activation_type = k;
                 n++;
             }
           }
@@ -503,7 +499,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
             k = atoi(word_buf);
             if (k >= 0)
             {
-                game.conf.trap_stats[i].created_itm_model = k;
+                trapst->created_itm_model = k;
                 n++;
             }
           }
@@ -519,7 +515,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
             k = get_anim_id_(word_buf);
             if (k >= 0)
             {
-                game.conf.trap_stats[i].sprite_anim_idx = k;
+                trapst->sprite_anim_idx = k;
                 n++;
             }
           }
@@ -535,7 +531,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
             k = atoi(word_buf);
             if (k >= 0)
             {
-                game.conf.trap_stats[i].sprite_size_max = k;
+                trapst->sprite_size_max = k;
                 n++;
             }
           }
@@ -551,7 +547,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
             k = atoi(word_buf);
             if (k >= 0)
             {
-                game.conf.trap_stats[i].anim_speed = k;
+                trapst->anim_speed = k;
                 n++;
             }
           }
@@ -567,7 +563,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
             k = atoi(word_buf);
             if (k >= 0)
             {
-                game.conf.trap_stats[i].unanimated = k;
+                trapst->unanimated = k;
                 n++;
             }
           }
@@ -631,7 +627,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
               k = atoi(word_buf);
               if (k >= 0)
               {
-                  game.conf.trap_stats[i].health = k;
+                  trapst->health = k;
                   n++;
               }
           }
@@ -647,7 +643,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
               k = atoi(word_buf);
               if (k >= 0)
               {
-                  game.conf.trap_stats[i].unshaded = k;
+                  trapst->unshaded = k;
                   n++;
               }
           }
@@ -663,7 +659,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
               k = atoi(word_buf);
               if (k >= 0)
               {
-                  game.conf.trap_stats[i].random_start_frame = k;
+                  trapst->random_start_frame = k;
                   n++;
               }
           }
@@ -679,7 +675,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
               k = atoi(word_buf);
               if (k >= 0)
               {
-                  game.conf.trap_stats[i].size_xy = k;
+                  trapst->size_xy = k;
                   n++;
               }
           }
@@ -688,7 +684,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
               k = atoi(word_buf);
               if (k >= 0)
               {
-                  game.conf.trap_stats[i].size_z = k;
+                  trapst->size_z = k;
                   n++;
               }
           }
@@ -704,7 +700,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
               k = atoi(word_buf);
               if (k >= 0)
               {
-                  game.conf.trap_stats[i].hit_type = k;
+                  trapst->hit_type = k;
                   n++;
               }
           }
@@ -720,7 +716,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
               k = atoi(word_buf);
               if (k >= 0)
               {
-                  game.conf.trap_stats[i].light_radius = k * COORD_PER_STL;
+                  trapst->light_radius = k * COORD_PER_STL;
                   n++;
               }
           }
@@ -736,7 +732,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
                 k = atoi(word_buf);
                 if (k >= 0)
                 {
-                    game.conf.trap_stats[i].light_intensity = k;
+                    trapst->light_intensity = k;
                     n++;
                 }
             }
@@ -752,7 +748,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
                 k = atoi(word_buf);
                 if (k >= 0)
                 {
-                    game.conf.trap_stats[i].light_flag = k;
+                    trapst->light_flag = k;
                     n++;
                 }
             }
@@ -768,7 +764,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
               k = atoi(word_buf);
               if (k >= 0)
               {
-                  game.conf.trap_stats[i].transparency_flag = k<<4;
+                  trapst->transparency_flag = k<<4;
                   n++;
               }
           }
@@ -784,7 +780,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
               k = atoi(word_buf);
               if (k >= 0)
               {
-                  game.conf.trap_stats[i].shotvector.x = k;
+                  trapst->shotvector.x = k;
                   n++;
               }
           }
@@ -793,7 +789,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
               k = atoi(word_buf);
               if (k >= 0)
               {
-                  game.conf.trap_stats[i].shotvector.y = k;
+                  trapst->shotvector.y = k;
                   n++;
               }
           }
@@ -802,7 +798,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
               k = atoi(word_buf);
               if (k >= 0)
               {
-                  game.conf.trap_stats[i].shotvector.z = k;
+                  trapst->shotvector.z = k;
                   n++;
               }
           }
@@ -878,7 +874,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
               k = atoi(word_buf);
               if (k >= 0)
               {
-                  game.conf.trap_stats[i].shot_shift_x = k;
+                  trapst->shot_shift_x = k;
                   n++;
               }
           }
@@ -887,7 +883,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
               k = atoi(word_buf);
               if (k >= 0)
               {
-                  game.conf.trap_stats[i].shot_shift_y = k;
+                  trapst->shot_shift_y = k;
                   n++;
               }
           }
@@ -896,7 +892,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
               k = atoi(word_buf);
               if (k >= 0)
               {
-                  game.conf.trap_stats[i].shot_shift_z = k;
+                  trapst->shot_shift_z = k;
                   n++;
               }
           }
@@ -943,7 +939,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
               k = get_anim_id(word_buf, &obj_tmp);
               if (k >= 0)
               {
-                  game.conf.trap_stats[i].recharge_sprite_anim_idx = k;
+                  trapst->recharge_sprite_anim_idx = k;
                   n++;
               }
           }
@@ -960,7 +956,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
               k = get_anim_id(word_buf, &obj_tmp);
               if (k >= 0)
               {
-                  game.conf.trap_stats[i].attack_sprite_anim_idx = k;
+                  trapst->attack_sprite_anim_idx = k;
                   n++;
               }
           }
@@ -997,7 +993,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
               k = atoi(word_buf);
               if (k >= 0)
               {
-                  game.conf.trap_stats[i].initial_delay = k;
+                  trapst->initial_delay = k;
                   n++;
               }
           }
@@ -1124,7 +1120,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
               k = atoi(word_buf);
               if (k >= 0)
               {
-                  game.conf.trap_stats[i].detect_invisible = k;
+                  trapst->detect_invisible = k;
                   n++;
               }
           }
@@ -1194,7 +1190,6 @@ TbBool parse_trapdoor_door_blocks(char *buf, long len, const char *config_textna
     } else if (i >= game.conf.trapdoor_conf.door_types_count) {
         game.conf.trapdoor_conf.door_types_count = i + 1;
     }
-    struct ManfctrConfig* mconf = &game.conf.doors_config[i];
     doorst = &game.conf.trapdoor_conf.door_cfgstats[i];
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(trapdoor_door_commands,cmd_num)
     while (pos<len)
@@ -1225,7 +1220,7 @@ TbBool parse_trapdoor_door_blocks(char *buf, long len, const char *config_textna
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            mconf->manufct_level = k;
+            doorst->manufct_level = k;
             n++;
           }
           if (n < 1)
@@ -1239,7 +1234,7 @@ TbBool parse_trapdoor_door_blocks(char *buf, long len, const char *config_textna
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            mconf->manufct_required = k;
+            doorst->manufct_required = k;
             n++;
           }
           if (n < 1)
@@ -1299,7 +1294,7 @@ TbBool parse_trapdoor_door_blocks(char *buf, long len, const char *config_textna
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            mconf->selling_value = k;
+            doorst->selling_value = k;
             n++;
           }
           if (n < 1)

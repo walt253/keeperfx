@@ -202,7 +202,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
           trapst->created_itm_model = 0;
           trapst->hit_type = 0;
           trapst->hidden = true;
-          trapst->slappable = false;
+          trapst->slappable = 0;
           trapst->detect_invisible = true; // Set to true by default: backward compatibility for custom traps made before this implementation.
           trapst->notify = false;
           trapst->place_on_bridge = false;

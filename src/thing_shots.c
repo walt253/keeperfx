@@ -492,36 +492,120 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
 {
     struct Thing *doortng;
     long i;
-    SYNCDBG(8,"Starting for %s index %d",thing_model_name(shotng),(int)shotng->index);
-
+    SYNCDBG(8, "Starting for %s index %d", thing_model_name(shotng), (int)shotng->index);
     struct Thing* efftng = INVALID_THING;
     TbBool destroy_shot = 0;
     struct ShotConfigStats* shotst = get_shot_model_stats(shotng->model);
     long blocked_flags = get_thing_blocked_flags_at(shotng, pos);
     TbBool digging = (shotst->model_flags & ShMF_Digging);
-    SubtlCodedCoords hit_stl_num;
     HitPoints old_health;
     EffectOrEffElModel eff_kind;
     short smpl_idx;
     unsigned char range;
     struct SlabMap* slb;
-    MapSubtlCoord stl_x;
-    MapSubtlCoord stl_y;
+    MapSubtlCoord stl_x, stl_y;
+    MapSubtlCoord hit_stl_x, hit_stl_y;
     if (digging)
     {
-        hit_stl_num = process_dig_shot_hit_wall(shotng, blocked_flags, &old_health);
+        SubtlCodedCoords hit_stl_num = process_dig_shot_hit_wall(shotng, blocked_flags, &old_health);
+        hit_stl_x = stl_num_decode_x(hit_stl_num);
+        hit_stl_y = stl_num_decode_y(hit_stl_num);
     }
-
+    else
+    {
+        unsigned short angle;
+        switch ( blocked_flags )
+        {
+            case SlbBloF_WalledX:
+            {
+                angle = shotng->move_angle_xy & 0xFC00;
+                if (angle != 0)
+                {
+                    hit_stl_x = pos->x.stl.num - 1;
+                    hit_stl_y = pos->y.stl.num;
+                }
+                else
+                {
+                    hit_stl_x = pos->x.stl.num + 1;
+                    hit_stl_y = pos->y.stl.num;
+                }
+                break;
+            }
+            case SlbBloF_WalledY:
+            {
+                angle = shotng->move_angle_xy & 0xFE00;
+                if ((angle != ANGLE_NORTH) && (angle != ANGLE_WEST))
+                {
+                    hit_stl_x = pos->x.stl.num;
+                    hit_stl_y = pos->y.stl.num + 1;
+                }
+                else
+                {
+                    hit_stl_x = pos->x.stl.num;
+                    hit_stl_y = pos->y.stl.num - 1;
+                }
+                break;
+            }
+            case SlbBloF_WalledX|SlbBloF_WalledY:
+            case SlbBloF_WalledX|SlbBloF_WalledY|SlbBloF_WalledZ:
+            {
+                angle = (shotng->move_angle_xy & 0x700) | 256;
+                switch(angle)
+                {
+                    case ANGLE_NORTHEAST:
+                    {
+                        hit_stl_x = pos->x.stl.num + 1;
+                        hit_stl_y = pos->y.stl.num - 1;
+                        break;
+                    }
+                    case ANGLE_SOUTHEAST:
+                    {
+                        hit_stl_x = pos->x.stl.num + 1;
+                        hit_stl_y = pos->y.stl.num + 1;
+                        break;
+                    }
+                    case ANGLE_SOUTHWEST:
+                    {
+                        hit_stl_x = pos->x.stl.num - 1;
+                        hit_stl_y = pos->y.stl.num + 1;
+                        break;
+                    }
+                    case ANGLE_NORTHWEST:
+                    {
+                        hit_stl_x = pos->x.stl.num - 1;
+                        hit_stl_y = pos->y.stl.num - 1;
+                        break;
+                    }
+                    default:
+                    {
+                        ERRORLOG("Hit from subtile (%ld, %ld) diagonally, but angle was not diagonal: thing move angle was %u, and got a digging angle of %u.", shotng->mappos.x.stl.num, shotng->mappos.y.stl.num, shotng->move_angle_xy, angle);
+                        hit_stl_x = shotng->mappos.x.stl.num;
+                        hit_stl_y = shotng->mappos.y.stl.num;
+                        break;
+                    }
+                }
+                break;
+            }
+            default:
+            {
+                hit_stl_x = shotng->mappos.x.stl.num;
+                hit_stl_y = shotng->mappos.y.stl.num;
+                break;
+            }
+        }
+    }
     // If blocked by a higher wall.
     if ((blocked_flags & SlbBloF_WalledZ) != 0)
     {
         long cube_id = get_top_cube_at(pos->x.stl.num, pos->y.stl.num, NULL);
-        doortng = get_door_for_position(pos->x.stl.num, pos->y.stl.num);
+        doortng = get_door_for_position(hit_stl_x, hit_stl_y);
         if (!thing_is_invalid(doortng))
         {
             efftng = create_shot_hit_effect(&shotng->mappos, shotng->owner, shotst->hit_door.effect_model, shotst->hit_door.sndsample_idx, shotst->hit_door.sndsample_range);
             if (!shotst->hit_door.withstand)
+            {
                 destroy_shot = 1;
+            }
             if (shotst->slab_kind > 0)
             {
                 stl_x = doortng->mappos.x.stl.num;
@@ -541,13 +625,14 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
             } else {
                 i = calculate_shot_real_damage_to_door(doortng, shotng);
                 apply_damage_to_thing(doortng, i, shotst->damage_type, -1);
-                reveal_secret_door_to_player(doortng,shotng->owner);
+                reveal_secret_door_to_player(doortng, shotng->owner);
             }
-        } else
-        if (cube_is_water(cube_id))
+        }
+        else if (cube_is_water(cube_id))
         {
             efftng = create_shot_hit_effect(&shotng->mappos, shotng->owner, shotst->hit_water.effect_model, shotst->hit_water.sndsample_idx, shotst->hit_water.sndsample_range);
-            if (!shotst->hit_water.withstand) {
+            if (!shotst->hit_water.withstand)
+            {
                 destroy_shot = 1;
             }
             if (shotst->slab_kind > 0)
@@ -566,11 +651,12 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
                     do_slab_efficiency_alteration(subtile_slab(stl_x), subtile_slab(stl_y));
                 }
             }
-        } else
-        if (cube_is_lava(cube_id))
+        }
+        else if (cube_is_lava(cube_id))
         {
             efftng = create_shot_hit_effect(&shotng->mappos, shotng->owner, shotst->hit_lava.effect_model, shotst->hit_lava.sndsample_idx, shotst->hit_lava.sndsample_range);
-            if (!shotst->hit_lava.withstand) {
+            if (!shotst->hit_lava.withstand)
+            {
                 destroy_shot = 1;
             }
             if (shotst->slab_kind > 0)
@@ -589,14 +675,15 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
                     do_slab_efficiency_alteration(subtile_slab(stl_x), subtile_slab(stl_y));
                 }
             }
-        } else
+        }
+        else
         {
             eff_kind = shotst->hit_generic.effect_model;
             smpl_idx = shotst->hit_generic.sndsample_idx;
             range = shotst->hit_generic.sndsample_range;
             if (digging)
             {
-                slb = get_slabmap_for_subtile(stl_num_decode_x(hit_stl_num), stl_num_decode_y(hit_stl_num));
+                slb = get_slabmap_for_subtile(hit_stl_x, hit_stl_y);
                 if ((old_health > slb->health) || (slb->kind == SlbT_GEMS))
                 {
                     smpl_idx = shotst->dig.sndsample_idx;
@@ -605,7 +692,8 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
                 }
             }
             efftng = create_shot_hit_effect(&shotng->mappos, shotng->owner, eff_kind, smpl_idx, range);
-            if (!shotst->hit_generic.withstand) {
+            if (!shotst->hit_generic.withstand)
+            {
                 destroy_shot = 1;
             }
             if (shotst->slab_kind > 0)
@@ -626,7 +714,6 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
             }
         }
     }
-
     if (!destroy_shot)
     {
         if ((blocked_flags & (SlbBloF_WalledX|SlbBloF_WalledY)) != 0)
@@ -643,23 +730,26 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
                     if (dist <= 800) return detonate_shot(shotng, true);
                 }
             }
-            doortng = get_door_for_position(pos->x.stl.num, pos->y.stl.num);
+            doortng = get_door_for_position(hit_stl_x, hit_stl_y);
             if (!thing_is_invalid(doortng))
             {
                 efftng = create_shot_hit_effect(&shotng->mappos, shotng->owner, shotst->hit_door.effect_model, shotst->hit_door.sndsample_idx, shotst->hit_door.sndsample_range);
                 if (!shotst->hit_door.withstand)
+                {
                     destroy_shot = 1;
+                }
                 i = calculate_shot_real_damage_to_door(doortng, shotng);
                 apply_damage_to_thing(doortng, i, shotst->damage_type, -1);
-                reveal_secret_door_to_player(doortng,shotng->owner);
-            } else
+                reveal_secret_door_to_player(doortng, shotng->owner);
+            }
+            else
             {
                 eff_kind = shotst->hit_generic.effect_model;
                 smpl_idx = shotst->hit_generic.sndsample_idx;
                 range = shotst->hit_generic.sndsample_range;
                 if (digging)
                 {
-                    slb = get_slabmap_for_subtile(stl_num_decode_x(hit_stl_num), stl_num_decode_y(hit_stl_num));
+                    slb = get_slabmap_for_subtile(hit_stl_x, hit_stl_y);
                     if ((old_health > slb->health) || (slb->kind == SlbT_GEMS))
                     {
                         smpl_idx = shotst->dig.sndsample_idx;
@@ -668,14 +758,15 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
                     }
                 }
                 efftng = create_shot_hit_effect(&shotng->mappos, shotng->owner, eff_kind, smpl_idx, range);
-
-                if (!shotst->hit_generic.withstand) {
+                if (!shotst->hit_generic.withstand)
+                {
                     destroy_shot = 1;
                 }
             }
         }
     }
-    if (!thing_is_invalid(efftng)) {
+    if (!thing_is_invalid(efftng))
+    {
         efftng->shot_effect.hit_type = shotst->area_hit_type;
     }
     if (destroy_shot)
@@ -707,7 +798,7 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
  */
 long shot_hit_door_at(struct Thing *shotng, struct Coord3d *pos)
 {
-    SYNCDBG(18,"Starting for %s index %d",thing_model_name(shotng),(int)shotng->index);
+    SYNCDBG(18, "Starting for %s index %d", thing_model_name(shotng), (int)shotng->index);
     TbBool shot_explodes = false;
     struct ShotConfigStats* shotst = get_shot_model_stats(shotng->model);
     struct Thing* efftng = INVALID_THING;
@@ -759,14 +850,17 @@ long shot_hit_door_at(struct Thing *shotng, struct Coord3d *pos)
                     place_slab_type_on_map(slab, stl_x, stl_y, game.neutral_player_num, 0);
                     do_slab_efficiency_alteration(subtile_slab(stl_x), subtile_slab(stl_y));
                 }
-            } else {
+            }
+            else
+            {
                 i = calculate_shot_real_damage_to_door(doortng, shotng);
                 apply_damage_to_thing(doortng, i, shotst->damage_type, -1);
-                reveal_secret_door_to_player(doortng,shotng->owner);
+                reveal_secret_door_to_player(doortng, shotng->owner);
             }
         }
     }
-    if (!thing_is_invalid(efftng)) {
+    if (!thing_is_invalid(efftng))
+    {
         efftng->shot_effect.hit_type = shotst->area_hit_type;
     }
     if (shot_explodes)

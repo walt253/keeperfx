@@ -68,6 +68,8 @@ enum DoorModelFlags {
     DoMF_Midas          = 0x0008,
 };
 
+struct Thing;
+
 struct TrapConfigStats {
     char code_name[COMMAND_WORD_LEN];
     TextStringId name_stridx;

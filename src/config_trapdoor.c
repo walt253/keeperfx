@@ -1165,7 +1165,7 @@ TbBool parse_trapdoor_door_blocks(char *buf, long len, const char *config_textna
           doorst->manufct_required = 0;
           doorst->health = 1;
           doorst->open_speed = 256;
-          doorst->selling_value = 1;
+          doorst->selling_value = 0;
           doorst->unsellable = false;
           doorst->place_sound_idx = 117; // Default door placement sound, so that placement sound isn't broken if custom doors are bundled into maps.
           door_desc[i].name = doorst->code_name;

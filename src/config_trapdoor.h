@@ -68,8 +68,6 @@ enum DoorModelFlags {
     DoMF_Midas          = 0x0008,
 };
 
-struct Thing;
-
 struct TrapConfigStats {
     char code_name[COMMAND_WORD_LEN];
     TextStringId name_stridx;
@@ -111,10 +109,10 @@ struct TrapConfigStats {
     unsigned char light_intensity;
     unsigned char light_flag;
     unsigned char transparency_flag; // Transparency in lower 2 bits.
+    struct ComponentVector shotvector;
     unsigned short shot_shift_x;
     unsigned short shot_shift_y;
     unsigned short shot_shift_z;
-    struct ComponentVector shotvector;
     struct FlameProperties flame;
     GoldAmount selling_value;
     TbBool unsellable;

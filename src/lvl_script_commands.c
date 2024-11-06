@@ -1626,7 +1626,7 @@ static void new_trap_type_check(const struct ScriptLine* scline)
     trapst->created_itm_model = 0;
     trapst->hit_type = 0;
     trapst->hidden = true;
-    trapst->slappable = false;
+    trapst->slappable = 0;
     trapst->detect_invisible = true;
     trapst->notify = false;
     trapst->place_on_bridge = false;

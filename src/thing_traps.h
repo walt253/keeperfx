@@ -65,6 +65,8 @@ enum TrapActivationTypes {
     TrpAcT_Power
 };
 
+struct Thing;
+
 /******************************************************************************/
 
 #pragma pack()

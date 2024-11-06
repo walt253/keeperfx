@@ -34,13 +34,9 @@ extern "C" {
 
 /******************************************************************************/
 #pragma pack(1)
-// TODO: join it with TrapConfigStats and DoorConfigStats and TrapStats
-struct ManfctrConfig { // sizeof=0x14
-  int manufct_level;
-  int manufct_required;
-  int shots;
-  int shots_delay;
-  long selling_value;
+
+struct ManfctrConfig {
+    char what_do_i_do_with_pragma_pack;
 };
 
 #pragma pack()
@@ -49,20 +45,22 @@ struct DoorConfigStats {
     char code_name[COMMAND_WORD_LEN];
     TextStringId name_stridx;
     TextStringId tooltip_stridx;
-    long panel_tab_idx;
     long bigsym_sprite_idx;
     long medsym_sprite_idx;
     long pointer_sprite_idx;
-    long place_sound_idx;
-    unsigned short slbkind[2];
+    long panel_tab_idx;
+    unsigned char manufct_level;
+    unsigned long manufct_required;
     HitPoints health;
+    unsigned short slbkind[2];
     unsigned short open_speed;
     unsigned short model_flags;
-    short unsellable;
+    GoldAmount selling_value;
+    TbBool unsellable;
+    short place_sound_idx;
 };
 
-  /** Contains properties of a door model, to be stored in DoorConfigStats.
- */
+/* Contains properties of a door model, to be stored in DoorConfigStats. */
 enum DoorModelFlags {
     DoMF_ResistNonMagic = 0x0001,
     DoMF_Secret         = 0x0002,
@@ -70,42 +68,67 @@ enum DoorModelFlags {
     DoMF_Midas          = 0x0008,
 };
 
-/** Also see TrapStats
-*/
 struct TrapConfigStats {
     char code_name[COMMAND_WORD_LEN];
     TextStringId name_stridx;
     TextStringId tooltip_stridx;
-    long panel_tab_idx;
     long bigsym_sprite_idx;
     long medsym_sprite_idx;
     long pointer_sprite_idx;
-    short place_sound_idx;
-    short trigger_sound_idx;
+    long panel_tab_idx;
+    unsigned char manufct_level;
+    unsigned long manufct_required;
+    int shots;
+    int shots_delay;
+    unsigned short initial_delay; // Trap is placed on reload phase, value in game turns.
+    unsigned char trigger_type;
+    unsigned char activation_type;
+    unsigned short created_itm_model; // Shot model, effect model, slab kind.
+    unsigned char hit_type;
     TbBool hidden;
-    short slappable;
-    short destructible;
-    short unstable;
+    TbBool slappable;
+    TbBool detect_invisible;
     TbBool notify;
-    TbBool unsellable;
     TbBool place_on_bridge;
     TbBool place_on_subtile;
+    HitPoints health;
+    char destructible;
+    char unstable;
     EffectOrEffElModel destroyed_effect;
+    short size_xy;
+    short size_z;
+    unsigned long sprite_anim_idx;
+    unsigned long attack_sprite_anim_idx;
+    unsigned long recharge_sprite_anim_idx;
+    unsigned long sprite_size_max;
+    unsigned long anim_speed;
+    unsigned char unanimated;
+    unsigned char unshaded;
+    unsigned char random_start_frame;
+    short light_radius; // Creates light if not null.
+    unsigned char light_intensity;
+    unsigned char light_flag;
+    unsigned char transparency_flag; // Transparency in lower 2 bits.
+    unsigned short shot_shift_x;
+    unsigned short shot_shift_y;
+    unsigned short shot_shift_z;
+    struct ComponentVector shotvector;
     struct FlameProperties flame;
+    GoldAmount selling_value;
+    TbBool unsellable;
+    short place_sound_idx;
+    short trigger_sound_idx;
 };
 
-/**
- * Manufacture types data.
- * Originally was named TrapData, but stores both traps and doors; now no longer matches original.
- */
+/* Manufacture types data. Originally was named TrapData, but stores both traps and doors, now no longer matches original. */
 struct ManufactureData {
-      ThingClass tngclass; //< Thing class created when manufactured design is placed
-      ThingModel tngmodel; //< Thing model created when manufactured design is placed
-      long work_state; //< Work state used to place the manufactured item on map
-      TextStringId tooltip_stridx;
-      long panel_tab_idx;
-      long bigsym_sprite_idx;
-      long medsym_sprite_idx;
+    ThingClass tngclass; // Thing class created when manufactured design is placed.
+    ThingModel tngmodel; // Thing model created when manufactured design is placed.
+    long work_state; // Work state used to place the manufactured item on map.
+    TextStringId tooltip_stridx;
+    long bigsym_sprite_idx;
+    long medsym_sprite_idx;
+    long panel_tab_idx;
 };
 
 struct TrapDoorConfig {
@@ -116,7 +139,7 @@ struct TrapDoorConfig {
     ThingModel trap_to_object[TRAPDOOR_TYPES_MAX];
     ThingModel door_to_object[TRAPDOOR_TYPES_MAX];
     long manufacture_types_count;
-    /** Stores manufacturable items. Was originally named trap_data. */
+    /* Stores manufacturable items. Was originally named trap_data. */
     struct ManufactureData manufacture_data[2*TRAPDOOR_TYPES_MAX];
 };
 /******************************************************************************/

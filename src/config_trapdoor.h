@@ -86,7 +86,7 @@ struct TrapConfigStats {
     unsigned short created_itm_model; // Shot model, effect model, slab kind.
     unsigned char hit_type;
     TbBool hidden;
-    TbBool slappable;
+    unsigned char slappable;
     TbBool detect_invisible;
     TbBool notify;
     TbBool place_on_bridge;

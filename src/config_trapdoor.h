@@ -19,10 +19,10 @@
 #ifndef DK_CFGTRAPDOOR_H
 #define DK_CFGTRAPDOOR_H
 
-#include "globals.h"
 #include "bflib_basics.h"
+#include "globals.h"
+#include "engine_camera.h"
 #include "config_objects.h"
-
 #include "config.h"
 
 #ifdef __cplusplus
@@ -109,10 +109,10 @@ struct TrapConfigStats {
     unsigned char light_intensity;
     unsigned char light_flag;
     unsigned char transparency_flag; // Transparency in lower 2 bits.
-    struct ComponentVector shotvector;
     unsigned short shot_shift_x;
     unsigned short shot_shift_y;
     unsigned short shot_shift_z;
+    struct ComponentVector shotvector;
     struct FlameProperties flame;
     GoldAmount selling_value;
     TbBool unsellable;

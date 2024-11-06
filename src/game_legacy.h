@@ -119,7 +119,6 @@ struct Configs {
     struct CubesConfig cube_conf;
     struct ManfctrConfig traps_config[TRAPDOOR_TYPES_MAX];
     struct ManfctrConfig doors_config[TRAPDOOR_TYPES_MAX];
-    struct TrapStats trap_stats[TRAPDOOR_TYPES_MAX];
     struct TrapDoorConfig trapdoor_conf;
     struct EffectsConfig effects_conf;
     struct CreatureStats creature_stats[CREATURE_TYPES_MAX];

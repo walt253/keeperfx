@@ -77,43 +77,53 @@ const struct NamedCommand creaturetype_experience_commands[] = {
   };
 
 const struct NamedCommand creaturetype_instance_commands[] = {
-  {"Name",            1},
-  {"Time",            2},
-  {"ActionTime",      3},
-  {"ResetTime",       4},
-  {"FPTime",          5},
-  {"FPActiontime",    6},
-  {"FPResettime",     7},
-  {"ForceVisibility", 8},
-  {"TooltipTextID",   9},
-  {"SymbolSprites",  10},
-  {"Graphics",       11},
-  {"Function",       12},
-  {"RangeMin",       13},
-  {"RangeMax",       14},
-  {"Properties",     15},
-  {"FpinstantCast",  16},
-  {"PrimaryTarget",  17},
-  {"ValidateSourceFunc",   18},
-  {"ValidateTargetFunc",   19},
-  {"SearchTargetsFunc",    20},
-  {NULL,              0},
+  {"Name",                1},
+  {"Time",                2},
+  {"ActionTime",          3},
+  {"ResetTime",           4},
+  {"FPTime",              5},
+  {"FPActiontime",        6},
+  {"FPResettime",         7},
+  {"ForceVisibility",     8},
+  {"TooltipTextID",       9},
+  {"SymbolSprites",      10},
+  {"Graphics",           11},
+  {"Function",           12},
+  {"RangeMin",           13},
+  {"RangeMax",           14},
+  {"Properties",         15},
+  {"FpinstantCast",      16},
+  {"PrimaryTarget",      17},
+  {"ValidateSourceFunc", 18},
+  {"ValidateTargetFunc", 19},
+  {"SearchTargetsFunc",  20},
+  {"Priority",           21},
+  {NULL,                  0},
   };
 
 const struct NamedCommand creaturetype_instance_properties[] = {
-  {"REPEAT_TRIGGER",       InstPF_RepeatTrigger},
-  {"RANGED_ATTACK",        InstPF_RangedAttack},
-  {"MELEE_ATTACK",         InstPF_MeleeAttack},
-  {"RANGED_DEBUFF",        InstPF_RangedDebuff},
-  {"SELF_BUFF",            InstPF_SelfBuff},
-  {"DANGEROUS",            InstPF_Dangerous},
-  {"DESTRUCTIVE",          InstPF_Destructive},
-  {"QUICK",                InstPF_Quick},
-  {"DISARMING",            InstPF_Disarming},
-  {"DISPLAY_SWIPE",        InstPF_UsesSwipe},
-  {"RANGED_BUFF",          InstPF_RangedBuff},
-  {"NEEDS_TARGET",         InstPF_NeedsTarget},
-  {NULL,                     0},
+  {"REPEAT_TRIGGER",           InstPF_RepeatTrigger},
+  {"RANGED_ATTACK",            InstPF_RangedAttack},
+  {"MELEE_ATTACK",             InstPF_MeleeAttack},
+  {"RANGED_DEBUFF",            InstPF_RangedDebuff},
+  {"SELF_BUFF",                InstPF_SelfBuff},
+  {"DANGEROUS",                InstPF_Dangerous},
+  {"DESTRUCTIVE",              InstPF_Destructive},
+  {"QUICK",                    InstPF_Quick},
+  {"DISARMING",                InstPF_Disarming},
+  {"DISPLAY_SWIPE",            InstPF_UsesSwipe},
+  {"RANGED_BUFF",              InstPF_RangedBuff},
+  {"NEEDS_TARGET",             InstPF_NeedsTarget},
+  {"DIGGER_TASK",              InstPF_DiggerTask},
+  {"OUT_OF_BATTLE",            InstPF_OutOfBattle},
+  {"WAITING",                  InstPF_Waiting},
+  {"WHILE_IMPRISONED",         InstPF_WhileImprisoned},
+  {"ONLY_INJURED",             InstPF_OnlyInjured},
+  {"ONLY_UNDERGAS",            InstPF_OnlyUnderGas},
+  {"ON_TOXIC_TERRAIN",         InstPF_OnToxicTerrain},
+  {"AGAINST_DOOR",             InstPF_AgainstDoor},
+  {"AGAINST_OBJECT",           InstPF_AgainstObject},
+  {NULL,                       0},
   };
 
 const struct NamedCommand creaturetype_job_commands[] = {
@@ -833,6 +843,7 @@ TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *confi
             inst_inf->tooltip_stridx = 0;
             inst_inf->range_min = -1;
             inst_inf->range_max = -1;
+            inst_inf->priority = 0;
             inst_inf->validate_source_func = 0;
             inst_inf->validate_source_func_params[0] = 0;
             inst_inf->validate_source_func_params[1] = 0;
@@ -1208,6 +1219,19 @@ TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *confi
                     inst_inf->search_func_params[1] = k;
                     n++;
                 }
+            }
+            break;
+        case 21: // PRIORITY
+            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                inst_inf->priority = k;
+                n++;
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
             }
             break;
         case ccr_comment:

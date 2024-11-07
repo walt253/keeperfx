@@ -1153,7 +1153,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
               k = atoi(word_buf);
               if (k >= 0)
               {
-                  game.conf.trap_stats[i].remove_once_depleted = k;
+                  trapst->remove_once_depleted = k;
                   n++;
               }
           }

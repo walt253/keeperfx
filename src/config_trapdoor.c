@@ -212,8 +212,8 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
           trapst->detect_invisible = true; // Set to true by default: backward compatibility for custom traps made before this implementation.
           trapst->notify = false;
           trapst->place_on_bridge = false;
-          trapst->place_on_subtile = false;
           trapst->place_on_room = false;
+          trapst->place_on_subtile = false;
           trapst->instant_placement = false;
           trapst->remove_once_depleted = false;
           trapst->health = 1;

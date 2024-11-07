@@ -235,7 +235,8 @@ TbBool is_hero_thing(const struct Thing *thing)
 
 TbBool is_owner_invalid_player_id(const struct Thing *thing)
 {
-    return (thing->owner >= PLAYERS_COUNT);
+    return false;
+    // return (thing->owner >= PLAYERS_COUNT);
 }
 
 /**

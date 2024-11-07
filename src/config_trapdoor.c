@@ -1246,7 +1246,7 @@ TbBool parse_trapdoor_door_blocks(char *buf, long len, const char *config_textna
       switch (cmd_num)
       {
       case 1: // NAME
-          if (get_conf_parameter_single(buf,&pos,len,doorst->code_name,COMMAND_WORD_LEN) <= 0)
+          if (get_conf_parameter_single(buf, &pos, len, doorst->code_name, COMMAND_WORD_LEN) <= 0)
           {
               CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
                   COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
@@ -1254,7 +1254,7 @@ TbBool parse_trapdoor_door_blocks(char *buf, long len, const char *config_textna
           }
           break;
       case 2: // NAMETEXTID
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
               if (k > 0)
@@ -1270,7 +1270,7 @@ TbBool parse_trapdoor_door_blocks(char *buf, long len, const char *config_textna
           }
           break;
       case 3: // TOOLTIPTEXTID
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
               if (k > 0)
@@ -1286,7 +1286,7 @@ TbBool parse_trapdoor_door_blocks(char *buf, long len, const char *config_textna
           }
           break;
       case 4: // SYMBOLSPRITES
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               doorst->bigsym_sprite_idx = bad_icon_id;
               k = get_icon_id(word_buf);
@@ -1296,7 +1296,7 @@ TbBool parse_trapdoor_door_blocks(char *buf, long len, const char *config_textna
                   n++;
               }
           }
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               doorst->medsym_sprite_idx = bad_icon_id;
               k = get_icon_id(word_buf);
@@ -1313,7 +1313,7 @@ TbBool parse_trapdoor_door_blocks(char *buf, long len, const char *config_textna
           }
           break;
       case 5: // POINTERSPRITES
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = get_icon_id(word_buf);
               if (k >= 0)
@@ -1330,7 +1330,7 @@ TbBool parse_trapdoor_door_blocks(char *buf, long len, const char *config_textna
           }
           break;
       case 6: // PANELTABINDEX
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
               if (k >= 0)
@@ -1346,7 +1346,7 @@ TbBool parse_trapdoor_door_blocks(char *buf, long len, const char *config_textna
           }
           break;
       case 7: // CRATE
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               n = get_id(object_desc, word_buf);
           }
@@ -1361,7 +1361,7 @@ TbBool parse_trapdoor_door_blocks(char *buf, long len, const char *config_textna
           game.conf.trapdoor_conf.door_to_object[i] = n;
           break;
       case 8: // MANUFACTURELEVEL
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
               doorst->manufct_level = k;
@@ -1374,7 +1374,7 @@ TbBool parse_trapdoor_door_blocks(char *buf, long len, const char *config_textna
           }
           break;
       case 9: // MANUFACTUREREQUIRED
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
               doorst->manufct_required = k;
@@ -1387,7 +1387,7 @@ TbBool parse_trapdoor_door_blocks(char *buf, long len, const char *config_textna
           }
           break;
       case 10: // HEALTH
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
               if (i < game.conf.trapdoor_conf.door_types_count)
@@ -1434,7 +1434,7 @@ TbBool parse_trapdoor_door_blocks(char *buf, long len, const char *config_textna
           }
           break;
       case 12: // OPENSPEED
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
               if (k >= 0)
@@ -1451,7 +1451,7 @@ TbBool parse_trapdoor_door_blocks(char *buf, long len, const char *config_textna
           break;
       case 13: // PROPERTIES
           doorst->model_flags = 0;
-          while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          while (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = get_id(door_properties_commands, word_buf);
               switch (k)
@@ -1479,7 +1479,7 @@ TbBool parse_trapdoor_door_blocks(char *buf, long len, const char *config_textna
           }
           break;
       case 14: // SELLINGVALUE
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
               doorst->selling_value = k;
@@ -1492,7 +1492,7 @@ TbBool parse_trapdoor_door_blocks(char *buf, long len, const char *config_textna
           }
           break;
       case 15: // UNSELLABLE
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
               if (k >= 0)

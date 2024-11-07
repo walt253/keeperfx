@@ -513,9 +513,10 @@ void activate_trap_shot_on_trap(struct Thing *traptng)
 
 void activate_trap_slab_change(struct Thing *traptng)
 {
+    struct TrapConfigStats *trapst = get_trap_model_stats(traptng->model);
     MapSubtlCoord stl_x = traptng->mappos.x.stl.num;
     MapSubtlCoord stl_y = traptng->mappos.y.stl.num;
-    SlabKind slab = game.conf.trap_stats[traptng->model].created_itm_model;
+    SlabKind slab = trapst->created_itm_model;
     if (subtile_is_room(stl_x, stl_y))
     {
         // deleting the room also deletes the trap
@@ -734,7 +735,7 @@ void process_trap_charge(struct Thing* traptng)
 {
     struct TrapConfigStats *trapst = get_trap_model_stats(traptng->model);
     traptng->trap.rearm_turn = game.play_gameturn + trapst->shots_delay;
-    if (game.conf.trap_stats[traptng->model].attack_sprite_anim_idx != 0)
+    if (trapst->attack_sprite_anim_idx != 0)
     {
         GameTurnDelta trigger_duration;
         if (trapst->activation_type == 2) //Effect stays on trap, so the attack animation remains visible for as long as the effect is alive
@@ -1027,7 +1028,8 @@ unsigned long remove_trap(struct Thing *traptng, long *sell_value)
         if (sell_value != NULL)
         {
             // Do the refund only if we were able to sell armed trap
-            long i = compute_value_percentage(game.conf.traps_config[traptng->model].selling_value, game.conf.rules.game.trap_sale_percent);
+            struct TrapConfigStats *trapst = get_trap_model_stats(traptng->model);
+            long i = compute_value_percentage(trapst->selling_value, game.conf.rules.game.trap_sale_percent);
             if (traptng->trap.num_shots == 0)
             {
                 // Trap not armed - try selling crate from workshop

@@ -1928,7 +1928,7 @@ static void set_trap_configuration_process(struct ScriptContext *context)
             trapst->instant_placement = value;
             break;
         case 51: // RemoveOnceDepleted
-            trapstat->remove_once_depleted = value;
+            trapst->remove_once_depleted = value;
             break;
         default:
             WARNMSG("Unsupported Trap configuration, variable %d.", context->value->shorts[1]);

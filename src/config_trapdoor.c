@@ -1168,7 +1168,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
                   COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
-      case 51: // PLACEONROOM
+      case 53: // PLACEONROOM
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);

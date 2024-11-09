@@ -217,57 +217,60 @@ const struct NamedCommand creature_select_criteria_desc[] = {
 };
 
 const struct NamedCommand trap_config_desc[] = {
-  {"NameTextID",           1},
-  {"TooltipTextID",        2},
-  {"SymbolSprites",        3},
-  {"PointerSprites",       4},
-  {"PanelTabIndex",        5},
-  {"Crate",                6},
-  {"ManufactureLevel",     7},
-  {"ManufactureRequired",  8},
-  {"Shots",                9},
-  {"TimeBetweenShots",    10},
-  {"SellingValue",        11},
-  {"AnimationID",         12},
-  {"Model",               12}, //legacy name
-  {"ModelSize",           13},
-  {"AnimationSpeed",      14},
-  {"TriggerType",         15},
-  {"ActivationType",      16},
-  {"EffectType",          17},
-  {"Hidden",              18},
-  {"TriggerAlarm",        19},
-  {"Slappable",           20},
-  {"Unanimated",          21},
-  {"Health",              22},
-  {"Unshaded",            23},
-  {"RandomStartFrame",    24},
-  {"ThingSize",           25},
-  {"HitType",             26},
-  {"LightRadius",         27},
-  {"LightIntensity",      28},
-  {"LightFlags",          29},
-  {"TransparencyFlags",   30},
-  {"ShotVector",          31},
-  {"Destructible",        32},
-  {"Unstable",            33},
-  {"Unsellable",          34},
-  {"PlaceOnBridge",       35},
-  {"ShotOrigin",          36},
-  {"PlaceSound",          37},
-  {"TriggerSound",        38},
-  {"RechargeAnimationID", 39},
-  {"AttackAnimationID",   40},
-  {"DestroyedEffect",     41},
-  {"InitialDelay",        42},
-  {"PlaceOnSubtile",      43},
-  {"FlameAnimationID",       44},
-  {"FlameAnimationSpeed",    45},
-  {"FlameAnimationSize",     46},
-  {"FlameAnimationOffset",   47},
-  {"FlameTransparencyFlags", 48},
-  {"DetectInvisible",        49},
-  {NULL,                      0},
+  {"NameTextID",               1},
+  {"TooltipTextID",            2},
+  {"SymbolSprites",            3},
+  {"PointerSprites",           4},
+  {"PanelTabIndex",            5},
+  {"Crate",                    6},
+  {"ManufactureLevel",         7},
+  {"ManufactureRequired",      8},
+  {"Shots",                    9},
+  {"TimeBetweenShots",        10},
+  {"SellingValue",            11},
+  {"AnimationID",             12},
+  {"Model",                   12}, // Legacy name.
+  {"ModelSize",               13},
+  {"AnimationSpeed",          14},
+  {"TriggerType",             15},
+  {"ActivationType",          16},
+  {"EffectType",              17},
+  {"Hidden",                  18},
+  {"TriggerAlarm",            19},
+  {"Slappable",               20},
+  {"Unanimated",              21},
+  {"Health",                  22},
+  {"Unshaded",                23},
+  {"RandomStartFrame",        24},
+  {"ThingSize",               25},
+  {"HitType",                 26},
+  {"LightRadius",             27},
+  {"LightIntensity",          28},
+  {"LightFlags",              29},
+  {"TransparencyFlags",       30},
+  {"ShotVector",              31},
+  {"Destructible",            32},
+  {"Unstable",                33},
+  {"Unsellable",              34},
+  {"PlaceOnBridge",           35},
+  {"ShotOrigin",              36},
+  {"PlaceSound",              37},
+  {"TriggerSound",            38},
+  {"RechargeAnimationID",     39},
+  {"AttackAnimationID",       40},
+  {"DestroyedEffect",         41},
+  {"InitialDelay",            42},
+  {"PlaceOnSubtile",          43},
+  {"FlameAnimationID",        44},
+  {"FlameAnimationSpeed",     45},
+  {"FlameAnimationSize",      46},
+  {"FlameAnimationOffset",    47},
+  {"FlameTransparencyFlags",  48},
+  {"DetectInvisible",         49},
+  {"InstantPlacement",        50},
+  {"RemoveOnceDepleted",      51},
+  {"PlaceOnRoom",             52},
+  {NULL,                       0},
 };
 
 const struct NamedCommand room_config_desc[] = {
@@ -335,6 +338,10 @@ const struct NamedCommand modifier_desc[] = {
   {"TrainingCost",    7},
   {"ScavengingCost",  8},
   {"Loyalty",         9},
+  {"Defense",        10},
+  {"Dexterity",      11},
+  {"Luck",           12},
+  {"Magic",          13},
   {NULL,              0},
 };
 
@@ -1604,13 +1611,10 @@ static void new_trap_type_check(const struct ScriptLine* scline)
         SCRPTERRLOG("Cannot increase trap count for trap type '%s', already at maximum %d traps.", scline->tp[0], TRAPDOOR_TYPES_MAX);
         return;
     }
-
     SCRPTLOG("Adding trap type %s and increasing 'TrapsCount to %d", scline->tp[0], game.conf.trapdoor_conf.trap_types_count + 1);
     game.conf.trapdoor_conf.trap_types_count++;
-
     short i = game.conf.trapdoor_conf.trap_types_count-1;
-
-    struct TrapConfigStats* trapst = &game.conf.trapdoor_conf.trap_cfgstats[i];
+    struct TrapConfigStats *trapst = get_trap_model_stats(i);
     LbMemorySet(trapst->code_name, 0, COMMAND_WORD_LEN);
     snprintf(trapst->code_name, COMMAND_WORD_LEN, "%s", scline->tp[0]);
     trapst->name_stridx = GUIStr_Empty;
@@ -1619,47 +1623,54 @@ static void new_trap_type_check(const struct ScriptLine* scline)
     trapst->medsym_sprite_idx = 0;
     trapst->pointer_sprite_idx = 0;
     trapst->panel_tab_idx = 0;
-    trapst->hidden = 0;
+    trapst->manufct_level = 0;
+    trapst->manufct_required = 0;
+    trapst->shots = 0;
+    trapst->shots_delay = 0;
+    trapst->initial_delay = 0;
+    trapst->trigger_type = 0;
+    trapst->activation_type = 0;
+    trapst->created_itm_model = 0;
+    trapst->hit_type = 0;
+    trapst->hidden = true;
     trapst->slappable = 0;
-    trapst->destructible = 0;
-    trapst->unstable = 0;
-    trapst->unsellable = false;
+    trapst->detect_invisible = true;
     trapst->notify = false;
     trapst->place_on_bridge = false;
+    trapst->place_on_room = false;
     trapst->place_on_subtile = false;
+    trapst->instant_placement = false;
+    trapst->remove_once_depleted = false;
+    trapst->health = 1;
+    trapst->destructible = 0;
+    trapst->unstable = 0;
+    trapst->destroyed_effect = -39;
+    trapst->size_xy = 0;
+    trapst->size_z = 0;
+    trapst->sprite_anim_idx = 0;
+    trapst->attack_sprite_anim_idx = 0;
+    trapst->recharge_sprite_anim_idx = 0;
+    trapst->sprite_size_max = 0;
+    trapst->anim_speed = 0;
+    trapst->unanimated = 0;
+    trapst->unshaded = 0;
+    trapst->random_start_frame = 0;
+    trapst->light_radius = 0;
+    trapst->light_intensity = 0;
+    trapst->light_flag = 0;
+    trapst->transparency_flag = 0;
+    trapst->shot_shift_x = 0;
+    trapst->shot_shift_y = 0;
+    trapst->shot_shift_z = 0;
+    trapst->shotvector.x = 0;
+    trapst->shotvector.y = 0;
+    trapst->shotvector.z = 0;
+    trapst->selling_value = 0;
+    trapst->unsellable = false;
     trapst->place_sound_idx = 117;
     trapst->trigger_sound_idx = 176;
-    trapst->destroyed_effect = -39;
-
-    game.conf.trap_stats[i].health = 0;
-    game.conf.trap_stats[i].sprite_anim_idx = 0;
-    game.conf.trap_stats[i].sprite_size_max = 0;
-    game.conf.trap_stats[i].unanimated = 0;
-    game.conf.trap_stats[i].anim_speed = 0;
-    game.conf.trap_stats[i].unshaded = 0;
-    game.conf.trap_stats[i].transparency_flag = 0;
-    game.conf.trap_stats[i].random_start_frame = 0;
-    game.conf.trap_stats[i].size_xy = 0;
-    game.conf.trap_stats[i].size_z = 0;
-    game.conf.trap_stats[i].trigger_type = 0;
-    game.conf.trap_stats[i].activation_type = 0;
-    game.conf.trap_stats[i].created_itm_model = 0;
-    game.conf.trap_stats[i].hit_type = 0;
-    game.conf.trap_stats[i].light_radius = 0;
-    game.conf.trap_stats[i].light_intensity = 0;
-    game.conf.trap_stats[i].light_flag = 0;
-    game.conf.trap_stats[i].shotvector.x = 0;
-    game.conf.trap_stats[i].shotvector.y = 0;
-    game.conf.trap_stats[i].shotvector.z = 0;
     trap_desc[i].name = trapst->code_name;
     trap_desc[i].num = i;
-    struct ManfctrConfig* mconf = &game.conf.traps_config[i];
-    mconf->manufct_level = 0;
-    mconf->manufct_required = 0;
-    mconf->shots = 0;
-    mconf->shots_delay = 0;
-    mconf->selling_value = 0;
-
     create_manufacture_array_from_trapdoor_data();
 }
 
@@ -1667,6 +1678,8 @@ void refresh_trap_anim(long trap_id)
 {
     int k = 0;
     const struct StructureList* slist = get_list_for_thing_class(TCls_Trap);
+    struct TrapConfigStats *trapst_old = get_trap_model_stats(trap_id);
+    struct TrapConfigStats *trapst_new;
     int i = slist->index;
     while (i != 0)
     {
@@ -1677,28 +1690,28 @@ void refresh_trap_anim(long trap_id)
             break;
         }
         i = traptng->next_of_class;
-        // Per thing code
+        // Per thing code.
         if (traptng->model == trap_id)
         {
-            if ((traptng->trap.wait_for_rearm == true) || (game.conf.trap_stats[trap_id].recharge_sprite_anim_idx == 0))
+            if ((traptng->trap.wait_for_rearm == true) || (trapst_old->recharge_sprite_anim_idx == 0))
             {
-                traptng->anim_sprite = game.conf.trap_stats[trap_id].sprite_anim_idx;
+                traptng->anim_sprite = trapst_old->sprite_anim_idx;
             }
             else
             {
-                traptng->anim_sprite = game.conf.trap_stats[trap_id].recharge_sprite_anim_idx;
+                traptng->anim_sprite = trapst_old->recharge_sprite_anim_idx;
             }
-            struct TrapStats* trapstat = &game.conf.trap_stats[traptng->model];
+            trapst_new = get_trap_model_stats(traptng->model);
             char start_frame;
-            if (trapstat->random_start_frame) {
+            if (trapst_new->random_start_frame) {
                 start_frame = -1;
             }
             else {
                 start_frame = 0;
             }
-            set_thing_draw(traptng, trapstat->sprite_anim_idx, trapstat->anim_speed, trapstat->sprite_size_max, trapstat->unanimated, start_frame, ODC_Default);
+            set_thing_draw(traptng, trapst_new->sprite_anim_idx, trapst_new->anim_speed, trapst_new->sprite_size_max, trapst_new->unanimated, start_frame, ODC_Default);
         }
-        // Per thing code ends
+        // Per thing code ends.
         k++;
         if (k > slist->index)
         {
@@ -1711,9 +1724,7 @@ void refresh_trap_anim(long trap_id)
 static void set_trap_configuration_process(struct ScriptContext *context)
 {
     long trap_type = context->value->shorts[0];
-    struct TrapConfigStats *trapst = &game.conf.trapdoor_conf.trap_cfgstats[trap_type];
-    struct ManfctrConfig *mconf = &game.conf.traps_config[trap_type];
-    struct TrapStats* trapstat = &game.conf.trap_stats[trap_type];
+    struct TrapConfigStats *trapst = get_trap_model_stats(trap_type);
     struct ManufactureData *manufctr = get_manufacture_data(trap_type);
     struct ObjectConfigStats obj_tmp;
     long value = context->value->ulongs[1];
@@ -1777,40 +1788,40 @@ static void set_trap_configuration_process(struct ScriptContext *context)
             game.conf.trapdoor_conf.trap_to_object[trap_type] = value;
             break;
         case 7: // ManufactureLevel
-            mconf->manufct_level = value;
+            trapst->manufct_level = value;
             break;
         case 8: // ManufactureRequired
-            mconf->manufct_required = value;
+            trapst->manufct_required = value;
             break;
         case 9: // Shots
-            mconf->shots = value;
+            trapst->shots = value;
             break;
         case 10: // TimeBetweenShots
-            mconf->shots_delay = value;
+            trapst->shots_delay = value;
             break;
         case 11: // SellingValue
-            mconf->selling_value = value;
+            trapst->selling_value = value;
             break;
         case 12: // AnimationID
-            trapstat->sprite_anim_idx = get_anim_id_(context->value->strs[2]);
+            trapst->sprite_anim_idx = get_anim_id_(context->value->strs[2]);
             refresh_trap_anim(trap_type);
             break;
         case 13: // ModelSize
-            trapstat->sprite_size_max = value;
+            trapst->sprite_size_max = value;
             refresh_trap_anim(trap_type);
             break;
         case 14: // AnimationSpeed
-            trapstat->anim_speed = value;
+            trapst->anim_speed = value;
             refresh_trap_anim(trap_type);
             break;
         case 15: // TriggerType
-            trapstat->trigger_type = value;
+            trapst->trigger_type = value;
             break;
         case 16: // ActivationType
-            trapstat->activation_type = value;
+            trapst->activation_type = value;
             break;
         case 17: // EffectType
-            trapstat->created_itm_model = value;
+            trapst->created_itm_model = value;
             break;
         case 18: // Hidden
             trapst->hidden = value;
@@ -1822,41 +1833,41 @@ static void set_trap_configuration_process(struct ScriptContext *context)
             trapst->slappable = value;
             break;
         case 21: // Unanimated
-            trapstat->unanimated = value;
+            trapst->unanimated = value;
             refresh_trap_anim(trap_type);
             break;
         case 22: // Health
-            trapstat->health = value;
+            trapst->health = value;
             break;
         case 23: // Unshaded
-            trapstat->unshaded = value;
+            trapst->unshaded = value;
             break;
         case 24: // RandomStartFrame
-            trapstat->random_start_frame = value;
+            trapst->random_start_frame = value;
             break;
         case 25: // ThingSize
-            trapstat->size_xy = value; // First
-            trapstat->size_z = value2; // Second
+            trapst->size_xy = value; // First
+            trapst->size_z = value2; // Second
             break;
         case 26: // HitType
-            trapstat->hit_type = value;
+            trapst->hit_type = value;
             break;
         case 27: // LightRadius
-            trapstat->light_radius = value * COORD_PER_STL;
+            trapst->light_radius = value * COORD_PER_STL;
             break;
         case 28: // LightIntensity
-            trapstat->light_intensity = value;
+            trapst->light_intensity = value;
             break;
         case 29: // LightFlags
-            trapstat->light_flag = value;
+            trapst->light_flag = value;
             break;
         case 30: // TransparencyFlags
-            trapstat->transparency_flag = value<<4;
+            trapst->transparency_flag = value<<4;
             break;
         case 31: // ShotVector
-            trapstat->shotvector.x = value;
-            trapstat->shotvector.y = value2;
-            trapstat->shotvector.z = value3;
+            trapst->shotvector.x = value;
+            trapst->shotvector.y = value2;
+            trapst->shotvector.z = value3;
             break;
         case 32: // Destructible
             trapst->destructible = value;
@@ -1871,9 +1882,9 @@ static void set_trap_configuration_process(struct ScriptContext *context)
             trapst->place_on_bridge = value;
             break;
         case 36: // ShotOrigin
-            trapstat->shot_shift_x = value;
-            trapstat->shot_shift_y = value2;
-            trapstat->shot_shift_z = value3;
+            trapst->shot_shift_x = value;
+            trapst->shot_shift_y = value2;
+            trapst->shot_shift_z = value3;
             break;
         case 37: // PlaceSound
             trapst->place_sound_idx = value;
@@ -1882,17 +1893,17 @@ static void set_trap_configuration_process(struct ScriptContext *context)
             trapst->trigger_sound_idx = value;
             break;
         case 39: // RechargeAnimationID
-            trapstat->recharge_sprite_anim_idx = get_anim_id(context->value->strs[2], &obj_tmp);
+            trapst->recharge_sprite_anim_idx = get_anim_id(context->value->strs[2], &obj_tmp);
             refresh_trap_anim(trap_type);
             break;
         case 40: // AttackAnimationID
-            trapstat->attack_sprite_anim_idx = get_anim_id(context->value->strs[2], &obj_tmp);
+            trapst->attack_sprite_anim_idx = get_anim_id(context->value->strs[2], &obj_tmp);
             break;
         case 41: // DestroyedEffect
             trapst->destroyed_effect = value;
             break;
         case 42: // InitialDelay
-            trapstat->initial_delay = value;
+            trapst->initial_delay = value;
             break;
         case 43: // PlaceOnSubtile
             trapst->place_on_subtile = value;
@@ -1917,7 +1928,16 @@ static void set_trap_configuration_process(struct ScriptContext *context)
             trapst->flame.transparency_flags = value << 4;
             break;
         case 49: // DetectInvisible
-            trapstat->detect_invisible = value;
+            trapst->detect_invisible = value;
+            break;
+        case 50: // InstantPlacement
+            trapst->instant_placement = value;
+            break;
+        case 51: // RemoveOnceDepleted
+            trapst->remove_once_depleted = value;
+            break;
+        case 52: // PlaceOnRoom
+            trapst->place_on_room = value;
             break;
         default:
             WARNMSG("Unsupported Trap configuration, variable %d.", context->value->shorts[1]);
@@ -2164,7 +2184,7 @@ static void set_door_configuration_check(const struct ScriptLine* scline)
 
     value->shorts[0] = door_id;
     value->shorts[1] = doorvar;
-    if (doorvar == 4) // SlabKind
+    if (doorvar == 11) // SlabKind
     {
         const char* slab_name = scline->tp[2];
         const char* slab2_name = scline->tp[3];
@@ -2199,8 +2219,7 @@ static void set_door_configuration_check(const struct ScriptLine* scline)
         value->ulongs[1] = slab_id;
         value->shorts[4] = slab2_id;
     }
-
-    else if (doorvar == 10) // SymbolSprites
+    else if (doorvar == 4) // SymbolSprites
     {
         char *tmp = malloc(strlen(scline->tp[2]) + strlen(scline->tp[3]) + 3);
         // Pass two vars along as one merged val like: first\nsecond\m
@@ -2217,7 +2236,7 @@ static void set_door_configuration_check(const struct ScriptLine* scline)
             return;
         }
     }
-    else if (doorvar != 11) // Not PointerSprites
+    else if (doorvar != 5) // Not PointerSprites
     {
         if (parameter_is_number(valuestring))
         {
@@ -2230,7 +2249,7 @@ static void set_door_configuration_check(const struct ScriptLine* scline)
             }
             value->ulongs[1] = newvalue;
         }
-        else if (doorvar == 9) // Crate
+        else if (doorvar == 7) // Crate
         {
             newvalue = get_id(object_desc, valuestring);
             if ((newvalue > SHRT_MAX) || (newvalue < 0))
@@ -2266,50 +2285,20 @@ static void set_door_configuration_process(struct ScriptContext *context)
 {
     long door_type = context->value->shorts[0];
     struct DoorConfigStats *doorst = get_door_model_stats(door_type);
-    struct ManfctrConfig *mconf = &game.conf.doors_config[door_type];
     struct ManufactureData *manufctr = get_manufacture_data(game.conf.trapdoor_conf.trap_types_count - 1 + door_type);
     short value = context->value->longs[1];
     short value2 = context->value->shorts[4];
     switch (context->value->shorts[1])
     {
-        case 2: // ManufactureLevel
-            mconf->manufct_level = value;
-            break;
-        case 3: // ManufactureRequired
-            mconf->manufct_required = value;
-            break;
-        case 4: // SlabKind
-            if (door_type < game.conf.trapdoor_conf.door_types_count)
-            {
-                doorst->slbkind[0] = value2;
-                doorst->slbkind[1] = value;
-            }
-            update_all_door_stats();
-            break;
-        case 5: // Health
-            if (door_type < game.conf.trapdoor_conf.door_types_count)
-            {
-                doorst->health = value;
-            }
-            update_all_door_stats();
-            break;
-        case 6: //SellingValue
-            mconf->selling_value = value;
-            break;
-        case 7: // NametextId
+        case 2: // NametextId
             doorst->name_stridx = value;
             break;
-        case 8: // TooltipTextId
+        case 3: // TooltipTextId
             doorst->tooltip_stridx = value;
             manufctr->tooltip_stridx = doorst->tooltip_stridx;
             update_trap_tab_to_config();
             break;
-        case 9: // Crate
-            game.conf.object_conf.object_to_door_or_trap[value] = door_type;
-            game.conf.object_conf.workshop_object_class[value] = TCls_Door;
-            game.conf.trapdoor_conf.door_to_object[door_type] = value;
-            break;
-        case 10: //SymbolSprites
+        case 4: //SymbolSprites
             {
                 doorst->bigsym_sprite_idx = get_icon_id(context->value->strs[2]); // First
                 doorst->medsym_sprite_idx = get_icon_id(context->value->strs[2] + strlen(context->value->strs[2]) + 1); // Second
@@ -2322,34 +2311,63 @@ static void set_door_configuration_process(struct ScriptContext *context)
                 update_trap_tab_to_config();
             }
             break;
-        case 11: // PointerSprites
+        case 5: // PointerSprites
             doorst->pointer_sprite_idx = get_icon_id(context->value->strs[2]);
             if (doorst->pointer_sprite_idx < 0)
                 doorst->pointer_sprite_idx = bad_icon_id;
             update_trap_tab_to_config();
             break;
-        case 12: // PanelTabIndex
+        case 6: // PanelTabIndex
             doorst->panel_tab_idx = value;
             manufctr->panel_tab_idx = value;
             update_trap_tab_to_config();
             break;
-        case 13: // OpenSpeed
+        case 7: // Crate
+            game.conf.object_conf.object_to_door_or_trap[value] = door_type;
+            game.conf.object_conf.workshop_object_class[value] = TCls_Door;
+            game.conf.trapdoor_conf.door_to_object[door_type] = value;
+            break;
+        case 8: // ManufactureLevel
+            doorst->manufct_level = value;
+            break;
+        case 9: // ManufactureRequired
+            doorst->manufct_required = value;
+            break;
+        case 10: // Health
+            if (door_type < game.conf.trapdoor_conf.door_types_count)
+            {
+                doorst->health = value;
+            }
+            update_all_door_stats();
+            break;
+        case 11: // SlabKind
+            if (door_type < game.conf.trapdoor_conf.door_types_count)
+            {
+                doorst->slbkind[0] = value2;
+                doorst->slbkind[1] = value;
+            }
+            update_all_door_stats();
+            break;
+        case 12: // OpenSpeed
             if (door_type < game.conf.trapdoor_conf.door_types_count)
             {
                 doorst->open_speed = value;
             }
             break;
-        case 14: // Properties
+        case 13: // Properties
             doorst->model_flags = value;
             break;
-        case 15: // PlaceSound
+        case 14: //SellingValue
+            doorst->selling_value = value;
+            break;
+        case 15: // Unsellable
+            doorst->unsellable = value;
+            break;
+        case 16: // PlaceSound
             if (door_type < game.conf.trapdoor_conf.door_types_count)
             {
                 doorst->place_sound_idx = value;
             }
-            break;
-        case 16: // Unsellable
-            doorst->unsellable = value;
             break;
         default:
             WARNMSG("Unsupported Door configuration, variable %d.", context->value->shorts[1]);
@@ -3123,6 +3141,30 @@ static void set_creature_configuration_process(struct ScriptContext* context)
             break;
         case 36: // TORTUREKIND
             crstat->torture_kind = value;
+            break;
+        case 37: // LAVARECOVERY
+            crstat->lava_recovery = value;
+            break;
+        case 38: // HURTBYWATER
+            crstat->hurt_by_water = value;
+            break;
+        case 39: // WATERRECOVERY
+            crstat->water_recovery = value;
+            break;
+        case 40: // MAGIC
+            crstat->magic = value;
+            break;
+        case 41: // POOPAMOUNT
+            crstat->poop_amount = value;
+            break;
+        case 42: // POOPFREQUENCY
+            crstat->poop_frequency = value;
+            break;
+        case 43: // POOPRANDOM
+            crstat->poop_random = value;
+            break;
+        case 44: // POOPTYPE
+            crstat->poop_type = value;
             break;
         case ccr_comment:
             break;
@@ -3987,7 +4029,7 @@ static void use_spell_on_players_creatures_check(const struct ScriptLine* scline
 
     if (splevel < 1)
     {
-        if ((mag_id == SplK_Heal) || (mag_id == SplK_Armour) || (mag_id == SplK_Speed) || (mag_id == SplK_Disease) || (mag_id == SplK_Invisibility) || (mag_id == SplK_Chicken))
+        if ((mag_id == SplK_Freeze) || (mag_id == SplK_Armour) || (mag_id == SplK_Rebound) || (mag_id == SplK_Heal) || (mag_id == SplK_Invisibility) || (mag_id == SplK_Speed) || (mag_id == SplK_Slow) || (mag_id == SplK_Fly) || (mag_id == SplK_Sight) || (mag_id == SplK_Disease) || (mag_id == SplK_Chicken) || (mag_id == SplK_TimeBomb) || (mag_id == SplK_Rage) || (mag_id == SplK_DivineShield) || (mag_id == SplK_Indoctrination) || (mag_id == SplK_MagicMist))
         {
             SCRPTWRNLOG("Spell %s level too low: %d, setting to 1.", mag_name, splevel);
         }
@@ -5700,6 +5742,22 @@ static void set_player_modifier_process(struct ScriptContext* context)
                 SCRIPTDBG(7,"Changing Player Modifier '%s' of player %d from %d to %d.", mdfrname, (int)plyr_idx, dungeon->modifier.loyalty, mdfrval);
                 dungeon->modifier.loyalty = mdfrval;
                 break;
+            case 10: // Defense
+                SCRIPTDBG(7,"Changing Player Modifier '%s' of player %d from %d to %d.", mdfrname, (int)plyr_idx, dungeon->modifier.defense, mdfrval);
+                dungeon->modifier.defense = mdfrval;
+                break;
+            case 11: // Dexterity
+                SCRIPTDBG(7,"Changing Player Modifier '%s' of player %d from %d to %d.", mdfrname, (int)plyr_idx, dungeon->modifier.dexterity, mdfrval);
+                dungeon->modifier.dexterity = mdfrval;
+                break;
+            case 12: // Luck
+                SCRIPTDBG(7,"Changing Player Modifier '%s' of player %d from %d to %d.", mdfrname, (int)plyr_idx, dungeon->modifier.luck, mdfrval);
+                dungeon->modifier.luck = mdfrval;
+                break;
+            case 13: // Magic
+                SCRIPTDBG(7,"Changing Player Modifier '%s' of player %d from %d to %d.", mdfrname, (int)plyr_idx, dungeon->modifier.magic, mdfrval);
+                dungeon->modifier.magic = mdfrval;
+                break;
             default:
                 WARNMSG("Unsupported Player Modifier, command %d.", mdfrdesc);
                 break;
@@ -5823,6 +5881,42 @@ static void add_to_player_modifier_process(struct ScriptContext* context)
                     dungeon->modifier.loyalty = mdfradd;
                 } else {
                     SCRPTERRLOG("Player %d Modifier '%s' may not be negative. Tried to add %d to value %d", (int)plyr_idx, mdfrname, mdfrval, dungeon->modifier.loyalty);
+                }
+                break;
+            case 10: // Defense
+                mdfradd = dungeon->modifier.defense + mdfrval;
+                if (mdfradd >= 0) {
+                    SCRIPTDBG(7,"Adding %d to Player %d Modifier '%s'.", mdfrval, (int)plyr_idx, mdfrname);
+                    dungeon->modifier.defense = mdfradd;
+                } else {
+                    SCRPTERRLOG("Player %d Modifier '%s' may not be negative. Tried to add %d to value %d", (int)plyr_idx, mdfrname, mdfrval, dungeon->modifier.defense);
+                }
+                break;
+            case 11: // Dexterity
+                mdfradd = dungeon->modifier.dexterity + mdfrval;
+                if (mdfradd >= 0) {
+                    SCRIPTDBG(7,"Adding %d to Player %d Modifier '%s'.", mdfrval, (int)plyr_idx, mdfrname);
+                    dungeon->modifier.dexterity = mdfradd;
+                } else {
+                    SCRPTERRLOG("Player %d Modifier '%s' may not be negative. Tried to add %d to value %d", (int)plyr_idx, mdfrname, mdfrval, dungeon->modifier.dexterity);
+                }
+                break;
+            case 12: // Luck
+                mdfradd = dungeon->modifier.luck + mdfrval;
+                if (mdfradd >= 0) {
+                    SCRIPTDBG(7,"Adding %d to Player %d Modifier '%s'.", mdfrval, (int)plyr_idx, mdfrname);
+                    dungeon->modifier.luck = mdfradd;
+                } else {
+                    SCRPTERRLOG("Player %d Modifier '%s' may not be negative. Tried to add %d to value %d", (int)plyr_idx, mdfrname, mdfrval, dungeon->modifier.luck);
+                }
+                break;
+            case 13: // Magic
+                mdfradd = dungeon->modifier.magic + mdfrval;
+                if (mdfradd >= 0) {
+                    SCRIPTDBG(7,"Adding %d to Player %d Modifier '%s'.", mdfrval, (int)plyr_idx, mdfrname);
+                    dungeon->modifier.magic = mdfradd;
+                } else {
+                    SCRPTERRLOG("Player %d Modifier '%s' may not be negative. Tried to add %d to value %d", (int)plyr_idx, mdfrname, mdfrval, dungeon->modifier.magic);
                 }
                 break;
             default:

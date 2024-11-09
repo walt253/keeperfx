@@ -64,6 +64,7 @@ extern "C" {
 void count_slabs_all_only(struct Room *room);
 void count_slabs_all_wth_effcncy(struct Room *room);
 void count_slabs_div2_wth_effcncy(struct Room *room);
+void count_room_efficiency_max(struct Room *room);
 void count_workers_in_room(struct Room *room);
 long find_random_valid_position_for_item_in_different_room_avoiding_object(struct Thing* thing, struct Room* skip_room, struct Coord3d* pos);
 /******************************************************************************/
@@ -347,6 +348,11 @@ long get_room_kind_used_capacity_fraction(PlayerNumber plyr_idx, RoomKind room_k
 void set_room_efficiency(struct Room *room)
 {
     room->efficiency = calculate_room_efficiency(room);
+}
+
+void count_room_efficiency_max(struct Room *room)
+{
+    room->total_capacity = room->slabs_count * get_wealth_size_types_count();
 }
 
 void init_reposition_struct(struct RoomReposition * rrepos)

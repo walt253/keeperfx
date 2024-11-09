@@ -642,6 +642,24 @@ CrInstance process_creature_ranged_buff_spell_casting(struct Thing* creatng)
     return (i < game.conf.crtr_conf.instances_count) ? i : CrInst_NULL;
 }
 
+TbBool process_creature_use_instance(struct Thing* creatng)
+{
+    TRACE_THING(creatng);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    if (((creatng->alloc_flags & TAlF_IsControlled) != 0) || (cctrl->conscious_back_turns != 0) || ((cctrl->stateblock_flags & CCSpl_Freeze) != 0)) {
+        return false;
+    }
+    if (cctrl->instance_id != CrInst_NULL) {
+        return false;
+    }
+    long inst_idx = get_instance_casting(creatng);
+    if (inst_idx == CrInst_NULL) {
+        return false;
+    }
+    set_creature_instance(creatng, inst_idx, creatng->index, 0);
+    return true;
+}
+
 long instf_dig(struct Thing *creatng, long *param)
 {
     long stl_x;
@@ -868,7 +886,8 @@ long instf_eat(struct Thing *creatng, long *param)
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     if (cctrl->hunger_amount > 0)
         cctrl->hunger_amount--;
-    apply_health_to_thing_and_display_health(creatng, game.conf.rules.health.food_health_gain);
+    HitPoints food_health_gain = (cctrl->max_health * game.conf.rules.health.food_health_gain) / 100;
+    apply_health_to_thing_and_display_health(creatng, food_health_gain);
     cctrl->hunger_level = 0;
     return 1;
 }

@@ -33,14 +33,7 @@ extern "C" {
 #define TRAPDOOR_TYPES_MAX 2000
 
 /******************************************************************************/
-#pragma pack(1)
 
-struct ManfctrConfig {
-    char what_do_i_do_with_pragma_pack;
-};
-
-#pragma pack()
-/******************************************************************************/
 struct DoorConfigStats {
     char code_name[COMMAND_WORD_LEN];
     TextStringId name_stridx;

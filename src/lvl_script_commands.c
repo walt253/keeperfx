@@ -1633,6 +1633,7 @@ static void new_trap_type_check(const struct ScriptLine* scline)
     trapst->unsellable = false;
     trapst->notify = false;
     trapst->place_on_bridge = false;
+    trapst->place_on_room = false;
     trapst->place_on_subtile = false;
     trapst->instant_placement = false;
     trapst->place_sound_idx = 117;

@@ -1939,6 +1939,15 @@ static void set_trap_configuration_process(struct ScriptContext *context)
         case 52: // PlaceOnRoom
             trapst->place_on_room = value;
             break;
+        case 50: // InstantPlacement
+            trapst->instant_placement = value;
+            break;
+        case 51: // RemoveOnceDepleted
+            trapstat->remove_once_depleted = value;
+            break;
+        case 52: // PlaceOnRoom
+            trapst->place_on_room = value;
+            break;
         default:
             WARNMSG("Unsupported Trap configuration, variable %d.", context->value->shorts[1]);
             break;

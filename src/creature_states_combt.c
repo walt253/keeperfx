@@ -1935,26 +1935,104 @@ CrInstance get_instance_casting(const struct Thing *thing)
     return CrInst_NULL;
 }
 
-CrInstance get_best_quick_range_instance_to_use(const struct Thing *thing)
+#undef INSTANCE_RET_IF_AVAIL
+
+// Static array to store the IDs of "postal" instances.
+static CrInstance postal_instance[INSTANCE_TYPES_MAX];
+// Counter for the number of "postal" instances found.
+static short postal_inst_num = 0;
+// Flag to indicate if the cache has been initialized.
+static TbBool initial = false;
+
+/** @brief Retrieves a random available "postal" instance within range for a given creature.
+ * On the first call, the function creates a cache of all available "postal" instances.
+ * It then loops through the cache to find instances available for the creature and fitting within the given range.
+ * These available instances are added to a list.
+ * The function then chooses a random instance from this list.
+ * @param thing Pointer to the creature for which the instance is to be retrieved.
+ * @param dist Distance to the target.
+ * @return A random available "postal" CrInstance for the given range.
+ */
+CrInstance get_postal_instance_to_use(const struct Thing *thing, unsigned long dist)
 {
     struct InstanceInfo* inst_inf;
-    for (int p = PRIORITY_MAX; p >= 0; p--)
+    // Initialize the cache only once.
+    if (!initial)
     {
-        for (int i = 0; i < game.conf.crtr_conf.instances_count; i++)
+        // Loop through all available instances.
+        for (short i = 0; i < game.conf.crtr_conf.instances_count; i++)
         {
             inst_inf = creature_instance_info_get(i);
-            if (inst_inf->priority < p) // Instances with low priority are used last.
-                continue;
-            if (flag_is_set(inst_inf->instance_property_flags, InstPF_Quick))
+            // Check if the instance isn't InstPF_Dangerous||InstPF_RangedDebuff||InstPF_RangedBuff||InstPF_SelfBuff.
+            if ((!flag_is_set(inst_inf->instance_property_flags, InstPF_Dangerous))
+            || (!flag_is_set(inst_inf->instance_property_flags, InstPF_RangedDebuff))
+            || (!flag_is_set(inst_inf->instance_property_flags, InstPF_RangedBuff))
+            || (!flag_is_set(inst_inf->instance_property_flags, InstPF_SelfBuff))
             {
-                INSTANCE_RET_IF_AVAIL(thing, i);
+                // Ensure we don't exceed the maximum array size.
+                if (postal_inst_num < INSTANCE_TYPES_MAX)
+                {
+                    // Add the instance ID to the cache.
+                    postal_instance[postal_inst_num++] = i;
+                }
+                else
+                {
+                    break;
+                }
+            }
+        }
+        // Mark the cache as initialized.
+        initial = true;
+    }
+    // List of useable instances.
+    CrInstance av_postal_inst[INSTANCE_TYPES_MAX];
+    short av_postal_inst_num = 0;
+    unsigned char highest_prio = 0;
+    // Loop through the cached postal instances.
+    for (short j = 0; j < postal_inst_num; j++)
+    {
+        inst_inf = creature_instance_info_get(postal_instance[j]);
+        // Check if the instance is available.
+        if (creature_instance_is_available(thing, postal_instance[j]))
+        {
+            // If this instance has higher priority than current highest, reset the list.
+            if (inst_inf->priority > highest_prio)
+            {
+                highest_prio = inst_inf->priority;
+                av_postal_inst_num = 0; // Clear the list as we found a higher priority.
+            }
+            // If this instance matches the highest priority, check further conditions.
+            if (inst_inf->priority == highest_prio)
+            {
+                // Check if the instance is reset and in range.
+                if (creature_instance_has_reset(thing, postal_instance[j]) && inst_inf->range_min <= dist && dist <= inst_inf->range_max)
+                {
+                    // Add to the list of available instances.
+                    av_postal_inst[av_postal_inst_num++] = postal_instance[j];
+                }
             }
         }
     }
-    return CrInst_NULL;
+    // Choose a random index from the list of useable instances.
+    if (av_postal_inst_num > 0)
+    {
+        short rand_inst_idx = CREATURE_RANDOM(thing, av_postal_inst_num);
+        return av_postal_inst[rand_inst_idx];
+    }
+    else
+    {
+        // Return NULL if no suitable instance is found.
+        return CrInst_NULL;
+    }
 }
 
-#undef INSTANCE_RET_IF_AVAIL
+void reset_postal_instance_cache()
+{
+    // Reset the cache variables.
+    postal_inst_num = 0;
+    initial = false;
+    memset(postal_instance, 0, sizeof(postal_instance));
+}
 
 /**
  * Gives combat weapon instance from given array which matches given distance.

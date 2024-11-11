@@ -147,7 +147,7 @@ enum InstancePropertiesFlags {
     InstPF_RangedDebuff        = 0x000010,
     InstPF_Dangerous           = 0x000020,
     InstPF_Destructive         = 0x000040,
-    InstPF_Quick               = 0x000080,
+    InstPF_Unused              = 0x000080, // Was previously InstPF_Quick.
     InstPF_Disarming           = 0x000100,
     InstPF_UsesSwipe           = 0x000200,
     InstPF_RangedBuff          = 0x000400,

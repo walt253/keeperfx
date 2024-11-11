@@ -1819,15 +1819,27 @@ PlayerNumber get_player_number_for_command(char *msg)
 
 TbBool parameter_is_number(const char* parstr)
 {
-    if (parstr == NULL) {
-        return false;
-    } else if (parstr[0] == 0) {
-        return false;
-    } else if (!(parstr[0] == '-' || isdigit(parstr[0]))) {
+    if (parstr == NULL)
+    {
         return false;
     }
-    for (int i = 1; parstr[i] != '\0'; ++i) {
-        if (!isdigit(parstr[i])) {
+    else if (parstr[0] == 0)
+    {
+        return false;
+    }
+    else if (!(parstr[0] == '-' || isdigit(parstr[0])))
+    {
+        return false;
+    }
+    for (int i = 1; parstr[i] != '\0'; ++i)
+    {
+        // Skip invisible characters (e.g., Zero Width Space, ZWSP, U+200B).
+        if (parstr[i] == 0x200B || parstr[i] == 0x200C || parstr[i] == 0x200D || parstr[i] == 0xFEFF)
+        {
+            continue;
+        }
+        if (!isdigit(parstr[i]))
+        {
             return false;
         }
     }

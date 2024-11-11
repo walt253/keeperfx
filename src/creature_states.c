@@ -4131,9 +4131,9 @@ TbBool process_creature_hunger(struct Thing *thing)
 TbBool creature_is_hostile_towards(const struct Thing *fightng, const struct Thing *enmtng)
 {
     struct CreatureStats* crstat = creature_stats_get_from_thing(fightng);
-    for (ThingModel crmodel = 1; crmodel < game.conf.crtr_conf.model_count; crmodel++)
+    for (int i = 0; i < CREATURE_TYPES_MAX; i++)
     {
-        if ((crstat->hostile_towards[crmodel] == enmtng->model) || (crstat->hostile_towards[crmodel] == CREATURE_ANY))
+        if ((crstat->hostile_towards[i] == enmtng->model) || (crstat->hostile_towards[i] == CREATURE_ANY))
         {
             return true;
         }

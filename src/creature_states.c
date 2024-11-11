@@ -4133,7 +4133,7 @@ TbBool creature_is_hostile_towards(const struct Thing *fightng, const struct Thi
     struct CreatureStats* crstat = creature_stats_get_from_thing(fightng);
     for (ThindModel crmodel = 1; i < game.conf.crtr_conf.model_count; crmodel++)
     {
-        if ((crstat->hostile_towards[i] == enmtng->model) || (crstat->hostile_towards[i] == ANY_CREATURE))
+        if ((crstat->hostile_towards[i] == enmtng->model) || (crstat->hostile_towards[i] == CREATURE_ANY))
         {
             return true;
         }

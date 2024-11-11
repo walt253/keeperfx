@@ -1833,12 +1833,30 @@ TbBool parameter_is_number(const char* parstr)
     }
     for (int i = 1; parstr[i] != '\0'; i++)
     {
-        // Skip invisible characters (e.g., Zero Width Space, ZWSP, U+200B).
-        unsigned char c = (unsigned char)parstr[i];
-        if (c == 0x200B || c == 0x200C || c == 0x200D || c == 0xFEFF)
+        if (!isdigit(parstr[i]))
         {
-            continue;
+            return false;
         }
+    }
+    return true;
+}
+
+TbBool parameter_is_digit(const short* parstr)
+{
+    if (parstr == NULL)
+    {
+        return false;
+    }
+    else if (parstr[0] == 0)
+    {
+        return false;
+    }
+    else if (!(parstr[0] == '-' || isdigit(parstr[0])))
+    {
+        return false;
+    }
+    for (int i = 1; parstr[i] != '\0'; i++)
+    {
         if (!isdigit(parstr[i]))
         {
             return false;

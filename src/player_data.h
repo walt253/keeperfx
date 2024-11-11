@@ -75,12 +75,13 @@ enum PlayerViewModes {
 
 enum PlayerViewType {
     PVT_None = 0,
-    PVT_DungeonTop, /**< Normal map view. */
-    PVT_CreatureContrl, /**< First person creature control mode. */
-    PVT_CreaturePasngr, /**< First person creature view mode without controlling it. */
-    PVT_MapScreen,      /**< Parchment map screen. */
-    PVT_MapFadeIn, // 5
+    PVT_DungeonTop, // Normal map view.
+    PVT_CreatureContrl, // First person creature control mode.
+    PVT_CreaturePasngr, // First person creature view mode without controlling it.
+    PVT_MapScreen,      // Parchment map screen.
+    PVT_MapFadeIn, // 5.
     PVT_MapFadeOut,
+    PVT_CreatureTop, // Third person creature control mode.
 };
 
 enum PlayerVictoryState {

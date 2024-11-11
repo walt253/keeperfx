@@ -1967,7 +1967,7 @@ CrInstance get_postal_instance_to_use(const struct Thing *thing, unsigned long d
             if ((!flag_is_set(inst_inf->instance_property_flags, InstPF_Dangerous))
             || (!flag_is_set(inst_inf->instance_property_flags, InstPF_RangedDebuff))
             || (!flag_is_set(inst_inf->instance_property_flags, InstPF_RangedBuff))
-            || (!flag_is_set(inst_inf->instance_property_flags, InstPF_SelfBuff))
+            || (!flag_is_set(inst_inf->instance_property_flags, InstPF_SelfBuff)))
             {
                 // Ensure we don't exceed the maximum array size.
                 if (postal_inst_num < INSTANCE_TYPES_MAX)

@@ -399,7 +399,7 @@ void draw_swipe_graphic(void)
             long n = (int)cctrl->inst_turn * (5 << 8) / cctrl->inst_total_turns;
             long allwidth = 0;
             long i = (abs(n) >> 8) -1;
-            if (i > = SWIPE_SPRITE_FRAMES)
+            if (i >= SWIPE_SPRITE_FRAMES)
                 i = SWIPE_SPRITE_FRAMES-1;
             struct TbSprite* sprlist = &swipe_sprites[SWIPE_SPRITES_X * SWIPE_SPRITES_Y * i];
             struct TbSprite* startspr = &sprlist[1];
@@ -424,7 +424,7 @@ void draw_swipe_graphic(void)
             if (myplyr->swipe_sprite_drawLR)
             {
                 int delta_y = sprlist[1].SHeight;
-                for (i = 0; i < SWIPE_SPRITES_X*SWIPE_SPRITES_Y; i+= SWIPE_SPRITES_X)
+                for (i = 0; i < SWIPE_SPRITES_X*SWIPE_SPRITES_Y; i += SWIPE_SPRITES_X)
                 {
                     spr = &startspr[i];
                     scrpos_x = (MyScreenWidth * 16 / units_per_px - allwidth) / 2;
@@ -439,7 +439,7 @@ void draw_swipe_graphic(void)
             } else
             {
                 lbDisplay.DrawFlags = Lb_SPRITE_TRANSPAR4 | Lb_SPRITE_FLIP_HORIZ;
-                for (i = 0; i < SWIPE_SPRITES_X*SWIPE_SPRITES_Y; i+= SWIPE_SPRITES_X)
+                for (i = 0; i < SWIPE_SPRITES_X*SWIPE_SPRITES_Y; i += SWIPE_SPRITES_X)
                 {
                     spr = &sprlist[SWIPE_SPRITES_X+i];
                     int delta_y = spr->SHeight;

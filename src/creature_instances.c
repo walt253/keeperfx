@@ -327,15 +327,20 @@ TbBool instance_is_ranged_weapon_vs_objects(CrInstance inum)
     return (((inst_inf->instance_property_flags & InstPF_RangedAttack) != 0) && ((inst_inf->instance_property_flags & InstPF_Destructive) != 0) && !(inst_inf->instance_property_flags & InstPF_Dangerous));
 }
 
-/**
- * Informs whether the creature has an instance which can be used when going postal.
- * Going Postal is the behavior where creatures attack others at their job, like warlocks in the library
-  * @return True if it has a postal_priority value > 0.
- */
+/* Informs whether the creature has an instance which can be used when going postal.
+ * Going Postal is the behavior where creatures attack others at their job, like warlocks in the library.
+ * @return True if it has a postal_priority value > 0. */
 TbBool instance_is_used_for_going_postal(CrInstance inum)
 {
     struct InstanceInfo* inst_inf = creature_instance_info_get(inum);
-    return (inst_inf->postal_priority > 0);
+    if ((!flag_is_set(inst_inf->instance_property_flags, InstPF_Dangerous))
+    || (!flag_is_set(inst_inf->instance_property_flags, InstPF_RangedDebuff))
+    || (!flag_is_set(inst_inf->instance_property_flags, InstPF_RangedBuff))
+    || (!flag_is_set(inst_inf->instance_property_flags, InstPF_SelfBuff)))
+    {
+        return true;
+    }
+    return false;
 }
 
 TbBool instance_is_melee_attack(CrInstance inum)

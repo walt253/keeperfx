@@ -1831,10 +1831,11 @@ TbBool parameter_is_number(const char* parstr)
     {
         return false;
     }
-    for (int i = 1; parstr[i] != '\0'; ++i)
+    for (int i = 1; parstr[i] != '\0'; i++)
     {
         // Skip invisible characters (e.g., Zero Width Space, ZWSP, U+200B).
-        if (parstr[i] == 0x200B || parstr[i] == 0x200C || parstr[i] == 0x200D || parstr[i] == 0xFEFF)
+        unsigned char c = (unsigned char)parstr[i];
+        if (c == 0x200B || c == 0x200C || c == 0x200D || c == 0xFEFF)
         {
             continue;
         }

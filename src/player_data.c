@@ -465,54 +465,54 @@ void reset_player_mode(struct PlayerInfo *player, unsigned short nview)
     player->view_type = nview;
     switch (nview)
     {
-        case PVT_DungeonTop:
+    case PVT_DungeonTop:
+    {
+        player->work_state = player->continue_work_state;
+        if (player->view_mode_restore == PVM_FrontView)
         {
-            player->work_state = player->continue_work_state;
-            if (player->view_mode_restore == PVM_FrontView)
-            {
-                set_engine_view(player, PVM_FrontView);
-            }
-            else if (player->view_mode_restore == PVM_IsoStraightView)
-            {
-                set_engine_view(player, PVM_IsoStraightView);
-            }
-            else
-            {
-                set_engine_view(player, PVM_IsoWibbleView);
-            }
-            if (is_my_player(player))
-            {
-                game.numfield_D &= ~GNFldD_Unkn01;
-            }
-            break;
+            set_engine_view(player, PVM_FrontView);
         }
-        case PVT_CreatureContrl:
-        case PVT_CreaturePasngr:
-            player->work_state = player->continue_work_state;
-            set_engine_view(player, PVM_CreatureView);
-            if (is_my_player(player))
-            {
-                game.numfield_D |= GNFldD_Unkn01;
-            }
-            break;
-        case PVT_MapScreen:
-            player->work_state = player->continue_work_state;
-            set_engine_view(player, PVM_ParchmentView);
-            if (is_my_player(player))
-            {
-                game.numfield_D &= ~GNFldD_Unkn01;
-            }
-            break;
-        case PVT_CreatureTop:
-            player->work_state = player->continue_work_state;
-            set_engine_view(player, player->view_mode_restore);
-            if (is_my_player(player))
-            {
-                game.numfield_D &= ~GNFldD_Unkn01;
-            }
-            break;
-        default:
-            break;
+        else if (player->view_mode_restore == PVM_IsoStraightView)
+        {
+            set_engine_view(player, PVM_IsoStraightView);
+        }
+        else
+        {
+            set_engine_view(player, PVM_IsoWibbleView);
+        }
+        if (is_my_player(player))
+        {
+            game.numfield_D &= ~GNFldD_Unkn01;
+        }
+        break;
+    }
+    case PVT_CreatureContrl:
+    case PVT_CreaturePasngr:
+        player->work_state = player->continue_work_state;
+        set_engine_view(player, PVM_CreatureView);
+        if (is_my_player(player))
+        {
+            game.numfield_D |= GNFldD_Unkn01;
+        }
+        break;
+    case PVT_MapScreen:
+        player->work_state = player->continue_work_state;
+        set_engine_view(player, PVM_ParchmentView);
+        if (is_my_player(player))
+        {
+            game.numfield_D &= ~GNFldD_Unkn01;
+        }
+        break;
+    case PVT_CreatureTop:
+        player->work_state = player->continue_work_state;
+        set_engine_view(player, player->view_mode_restore);
+        if (is_my_player(player))
+        {
+            game.numfield_D &= ~GNFldD_Unkn01;
+        }
+        break;
+    default:
+        break;
     }
 }
 

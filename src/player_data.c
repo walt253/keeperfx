@@ -452,7 +452,7 @@ void set_player_mode(struct PlayerInfo *player, unsigned short nview)
         set_player_instance(player, PI_MapFadeFrom, 0);
         break;
     case PVT_CreatureTop:
-        set_engine_view(player->view_mode_restore);
+        set_engine_view(player, player->view_mode_restore);
         setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight);
         break;
     default:

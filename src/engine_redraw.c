@@ -171,10 +171,8 @@ static void draw_creature_view_icons(struct Thing* creatng)
             break;
         }
         default:
-        {
             spr_idx = 0;
             break;
-        }
         }
         draw_gui_panel_sprite_left(x, y, ps_units_per_px, spr_idx);
     }
@@ -1026,9 +1024,13 @@ void process_pointer_graphic(void)
     case PVT_CreaturePasngr:
     case PVT_CreatureTop:
         if (cheat_menu_is_active())
+        {
             set_pointer_graphic(MousePG_Arrow);
+        }
         else
+        {
             set_pointer_graphic(MousePG_Invisible);
+        }
         break;
     case PVT_MapScreen:
     case PVT_MapFadeIn:

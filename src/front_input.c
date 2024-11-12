@@ -690,7 +690,7 @@ TbBool get_level_lost_inputs(void)
 {
     long keycode;
     SYNCDBG(6, "Starting");
-    struct PlayerInfo *player = get_my_player();
+    struct PlayerInfo* player = get_my_player();
     if ((player->allocflags & PlaF_NewMPMessage) != 0)
     {
         get_players_message_inputs();
@@ -864,11 +864,11 @@ TbBool get_level_lost_inputs(void)
     case PVT_CreatureContrl:
     case PVT_CreatureTop:
     {
-        struct Thing *thing = thing_get(player->controlled_thing_idx);
+        struct Thing* thing = thing_get(player->controlled_thing_idx);
         TRACE_THING(thing);
         if (thing->class_id == TCls_Creature)
         {
-            struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
+            struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
             if ((cctrl->flgfield_2 & TF2_Spectator) == 0)
             {
                 set_players_packet_action(player, PckA_DirectCtrlExit, player->controlled_thing_idx, 0, 0, 0);

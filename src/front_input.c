@@ -569,9 +569,9 @@ short get_global_inputs(void)
     get_players_message_inputs();
     return true;
   }
-  if (((player->view_type == PVT_DungeonTop) || (player->view_type == PVT_CreatureContrl))
-  && (((game.system_flags & GSF_NetworkActive) != 0) ||
-     ((game.flags_gui & GGUI_SoloChatEnabled) != 0)))
+  if (((player->view_type == PVT_DungeonTop) || (player->view_type == PVT_CreatureContrl) || (player->view_type == PVT_CreatureTop))
+  && (((game.system_flags & GSF_NetworkActive) != 0)
+  || ((game.flags_gui & GGUI_SoloChatEnabled) != 0)))
   {
       if (is_key_pressed(KC_RETURN,KMod_NONE))
       {
@@ -832,6 +832,7 @@ TbBool get_level_lost_inputs(void)
         }
         break;
       case PVT_CreatureContrl:
+      case PVT_CreatureTop:
       {
           struct Thing* thing = thing_get(player->controlled_thing_idx);
           TRACE_THING(thing);
@@ -2618,9 +2619,9 @@ short get_inputs(void)
                 lbKeyOn[keycode] = 0;
                 set_packet_pause_toggle();
             }
-            else if( flag_is_set(start_params.debug_flags, DFlg_FrameStep) )
+            else if(flag_is_set(start_params.debug_flags, DFlg_FrameStep))
             {
-                if( is_key_pressed(KC_PERIOD, KMOD_NONE) )
+                if(is_key_pressed(KC_PERIOD, KMOD_NONE))
                 {
                     game.frame_step = true;
                     set_packet_pause_toggle();
@@ -2655,11 +2656,17 @@ short get_inputs(void)
     }
     TbBool inp_handled = false;
     if (!flag_is_set(game.operation_flags,GOF_Paused) || active_menu_functions_while_paused() || flag_is_set(game.operation_flags,GOF_WorldInfluence))
+    {
         inp_handled = get_gui_inputs(1);
+    }
     if (!inp_handled)
+    {
         inp_handled = get_global_inputs();
+    }
     if (game_is_busy_doing_gui_string_input())
-      return false;
+    {
+        return false;
+    }
     get_screen_capture_inputs();
     SYNCDBG(7,"Getting inputs for view %d",(int)player->view_type);
     switch (player->view_type)
@@ -2667,22 +2674,29 @@ short get_inputs(void)
     case PVT_DungeonTop:
         get_dungeon_control_pausable_action_inputs();
         if (!inp_handled)
+        {
             inp_handled = get_dungeon_control_action_inputs();
+        }
         get_dungeon_control_nonaction_inputs();
         get_player_gui_clicks();
         get_packet_control_mouse_clicks();
         get_dungeon_speech_inputs();
         return inp_handled;
     case PVT_CreatureContrl:
+    case PVT_CreatureTop:
         if (!inp_handled)
+        {
             inp_handled = get_creature_control_action_inputs();
+        }
         get_creature_control_nonaction_inputs();
         get_player_gui_clicks();
         get_packet_control_mouse_clicks();
         return inp_handled;
     case PVT_CreaturePasngr:
         if (!inp_handled)
+        {
             inp_handled = get_creature_passenger_action_inputs();
+        }
         get_player_gui_clicks();
         get_packet_control_mouse_clicks();
         return inp_handled;
@@ -2691,24 +2705,28 @@ short get_inputs(void)
         get_map_nonaction_inputs();
         get_player_gui_clicks();
         get_packet_control_mouse_clicks();
-        // Unset button release events if we're going to do an action; this is to avoid casting
-        // spells or doing other actions just after switch from parchment to dungeon view
+        // Unset button release events if we're going to do an action.
+        // This is to avoid casting spells or doing other actions just after switch from parchment to dungeon view.
         if (get_players_packet_action(player) != PckA_None)
+        {
             unset_players_packet_control(player, PCtr_LBtnRelease|PCtr_RBtnRelease);
+        }
         return inp_handled;
     case PVT_MapFadeIn:
         if (player->view_mode != PVM_ParchFadeIn)
         {
-          if ((game.system_flags & GSF_NetworkActive) == 0)
-            game.operation_flags &= ~GOF_Paused;
-          player->status_menu_restore = toggle_status_menu(0); // store current status menu visibility, and hide the status menu (when the map is visible) [duplicate? unneeded?]
-          set_players_packet_action(player, PckA_SetViewType, PVT_MapScreen, 0,0,0);
+            if ((game.system_flags & GSF_NetworkActive) == 0)
+            {
+                game.operation_flags &= ~GOF_Paused;
+            }
+            player->status_menu_restore = toggle_status_menu(0); // Store current status menu visibility, and hide the status menu. (when the map is visible) [duplicate? unneeded?]
+            set_players_packet_action(player, PckA_SetViewType, PVT_MapScreen, 0,0,0);
         }
         return false;
     case PVT_MapFadeOut:
         if (player->view_mode != PVM_ParchFadeOut)
         {
-          set_players_packet_action(player, PckA_SetViewType, PVT_DungeonTop, 0,0,0);
+            set_players_packet_action(player, PckA_SetViewType, PVT_DungeonTop, 0,0,0);
         }
         return false;
     default:

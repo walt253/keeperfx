@@ -1109,8 +1109,8 @@ void process_players_packet(long plyr_idx)
                 process_players_dungeon_control_packet_control(plyr_idx);
                 process_players_dungeon_control_packet_action(plyr_idx);
                 break;
-            case PVT_CreatureTop:
             case PVT_CreatureContrl:
+            case PVT_CreatureTop:
                 process_players_creature_control_packet_control(plyr_idx);
                 process_players_creature_control_packet_action(plyr_idx);
                 break;

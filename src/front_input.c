@@ -560,130 +560,130 @@ short get_screen_control_inputs(void)
 
 short get_global_inputs(void)
 {
-	if (game_is_busy_doing_gui_string_input())
-	{
-		return false;
-	}
-	struct PlayerInfo *player = get_my_player();
-	long keycode;
-	if ((player->allocflags & PlaF_NewMPMessage) != 0)
-	{
-		get_players_message_inputs();
-		return true;
-	}
-	if (((player->view_type == PVT_DungeonTop) || (player->view_type == PVT_CreatureContrl) || (player->view_type == PVT_CreatureTop))
-	&& (((game.system_flags & GSF_NetworkActive) != 0) || ((game.flags_gui & GGUI_SoloChatEnabled) != 0)))
-	{
-		if (is_key_pressed(KC_RETURN, KMod_NONE))
-		{
-			if (menu_is_active(GMnu_QUIT))
-			{
-				set_players_packet_action(player, PckA_Unknown001, 0, 0, 0, 0);
-				clear_key_pressed(KC_RETURN);
-				return true;
-			}
-			set_players_packet_action(player, PckA_PlyrMsgBegin, 0, 0, 0, 0);
-			clear_key_pressed(KC_RETURN);
-			return true;
-		}
-	}
-	// Code for debugging purposes.
-	if (is_key_pressed(KC_D, KMod_ALT))
-	{
-		JUSTMSG("REPORT for gameturn %d", game.play_gameturn);
-		// Timing report.
-		JUSTMSG("Now time is %d, last loop time was %d, clock is %d, requested fps is %d", LbTimerClock(), last_loop_time, clock(), game_num_fps);
-		test_variable = !test_variable;
-	}
-	for (int idx = KC_F1; idx <= KC_F8; idx++)
-	{
-		if (is_key_pressed(idx, KMod_CONTROL))
-		{
-			set_players_packet_action(player, PckA_PlyrFastMsg, idx - KC_F1, 0, 0, 0);
-			clear_key_pressed(idx);
-			return true;
-		}
-	}
-	if ((player->instance_num != PI_MapFadeTo)
-	&& (player->instance_num != PI_MapFadeFrom)
-	&& (!game_is_busy_doing_gui_string_input()))
-	{
-		if (is_game_key_pressed(Gkey_TogglePause, &keycode, false))
-		{
-			long grab_check_flags = (((game.operation_flags & GOF_Paused) == 0) ? MG_OnPauseEnter : MG_OnPauseLeave); // The paused flag is currently set to the current pause state, not the state we are about to enter.
-			LbGrabMouseCheck(grab_check_flags);
-			if (pause_music_when_game_paused())
-			{
-				// Only pause music, rather than pause all audio, because otherwise announcer messages will be lost. It continues to play while muted, it needs a new feature.
-				pause_music(((grab_check_flags & MG_OnPauseEnter) != 0));
-			}
-			if (((grab_check_flags & MG_OnPauseEnter) != 0))
-			{
-				for (int i = 0; i < PLAYER_NEUTRAL; i++)
-				{
-					stop_thing_playing_sample(find_players_dungeon_heart(i), 93);
-				}
-			}
-			set_packet_pause_toggle();
-			clear_key_pressed(keycode);
-			return true;
-		}
-		else if (flag_is_set(game.operation_flags, GOF_Paused) && flag_is_set(start_params.debug_flags, DFlg_FrameStep))
-		{
-			if (is_key_pressed(KC_PERIOD, KMOD_NONE))
-			{
-				game.frame_step = true;
-				set_packet_pause_toggle();
-				clear_key_pressed(KC_PERIOD);
-			}
-		}
-	}
-	if ((game.operation_flags & GOF_Paused) != 0)
-	{
-		return true;
-	}
-	if (get_speed_control_inputs())
-	{
-		return true;
-	}
-	if (get_minimap_control_inputs())
-	{
-		return true;
-	}
-	if (get_screen_control_inputs())
-	{
-		return true;
-	}
-	if (get_screen_capture_inputs())
-	{
-		return true;
-	}
-	if (is_key_pressed(KC_SPACE, KMod_NONE))
-	{
-		if (player->victory_state != VicS_Undecided)
-		{
-			if (timer_enabled())
-			{
-				update_time();
-				struct GameTime GameT = get_game_time(game.play_gameturn, game_num_fps);
-				SYNCMSG("Finished level %ld. Total turns taken: %ld (%02d:%02d:%02d at %d fps). Real time elapsed: %02d:%02d:%02d:%03d.", game.loaded_level_number, game.play_gameturn, GameT.Hours, GameT.Minutes, GameT.Seconds, game_num_fps, Timer.Hours, Timer.Minutes, Timer.Seconds, Timer.MSeconds);
-			}
-			set_players_packet_action(player, PckA_FinishGame, 0, 0, 0, 0);
-			clear_key_pressed(KC_SPACE);
-			return true;
-		}
-	}
-	if (is_game_key_pressed(Gkey_DumpToOldPos, &keycode, false))
-	{
-		set_players_packet_action(player, PckA_DumpHeldThingToOldPos, 0, 0, 0, 0);
-		clear_key_pressed(keycode);
-	}
-	if (is_key_pressed(KC_GRAVE, KMod_DONTCARE))
-	{
-		debug_display_consolelog = !debug_display_consolelog;
-		clear_key_pressed(KC_GRAVE);
-	}
-	return false;
+    if (game_is_busy_doing_gui_string_input())
+    {
+        return false;
+    }
+    struct PlayerInfo *player = get_my_player();
+    long keycode;
+    if ((player->allocflags & PlaF_NewMPMessage) != 0)
+    {
+        get_players_message_inputs();
+        return true;
+    }
+    if (((player->view_type == PVT_DungeonTop) || (player->view_type == PVT_CreatureContrl) || (player->view_type == PVT_CreatureTop))
+    && (((game.system_flags & GSF_NetworkActive) != 0) || ((game.flags_gui & GGUI_SoloChatEnabled) != 0)))
+    {
+        if (is_key_pressed(KC_RETURN, KMod_NONE))
+        {
+            if (menu_is_active(GMnu_QUIT))
+            {
+                set_players_packet_action(player, PckA_Unknown001, 0, 0, 0, 0);
+                clear_key_pressed(KC_RETURN);
+                return true;
+            }
+            set_players_packet_action(player, PckA_PlyrMsgBegin, 0, 0, 0, 0);
+            clear_key_pressed(KC_RETURN);
+            return true;
+        }
+    }
+    // Code for debugging purposes.
+    if (is_key_pressed(KC_D, KMod_ALT))
+    {
+        JUSTMSG("REPORT for gameturn %d", game.play_gameturn);
+        // Timing report.
+        JUSTMSG("Now time is %d, last loop time was %d, clock is %d, requested fps is %d", LbTimerClock(), last_loop_time, clock(), game_num_fps);
+        test_variable = !test_variable;
+    }
+    for (int idx = KC_F1; idx <= KC_F8; idx++)
+    {
+        if (is_key_pressed(idx, KMod_CONTROL))
+        {
+            set_players_packet_action(player, PckA_PlyrFastMsg, idx - KC_F1, 0, 0, 0);
+            clear_key_pressed(idx);
+            return true;
+        }
+    }
+    if ((player->instance_num != PI_MapFadeTo)
+    && (player->instance_num != PI_MapFadeFrom)
+    && (!game_is_busy_doing_gui_string_input()))
+    {
+        if (is_game_key_pressed(Gkey_TogglePause, &keycode, false))
+        {
+            long grab_check_flags = (((game.operation_flags & GOF_Paused) == 0) ? MG_OnPauseEnter : MG_OnPauseLeave); // The paused flag is currently set to the current pause state, not the state we are about to enter.
+            LbGrabMouseCheck(grab_check_flags);
+            if (pause_music_when_game_paused())
+            {
+                // Only pause music, rather than pause all audio, because otherwise announcer messages will be lost. It continues to play while muted, it needs a new feature.
+                pause_music(((grab_check_flags & MG_OnPauseEnter) != 0));
+            }
+            if (((grab_check_flags & MG_OnPauseEnter) != 0))
+            {
+                for (int i = 0; i < PLAYER_NEUTRAL; i++)
+                {
+                    stop_thing_playing_sample(find_players_dungeon_heart(i), 93);
+                }
+            }
+            set_packet_pause_toggle();
+            clear_key_pressed(keycode);
+            return true;
+        }
+        else if (flag_is_set(game.operation_flags, GOF_Paused) && flag_is_set(start_params.debug_flags, DFlg_FrameStep))
+        {
+            if (is_key_pressed(KC_PERIOD, KMOD_NONE))
+            {
+                game.frame_step = true;
+                set_packet_pause_toggle();
+                clear_key_pressed(KC_PERIOD);
+            }
+        }
+    }
+    if ((game.operation_flags & GOF_Paused) != 0)
+    {
+        return true;
+    }
+    if (get_speed_control_inputs())
+    {
+        return true;
+    }
+    if (get_minimap_control_inputs())
+    {
+        return true;
+    }
+    if (get_screen_control_inputs())
+    {
+        return true;
+    }
+    if (get_screen_capture_inputs())
+    {
+        return true;
+    }
+    if (is_key_pressed(KC_SPACE, KMod_NONE))
+    {
+        if (player->victory_state != VicS_Undecided)
+        {
+            if (timer_enabled())
+            {
+                update_time();
+                struct GameTime GameT = get_game_time(game.play_gameturn, game_num_fps);
+                SYNCMSG("Finished level %ld. Total turns taken: %ld (%02d:%02d:%02d at %d fps). Real time elapsed: %02d:%02d:%02d:%03d.", game.loaded_level_number, game.play_gameturn, GameT.Hours, GameT.Minutes, GameT.Seconds, game_num_fps, Timer.Hours, Timer.Minutes, Timer.Seconds, Timer.MSeconds);
+            }
+            set_players_packet_action(player, PckA_FinishGame, 0, 0, 0, 0);
+            clear_key_pressed(KC_SPACE);
+            return true;
+        }
+    }
+    if (is_game_key_pressed(Gkey_DumpToOldPos, &keycode, false))
+    {
+        set_players_packet_action(player, PckA_DumpHeldThingToOldPos, 0, 0, 0, 0);
+        clear_key_pressed(keycode);
+    }
+    if (is_key_pressed(KC_GRAVE, KMod_DONTCARE))
+    {
+        debug_display_consolelog = !debug_display_consolelog;
+        clear_key_pressed(KC_GRAVE);
+    }
+    return false;
 }
 
 TbBool get_level_lost_inputs(void)
@@ -2603,146 +2603,146 @@ TbBool active_menu_functions_while_paused()
 /* Fill packet struct with game action information. */
 short get_inputs(void)
 {
-	if ((game.flags_cd & MFlg_IsDemoMode) != 0)
-	{
-		SYNCDBG(5, "Starting for demo mode");
-		load_packets_for_turn(game.pckt_gameturn);
-		game.pckt_gameturn++;
-		get_packet_load_demo_inputs();
-		return false;
-	}
-	if (game.packet_load_enable)
-	{
-		SYNCDBG(5, "Loading packet inputs");
-		return get_packet_load_game_inputs();
-	}
-	struct PlayerInfo *player = get_my_player();
-	if ((player->allocflags & PlaF_MouseInputDisabled) != 0)
-	{
-		SYNCDBG(5, "Starting for creature fade");
-		set_players_packet_position(get_packet(my_player_number), 0, 0, 0);
-		if ((!game_is_busy_doing_gui_string_input()) && ((game.operation_flags & GOF_Paused) != 0))
-		{
-			long keycode;
-			if (is_game_key_pressed(Gkey_TogglePause, &keycode, false))
-			{
-				lbKeyOn[keycode] = 0;
-				set_packet_pause_toggle();
-			}
-			else if (flag_is_set(start_params.debug_flags, DFlg_FrameStep))
-			{
-				if (is_key_pressed(KC_PERIOD, KMOD_NONE))
-				{
-					game.frame_step = true;
-					set_packet_pause_toggle();
-					clear_key_pressed(KC_PERIOD);
-				}
-			}
-		}
-		return false;
-	}
-	SYNCDBG(5, "Starting");
-	gui_process_inputs();
-	if (player->victory_state == VicS_LostLevel)
-	{
-		if (player->is_active != 1)
-		{
-			get_level_lost_inputs();
-			return true;
-		}
-		struct Thing *thing = thing_get(player->controlled_thing_idx);
-		TRACE_THING(thing);
-		if (!thing_is_creature(thing))
-		{
-			get_level_lost_inputs();
-			return true;
-		}
-		struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
-		if ((cctrl->flgfield_2 & TF2_Spectator) == 0)
-		{
-			get_level_lost_inputs();
-			return true;
-		}
-	}
-	TbBool inp_handled = false;
-	if (!flag_is_set(game.operation_flags, GOF_Paused) || active_menu_functions_while_paused() || flag_is_set(game.operation_flags, GOF_WorldInfluence))
-	{
-		inp_handled = get_gui_inputs(1);
-	}
-	if (!inp_handled)
-	{
-		inp_handled = get_global_inputs();
-	}
-	if (game_is_busy_doing_gui_string_input())
-	{
-		return false;
-	}
-	get_screen_capture_inputs();
-	SYNCDBG(7, "Getting inputs for view %d", (int)player->view_type);
-	switch (player->view_type)
-	{
-	case PVT_DungeonTop:
-		get_dungeon_control_pausable_action_inputs();
-		if (!inp_handled)
-		{
-			inp_handled = get_dungeon_control_action_inputs();
-		}
-		get_dungeon_control_nonaction_inputs();
-		get_player_gui_clicks();
-		get_packet_control_mouse_clicks();
-		get_dungeon_speech_inputs();
-		return inp_handled;
-	case PVT_CreatureContrl:
-	case PVT_CreatureTop:
-		if (!inp_handled)
-		{
-			inp_handled = get_creature_control_action_inputs();
-		}
-		get_creature_control_nonaction_inputs();
-		get_player_gui_clicks();
-		get_packet_control_mouse_clicks();
-		return inp_handled;
-	case PVT_CreaturePasngr:
-		if (!inp_handled)
-		{
-			inp_handled = get_creature_passenger_action_inputs();
-		}
-		get_player_gui_clicks();
-		get_packet_control_mouse_clicks();
-		return inp_handled;
-	case PVT_MapScreen:
-		inp_handled = get_map_action_inputs();
-		get_map_nonaction_inputs();
-		get_player_gui_clicks();
-		get_packet_control_mouse_clicks();
-		// Unset button release events if we're going to do an action.
-		// This is to avoid casting spells or doing other actions just after switch from parchment to dungeon view.
-		if (get_players_packet_action(player) != PckA_None)
-		{
-			unset_players_packet_control(player, PCtr_LBtnRelease | PCtr_RBtnRelease);
-		}
-		return inp_handled;
-	case PVT_MapFadeIn:
-		if (player->view_mode != PVM_ParchFadeIn)
-		{
-			if ((game.system_flags & GSF_NetworkActive) == 0)
-			{
-				game.operation_flags &= ~GOF_Paused;
-			}
-			player->status_menu_restore = toggle_status_menu(0); // Store current status menu visibility, and hide the status menu. (when the map is visible) [duplicate? unneeded?]
-			set_players_packet_action(player, PckA_SetViewType, PVT_MapScreen, 0, 0, 0);
-		}
-		return false;
-	case PVT_MapFadeOut:
-		if (player->view_mode != PVM_ParchFadeOut)
-		{
-			set_players_packet_action(player, PckA_SetViewType, PVT_DungeonTop, 0, 0, 0);
-		}
-		return false;
-	default:
-		SYNCDBG(7, "Default exit");
-		return false;
-	}
+    if ((game.flags_cd & MFlg_IsDemoMode) != 0)
+    {
+        SYNCDBG(5, "Starting for demo mode");
+        load_packets_for_turn(game.pckt_gameturn);
+        game.pckt_gameturn++;
+        get_packet_load_demo_inputs();
+        return false;
+    }
+    if (game.packet_load_enable)
+    {
+        SYNCDBG(5, "Loading packet inputs");
+        return get_packet_load_game_inputs();
+    }
+    struct PlayerInfo *player = get_my_player();
+    if ((player->allocflags & PlaF_MouseInputDisabled) != 0)
+    {
+        SYNCDBG(5, "Starting for creature fade");
+        set_players_packet_position(get_packet(my_player_number), 0, 0, 0);
+        if ((!game_is_busy_doing_gui_string_input()) && ((game.operation_flags & GOF_Paused) != 0))
+        {
+            long keycode;
+            if (is_game_key_pressed(Gkey_TogglePause, &keycode, false))
+            {
+                lbKeyOn[keycode] = 0;
+                set_packet_pause_toggle();
+            }
+            else if (flag_is_set(start_params.debug_flags, DFlg_FrameStep))
+            {
+                if (is_key_pressed(KC_PERIOD, KMOD_NONE))
+                {
+                    game.frame_step = true;
+                    set_packet_pause_toggle();
+                    clear_key_pressed(KC_PERIOD);
+                }
+            }
+        }
+        return false;
+    }
+    SYNCDBG(5, "Starting");
+    gui_process_inputs();
+    if (player->victory_state == VicS_LostLevel)
+    {
+        if (player->is_active != 1)
+        {
+            get_level_lost_inputs();
+            return true;
+        }
+        struct Thing *thing = thing_get(player->controlled_thing_idx);
+        TRACE_THING(thing);
+        if (!thing_is_creature(thing))
+        {
+            get_level_lost_inputs();
+            return true;
+        }
+        struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
+        if ((cctrl->flgfield_2 & TF2_Spectator) == 0)
+        {
+            get_level_lost_inputs();
+            return true;
+        }
+    }
+    TbBool inp_handled = false;
+    if (!flag_is_set(game.operation_flags, GOF_Paused) || active_menu_functions_while_paused() || flag_is_set(game.operation_flags, GOF_WorldInfluence))
+    {
+        inp_handled = get_gui_inputs(1);
+    }
+    if (!inp_handled)
+    {
+        inp_handled = get_global_inputs();
+    }
+    if (game_is_busy_doing_gui_string_input())
+    {
+        return false;
+    }
+    get_screen_capture_inputs();
+    SYNCDBG(7, "Getting inputs for view %d", (int)player->view_type);
+    switch (player->view_type)
+    {
+    case PVT_DungeonTop:
+        get_dungeon_control_pausable_action_inputs();
+        if (!inp_handled)
+        {
+            inp_handled = get_dungeon_control_action_inputs();
+        }
+        get_dungeon_control_nonaction_inputs();
+        get_player_gui_clicks();
+        get_packet_control_mouse_clicks();
+        get_dungeon_speech_inputs();
+        return inp_handled;
+    case PVT_CreatureContrl:
+    case PVT_CreatureTop:
+        if (!inp_handled)
+        {
+            inp_handled = get_creature_control_action_inputs();
+        }
+        get_creature_control_nonaction_inputs();
+        get_player_gui_clicks();
+        get_packet_control_mouse_clicks();
+        return inp_handled;
+    case PVT_CreaturePasngr:
+        if (!inp_handled)
+        {
+            inp_handled = get_creature_passenger_action_inputs();
+        }
+        get_player_gui_clicks();
+        get_packet_control_mouse_clicks();
+        return inp_handled;
+    case PVT_MapScreen:
+        inp_handled = get_map_action_inputs();
+        get_map_nonaction_inputs();
+        get_player_gui_clicks();
+        get_packet_control_mouse_clicks();
+        // Unset button release events if we're going to do an action.
+        // This is to avoid casting spells or doing other actions just after switch from parchment to dungeon view.
+        if (get_players_packet_action(player) != PckA_None)
+        {
+            unset_players_packet_control(player, PCtr_LBtnRelease | PCtr_RBtnRelease);
+        }
+        return inp_handled;
+    case PVT_MapFadeIn:
+        if (player->view_mode != PVM_ParchFadeIn)
+        {
+            if ((game.system_flags & GSF_NetworkActive) == 0)
+            {
+                game.operation_flags &= ~GOF_Paused;
+            }
+            player->status_menu_restore = toggle_status_menu(0); // Store current status menu visibility, and hide the status menu. (when the map is visible) [duplicate? unneeded?]
+            set_players_packet_action(player, PckA_SetViewType, PVT_MapScreen, 0, 0, 0);
+        }
+        return false;
+    case PVT_MapFadeOut:
+        if (player->view_mode != PVM_ParchFadeOut)
+        {
+            set_players_packet_action(player, PckA_SetViewType, PVT_DungeonTop, 0, 0, 0);
+        }
+        return false;
+    default:
+        SYNCDBG(7, "Default exit");
+        return false;
+    }
 }
 
 void input(void)

@@ -2792,19 +2792,25 @@ struct Thing* cause_creature_death(struct Thing *thing, CrDeathFlags flags)
 void prepare_to_controlled_creature_death(struct Thing *thing)
 {
     struct PlayerInfo* player = get_player(thing->owner);
+    unsigned char prev_view_type = player->view_type;
     leave_creature_as_controller(player, thing);
     player->influenced_thing_idx = 0;
-    if (player->id_number == thing->owner)
-        setup_eye_lens(0);
-    set_camera_zoom(player->acamera, player->dungeon_camera_zoom);
+    if (prev_view_type != PVT_CreatureTop)
+    {
+        if (player->id_number == thing->owner)
+        {
+            setup_eye_lens(0);
+        }
+        set_camera_zoom(player->acamera, player->dungeon_camera_zoom);
+    }
     if (player->id_number == thing->owner)
     {
         turn_off_all_window_menus();
         turn_off_query_menus();
         turn_on_main_panel_menu();
         set_flag_value(game.operation_flags, GOF_ShowPanel, (game.operation_flags & GOF_ShowGui) != 0);
-  }
-  light_turn_light_on(player->cursor_light_idx);
+    }
+    light_turn_light_on(player->cursor_light_idx);
 }
 
 void delete_effects_attached_to_creature(struct Thing *creatng)

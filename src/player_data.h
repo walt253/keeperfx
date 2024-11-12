@@ -81,7 +81,7 @@ enum PlayerViewType {
     PVT_MapScreen,      // Parchment map screen.
     PVT_MapFadeIn, // 5.
     PVT_MapFadeOut,
-    PVT_CreatureTop, // Third person creature control mode.
+    PVT_CreatureTop,
 };
 
 enum PlayerVictoryState {

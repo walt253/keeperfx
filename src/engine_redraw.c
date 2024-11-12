@@ -87,24 +87,24 @@ static unsigned char * map_fade_dest;
 static unsigned char * map_fade_src;
 static long draw_spell_cost;
 /******************************************************************************/
-static void draw_creature_view_icons(struct Thing* creatng)
+static void draw_creature_view_icons(struct Thing *creatng)
 {
     struct GuiMenu *gmnu = get_active_menu(menu_id_to_number(GMnu_MAIN));
     ScreenCoord x = gmnu->width + scale_value_by_horizontal_resolution(5);
     ScreenCoord y;
-    struct TbSprite* spr;
+    struct TbSprite *spr;
     int ps_units_per_px;
     {
         spr = &gui_panel_sprites[488];
         ps_units_per_px = (22 * units_per_pixel) / spr->SHeight;
         y = MyScreenHeight - scale_ui_value_lofi(spr->SHeight * 2);
     }
-    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
     for (SpellKind Spell = SplK_Freeze; Spell <= SplK_TimeBomb; Spell++)
     {
         if (creature_affected_by_spell(creatng, Spell))
         {
-            struct SpellConfig* spconf = get_spell_config(Spell);
+            struct SpellConfig *spconf = get_spell_config(Spell);
             long spridx = spconf->medsym_sprite_idx;
             if (Spell == SplK_Invisibility)
             {
@@ -129,64 +129,64 @@ static void draw_creature_view_icons(struct Thing* creatng)
                 lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;
                 lbDisplay.DrawColour = LbTextGetFontFaceColor();
                 lbDisplayEx.ShadowColour = LbTextGetFontBackColor();
-                char* text = buf_sprintf("%d", (cctrl->timebomb_countdown / game_num_fps));
+                char *text = buf_sprintf("%d", (cctrl->timebomb_countdown / game_num_fps));
                 LbTextDrawResized(0, 0, tx_units_per_px, text);
             }
             draw_gui_panel_sprite_left(x, y, ps_units_per_px, spridx);
             x += scale_ui_value_lofi(spr->SWidth);
         }
     }
-    if ( (cctrl->dragtng_idx != 0) && ((creatng->alloc_flags & TAlF_IsDragged) == 0) )
+    if ((cctrl->dragtng_idx != 0) && ((creatng->alloc_flags & TAlF_IsDragged) == 0))
     {
-        struct Thing* dragtng = thing_get(cctrl->dragtng_idx);
+        struct Thing *dragtng = thing_get(cctrl->dragtng_idx);
         unsigned long spr_idx;
         x = MyScreenWidth - (scale_value_by_horizontal_resolution(148) / 4);
-        switch(dragtng->class_id)
+        switch (dragtng->class_id)
         {
-            case TCls_Object:
+        case TCls_Object:
+        {
+            RoomKind rkind;
+            struct RoomConfigStats *roomst;
+            if (thing_is_workshop_crate(dragtng))
             {
-                RoomKind rkind;
-                struct RoomConfigStats *roomst;
-                if (thing_is_workshop_crate(dragtng))
-                {
-                    rkind = find_first_roomkind_with_role(RoRoF_CratesStorage);
-                }
-                else
-                {
-                    rkind = find_first_roomkind_with_role(RoRoF_PowersStorage);
-                }
-                roomst = get_room_kind_stats(rkind);
-                spr_idx = roomst->medsym_sprite_idx;
-                break;
+                rkind = find_first_roomkind_with_role(RoRoF_CratesStorage);
             }
-            case TCls_DeadCreature:
-            case TCls_Creature:
+            else
             {
-                y -= scale_value_by_horizontal_resolution(spr->SHeight / 2);
-                spr_idx = get_creature_model_graphics(dragtng->model, CGI_HandSymbol);
-                if (dragtng->class_id == TCls_DeadCreature)
-                {
-                    spr_idx++;
-                }
-                break;
+                rkind = find_first_roomkind_with_role(RoRoF_PowersStorage);
             }
-            default:
+            roomst = get_room_kind_stats(rkind);
+            spr_idx = roomst->medsym_sprite_idx;
+            break;
+        }
+        case TCls_DeadCreature:
+        case TCls_Creature:
+        {
+            y -= scale_value_by_horizontal_resolution(spr->SHeight / 2);
+            spr_idx = get_creature_model_graphics(dragtng->model, CGI_HandSymbol);
+            if (dragtng->class_id == TCls_DeadCreature)
             {
-                spr_idx = 0;
-                break;
+                spr_idx++;
             }
+            break;
+        }
+        default:
+        {
+            spr_idx = 0;
+            break;
+        }
         }
         draw_gui_panel_sprite_left(x, y, ps_units_per_px, spr_idx);
     }
     else
     {
-        struct PlayerInfo* player = get_my_player();
-        if (player->view_type == PVT_CreatureContrl)
+        struct PlayerInfo *player = get_my_player();
+        if ((player->view_type == PVT_CreatureContrl) || (player->view_type == PVT_CreatureTop))
         {
             if (!creature_instance_is_available(creatng, cctrl->active_instance_id))
             {
                 x = MyScreenWidth - (scale_value_by_horizontal_resolution(148) / 4);
-                struct InstanceInfo* inst_inf = creature_instance_info_get(cctrl->active_instance_id % game.conf.crtr_conf.instances_count);
+                struct InstanceInfo *inst_inf = creature_instance_info_get(cctrl->active_instance_id % game.conf.crtr_conf.instances_count);
                 draw_gui_panel_sprite_left(x, y, ps_units_per_px, inst_inf->symbol_spridx);
             }
         }

@@ -404,59 +404,59 @@ void set_player_mode(struct PlayerInfo *player, unsigned short nview)
     }
     switch (player->view_type)
     {
-        case PVT_DungeonTop:
+    case PVT_DungeonTop:
+    {
+        if (player->view_mode_restore == PVM_FrontView)
         {
-            if (player->view_mode_restore == PVM_FrontView)
-            {
-                set_engine_view(player, PVM_FrontView);
-            }
-            else if (player->view_mode_restore == PVM_IsoStraightView)
-            {
-                set_engine_view(player, PVM_IsoStraightView);
-            }
-            else
-            {
-                set_engine_view(player, PVM_IsoWibbleView);
-            }
-            if (is_my_player(player))
-            {
-                toggle_status_menu((game.operation_flags & GOF_ShowPanel) != 0);
-            }
-            if ((game.operation_flags & GOF_ShowGui) != 0)
-            {
-                setup_engine_window(status_panel_width, 0, MyScreenWidth, MyScreenHeight);
-            }
-            else
-            {
-                setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight);
-            }
-            break;
+            set_engine_view(player, PVM_FrontView);
         }
-        case PVT_CreatureContrl:
-        case PVT_CreaturePasngr:
-            set_engine_view(player, PVM_CreatureView);
-            if (is_my_player(player))
-            {
-                game.numfield_D &= ~GNFldD_Unkn01;
-            }
+        else if (player->view_mode_restore == PVM_IsoStraightView)
+        {
+            set_engine_view(player, PVM_IsoStraightView);
+        }
+        else
+        {
+            set_engine_view(player, PVM_IsoWibbleView);
+        }
+        if (is_my_player(player))
+        {
+            toggle_status_menu((game.operation_flags & GOF_ShowPanel) != 0);
+        }
+        if ((game.operation_flags & GOF_ShowGui) != 0)
+        {
+            setup_engine_window(status_panel_width, 0, MyScreenWidth, MyScreenHeight);
+        }
+        else
+        {
             setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight);
-            break;
-        case PVT_MapScreen:
-            player->continue_work_state = player->work_state;
-            set_engine_view(player, PVM_ParchmentView);
-            break;
-        case PVT_MapFadeIn:
-            set_player_instance(player, PI_MapFadeTo, 0);
-            break;
-        case PVT_MapFadeOut:
-            set_player_instance(player, PI_MapFadeFrom, 0);
-            break;
-        case PVT_CreatureTop:
-            set_engine_view(player->view_mode_restore);
-            setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight);
-            break;
-        default:
-            break;
+        }
+        break;
+    }
+    case PVT_CreatureContrl:
+    case PVT_CreaturePasngr:
+        set_engine_view(player, PVM_CreatureView);
+        if (is_my_player(player))
+        {
+            game.numfield_D &= ~GNFldD_Unkn01;
+        }
+        setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight);
+        break;
+    case PVT_MapScreen:
+        player->continue_work_state = player->work_state;
+        set_engine_view(player, PVM_ParchmentView);
+        break;
+    case PVT_MapFadeIn:
+        set_player_instance(player, PI_MapFadeTo, 0);
+        break;
+    case PVT_MapFadeOut:
+        set_player_instance(player, PI_MapFadeFrom, 0);
+        break;
+    case PVT_CreatureTop:
+        set_engine_view(player->view_mode_restore);
+        setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight);
+        break;
+    default:
+        break;
     }
 }
 

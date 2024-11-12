@@ -145,7 +145,7 @@ const struct NamedField rules_magic_named_fields[] = {
   {"FRIENDLYFIGHTAREARANGEPERCENT", &game.conf.rules.magic.friendly_fight_area_range_percent, var_type(game.conf.rules.magic.friendly_fight_area_range_percent ),LONG_MIN,LONG_MAX},
   {"FRIENDLYFIGHTAREADAMAGEPERCENT",&game.conf.rules.magic.friendly_fight_area_damage_percent,var_type(game.conf.rules.magic.friendly_fight_area_damage_percent),LONG_MIN,LONG_MAX},
   {"WEIGHTCALCULATEPUSH",           &game.conf.rules.magic.weight_calculate_push,             var_type(game.conf.rules.magic.weight_calculate_push             ),       0,SHRT_MAX},
-  {"POSSESSIONTHIRDVIEWMODE",       &game.conf.rules.magic.possession_third_view_mode,        var_type(game.conf.rules.magic.possession_third_view_mode        ),       0,       1},
+  {"POSSESSIONVIEWMODE",            &game.conf.rules.magic.possession_view_mode,              var_type(game.conf.rules.magic.possession_view_mode              ),       0,       1},
   {NULL,                            NULL,0,0,0 },
   };
 

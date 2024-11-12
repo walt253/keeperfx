@@ -452,18 +452,7 @@ void set_player_mode(struct PlayerInfo *player, unsigned short nview)
             set_player_instance(player, PI_MapFadeFrom, 0);
             break;
         case PVT_CreatureTop:
-            if (player->view_mode_restore == PVM_FrontView)
-            {
-                set_engine_view(player, PVM_FrontView);
-            }
-            else if (player->view_mode_restore == PVM_IsoStraightView)
-            {
-                set_engine_view(player, PVM_IsoStraightView);
-            }
-            else
-            {
-                set_engine_view(player, PVM_IsoWibbleView);
-            }
+            set_engine_view(player->view_mode_restore);
             setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight);
             break;
         default:
@@ -476,7 +465,6 @@ void reset_player_mode(struct PlayerInfo *player, unsigned short nview)
     player->view_type = nview;
     switch (nview)
     {
-        case PVT_CreatureTop:
         case PVT_DungeonTop:
         {
             player->work_state = player->continue_work_state;
@@ -510,6 +498,14 @@ void reset_player_mode(struct PlayerInfo *player, unsigned short nview)
         case PVT_MapScreen:
             player->work_state = player->continue_work_state;
             set_engine_view(player, PVM_ParchmentView);
+            if (is_my_player(player))
+            {
+                game.numfield_D &= ~GNFldD_Unkn01;
+            }
+            break;
+        case PVT_CreatureTop:
+            player->work_state = player->continue_work_state;
+            set_engine_view(player, player->view_mode_restore);
             if (is_my_player(player))
             {
                 game.numfield_D &= ~GNFldD_Unkn01;

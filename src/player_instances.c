@@ -1324,9 +1324,9 @@ TbBool is_thing_directly_controlled_by_player(const struct Thing *thing, PlayerN
             {
                 if ((thing->alloc_flags & TAlF_IsControlled) != 0)
                 {
-                    if (player->view_type == PVT_CreatureContrl)
+                    if ((player->view_type == PVT_CreatureContrl) || (player->view_type == PVT_CreatureTop))
                     {
-                        return ( (thing->index == player->influenced_thing_idx) || (get_creature_model_flags(thing) & CMF_IsSpectator) );
+                        return ((thing->index == player->influenced_thing_idx) || (get_creature_model_flags(thing) & CMF_IsSpectator));
                     }
                 }
                 return false;

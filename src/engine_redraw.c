@@ -1015,19 +1015,20 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
 void process_pointer_graphic(void)
 {
     struct PlayerInfo* player = get_my_player();
-    SYNCDBG(6,"Starting for view %d, player state %s, instance %d",(int)player->view_type,player_state_code_name(player->work_state),(int)player->instance_num);
+    SYNCDBG(6, "Starting for view %d, player state %s, instance %d", (int)player->view_type, player_state_code_name(player->work_state), (int)player->instance_num);
     switch (player->view_type)
     {
     case PVT_DungeonTop:
-        // This case is complicated
+        // This case is complicated.
         process_dungeon_top_pointer_graphic(player);
         break;
     case PVT_CreatureContrl:
     case PVT_CreaturePasngr:
+    case PVT_CreatureTop:
         if (cheat_menu_is_active())
-          set_pointer_graphic(MousePG_Arrow);
+            set_pointer_graphic(MousePG_Arrow);
         else
-          set_pointer_graphic(MousePG_Invisible);
+            set_pointer_graphic(MousePG_Invisible);
         break;
     case PVT_MapScreen:
     case PVT_MapFadeIn:

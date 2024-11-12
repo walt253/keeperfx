@@ -564,7 +564,7 @@ short get_global_inputs(void)
     {
         return false;
     }
-    struct PlayerInfo *player = get_my_player();
+    struct PlayerInfo* player = get_my_player();
     long keycode;
     if ((player->allocflags & PlaF_NewMPMessage) != 0)
     {
@@ -2599,7 +2599,6 @@ TbBool active_menu_functions_while_paused()
          || menu_is_active(GMnu_VIDEO) || menu_is_active(GMnu_SOUND) || menu_is_active(GMnu_ERROR_BOX) || menu_is_active(GMnu_AUTOPILOT));
 }
 
-
 /* Fill packet struct with game action information. */
 short get_inputs(void)
 {
@@ -2616,7 +2615,7 @@ short get_inputs(void)
         SYNCDBG(5, "Loading packet inputs");
         return get_packet_load_game_inputs();
     }
-    struct PlayerInfo *player = get_my_player();
+    struct PlayerInfo* player = get_my_player();
     if ((player->allocflags & PlaF_MouseInputDisabled) != 0)
     {
         SYNCDBG(5, "Starting for creature fade");
@@ -2650,14 +2649,14 @@ short get_inputs(void)
             get_level_lost_inputs();
             return true;
         }
-        struct Thing *thing = thing_get(player->controlled_thing_idx);
+        struct Thing* thing = thing_get(player->controlled_thing_idx);
         TRACE_THING(thing);
         if (!thing_is_creature(thing))
         {
             get_level_lost_inputs();
             return true;
         }
-        struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
+        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
         if ((cctrl->flgfield_2 & TF2_Spectator) == 0)
         {
             get_level_lost_inputs();

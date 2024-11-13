@@ -2583,19 +2583,25 @@ void remove_power_from_player(PowerKind pwkind, PlayerNumber plyr_idx)
     {
     case PwrK_OBEY:
         if (player_uses_power_obey(plyr_idx))
+        {
             turn_off_power_obey(plyr_idx);
+        }
         break;
     case PwrK_SIGHT:
         if (player_uses_power_sight(plyr_idx))
+        {
             turn_off_power_sight_of_evil(plyr_idx);
+        }
         break;
     case PwrK_CALL2ARMS:
         if (player_uses_power_call_to_arms(plyr_idx))
+        {
             turn_off_power_call_to_arms(plyr_idx);
+        }
         break;
     case PwrK_POSSESS:
         player = get_player(plyr_idx);
-        if (player->view_type == PVT_CreatureContrl)
+        if ((player->view_type == PVT_CreatureContrl) || (player->view_type == PVT_CreatureTop))
         {
             thing = thing_get(player->controlled_thing_idx);
             prepare_to_controlled_creature_death(thing);

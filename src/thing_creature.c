@@ -2795,14 +2795,14 @@ void prepare_to_controlled_creature_death(struct Thing *thing)
     unsigned char prev_view_type = player->view_type;
     leave_creature_as_controller(player, thing);
     player->influenced_thing_idx = 0;
-    if (prev_view_type != PVT_CreatureTop)
-    {
+    //if (prev_view_type != PVT_CreatureTop)
+    //{
         if (player->id_number == thing->owner)
         {
             setup_eye_lens(0);
         }
         set_camera_zoom(player->acamera, player->dungeon_camera_zoom);
-    }
+    //}
     if (player->id_number == thing->owner)
     {
         turn_off_all_window_menus();

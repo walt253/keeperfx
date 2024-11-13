@@ -383,12 +383,13 @@ TbBool update_creature_anim_td(struct Thing *thing, long speed, long td_idx)
 
 void update_creature_rendering_flags(struct Thing *thing)
 {
-    // Clear related flags
+    struct PlayerInfo* player = get_player(thing->owner);
+    // Clear related flags.
     thing->rendering_flags &= ~TRF_Invisible;
     thing->rendering_flags &= ~TRF_Transpar_Flags;
     thing->rendering_flags &= ~TRF_AnimateOnce;
-    // Now set only those that should be
-    if ( (is_thing_directly_controlled_by_player(thing, my_player_number)) || (is_thing_passenger_controlled_by_player(thing, my_player_number)) )
+    // Now set only those that should be.
+    if (((is_thing_directly_controlled_by_player(thing, my_player_number)) || (is_thing_passenger_controlled_by_player(thing, my_player_number))) && (player->view_type != PVT_CreatureTop))
     {
         thing->rendering_flags |= TRF_Invisible;
     }
@@ -402,18 +403,19 @@ void update_creature_rendering_flags(struct Thing *thing)
     }
     if (creature_is_invisible(thing))
     {
-      if (is_my_player_number(thing->owner))
-      {
-          thing->rendering_flags &= ~TRF_Transpar_Flags;
-          thing->rendering_flags |= TRF_Transpar_4;
-      } else
-      {
+        if (is_my_player_number(thing->owner))
+        {
+            thing->rendering_flags &= ~TRF_Transpar_Flags;
+            thing->rendering_flags |= TRF_Transpar_4;
+        }
+        else
+        {
             thing->rendering_flags |= TRF_Invisible;
             struct PlayerInfo* player = get_my_player();
             struct Thing* creatng = thing_get(player->influenced_thing_idx);
             if (creatng != thing)
             {
-                if ( (is_thing_directly_controlled_by_player(creatng, player->id_number)) || (is_thing_passenger_controlled_by_player(creatng, player->id_number)) )
+                if ((is_thing_directly_controlled_by_player(creatng, player->id_number)) || (is_thing_passenger_controlled_by_player(creatng, player->id_number)))
                 {
                     if (creature_can_see_invisible(creatng))
                     {
@@ -423,7 +425,7 @@ void update_creature_rendering_flags(struct Thing *thing)
                     }
                 }
             }
-      }
+        }
     }
 }
 

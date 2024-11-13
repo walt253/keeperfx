@@ -262,7 +262,6 @@ TbBool control_creature_as_controller(struct PlayerInfo *player, struct Thing *t
         player->view_mode_restore = cam->view_mode;
     }
     thing->alloc_flags |= TAlF_IsControlled;
-    thing->rendering_flags |= TRF_Invisible;
     if (!chicken)
     {
         set_start_state(thing);
@@ -273,6 +272,7 @@ TbBool control_creature_as_controller(struct PlayerInfo *player, struct Thing *t
     }
     if (game.conf.rules.magic.possession_view_mode == false)
     {
+        thing->rendering_flags |= TRF_Invisible;
         set_player_mode(player, PVT_CreatureContrl);
     }
     else
@@ -288,8 +288,8 @@ TbBool control_creature_as_controller(struct PlayerInfo *player, struct Thing *t
             make_group_member_leader(thing);
         }
     }
-    if (game.conf.rules.magic.possession_view_mode == false)
-    {
+    //if (game.conf.rules.magic.possession_view_mode == false)
+    //{
         crstat = creature_stats_get(thing->model);
         if ((!crstat->illuminated) && (!creature_affected_by_spell(thing, SplK_Light)))
         {
@@ -300,7 +300,7 @@ TbBool control_creature_as_controller(struct PlayerInfo *player, struct Thing *t
             crstat = creature_stats_get_from_thing(thing);
             setup_eye_lens(crstat->eye_effect);
         }
-    }
+    //}
     return true;
 }
 

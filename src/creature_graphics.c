@@ -383,7 +383,7 @@ TbBool update_creature_anim_td(struct Thing *thing, long speed, long td_idx)
 
 void update_creature_rendering_flags(struct Thing *thing)
 {
-    struct PlayerInfo* player = get_player(thing->owner);
+    struct PlayerInfo* player = get_my_player();
     // Clear related flags.
     thing->rendering_flags &= ~TRF_Invisible;
     thing->rendering_flags &= ~TRF_Transpar_Flags;
@@ -411,7 +411,6 @@ void update_creature_rendering_flags(struct Thing *thing)
         else
         {
             thing->rendering_flags |= TRF_Invisible;
-            struct PlayerInfo* player = get_my_player();
             struct Thing* creatng = thing_get(player->influenced_thing_idx);
             if (creatng != thing)
             {

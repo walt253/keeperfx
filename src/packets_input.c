@@ -713,6 +713,11 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
         case PSt_Lightning:
         case PSt_CreateDigger:
         case PSt_DestroyWalls:
+        case PSt_MeteorStorm:
+        case PSt_MassTeleport:
+        case PSt_Fart:
+        case PSt_SummonCreature:
+        case PSt_Eruption:
             if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
             {
                 i = get_power_overcharge_level(player);
@@ -881,6 +886,10 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
         case PSt_Slow:
         case PSt_Flight:
         case PSt_Vision:
+        case PSt_Rage:
+        case PSt_DivineShield:
+        case PSt_Indoctrination:
+        case PSt_MagicMist:
         case PSt_TimeBomb:
         case PSt_CastDisease:
         case PSt_TurnChicken:

@@ -1632,6 +1632,7 @@ static void new_trap_type_check(const struct ScriptLine* scline)
     trapst->detect_invisible = true;
     trapst->notify = false;
     trapst->place_on_bridge = false;
+    trapst->place_on_room = false;
     trapst->place_on_subtile = false;
     trapst->health = 1;
     trapst->destructible = 0;

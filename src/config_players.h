@@ -98,6 +98,15 @@ enum PlayerStates {
     PSt_Slow,
     PSt_Flight,
     PSt_Vision,
+    PSt_Rage, // 55
+    PSt_DivineShield,
+    PSt_MeteorStorm,
+    PSt_Indoctrination,
+    PSt_MagicMist,
+    PSt_MassTeleport, // 60
+    PSt_Fart,
+    PSt_SummonCreature,
+    PSt_Eruption,
     PSt_ListEnd
 };
 

@@ -82,6 +82,7 @@ struct TrapConfigStats {
     TbBool detect_invisible;
     TbBool notify;
     TbBool place_on_bridge;
+    TbBool place_on_room;
     TbBool place_on_subtile;
     TbBool instant_placement;
     TbBool remove_once_depleted;

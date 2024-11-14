@@ -269,6 +269,7 @@ const struct NamedCommand trap_config_desc[] = {
   {"DetectInvisible",         49},
   {"InstantPlacement",        50},
   {"RemoveOnceDepleted",      51},
+  {"PlaceOnRoom",             52},
   {NULL,                       0},
 };
 
@@ -1633,6 +1634,7 @@ static void new_trap_type_check(const struct ScriptLine* scline)
     trapst->detect_invisible = true;
     trapst->notify = false;
     trapst->place_on_bridge = false;
+    trapst->place_on_room = false;
     trapst->place_on_subtile = false;
     trapst->instant_placement = false;
     trapst->remove_once_depleted = false;
@@ -1930,6 +1932,9 @@ static void set_trap_configuration_process(struct ScriptContext *context)
             break;
         case 51: // RemoveOnceDepleted
             trapst->remove_once_depleted = value;
+            break;
+        case 52: // PlaceOnRoom
+            trapst->place_on_room = value;
             break;
         default:
             WARNMSG("Unsupported Trap configuration, variable %d.", context->value->shorts[1]);

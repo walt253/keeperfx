@@ -311,6 +311,7 @@ long compute_creature_max_health(HitPoints base_health, unsigned short crlevel, 
     if (crlevel >= CREATURE_MAX_LEVEL)
         crlevel = CREATURE_MAX_LEVEL-1;
     HitPoints max_health = base_health + (game.conf.crtr_conf.exp.health_increase_on_exp * base_health * (long)crlevel) / 100;
+    // Apply modifier.
     if (plyr_idx != game.neutral_player_num) {
         dungeon = get_dungeon(plyr_idx);
         unsigned short modifier = dungeon->modifier.health;
@@ -377,7 +378,8 @@ long compute_creature_max_dexterity(long base_param, unsigned short crlevel)
     if (crlevel >= CREATURE_MAX_LEVEL)
         crlevel = CREATURE_MAX_LEVEL-1;
     long max_param = base_param + (game.conf.crtr_conf.exp.dexterity_increase_on_exp * base_param * (long)crlevel) / 100;
-    return saturate_set_unsigned(max_param, 8);
+    //return saturate_set_unsigned(max_param, 8);
+    return max_param;
 }
 
 /* Computes magic of a creature on given level. */

@@ -298,10 +298,10 @@ long compute_creature_kind_score(ThingModel crkind, unsigned short crlevel)
     // Modifiers shouldn't affect the computation for the creature kind score so compute_creature_max_health has 'game.neutral_player_num' as last argument.
     struct CreatureStats* crstat = creature_stats_get(crkind);
     return compute_creature_max_health(crstat->health, crlevel, game.neutral_player_num)
-        + compute_creature_max_defense(crstat->defense, crlevel)
-        + compute_creature_max_dexterity(crstat->dexterity, crlevel)
-        + compute_creature_max_armour(crstat->armour, crlevel)
-        + compute_creature_max_strength(crstat->strength, crlevel);
+           + compute_creature_max_defense(crstat->defense, crlevel)
+           + compute_creature_max_dexterity(crstat->dexterity, crlevel)
+           + compute_creature_max_armour(crstat->armour, crlevel)
+           + compute_creature_max_strength(crstat->strength, crlevel);
 }
 
 /* Computes max health of a creature on given level. */
@@ -312,7 +312,8 @@ long compute_creature_max_health(HitPoints base_health, unsigned short crlevel, 
         crlevel = CREATURE_MAX_LEVEL-1;
     HitPoints max_health = base_health + (game.conf.crtr_conf.exp.health_increase_on_exp * base_health * (long)crlevel) / 100;
     // Apply modifier.
-    if (plyr_idx != game.neutral_player_num) {
+    if (plyr_idx != game.neutral_player_num)
+    {
         dungeon = get_dungeon(plyr_idx);
         unsigned short modifier = dungeon->modifier.health;
         max_health = (max_health * modifier) / 100;
@@ -727,9 +728,6 @@ long calculate_correct_creature_defense(const struct Thing *thing)
         if (player_uses_power_mighty_infusion(thing->owner))
             max_param = (320 * max_param) / 256;
     }
-    // Value cannot exceed 255 with modifier.
-    if (max_param >= 255)
-        max_param = 255;
     return max_param;
 }
 
@@ -750,9 +748,6 @@ long calculate_correct_creature_dexterity(const struct Thing *thing)
         if (player_uses_power_mighty_infusion(thing->owner))
             max_param = (320 * max_param) / 256;
     }
-    // Value cannot exceed 255 with modifier.
-    if (max_param >= 255)
-        max_param = 255;
     return max_param;
 }
 
@@ -775,7 +770,7 @@ long calculate_correct_creature_magic(const struct Thing *thing)
         if (player_uses_power_mighty_infusion(thing->owner))
             max_param = (320 * max_param) / 256;
     }
-    // Magic cannot exceed 32767.
+    // Magic cannot exceed 32767 with modifier.
     if (max_param >= 32767)
         max_param = 32767;
     return max_param;
@@ -915,7 +910,7 @@ long calculate_correct_creature_luck(const struct Thing *thing)
         unsigned short modifier = dungeon->modifier.luck;
         max_param = (max_param * modifier) / 100;
     }
-    // Luck cannot exceed 100.
+    // Luck cannot exceed 100 with modifier.
     if (max_param >= 100)
         max_param = 100;
     return max_param;
@@ -1033,7 +1028,8 @@ void apply_health_to_thing_and_display_health(struct Thing *thing, HitPoints amo
 static HitPoints apply_damage_to_creature(struct Thing *thing, HitPoints dmg)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    if ((cctrl->flgfield_1 & CCFlg_PreventDamage) != 0) {
+    if ((cctrl->flgfield_1 & CCFlg_PreventDamage) != 0)
+    {
         return 0;
     }
     // Get correct armour value.
@@ -1041,7 +1037,9 @@ static HitPoints apply_damage_to_creature(struct Thing *thing, HitPoints dmg)
     // Now compute damage.
     HitPoints cdamage = (dmg * (256 - carmor)) / 256;
     if ((cdamage <= 0) || (creature_affected_by_spell(thing, SplK_DivineShield)))
-      cdamage = 1;
+    {
+        cdamage = 1;
+    }
     // Apply damage to the thing.
     thing->health -= cdamage;
     thing->rendering_flags |= TRF_BeingHit;
@@ -1051,12 +1049,16 @@ static HitPoints apply_damage_to_creature(struct Thing *thing, HitPoints dmg)
         struct PlayerInfo* player = get_player(thing->owner);
         HitPoints max_health = cctrl->max_health;
         if (max_health < 1)
+        {
             max_health = 1;
+        }
         long i = (10 * cdamage) / max_health;
-        if (i > 10) {
+        if (i > 10)
+        {
             i = 10;
-        } else
-        if (i <= 0) {
+        }
+        else if (i <= 0)
+        {
             i = 1;
         }
         PaletteApplyPainToPlayer(player, i);

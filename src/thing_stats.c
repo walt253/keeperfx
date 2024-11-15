@@ -360,10 +360,11 @@ long compute_creature_max_defense(long base_param, unsigned short crlevel)
     if (crlevel >= CREATURE_MAX_LEVEL)
         crlevel = CREATURE_MAX_LEVEL-1;
     long max_param = base_param + (game.conf.crtr_conf.exp.defense_increase_on_exp * base_param * (long)crlevel) / 100;
-    //unsigned long long overflow = (1 << (8)) - 1;
-    //if ((max_param >= overflow) && (!emulate_integer_overflow(8)))
-    //    return overflow; // This is for maps with ClscBug_Overflow8bitVal flag enabled.
-    return saturate_set_unsigned(max_param, 8);
+    unsigned long long overflow = (1 << (8)) - 1;
+    if ((max_param >= overflow) && (!emulate_integer_overflow(8)))
+        return overflow; // This is for maps with ClscBug_Overflow8bitVal flag enabled.
+    //return saturate_set_unsigned(max_param, 8);
+    return max_param;
 }
 
 /* Computes dexterity of a creature on given level. */

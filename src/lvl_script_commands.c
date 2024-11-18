@@ -1076,7 +1076,7 @@ static void set_trap_configuration_check(const struct ScriptLine* scline)
             return;
         }
     }
-    else if (trapvar == 15) // EffectType
+    else if (trapvar == 17) // EffectType
     {
         if (parameter_is_number(valuestring))
         {

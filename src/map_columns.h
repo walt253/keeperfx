@@ -23,18 +23,20 @@
 #include "bflib_basics.h"
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 /******************************************************************************/
-#define COLUMNS_COUNT       16384
-#define COLUMN_STACK_HEIGHT     8
-#define COLUMN_WALL_HEIGHT      5
+#define COLUMNS_COUNT 16384
+#define COLUMN_STACK_HEIGHT 8
+#define COLUMN_WALL_HEIGHT 5
 /******************************************************************************/
 #pragma pack(1)
 
 struct Map;
 
-struct Column { // sizeof=0x18
+struct Column
+{ // sizeof=0x18
     short use;
     unsigned char bitfields;
     unsigned short solidmask;
@@ -43,7 +45,8 @@ struct Column { // sizeof=0x18
     unsigned short cubes[COLUMN_STACK_HEIGHT];
 };
 
-struct Columns {
+struct Columns
+{
     struct Column *lookup[COLUMNS_COUNT];
     struct Column *end;
 };
@@ -87,7 +90,6 @@ void set_column_ceiling_filled_subtiles(struct Column *col, MapSubtlCoord n);
 void set_map_ceiling_filled_subtiles(struct Map *mapblk, MapSubtlCoord n);
 TbBool map_pos_solid_at_ceiling(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 
-
 long get_top_cube_at_pos(SubtlCodedCoords mpos);
 long get_top_cube_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long *cube_pos);
 long get_map_floor_height(const struct Map *mapblk);
@@ -108,7 +110,6 @@ TbBool subtile_has_sacrificial_on_top(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 TbBool subtile_is_liquid(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 TbBool subtile_is_unclaimed_path(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 TbBool subtile_is_wall(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
-
 /******************************************************************************/
 #ifdef __cplusplus
 }

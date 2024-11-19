@@ -36,14 +36,15 @@ extern "C" {
 const char keeper_cubes_file[]="cubes.cfg";
 
 const struct NamedCommand cubes_cube_commands[] = {
-  {"Name",           1},
-  {"Textures",       2},
-  {"OwnershipGroup", 3},
-  {"Owner",          4},
-  {"IsLava",         5},
-  {"IsWater",        6},
-  {"IsTemplePool",   7},
-  {NULL,             0},
+  {"Name",            1},
+  {"Textures",        2},
+  {"OwnershipGroup",  3},
+  {"Owner",           4},
+  {"IsLava",          5},
+  {"IsWater",         6},
+  {"IsSacrificial",   7},
+  {"IsUnclaimedPath", 8},
+  {NULL,              0},
 };
 
 /******************************************************************************/
@@ -209,11 +210,24 @@ TbBool parse_cubes_cube_blocks(char *buf, long len, const char *config_textname,
                         COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
                 }
                 break;
-            case 7: // IsTemplePool
+            case 7: // IsSacrificial
                 while (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {
                     k = atoi(word_buf);
-                    cubed->is_temple_pool = k;
+                    cubed->is_sacrificial = k;
+                    n++;
+                }
+                if (n < 0)
+                {
+                    CONFWRNLOG("Couldn't read all \"%s\" parameters in [%.*s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+                }
+                break;
+            case 8: // IsUnclaimedPath
+                while (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    k = atoi(word_buf);
+                    cubed->is_unclaimed_path = k;
                     n++;
                 }
                 if (n < 0)

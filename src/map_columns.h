@@ -23,20 +23,18 @@
 #include "bflib_basics.h"
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 /******************************************************************************/
-#define COLUMNS_COUNT 16384
-#define COLUMN_STACK_HEIGHT 8
-#define COLUMN_WALL_HEIGHT 5
+#define COLUMNS_COUNT          16384
+#define COLUMN_STACK_HEIGHT        8
+#define COLUMN_WALL_HEIGHT         5
 /******************************************************************************/
 #pragma pack(1)
 
 struct Map;
 
-struct Column
-{ // sizeof=0x18
+struct Column { // sizeof=0x18
     short use;
     unsigned char bitfields;
     unsigned short solidmask;
@@ -45,8 +43,7 @@ struct Column
     unsigned short cubes[COLUMN_STACK_HEIGHT];
 };
 
-struct Columns
-{
+struct Columns {
     struct Column *lookup[COLUMNS_COUNT];
     struct Column *end;
 };

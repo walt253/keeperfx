@@ -1778,7 +1778,7 @@ TbBool parse_creaturemodel_appearance_blocks(long crtr_model,char *buf,long len,
             if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
-                if (k > 0)
+                if (k >= 0)
                 {
                     crstat->fixed_anim_speed = k;
                 }

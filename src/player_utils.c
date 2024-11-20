@@ -146,7 +146,7 @@ void set_player_as_lost_level(struct PlayerInfo *player)
 {
     if (player->victory_state != VicS_Undecided)
     {
-        // Suppress redundant warnings
+        // Suppress redundant warnings.
         if ((game.system_flags & GSF_RunAfterVictory) == 0)
         {
             WARNLOG("Victory state already set to %d",(int)player->victory_state);
@@ -156,12 +156,12 @@ void set_player_as_lost_level(struct PlayerInfo *player)
     SYNCLOG("Player %d lost",(int)player->id_number);
     if (is_my_player(player))
     {
-      api_event("LOSE_GAME");
+        api_event("LOSE_GAME");
         frontstats_initialise();
     }
     player->victory_state = VicS_LostLevel;
     struct Dungeon* dungeon = get_dungeon(player->id_number);
-    // Computing player score
+    // Computing player score.
     dungeon->lvstats.player_score = compute_player_final_score(player, dungeon->max_gameplay_score);
     if (is_my_player(player))
     {
@@ -169,12 +169,15 @@ void set_player_as_lost_level(struct PlayerInfo *player)
         turn_off_all_menus();
         clear_transfered_creatures();
     }
-    if ((game.conf.rules.game.classic_bugs_flags & ClscBug_NoHandPurgeOnDefeat) == 0) {
+    if ((game.conf.rules.game.classic_bugs_flags & ClscBug_NoHandPurgeOnDefeat) == 0)
+    {
         clear_things_in_hand(player);
         dungeon->num_things_in_hand = 0;
     }
     if (player_uses_power_call_to_arms(player->id_number))
+    {
         turn_off_power_call_to_arms(player->id_number);
+    }
     if (player_uses_power_sight(player->id_number))
     {
         struct Thing* thing = thing_get(dungeon->sight_casted_thing_idx);
@@ -182,8 +185,10 @@ void set_player_as_lost_level(struct PlayerInfo *player)
         dungeon->sight_casted_thing_idx = 0;
     }
     if (is_my_player(player))
+    {
         gui_set_button_flashing(0, 0);
-    if (player->view_type == PVT_CreatureContrl)
+    }
+    if ((player->view_type == PVT_CreatureContrl) || (player->view_type == PVT_CreatureTop))
     {
         struct Thing *thing = thing_get(player->controlled_thing_idx);
         leave_creature_as_controller(player, thing);
@@ -202,11 +207,17 @@ void set_player_as_lost_level(struct PlayerInfo *player)
     }
     set_player_state(player, PSt_CtrlDungeon, 0);
     if ((game.system_flags & GSF_NetworkActive) == 0)
+    {
         player->display_objective_turn = game.play_gameturn + 300;
+    }
     if ((game.system_flags & GSF_NetworkActive) != 0)
+    {
         reveal_whole_map(player);
+    }
     if ((dungeon->computer_enabled & 0x01) != 0)
+    {
         toggle_computer_player(player->id_number);
+    }
 }
 
 long compute_player_final_score(struct PlayerInfo *player, long gameplay_score)

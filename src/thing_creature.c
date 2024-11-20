@@ -229,14 +229,16 @@ TbBool control_creature_as_controller(struct PlayerInfo *player, struct Thing *t
     struct Camera *cam;
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     if (((thing->owner != player->id_number) && (player->work_state != PSt_FreeCtrlDirect))
-      || !thing_can_be_controlled_as_controller(thing))
+    || !thing_can_be_controlled_as_controller(thing))
     {
-      if (!control_creature_as_passenger(player, thing))
-        return false;
-      cam = player->acamera;
-      crstat = creature_stats_get(get_players_special_digger_model(player->id_number));
-      cam->mappos.z.val += get_creature_eye_height(thing);
-      return true;
+        if (!control_creature_as_passenger(player, thing))
+        {
+            return false;
+        }
+        cam = player->acamera;
+        crstat = creature_stats_get(get_players_special_digger_model(player->id_number));
+        cam->mappos.z.val += get_creature_eye_height(thing);
+        return true;
     }
     TbBool chicken = (creature_affected_by_spell(thing, SplK_Chicken));
     if (!chicken)
@@ -247,15 +249,16 @@ TbBool control_creature_as_controller(struct PlayerInfo *player, struct Thing *t
     }
     if (is_my_player(player))
     {
-      toggle_status_menu(0);
-      turn_off_roaming_menus();
+        toggle_status_menu(0);
+        turn_off_roaming_menus();
     }
     set_selected_creature(player, thing);
     cam = player->acamera;
     if (cam != NULL)
-      player->view_mode_restore = cam->view_mode;
+    {
+        player->view_mode_restore = cam->view_mode;
+    }
     thing->alloc_flags |= TAlF_IsControlled;
-    thing->rendering_flags |= TRF_Invisible;
     if (!chicken)
     {
         set_start_state(thing);
@@ -264,24 +267,36 @@ TbBool control_creature_as_controller(struct PlayerInfo *player, struct Thing *t
     {
         internal_set_thing_state(thing, CrSt_CreaturePretendChickenSetupMove);
     }
-    set_player_mode(player, PVT_CreatureContrl);
+    if (game.conf.rules.magic.possession_view_mode == false)
+    {
+        thing->rendering_flags |= TRF_Invisible;
+        set_player_mode(player, PVT_CreatureContrl);
+    }
+    else
+    {
+        set_player_mode(player, PVT_CreatureTop);
+    }
     if (thing_is_creature(thing))
     {
         cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
         check_for_first_person_barrack_party(thing);
-        if (creature_is_group_member(thing)) {
+        if (creature_is_group_member(thing))
+        {
             make_group_member_leader(thing);
         }
     }
-    crstat = creature_stats_get(thing->model);
-    if ( (!crstat->illuminated) && (!creature_affected_by_spell(thing, SplK_Light)) )
+    if (game.conf.rules.magic.possession_view_mode == false)
     {
-        create_light_for_possession(thing);
-    }
-    if (thing->class_id == TCls_Creature)
-    {
-        crstat = creature_stats_get_from_thing(thing);
-        setup_eye_lens(crstat->eye_effect);
+        crstat = creature_stats_get(thing->model);
+        if ((!crstat->illuminated) && (!creature_affected_by_spell(thing, SplK_Light)))
+        {
+            create_light_for_possession(thing);
+        }
+        if (thing->class_id == TCls_Creature)
+        {
+            crstat = creature_stats_get_from_thing(thing);
+            setup_eye_lens(crstat->eye_effect);
+        }
     }
     return true;
 }
@@ -2760,19 +2775,25 @@ struct Thing* cause_creature_death(struct Thing *thing, CrDeathFlags flags)
 void prepare_to_controlled_creature_death(struct Thing *thing)
 {
     struct PlayerInfo* player = get_player(thing->owner);
+    unsigned char prev_view_type = player->view_type;
     leave_creature_as_controller(player, thing);
     player->influenced_thing_idx = 0;
-    if (player->id_number == thing->owner)
-        setup_eye_lens(0);
-    set_camera_zoom(player->acamera, player->dungeon_camera_zoom);
+    if (prev_view_type != PVT_CreatureTop)
+    {
+        if (player->id_number == thing->owner)
+        {
+            setup_eye_lens(0);
+        }
+        set_camera_zoom(player->acamera, player->dungeon_camera_zoom);
+    }
     if (player->id_number == thing->owner)
     {
         turn_off_all_window_menus();
         turn_off_query_menus();
         turn_on_main_panel_menu();
         set_flag_value(game.operation_flags, GOF_ShowPanel, (game.operation_flags & GOF_ShowGui) != 0);
-  }
-  light_turn_light_on(player->cursor_light_idx);
+    }
+    light_turn_light_on(player->cursor_light_idx);
 }
 
 void delete_effects_attached_to_creature(struct Thing *creatng)

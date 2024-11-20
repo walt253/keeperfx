@@ -1363,7 +1363,7 @@ void toggle_hero_health_flowers(void)
 void reset_gui_based_on_player_mode(void)
 {
     struct PlayerInfo *player = get_my_player();
-    if (player->view_type == PVT_CreatureContrl)
+    if ((player->view_type == PVT_CreatureContrl) || (player->view_type == PVT_CreatureTop))
     {
         turn_on_menu(vid_change_query_menu);
         if (player->victory_state == VicS_LostLevel)

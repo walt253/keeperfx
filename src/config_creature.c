@@ -375,6 +375,7 @@ void check_and_auto_fix_stats(void)
     SYNCDBG(9,"Finished");
 }
 
+/* Initialize all creature model stats, called only once when first loading a map. */
 void init_creature_model_stats(void)
 {
     struct CreatureStats *crstat;

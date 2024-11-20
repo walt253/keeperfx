@@ -191,7 +191,7 @@ void setup_move_to_new_training_position(struct Thing *thing, struct Room *room,
     }
     if (cctrl->instance_id == CrInst_NULL)
     {
-        set_creature_instance(thing, CrInst_SWING_WEAPON_SWORD, 0, 0);
+        update_creature_anim(thing, 256, CGI_Attack);
     }
 }
 
@@ -455,7 +455,7 @@ void process_creature_in_training_room(struct Thing *thing, struct Room *room)
               {
                 if ((cctrl->instance_id == CrInst_NULL) && ((cctrl->training.train_timeout % 8) == 0))
                 {
-                    set_creature_instance(thing, CrInst_SWING_WEAPON_SWORD, 0, 0);
+                    update_creature_anim(thing, 256, CGI_Attack);
                 }
               } else
               {
@@ -482,7 +482,7 @@ void process_creature_in_training_room(struct Thing *thing, struct Room *room)
             cctrl->training.train_timeout--;
             if ((cctrl->instance_id == CrInst_NULL) && ((cctrl->training.train_timeout % 8) == 0))
             {
-                set_creature_instance(thing, CrInst_SWING_WEAPON_SWORD, 0, 0);
+                update_creature_anim(thing, 256, CGI_Attack);
             }
         } else
         {

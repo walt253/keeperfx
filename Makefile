@@ -21,6 +21,10 @@
 #      (at your option) any later version.
 #
 #******************************************************************************
+# Suppress deprecation warnings
+CXXFLAGS += -Wno-deprecated-declarations
+CFLAGS += -Wno-deprecated-declarations
+
 # Executable files extension on host environment
 ifneq (,$(findstring Windows,$(OS)))
   CROSS_EXEEXT = .exe

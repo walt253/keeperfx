@@ -697,6 +697,14 @@ TbBool creature_is_being_summoned(const struct Thing *thing)
     return false;
 }
 
+TbBool creature_is_fighting(const struct Thing *thing)
+{
+    CrtrStateId i = get_creature_state_type(thing);
+    if ((i == CrStTyp_FightCrtr) || (i == CrStTyp_FightDoor) || (i == CrStTyp_FightObj))
+        return true;
+    return false;
+}
+
 TbBool creature_is_training(const struct Thing *thing)
 {
     CrtrStateId i = get_creature_state_besides_interruptions(thing);
@@ -2065,8 +2073,6 @@ short creature_explore_dungeon(struct Thing *creatng)
     }
     if (!ret)
     {
-        SYNCLOG("The %s owned by player %d can't navigate to subtile (%d,%d) for exploring",
-            thing_model_name(creatng),(int)creatng->owner, (int)pos.x.stl.num, (int)pos.y.stl.num);
         set_start_state(creatng);
         return CrCkRet_Available;
     }
@@ -2993,6 +2999,7 @@ short creature_take_salary(struct Thing *creatng)
     }
     GoldAmount salary = calculate_correct_creature_pay(creatng);
     GoldAmount received = take_money_from_dungeon(creatng->owner, salary, 0);
+    creatng->creature.gold_carried += received;
     if (received < 1) {
         ERRORLOG("The %s index %d has used capacity %d but no gold for %s salary",room_code_name(room->kind),
             (int)room->index,(int)room->used_capacity,thing_model_name(creatng));
@@ -4109,9 +4116,8 @@ TbBool process_creature_hunger(struct Thing *thing)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-    if ( (crstat->hunger_rate == 0) || creature_affected_by_spell(thing, SplK_Freeze) || is_neutral_thing(thing))
+    if ((crstat->hunger_rate == 0) || creature_affected_by_spell(thing, SplK_Freeze) || is_neutral_thing(thing))
         return false;
-    SYNCDBG(19,"Hungering %s index %d",thing_model_name(thing), (int)thing->index);
     cctrl->hunger_level++;
     if (!hunger_is_creature_hungry(thing))
         return false;
@@ -4120,8 +4126,8 @@ TbBool process_creature_hunger(struct Thing *thing)
     {
         // Make sure every creature loses health on different turn.
         if (((game.play_gameturn + thing->index) % game.conf.rules.health.turns_per_hunger_health_loss) == 0) {
-            SYNCDBG(9,"The %s index %d lost %d health due to hunger",thing_model_name(thing), (int)thing->index, (int)game.conf.rules.health.hunger_health_loss);
-            remove_health_from_thing_and_display_health(thing, game.conf.rules.health.hunger_health_loss);
+            HitPoints hunger_health_loss = (cctrl->max_health * game.conf.rules.health.hunger_health_loss) / 100;
+            remove_health_from_thing_and_display_health(thing, hunger_health_loss);
             return true;
         }
     }
@@ -4190,7 +4196,7 @@ TbBool creature_will_attack_creature(const struct Thing *fightng, const struct T
     }
     struct CreatureControl* fighctrl = creature_control_get_from_thing(fightng);
     struct CreatureControl* enmctrl = creature_control_get_from_thing(enmtng);
-    if ((players_creatures_tolerate_each_other(fightng->owner, enmtng->owner)) && (!creature_can_be_hostile(fightng, enmtng)))
+    if ((players_creatures_tolerate_each_other(fightng->owner, enmtng->owner)) && (!creature_can_be_hostile(fightng, enmtng)) && (game.conf.rules.creature.battle_royale == 0))
     {
         if (((fighctrl->spell_flags & CSAfF_MadKilling) == 0)
         && ((enmctrl->spell_flags & CSAfF_MadKilling) == 0))
@@ -4430,6 +4436,7 @@ long get_thing_navigation_distance(struct Thing* creatng, struct Coord3d* pos, u
         return 0;
 
     nav_thing_can_travel_over_lava = creature_can_travel_over_lava(creatng);
+    nav_thing_can_travel_over_water = creature_can_travel_over_water(creatng);
     if (resetOwnerPlayerNavigating)
         owner_player_navigating = -1;
     else
@@ -4446,6 +4453,7 @@ long get_thing_navigation_distance(struct Thing* creatng, struct Coord3d* pos, u
         pos->y.val,
 	    -2, nav_sizexy, __func__);
     nav_thing_can_travel_over_lava = 0;
+    nav_thing_can_travel_over_water = 0;
 
     int distance = 0;
     if (!path.waypoints_num)
@@ -4608,6 +4616,8 @@ long process_work_speed_on_work_value(const struct Thing *thing, long base_val)
     long val = base_val;
     if (creature_affected_by_spell(thing, SplK_Speed))
         val = 2 * val;
+    if (creature_affected_by_spell(thing, SplK_MagicMist))
+        val = 3 * val / 2;
     if (creature_affected_by_slap(thing))
         val = 4 * val / 3;
     if (!is_neutral_thing(thing))

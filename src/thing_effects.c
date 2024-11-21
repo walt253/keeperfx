@@ -190,13 +190,11 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
     MapCoordDelta shift_y;
     struct Coord3d pos;
     struct Thing *effeltng;
-
     if ((cctrl->spell_flags & CSAfF_Rebound) != 0)
     {
         int diamtr = 4 * thing->clipbox_size_xy / 2;
         dturn = game.play_gameturn - thing->creation_turn;
-        MapCoord cor_z_max = thing->clipbox_size_z + (thing->clipbox_size_z * game.conf.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 80; //effect is 25% larger than unit
-
+        MapCoord cor_z_max = thing->clipbox_size_z + (thing->clipbox_size_z * game.conf.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 80; // Effect is 25% larger than unit.
         struct EffectElementConfigStats* eestat = get_effect_element_model_stats(TngEffElm_FlashBall1);
         unsigned short nframes = keepersprite_frames(eestat->sprite_idx);
         GameTurnDelta dtadd = 0;
@@ -219,12 +217,11 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
             cframe = (cframe + 1) % nframes;
         }
     }
-
     if ((cctrl->spell_flags & CSAfF_Slow) != 0)
     {
         int diamtr = 4 * thing->clipbox_size_xy / 2;
-        MapCoord cor_z_max = thing->clipbox_size_z + (thing->clipbox_size_z * game.conf.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 80; //effect is 20% smaller than unit
-        int i = cor_z_max / 64; //64 is the vertical speed of the circle.
+        MapCoord cor_z_max = thing->clipbox_size_z + (thing->clipbox_size_z * game.conf.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 80; // Effect is 20% smaller than unit.
+        int i = cor_z_max / 64; // 64 is the vertical speed of the circle.
         if (i <= 1)
           i = 1;
         dturn = game.play_gameturn - thing->creation_turn;
@@ -244,18 +241,16 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
             effeltng = create_thing(&pos, TCls_EffectElem, TngEffElm_RedFlash, thing->owner, -1);
         }
     }
-
     if ((cctrl->spell_flags & CSAfF_Flying) != 0)
     {
         effeltng = create_thing(&thing->mappos, TCls_EffectElem, TngEffElm_CloudDisperse, thing->owner, -1);
     }
-
     if ((cctrl->spell_flags & CSAfF_Speed) != 0)
     {
         effeltng = create_effect_element(&thing->mappos, TngEffElm_FlashBall2, thing->owner);
         if (!thing_is_invalid(effeltng))
         {
-            //make an afterimage of the speeding unit
+            // Make an afterimage of the speeding unit.
             effeltng->anim_time = thing->anim_time;
             effeltng->anim_sprite = thing->anim_sprite;
             effeltng->sprite_size = thing->sprite_size;
@@ -274,7 +269,6 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
             effeltng->move_angle_xy = thing->move_angle_xy;
         }
     }
-
     if ((cctrl->stateblock_flags & CCSpl_Teleport) != 0)
     {
         dturn = get_spell_duration_left_on_thing(thing, SplK_Teleport);
@@ -284,7 +278,7 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
             effeltng = create_effect_element(&thing->mappos, TngEffElm_FlashBall2, thing->owner);
             if (!thing_is_invalid(effeltng))
             {
-                //make an afterimage of the teleporting unit
+                // Make an afterimage of the teleporting unit.
                 effeltng->anim_speed = 0;
                 effeltng->anim_time = thing->anim_time;
                 effeltng->anim_sprite = thing->anim_sprite;
@@ -314,7 +308,6 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
             creature_turn_to_face_angle(thing, thing->move_angle_xy + crstat->max_turning_speed);
         }
     }
-
     if ((cctrl->spell_flags & CSAfF_MagicFall) != 0)
     {
         dturn = game.play_gameturn - thing->creation_turn;
@@ -325,6 +318,68 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
         creature_turn_to_face_angle(thing, thing->move_angle_xy + crstat->max_turning_speed);
         if ((dturn > 32) || thing_touching_floor(thing)) {
             cctrl->spell_flags &= ~CSAfF_MagicFall;
+        }
+    }
+    if ((cctrl->spell_flags & CSAfF_Rage) != 0)
+    {
+        pos.x.val = thing->mappos.x.val;
+        pos.y.val = thing->mappos.y.val;
+        pos.z.val = thing->mappos.z.val + get_creature_eye_height(thing);
+        effeltng = create_thing(&pos, TCls_EffectElem, TngEffElm_RedDot, thing->owner, -1);
+    }
+    if ((cctrl->spell_flags & CSAfF_DivineShield) != 0)
+    {
+        int diamtr = 3 * thing->clipbox_size_xy / 2;
+        MapCoord cor_z_max = thing->clipbox_size_z + (thing->clipbox_size_z * game.conf.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 80;
+        int i = cor_z_max / 16;
+        if (i <= 1)
+          i = 1;
+        dturn = game.play_gameturn - thing->creation_turn;
+        int vrange = i;
+        if (dturn % (2 * i) < vrange)
+            pos.z.val = thing->mappos.z.val + cor_z_max / vrange * (dturn % vrange);
+        else
+            pos.z.val = thing->mappos.z.val + cor_z_max / vrange * (vrange - (dturn % vrange));
+        int radius = diamtr / 2;
+        for (i=0; i < 16; i++)
+        {
+            angle = (abs(i) & 0xF) << 7;
+            shift_x =  (radius * LbSinL(angle) >> 8) >> 8;
+            shift_y = -(radius * LbCosL(angle) >> 8) >> 8;
+            pos.x.val = thing->mappos.x.val + shift_x;
+            pos.y.val = thing->mappos.y.val + shift_y;
+            effeltng = create_thing(&pos, TCls_EffectElem, TngEffElm_LavaFlameMoving, thing->owner, -1);
+        }
+    }
+    if ((cctrl->spell_flags & CSAfF_MadKilling) != 0)
+    {
+        pos.x.val = thing->mappos.x.val;
+        pos.y.val = thing->mappos.y.val;
+        pos.z.val = thing->mappos.z.val;
+        effeltng = create_thing(&pos, TCls_EffectElem, TngEffElm_BloodSplat, thing->owner, -1);
+    }
+    if ((cctrl->spell_flags & CSAfF_MagicMist) != 0)
+    {
+        int diamtr = thing->clipbox_size_xy;
+        MapCoord cor_z_max = thing->clipbox_size_z + (thing->clipbox_size_z * game.conf.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 80;
+        int i = cor_z_max / 128;
+        if (i <= 1)
+          i = 1;
+        dturn = game.play_gameturn - thing->creation_turn;
+        int vrange = i;
+        if (dturn % (2 * i) < vrange)
+            pos.z.val = thing->mappos.z.val + cor_z_max / vrange * (dturn % vrange);
+        else
+            pos.z.val = thing->mappos.z.val + cor_z_max / vrange * (vrange - (dturn % vrange));
+        int radius = diamtr / 2;
+        for (i=0; i < 16; i++)
+        {
+            angle = (abs(i) & 0xF) << 7;
+            shift_x =  (radius * LbSinL(angle) >> 8) >> 8;
+            shift_y = -(radius * LbCosL(angle) >> 8) >> 8;
+            pos.x.val = thing->mappos.x.val + shift_x;
+            pos.y.val = thing->mappos.y.val + shift_y;
+            effeltng = create_thing(&pos, TCls_EffectElem, TngEffElm_CloudDisperse, thing->owner, -1);
         }
     }
 }
@@ -973,16 +1028,20 @@ TbBool destroy_effect_thing(struct Thing *efftng)
  * @param tngdst The thing being affected by the effect.
  * @param pos Position of the effect epicenter.
  * @param max_dist Max distance at which creatures are affected, in map coordinates.
- * @param max_damage Damage at epicenter of the explosion.
- * @param blow_strength The strength of hitwave blowing creatures out of affected area.
- * @param damage_type Type of the damage inflicted.
+ * @param shotst the shot stats used to determine damage and shot properties.
  * @param owner The owner of the explosion.
  * @return Gives true if the target thing was affected by the spell, false otherwise.
  * @note If the function returns true, the effect might have caused death of the target.
  */
 TbBool explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, const struct Coord3d *pos,
-    MapCoordDelta max_dist, HitPoints max_damage, long blow_strength, DamageType damage_type, PlayerNumber owner, unsigned long shot_model_flags)
+    MapCoordDelta max_dist, struct ShotConfigStats* shotst)
 {
+    HitPoints max_damage = shotst->area_damage;
+    long blow_strength = shotst->area_blow;
+    DamageType damage_type = shotst->damage_type;
+    unsigned long shot_model_flags = shotst->model_flags;
+    PlayerNumber owner = tngsrc->owner;
+
     if (thing_is_deployed_door(tngdst))
     {
         return explosion_affecting_door(tngsrc, tngdst, pos, max_dist, max_damage, blow_strength, damage_type, owner);
@@ -1001,6 +1060,7 @@ TbBool explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, con
         {
             if (tngdst->class_id == TCls_Creature)
             {
+                struct Thing* origtng = thing_get(tngsrc->parent_idx); //parent of the tngsrc(shot) is the shooting creature.
                 if (max_damage > 0)
                 {
                     HitPoints damage = get_radially_decaying_value(max_damage, max_dist / 4, 3 * max_dist / 4, distance) + 1;
@@ -1008,13 +1068,29 @@ TbBool explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, con
                     apply_damage_to_thing_and_display_health(tngdst, damage, damage_type, owner);
                 }
                 affected = true;
+                if (shotst->cast_spell_kind != 0)
+                {
+                    unsigned char spell_level;
+                    struct CreatureControl* cctrl = creature_control_get_from_thing(tngdst);
+                    struct CreatureControl* scctrl = creature_control_get_from_thing(origtng);
+                    if (!creature_control_invalid(scctrl)) {
+                        spell_level = scctrl->explevel;
+                    }
+                    else {
+                        spell_level = 0;
+                    }
+                    if (shotst->cast_spell_kind == SplK_Disease)
+                    {
+                        cctrl->disease_caster_plyridx = tngsrc->owner;
+                    }
+                    apply_spell_effect_to_thing(tngdst, shotst->cast_spell_kind, spell_level);
+                }
                 if (tngdst->health < 0)
                 {
-                    struct Thing *origtng = thing_get(tngsrc->parent_idx); //parent of the tngsrc(shot) is the shooting creature.
                     struct CreatureBattle* battle = creature_battle_get_from_thing(origtng);
                     CrDeathFlags dieflags = (!creature_battle_invalid(battle)) ? CrDed_DiedInBattle : CrDed_Default;
                     // Explosions kill rather than only stun friendly creatures when imprison is on
-                    if ((players_creatures_tolerate_each_other(tngsrc->owner,tngdst->owner) &! (game.conf.rules.game.classic_bugs_flags & ClscBug_FriendlyFaint)) || (shot_model_flags & ShMF_NoStun) )
+                    if ((players_creatures_tolerate_each_other(tngsrc->owner,tngdst->owner) && !flag_is_set(game.conf.rules.game.classic_bugs_flags,ClscBug_FriendlyFaint)) || (flag_is_set(shot_model_flags,ShMF_NoStun)) )
                     {
                         dieflags |= CrDed_NoUnconscious;
                     }
@@ -1113,11 +1189,10 @@ TbBool explosion_affecting_door(struct Thing *tngsrc, struct Thing *tngdst, cons
  * @param mapblk Map block on which all targets are to be affected by the spell.
  * @param max_dist Range of the spell on map, used to compute damage decaying with distance; in map coordinates.
  * @param max_damage Damage at epicenter of the explosion.
- * @param blow_strength The strength of hitwave blowing creatures out of affected area.
- * @param damage_type Type of the damage inflicted.
+ * @param shotst the shot information used to determine damage, bow and spell effects
  */
 long explosion_effect_affecting_map_block(struct Thing *efftng, struct Thing *tngsrc, struct Map *mapblk,
-    MapCoordDelta max_dist, HitPoints max_damage, long blow_strength, DamageType damage_type, unsigned long shot_model_flags)
+    MapCoordDelta max_dist, struct ShotConfigStats* shotst)
 {
     PlayerNumber owner;
     if (!thing_is_invalid(tngsrc))
@@ -1140,14 +1215,14 @@ long explosion_effect_affecting_map_block(struct Thing *efftng, struct Thing *tn
         // Per thing processing block
         if ((thing->class_id == TCls_Door) && (efftng->shot_effect.hit_type != THit_CrtrsOnlyNotOwn)) //TODO: Find pretty way to say that WoP traps should not destroy doors. And make it configurable through configs.
         {
-            if (explosion_affecting_door(tngsrc, thing, &efftng->mappos, max_dist, max_damage, blow_strength, damage_type, owner))
+            if (explosion_affecting_door(tngsrc, thing, &efftng->mappos, max_dist, shotst->area_damage, shotst->area_blow, shotst->damage_type, owner))
             {
                 num_affected++;
             }
         } else
         if (effect_can_affect_thing(efftng, thing))
         {
-            if (explosion_affecting_thing(tngsrc, thing, &efftng->mappos, max_dist, max_damage, blow_strength, damage_type, owner, shot_model_flags))
+            if (explosion_affecting_thing(tngsrc, thing, &efftng->mappos, max_dist, shotst))
             {
                 num_affected++;
             }
@@ -1234,8 +1309,7 @@ void word_of_power_affecting_area(struct Thing *efftng, struct Thing *tngsrc, st
         for (long stl_x = stl_xmin; stl_x <= stl_xmax; stl_x++)
         {
             struct Map* mapblk = get_map_block_at(stl_x, stl_y);
-            explosion_effect_affecting_map_block(efftng, tngsrc, mapblk, max_dist,
-                shotst->area_damage, shotst->area_blow, shotst->damage_type, shotst->model_flags);
+            explosion_effect_affecting_map_block(efftng, tngsrc, mapblk, max_dist, shotst);
         }
     }
 }
@@ -1298,7 +1372,7 @@ long explosion_affecting_map_block(struct Thing *tngsrc, const struct Map *mapbl
         if (area_effect_can_affect_thing(thing, hit_targets, owner))
         {
             struct ShotConfigStats* shotst = get_shot_model_stats(tngsrc->model);
-            if (explosion_affecting_thing(tngsrc, thing, pos, max_dist, max_damage, blow_strength, damage_type, owner, shotst->model_flags))
+            if (explosion_affecting_thing(tngsrc, thing, pos, max_dist, shotst))
                 num_affected++;
         }
         // Per thing processing block ends

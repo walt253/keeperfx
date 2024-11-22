@@ -87,7 +87,9 @@ const char *thing_classes[] = {
 const char *thing_class_code_name(int class_id)
 {
     if ((class_id < 0) || (class_id >= sizeof(thing_classes)/sizeof(thing_classes[0])))
+    {
         return "INVALID";
+    }
     return thing_classes[class_id];
 }
 
@@ -256,7 +258,7 @@ TbBool is_owner_invalid_player_id(const struct Thing *thing)
  */
 long get_radially_decaying_value(long magnitude, long decay_start, long decay_length, long distance)
 {
-    if (distance >= decay_start+decay_length)
+    if (distance >= decay_start + decay_length)
     {
         return 0;
     }
@@ -312,9 +314,8 @@ long get_radially_growing_value(long magnitude, long decay_start, long decay_len
 
 long compute_creature_kind_score(ThingModel crkind, unsigned short crlevel)
 {
-    // Modifiers shouldn't affect the computation for the creature kind score so compute_creature_max_health has 'game.neutral_player_num' as last argument.
     struct CreatureStats* crstat = creature_stats_get(crkind);
-    return compute_creature_max_health(crstat->health, crlevel, game.neutral_player_num)
+    return compute_creature_max_health(crstat->health, crlevel)
            + compute_creature_max_defense(crstat->defense, crlevel)
            + compute_creature_max_dexterity(crstat->dexterity, crlevel)
            + compute_creature_max_armour(crstat->armour, crlevel)
@@ -322,19 +323,13 @@ long compute_creature_kind_score(ThingModel crkind, unsigned short crlevel)
 }
 
 /* Computes max health of a creature on given level. */
-long compute_creature_max_health(HitPoints base_health, unsigned short crlevel, PlayerNumber plyr_idx)
+HitPoints compute_creature_max_health(HitPoints base_health, unsigned short crlevel)
 {
-    struct Dungeon* dungeon;
     if (crlevel >= CREATURE_MAX_LEVEL)
-        crlevel = CREATURE_MAX_LEVEL-1;
-    HitPoints max_health = base_health + (game.conf.crtr_conf.exp.health_increase_on_exp * base_health * (long)crlevel) / 100;
-    // Apply modifier.
-    if (plyr_idx != game.neutral_player_num)
     {
-        dungeon = get_dungeon(plyr_idx);
-        unsigned short modifier = dungeon->modifier.health;
-        max_health = (max_health * modifier) / 100;
+        crlevel = CREATURE_MAX_LEVEL-1;
     }
+    HitPoints max_health = base_health + (game.conf.crtr_conf.exp.health_increase_on_exp * base_health * (long)crlevel) / 100;
     return max_health;
 }
 
@@ -674,6 +669,22 @@ long compute_controlled_speed_decrease(long prev_speed, long speed_limit)
     return speed;
 }
 
+HitPoints calculate_correct_creature_max_health(const struct Thing *thing)
+{
+    struct Dungeon* dungeon;
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    HitPoints max_health = compute_creature_max_health(crstat->health, cctrl->explevel);
+    // Apply modifier.
+    if (!is_neutral_thing(thing))
+    {
+        dungeon = get_dungeon(thing->owner);
+        unsigned short modifier = dungeon->modifier.health;
+        max_health = (max_health * modifier) / 100;
+    }
+    return max_health;
+}
+
 long calculate_correct_creature_strength(const struct Thing *thing)
 {
     struct Dungeon* dungeon;
@@ -980,9 +991,8 @@ long compute_value_8bpercentage(long base_val, short npercent)
  */
 TbBool update_creature_health_to_max(struct Thing * creatng)
 {
-    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    cctrl->max_health = compute_creature_max_health(crstat->health, cctrl->explevel, creatng->owner);
+    cctrl->max_health = calculate_correct_creature_max_health(creatng);
     creatng->health = cctrl->max_health;
     return true;
 }
@@ -995,9 +1005,8 @@ TbBool update_creature_health_to_max(struct Thing * creatng)
 TbBool update_relative_creature_health(struct Thing* creatng)
 {
     int health_permil = get_creature_health_permil(creatng);
-    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    cctrl->max_health = compute_creature_max_health(crstat->health, cctrl->explevel, creatng->owner);
+    cctrl->max_health = calculate_correct_creature_max_health(creatng);
     creatng->health = cctrl->max_health * health_permil / 1000;
     return true;
 }
@@ -1511,7 +1520,6 @@ long compute_creature_weight(const struct Thing* creatng)
 const char *creature_statistic_text(const struct Thing *creatng, CreatureLiveStatId clstat_id)
 {
     const char *text;
-    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     long i;
     static char loc_text[16];
@@ -1535,7 +1543,7 @@ const char *creature_statistic_text(const struct Thing *creatng, CreatureLiveSta
         text = loc_text;
         break;
     case CrLStat_MaxHealth:
-        i = compute_creature_max_health(crstat->health, cctrl->explevel, creatng->owner);
+        i = calculate_correct_creature_max_health(creatng);
         snprintf(loc_text, sizeof(loc_text), "%ld", i);
         text = loc_text;
         break;

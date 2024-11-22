@@ -33,11 +33,11 @@ extern "C" {
 #define CUBE_OWNERSHIP_GROUPS 20
 /******************************************************************************/
 enum CubePropertiesFlags {
-    CPF_None               = 0x00000,
-    CPF_IsLava             = 0x00001,
-    CPF_IsWater            = 0x00002,
-    CPF_IsSacrificial      = 0x00004,
-    CPF_IsUnclaimedPath    = 0x00008,
+    CPF_None =                0x00000,
+    CPF_IsLava =              0x00001,
+    CPF_IsWater =             0x00002,
+    CPF_IsSacrificial =       0x00004,
+    CPF_IsUnclaimedPath =     0x00008,
 };
 
 struct CubeConfigStats {
@@ -61,7 +61,7 @@ extern struct NamedCommand cubes_desc[CUBE_ITEMS_MAX];
 TbBool load_cubes_config(unsigned short flags);
 struct CubeConfigStats *get_cube_model_stats(long model);
 const char *cube_code_name(long model);
-ThingModel cube_model_id(const char * code_name);
+ThingModel cube_model_id(const char *code_name);
 /******************************************************************************/
 #ifdef __cplusplus
 }

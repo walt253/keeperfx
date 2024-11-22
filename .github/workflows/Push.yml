@@ -26,14 +26,14 @@ jobs:
       run: |
         set -eux
         BUILD_NUMBER=$(git rev-list --count HEAD)
-        PACKAGE_SUFFIX=Alpha
+        PACKAGE_SUFFIX=ANSO
         make BUILD_NUMBER=$BUILD_NUMBER PACKAGE_SUFFIX=$PACKAGE_SUFFIX pkg-enginegfx
 
     - name: build
       run: |
         set -eux
         BUILD_NUMBER=$(git rev-list --count HEAD)
-        PACKAGE_SUFFIX=Alpha
+        PACKAGE_SUFFIX=ANSO
         make BUILD_NUMBER=$BUILD_NUMBER PACKAGE_SUFFIX=$PACKAGE_SUFFIX heavylog DEBUG=1 -k
         make BUILD_NUMBER=$BUILD_NUMBER PACKAGE_SUFFIX=$PACKAGE_SUFFIX standard
         make BUILD_NUMBER=$BUILD_NUMBER PACKAGE_SUFFIX=$PACKAGE_SUFFIX package

@@ -124,6 +124,7 @@ struct SlabAttr {
     unsigned char wlb_type;
     unsigned char is_ownable;
     unsigned char indestructible;
+    unsigned char trappable;
 };
 
 #pragma pack()
@@ -177,7 +178,7 @@ extern const struct NamedCommand terrain_room_properties_commands[];
 extern const struct NamedCommand room_roles_desc[];
 extern const struct NamedCommand terrain_room_total_capacity_func_type[];
 extern const struct NamedCommand terrain_room_used_capacity_func_type[];
-extern Room_Update_Func terrain_room_total_capacity_func_list[8];
+extern Room_Update_Func terrain_room_total_capacity_func_list[9];
 extern Room_Update_Func terrain_room_used_capacity_func_list[10];
 
 /******************************************************************************/

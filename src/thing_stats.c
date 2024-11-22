@@ -879,7 +879,6 @@ long compute_value_8bpercentage(long base_val, short npercent)
  */
 TbBool update_creature_health_to_max(struct Thing * creatng)
 {
-    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     cctrl->max_health = calculate_correct_creature_max_health(creatng);
     creatng->health = cctrl->max_health;
@@ -894,7 +893,6 @@ TbBool update_creature_health_to_max(struct Thing * creatng)
 TbBool update_relative_creature_health(struct Thing* creatng)
 {
     int health_permil = get_creature_health_permil(creatng);
-    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     cctrl->max_health = calculate_correct_creature_max_health(creatng);
     creatng->health = cctrl->max_health * health_permil / 1000;

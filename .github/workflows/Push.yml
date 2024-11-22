@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+      - CrSt_Unused
   workflow_dispatch:
 
 jobs:
@@ -31,8 +32,8 @@ jobs:
 
     - name: build
       env:
-        CXXFLAGS: "-Wno-deprecated-declarations"  # Suppress warnings for C++ compiler
-        CFLAGS: "-Wno-deprecated-declarations"    # Suppress warnings for C compiler
+        CXXFLAGS: "-Wno-deprecated-declarations"
+        CFLAGS: "-Wno-deprecated-declarations"
       run: |
         set -eux
         BUILD_NUMBER=$(git rev-list --count HEAD)

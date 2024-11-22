@@ -272,12 +272,15 @@ extern const struct NamedCommand creatmodel_attraction_commands[];
 extern const struct NamedCommand creatmodel_sounds_commands[];
 extern const struct NamedCommand creatmodel_sprite_commands[];
 extern const struct NamedCommand creature_graphics_desc[];
+extern const struct NamedCommand creatmodel_annoyance_commands[];
+extern const struct NamedCommand creatmodel_experience_commands[];
 extern Creature_Job_Player_Check_Func creature_job_player_check_func_list[];
 /******************************************************************************/
 struct CreatureStats *creature_stats_get(ThingModel crstat_idx);
 struct CreatureStats *creature_stats_get_from_thing(const struct Thing *thing);
 TbBool creature_stats_invalid(const struct CreatureStats *crstat);
 void check_and_auto_fix_stats(void);
+void init_creature_model_graphics(void);
 const char *creature_code_name(ThingModel crmodel);
 long creature_model_id(const char * name);
 const char *creature_own_name(const struct Thing *creatng);

@@ -645,7 +645,7 @@ HitPoints calculate_correct_creature_max_health(const struct Thing *thing)
     struct Dungeon* dungeon;
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-    HitPoints max_health = compute_creature_max_health(crstat->strength, cctrl->explevel);
+    HitPoints max_health = compute_creature_max_health(crstat->health, cctrl->explevel);
     // Apply modifier.
     if (!is_neutral_thing(thing))
     {

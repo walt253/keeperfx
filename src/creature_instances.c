@@ -901,7 +901,7 @@ long instf_eat(struct Thing *creatng, long *param)
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     if (cctrl->hunger_amount > 0)
         cctrl->hunger_amount--;
-    HitPoints food_health_gain = (cctrl->max_health * game.conf.rules.health.food_health_gain) / 100;
+    HitPoints food_health_gain = (calculate_correct_creature_max_health(creatng) * game.conf.rules.health.food_health_gain) / 100;
     apply_health_to_thing_and_display_health(creatng, food_health_gain);
     cctrl->hunger_level = 0;
     return 1;

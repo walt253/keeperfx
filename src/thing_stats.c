@@ -1520,7 +1520,6 @@ long compute_creature_weight(const struct Thing* creatng)
 const char *creature_statistic_text(const struct Thing *creatng, CreatureLiveStatId clstat_id)
 {
     const char *text;
-    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     long i;
     static char loc_text[16];

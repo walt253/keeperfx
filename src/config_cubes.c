@@ -28,8 +28,7 @@
 #include "post_inc.h"
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 /******************************************************************************/
 const char keeper_cubes_file[] = "cubes.cfg";

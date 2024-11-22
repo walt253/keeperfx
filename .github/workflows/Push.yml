@@ -30,18 +30,17 @@ jobs:
         make BUILD_NUMBER=$BUILD_NUMBER PACKAGE_SUFFIX=$PACKAGE_SUFFIX pkg-enginegfx
 
     - name: build
-      env:
-        CXXFLAGS: "-Wno-deprecated-declarations"
-        CFLAGS: "-Wno-deprecated-declarations"
       run: |
         set -eux
         BUILD_NUMBER=$(git rev-list --count HEAD)
         PACKAGE_SUFFIX=Alpha
-        make BUILD_NUMBER=$BUILD_NUMBER PACKAGE_SUFFIX=$PACKAGE_SUFFIX heavylog DEBUG=1 -k
-        make BUILD_NUMBER=$BUILD_NUMBER PACKAGE_SUFFIX=$PACKAGE_SUFFIX standard
-        make BUILD_NUMBER=$BUILD_NUMBER PACKAGE_SUFFIX=$PACKAGE_SUFFIX package
+        # Directly pass the suppression flags to make commands
+        make CXXFLAGS="-Wno-deprecated-declarations" CFLAGS="-Wno-deprecated-declarations" BUILD_NUMBER=$BUILD_NUMBER PACKAGE_SUFFIX=$PACKAGE_SUFFIX heavylog DEBUG=1 -k
+        make CXXFLAGS="-Wno-deprecated-declarations" CFLAGS="-Wno-deprecated-declarations" BUILD_NUMBER=$BUILD_NUMBER PACKAGE_SUFFIX=$PACKAGE_SUFFIX standard
+        make CXXFLAGS="-Wno-deprecated-declarations" CFLAGS="-Wno-deprecated-declarations" BUILD_NUMBER=$BUILD_NUMBER PACKAGE_SUFFIX=$PACKAGE_SUFFIX package
         echo "ZIP_NAME=$(basename -s .7z pkg/keeperfx*.7z)" >> $GITHUB_ENV
         rm pkg/keeperfx*.7z
+
     - uses: actions/upload-artifact@v4
       with:
         name: ${{ env.ZIP_NAME }}

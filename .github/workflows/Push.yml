@@ -4,7 +4,9 @@ on:
   push:
     branches:
       - master
+      - ANSO
   workflow_dispatch:
+
 jobs:
   build:
     runs-on: ubuntu-24.04
@@ -29,6 +31,9 @@ jobs:
         make BUILD_NUMBER=$BUILD_NUMBER PACKAGE_SUFFIX=$PACKAGE_SUFFIX pkg-enginegfx
 
     - name: build
+      env:
+        CXXFLAGS: "-Wno-deprecated-declarations"
+        CFLAGS: "-Wno-deprecated-declarations"
       run: |
         set -eux
         BUILD_NUMBER=$(git rev-list --count HEAD)

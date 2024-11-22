@@ -21,6 +21,9 @@ jobs:
         sudo apt install -y build-essential g++-mingw-w64-i686 libpng16-16t64
 
     - name: build
+      env:
+        CXXFLAGS: "-Wno-deprecated-declarations"
+        CFLAGS: "-Wno-deprecated-declarations"
       run: |
         set -eux
         BUILD_NUMBER=$(git rev-list --count origin/master)

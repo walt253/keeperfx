@@ -47,11 +47,10 @@ add_compile_definitions("SPNG_STATIC=1")
 
 # Add two executable targets: keeperfx and keeperfx_hvlog.
 add_executable(keeperfx ${KEEPERFX_SOURCES_C} ${KEEPERFX_SOURCES_CXX})
+add_executable(keeperfx_hvlog ${KEEPERFX_SOURCES_C} ${KEEPERFX_SOURCES_CXX})
 
 target_compile_definitions(keeperfx PUBLIC BFDEBUG_LEVEL=0)
 target_sources(keeperfx PRIVATE "res/keeperfx_stdres.rc")
-
-add_executable(keeperfx_hvlog ${KEEPERFX_SOURCES_C} ${KEEPERFX_SOURCES_CXX})
 
 target_compile_definitions(keeperfx_hvlog PUBLIC BFDEBUG_LEVEL=10)
 target_sources(keeperfx_hvlog PRIVATE "res/keeperfx_stdres.rc")
@@ -62,16 +61,21 @@ message(STATUS "We are using ${CMAKE_CXX_COMPILER_ID}")
 set_property(TARGET keeperfx PROPERTY LINKER_TYPE LLD)
 set_property(TARGET keeperfx_hvlog PROPERTY LINKER_TYPE LLD)
 
-set(WARNFLAGS -Wall -W -Wshadow -Wno-sign-compare -Wno-unused-parameter -Wno-strict-aliasing -Wno-unknown-pragmas -Werror)
+# Add the -Wno-deprecated-declarations flag to suppress deprecation warnings
+set(WARNFLAGS -Wall -W -Wshadow -Wno-sign-compare -Wno-unused-parameter -Wno-strict-aliasing -Wno-unknown-pragmas -Werror -Wno-deprecated-declarations)
 set(GNU_COMPILER_FLAG -march=x86-64 -fno-omit-frame-pointer -fmessage-length=0)
 set(GNU_LINK_FLAG -mwindows -Wl,--enable-auto-import)
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wimplicit")
+
+# Apply the warning flags to both targets
 target_compile_options(keeperfx PRIVATE ${WARNFLAGS} ${GNU_COMPILER_FLAG})
 target_compile_options(keeperfx_hvlog PRIVATE ${WARNFLAGS} ${GNU_COMPILER_FLAG})
+
 target_link_options(keeperfx PRIVATE ${GNU_LINK_FLAG} -Wl,-Map,keeperfx.map)
 target_link_options(keeperfx_hvlog PRIVATE ${GNU_LINK_FLAG} -Wl,-Map,keeperfx_hvlog.map)
-target_link_libraries (keeperfx PUBLIC -static stdc++ winpthread -dynamic)
-target_link_libraries (keeperfx_hvlog PUBLIC -static stdc++ winpthread -dynamic)
+
+target_link_libraries(keeperfx PUBLIC -static stdc++ winpthread -dynamic)
+target_link_libraries(keeperfx_hvlog PUBLIC -static stdc++ winpthread -dynamic)
 
 # System libraries.
 target_link_libraries(keeperfx PRIVATE imagehlp dbghelp)

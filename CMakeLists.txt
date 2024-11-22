@@ -65,7 +65,6 @@ set(WARNFLAGS -Wall -W -Wshadow -Wno-deprecated-declarations -Wno-sign-compare -
 set(GNU_COMPILER_FLAG -march=x86-64 -fno-omit-frame-pointer -fmessage-length=0)
 set(GNU_LINK_FLAG -mwindows -Wl,--enable-auto-import)
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wimplicit")
-
 target_compile_options(keeperfx PRIVATE ${WARNFLAGS} ${GNU_COMPILER_FLAG})
 target_compile_options(keeperfx_hvlog PRIVATE ${WARNFLAGS} ${GNU_COMPILER_FLAG})
 target_link_options(keeperfx PRIVATE ${GNU_LINK_FLAG} -Wl,-Map,keeperfx.map)

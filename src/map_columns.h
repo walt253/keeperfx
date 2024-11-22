@@ -49,9 +49,9 @@ struct Columns {
 };
 
 enum ColumnFlags {
-    CLF_ACTIVE = 0x01, // Height of ceiling cube layer. (IF ANY)
-    CLF_CEILING_MASK = 0x0E, // Height of a floor cube layer.
-    CLF_FLOOR_MASK = 0xF0
+    CLF_ACTIVE = 0x01,
+    CLF_CEILING_MASK = 0x0E, // Height of ceiling cube layer.
+    CLF_FLOOR_MASK = 0xF0 // Height of a floor cube layer.
 };
 
 #pragma pack()

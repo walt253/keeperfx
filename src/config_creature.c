@@ -431,6 +431,10 @@ void init_creature_model_stats(void)
         crstat->can_go_locked_doors = false;
         crstat->prison_kind = 0;
         crstat->torture_kind = 0;
+        for (int i = 0; i < CREATURE_TYPES_MAX; i++)
+        {
+            crstat->hostile_towards[i] = 0;
+        }
         crconf->namestr_idx = 0;
         crconf->model_flags = 0;
         // Attraction block.
@@ -517,6 +521,22 @@ void init_creature_model_stats(void)
         crstat->research_value = 0;
         crstat->manufacture_value = 0;
         crstat->partner_training = 0;
+        // ANSO specific.
+        crstat->immune_to_charm = false;
+        crstat->immune_to_freeze = false;
+        crstat->immune_to_slow = false;
+        crstat->self_recovery = false;
+        crstat->resist_to_magic = false;
+        crstat->is_mechanical = false;
+        crstat->is_undead = false;
+        crstat->is_thief = false;
+        crstat->ethereal = false;
+        crstat->hoarfrost = false;
+        crstat->boss = false;
+        crstat->lava_recovery = 0;
+        crstat->hurt_by_water = 0;
+        crstat->water_recovery = 0;
+        crstat->magic = 100;
     }
 }
 

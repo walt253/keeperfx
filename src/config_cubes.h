@@ -33,11 +33,11 @@ extern "C" {
 #define CUBE_OWNERSHIP_GROUPS 20
 /******************************************************************************/
 enum CubePropertiesFlags {
-    CPF_None =                0x00000,
-    CPF_IsLava =              0x00001,
-    CPF_IsWater =             0x00002,
-    CPF_IsSacrificial =       0x00004,
-    CPF_IsUnclaimedPath =     0x00008,
+    CPF_None =                0x00,
+    CPF_IsLava =              0x01,
+    CPF_IsWater =             0x02,
+    CPF_IsSacrificial =       0x04,
+    CPF_IsUnclaimedPath =     0x08,
 };
 
 struct CubeConfigStats {
@@ -45,7 +45,7 @@ struct CubeConfigStats {
     unsigned short texture_id[CUBE_TEXTURES];
     unsigned char ownershipGroup;
     PlayerNumber owner;
-    unsigned long properties_flags;
+    unsigned char properties_flags;
 };
 
 struct CubesConfig {

@@ -61,7 +61,6 @@ message(STATUS "We are using ${CMAKE_CXX_COMPILER_ID}")
 # The default bfd linker in MinGW is extremely slow. LLVM linker (LLD) is much much faster.
 set_property(TARGET keeperfx PROPERTY LINKER_TYPE LLD)
 set_property(TARGET keeperfx_hvlog PROPERTY LINKER_TYPE LLD)
-
 set(WARNFLAGS -Wall -W -Wshadow -Wno-deprecated-declarations -Wno-sign-compare -Wno-unused-parameter -Wno-strict-aliasing -Wno-unknown-pragmas -Werror)
 set(GNU_COMPILER_FLAG -march=x86-64 -fno-omit-frame-pointer -fmessage-length=0)
 set(GNU_LINK_FLAG -mwindows -Wl,--enable-auto-import)

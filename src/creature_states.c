@@ -572,32 +572,34 @@ TbBool creature_model_bleeds(unsigned long crmodel)
  */
 long get_creature_state_type_f(const struct Thing *thing, const char *func_name)
 {
-  long state_type;
-  unsigned long state = thing->active_state;
-  if ( (state > 0) && (state < CREATURE_STATES_COUNT) )
-  {
-      state_type = states[state].state_type;
-  } else
-  {
-      state_type = states[0].state_type;
-      WARNLOG("%s: The %s index %d active state %lu (%s) is out of range",
-        func_name,thing_model_name(thing),(int)thing->index,state,creature_state_code_name(state));
-  }
-  if (state_type == CrStTyp_Move)
-  {
-      state = thing->continue_state;
-      if ( (state > 0) && (state < CREATURE_STATES_COUNT) )
-      {
-          state_type = states[state].state_type;
-      } else
-      {
-          state_type = states[0].state_type;
-          // Show message with text name of active state - it's good as the state was checked before
-          WARNLOG("%s: The %s index %d owner %d continue state %lu (%s) is out of range; active state %u (%s)",func_name,
-              thing_model_name(thing),(int)thing->index,(int)thing->owner,state,creature_state_code_name(state),thing->active_state,creature_state_code_name(thing->active_state));
-      }
-  }
-  return state_type;
+    long state_type;
+    unsigned long state = thing->active_state;
+    if ((state > 0) && (state < CREATURE_STATES_COUNT))
+    {
+        state_type = states[state].state_type;
+    }
+    else
+    {
+        state_type = states[0].state_type;
+        WARNLOG("%s: The %s index %d active state %lu (%s) is out of range",
+            func_name, thing_model_name(thing), (int)thing->index, state, creature_state_code_name(state));
+    }
+    if (state_type == CrStTyp_Move)
+    {
+        state = thing->continue_state;
+        if ((state > 0) && (state < CREATURE_STATES_COUNT))
+        {
+            state_type = states[state].state_type;
+        }
+        else
+        {
+            state_type = states[0].state_type;
+            // Show message with text name of active state - it's good as the state was checked before.
+            WARNLOG("%s: The %s index %d owner %d continue state %lu (%s) is out of range; active state %u (%s)", func_name,
+                thing_model_name(thing), (int)thing->index, (int)thing->owner, state, creature_state_code_name(state), thing->active_state, creature_state_code_name(thing->active_state));
+        }
+    }
+    return state_type;
 }
 
 /** Returns GUI Job of given creature.
@@ -1602,15 +1604,15 @@ short creature_being_dropped(struct Thing *creatng)
 short creature_cannot_find_anything_to_do(struct Thing *creatng)
 {
     TRACE_THING(creatng);
-	struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-	if ((game.play_gameturn - cctrl->countdown_282) >= 128)
-	{
-		set_start_state(creatng);
-		return 0;
-	}
-	if (creature_choose_random_destination_on_valid_adjacent_slab(creatng))
-		creatng->continue_state = CrSt_CreatureCannotFindAnythingToDo;
-	return 1;
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    if ((game.play_gameturn - cctrl->countdown_282) >= 128)
+    {
+        set_start_state(creatng);
+        return 0;
+    }
+    if (creature_choose_random_destination_on_valid_adjacent_slab(creatng))
+        creatng->continue_state = CrSt_CreatureCannotFindAnythingToDo;
+    return 1;
 }
 
 /**
@@ -4451,7 +4453,7 @@ long get_thing_navigation_distance(struct Thing* creatng, struct Coord3d* pos, u
         creatng->mappos.y.val,
         pos->x.val,
         pos->y.val,
-	    -2, nav_sizexy, __func__);
+        -2, nav_sizexy, __func__);
     nav_thing_can_travel_over_lava = 0;
     nav_thing_can_travel_over_water = 0;
 

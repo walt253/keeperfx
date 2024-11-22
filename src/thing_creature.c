@@ -2151,14 +2151,14 @@ TngUpdateRet process_creature_state(struct Thing *thing)
         }
         if (((game.play_gameturn + thing->index) % mechanical_frequency) == 0)
         {
-            HitPoints recover = compute_creature_max_health(crstat->toking_recovery, cctrl->explevel, thing->owner);
+            HitPoints recover = compute_creature_max_health(crstat->toking_recovery, cctrl->explevel);
             apply_health_to_thing_and_display_health(thing, recover);
         }
     }
     // Self Recovery creature can and will self heal at anytime.
     if ((crstat->sleep_recovery > 0) && (cctrl->max_health > thing->health) && (crstat->self_recovery != 0) && (!creature_is_being_tortured(thing)))
     {
-        HitPoints recover = compute_creature_max_health(crstat->sleep_recovery, cctrl->explevel, thing->owner);
+        HitPoints recover = compute_creature_max_health(crstat->sleep_recovery, cctrl->explevel);
         HitPoints self_frequency = cctrl->max_health / recover;
         if (self_frequency < crstat->sleep_recovery) {
             self_frequency = crstat->sleep_recovery;
@@ -5849,7 +5849,7 @@ void process_landscape_affecting_creature(struct Thing *thing)
             }
             if ((crstat->lava_recovery > 0) && (cctrl->max_health > thing->health))
             {
-                recover = compute_creature_max_health(crstat->lava_recovery, cctrl->explevel, thing->owner);
+                recover = compute_creature_max_health(crstat->lava_recovery, cctrl->explevel);
                 frequency = cctrl->max_health / recover;
                 if (frequency < crstat->lava_recovery) {
                     frequency = crstat->lava_recovery;
@@ -5868,7 +5868,7 @@ void process_landscape_affecting_creature(struct Thing *thing)
             }
             if ((crstat->water_recovery > 0) && (cctrl->max_health > thing->health))
             {
-                recover = compute_creature_max_health(crstat->water_recovery, cctrl->explevel, thing->owner);
+                recover = compute_creature_max_health(crstat->water_recovery, cctrl->explevel);
                 frequency = cctrl->max_health / recover;
                 if (frequency < crstat->water_recovery) {
                     frequency = crstat->water_recovery;

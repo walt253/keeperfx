@@ -902,12 +902,14 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
     i = get_free_spell_slot(thing);
     if (spell_idx == SplK_Heal)
     {
-        n = saturate_set_signed(thing->health + pwrdynst->strength[spell_lev], 32);
-        if (n < 0)
+        HitPoints healing_recovery = (thing->health + pwrdynst->strength[spell_lev]);
+        if (healing_recovery < 0)
         {
             thing->health = 0;
-        } else {
-            thing->health = min(n, cctrl->max_health);
+        }
+        else
+        {
+            thing->health = min(healing_recovery, cctrl->max_health);
         }
         if (spconf->aura_effect != 0)
         {
@@ -1122,12 +1124,14 @@ void reapply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long spe
         break;
     case SplK_Heal:
     {
-        HitPoints i = saturate_set_signed(thing->health + pwrdynst->strength[spell_lev], 32);
-        if (i < 0)
+        HitPoints healing_recovery = (thing->health + pwrdynst->strength[spell_lev]);
+        if (healing_recovery < 0)
         {
             thing->health = 0;
-        } else {
-            thing->health = min(i, cctrl->max_health);
+        }
+        else
+        {
+            thing->health = min(healing_recovery, cctrl->max_health);
         }
         if (spconf->aura_effect != 0)
         {
@@ -2147,14 +2151,14 @@ TngUpdateRet process_creature_state(struct Thing *thing)
         }
         if (((game.play_gameturn + thing->index) % mechanical_frequency) == 0)
         {
-            HitPoints recover = compute_creature_max_health(crstat->toking_recovery, cctrl->explevel, thing->owner);
+            HitPoints recover = compute_creature_max_health(crstat->toking_recovery, cctrl->explevel);
             apply_health_to_thing_and_display_health(thing, recover);
         }
     }
     // Self Recovery creature can and will self heal at anytime.
     if ((crstat->sleep_recovery > 0) && (cctrl->max_health > thing->health) && (crstat->self_recovery != 0) && (!creature_is_being_tortured(thing)))
     {
-        HitPoints recover = compute_creature_max_health(crstat->sleep_recovery, cctrl->explevel, thing->owner);
+        HitPoints recover = compute_creature_max_health(crstat->sleep_recovery, cctrl->explevel);
         HitPoints self_frequency = cctrl->max_health / recover;
         if (self_frequency < crstat->sleep_recovery) {
             self_frequency = crstat->sleep_recovery;
@@ -3427,32 +3431,39 @@ void thing_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot
 
 void set_creature_level(struct Thing *thing, long nlvl)
 {
-    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
     if (creature_control_invalid(cctrl))
     {
         ERRORLOG("Creature has no control");
         return;
     }
-    if (nlvl > CREATURE_MAX_LEVEL-1) {
-        ERRORLOG("Level %d too high, bounding",(int)nlvl);
-        nlvl = CREATURE_MAX_LEVEL-1;
+    if (nlvl > CREATURE_MAX_LEVEL - 1)
+    {
+        ERRORLOG("Level %d too high, bounding", (int)nlvl);
+        nlvl = CREATURE_MAX_LEVEL - 1;
     }
-    if (nlvl < 0) {
-        ERRORLOG("Level %d too low, bounding",(int)nlvl);
+    if (nlvl < 0)
+    {
+        ERRORLOG("Level %d too low, bounding", (int)nlvl);
         nlvl = 0;
     }
-    HitPoints old_max_health = compute_creature_max_health(crstat->health, cctrl->explevel, thing->owner);
+    HitPoints old_max_health = calculate_correct_creature_max_health(thing);
     if (old_max_health < 1)
+    {
         old_max_health = 1;
+    }
     cctrl->explevel = nlvl;
-    HitPoints max_health = compute_creature_max_health(crstat->health, cctrl->explevel, thing->owner);
+    HitPoints max_health = calculate_correct_creature_max_health(thing);
     cctrl->max_health = max_health;
     set_creature_size_stuff(thing);
     if (old_max_health > 0)
-        thing->health = saturate_set_signed((thing->health * max_health) / old_max_health, 32);
+    {
+        thing->health = ((thing->health * max_health) / old_max_health);
+    }
     else
+    {
         thing->health = -1;
+    }
     creature_increase_available_instances(thing);
     add_creature_score_to_owner(thing);
 }
@@ -4397,8 +4408,8 @@ struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumbe
     long i = get_creature_anim(crtng, CGI_Stand);
     set_thing_draw(crtng, i, 256, game.conf.crtr_conf.sprite_size, 0, 0, ODC_Default);
     cctrl->explevel = 1;
-    crtng->health = crstat->health;
-    cctrl->max_health = compute_creature_max_health(crstat->health, cctrl->explevel, owner);
+    cctrl->max_health = calculate_correct_creature_max_health(crtng);
+    crtng->health = cctrl->max_health;
     crtng->owner = owner;
     crtng->mappos.x.val = pos->x.val;
     crtng->mappos.y.val = pos->y.val;
@@ -5838,7 +5849,7 @@ void process_landscape_affecting_creature(struct Thing *thing)
             }
             if ((crstat->lava_recovery > 0) && (cctrl->max_health > thing->health))
             {
-                recover = compute_creature_max_health(crstat->lava_recovery, cctrl->explevel, thing->owner);
+                recover = compute_creature_max_health(crstat->lava_recovery, cctrl->explevel);
                 frequency = cctrl->max_health / recover;
                 if (frequency < crstat->lava_recovery) {
                     frequency = crstat->lava_recovery;
@@ -5857,7 +5868,7 @@ void process_landscape_affecting_creature(struct Thing *thing)
             }
             if ((crstat->water_recovery > 0) && (cctrl->max_health > thing->health))
             {
-                recover = compute_creature_max_health(crstat->water_recovery, cctrl->explevel, thing->owner);
+                recover = compute_creature_max_health(crstat->water_recovery, cctrl->explevel);
                 frequency = cctrl->max_health / recover;
                 if (frequency < crstat->water_recovery) {
                     frequency = crstat->water_recovery;

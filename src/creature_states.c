@@ -575,7 +575,7 @@ long get_creature_state_type_f(const struct Thing *thing, const char *func_name)
 {
     long state_type;
     unsigned long state = thing->active_state;
-    if ((state >= 0) && (state < CREATURE_STATES_COUNT))
+    if (state < CREATURE_STATES_COUNT)
     {
         state_type = states[state].state_type;
     }
@@ -588,7 +588,7 @@ long get_creature_state_type_f(const struct Thing *thing, const char *func_name)
     if (state_type == CrStTyp_Move)
     {
         state = thing->continue_state;
-        if ((state >= 0) && (state < CREATURE_STATES_COUNT))
+        if (state < CREATURE_STATES_COUNT)
         {
             state_type = states[state].state_type;
         }

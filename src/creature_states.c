@@ -2157,7 +2157,9 @@ short creature_follow_leader(struct Thing *creatng)
     {
         speed = 2 * speed;
         if (speed >= MAX_VELOCITY)
+        {
             speed = MAX_VELOCITY;
+        }
         if (creature_move_to(creatng, &follwr_pos, speed, 0, 0) == -1)
         {
             if (cannot_reach_leader) // Only count fails when we're not able to get to the leader, instead of getting a position in the trail it cannot reach.
@@ -2167,68 +2169,67 @@ short creature_follow_leader(struct Thing *creatng)
             return 0;
         }
     }
-    else
-        // If we're far from the designated position, move considerably faster.
-        if (distance_to_follower_pos > subtile_coord(6, 0))
+    else if (distance_to_follower_pos > subtile_coord(6, 0)) // If we're far from the designated position, move considerably faster.
+    {
+        if (speed > 4)
         {
-            if (speed > 4)
-            {
-                speed = 5 * speed / 4;
-            }
-            else
-            {
-                speed = speed + 1;
-            }
-            if (speed >= MAX_VELOCITY)
-                speed = MAX_VELOCITY;
-            if (creature_move_to(creatng, &follwr_pos, speed, 0, 0) == -1)
-            {
-                if (cannot_reach_leader)
-                {
-                    cctrl->follow_leader_fails++;
-                }
-                return 0;
-            }
+            speed = 5 * speed / 4;
         }
         else
-            // If we're close, continue moving at normal speed.
-            if (distance_to_follower_pos <= subtile_coord(2, 0))
+        {
+            speed = speed + 1;
+        }
+        if (speed >= MAX_VELOCITY)
+        {
+            speed = MAX_VELOCITY;
+        }
+        if (creature_move_to(creatng, &follwr_pos, speed, 0, 0) == -1)
+        {
+            if (cannot_reach_leader)
             {
-                if (distance_to_follower_pos <= 0)
-                {
-                    creature_turn_to_face(creatng, &leadtng->mappos);
-                }
-                else if (creature_move_to(creatng, &follwr_pos, speed, 0, 0) == -1)
-                {
-                    if (cannot_reach_leader)
-                    {
-                        cctrl->follow_leader_fails++;
-                    }
-                    return 0;
-                }
+                cctrl->follow_leader_fails++;
             }
-            else
-            // If we're in between, move just a bit faster than leader.
+            return 0;
+        }
+    }
+    else if (distance_to_follower_pos <= subtile_coord(2, 0)) // If we're close, continue moving at normal speed.
+    {
+        if (distance_to_follower_pos <= 0)
+        {
+            creature_turn_to_face(creatng, &leadtng->mappos);
+        }
+        else if (creature_move_to(creatng, &follwr_pos, speed, 0, 0) == -1)
+        {
+            if (cannot_reach_leader)
             {
-                if (speed > 8)
-                {
-                    speed = 9 * speed / 8;
-                }
-                else
-                {
-                    speed = speed + 1;
-                }
-                if (speed >= MAX_VELOCITY)
-                    speed = MAX_VELOCITY;
-                if (creature_move_to(creatng, &follwr_pos, speed, 0, 0) == -1)
-                {
-                    if (cannot_reach_leader)
-                    {
-                        cctrl->follow_leader_fails++;
-                    }
-                    return 0;
-                }
+                cctrl->follow_leader_fails++;
             }
+            return 0;
+        }
+    }
+    else // If we're in between, move just a bit faster than leader.
+    {
+        if (speed > 8)
+        {
+            speed = 9 * speed / 8;
+        }
+        else
+        {
+            speed = speed + 1;
+        }
+        if (speed >= MAX_VELOCITY)
+        {
+            speed = MAX_VELOCITY;
+        }
+        if (creature_move_to(creatng, &follwr_pos, speed, 0, 0) == -1)
+        {
+            if (cannot_reach_leader)
+            {
+                cctrl->follow_leader_fails++;
+            }
+            return 0;
+        }
+    }
     cctrl->follow_leader_fails = 0;
     return 0;
 }

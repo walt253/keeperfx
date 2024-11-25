@@ -5993,6 +5993,14 @@ void transfer_creature_data_and_gold(struct Thing *oldtng, struct Thing *newtng)
     newcctrl->blood_type = oldcctrl->blood_type;
     newcctrl->kills_num = oldcctrl->kills_num;
     newcctrl->joining_age = oldcctrl->joining_age;
+    // Transfer annoyance level, hunger level and paydays owed/advanced.
+    newcctrl->hunger_level = oldcctrl->hunger_level;
+    newcctrl->paydays_owed = oldcctrl->paydays_owed;
+    newcctrl->paydays_advanced = oldcctrl->paydays_advanced;
+    for (unsigned char al = 0; al < AngR_ListEnd; al++)
+    {
+        newcctrl->annoyance_level[al] = oldcctrl->annoyance_level[al];
+    }
     // Transfer strength_upgrade and gives a bonus.
     newcctrl->strength_upgrade = oldcctrl->strength_upgrade + CREATURE_RANDOM(newtng, (oldcrstat->strength / 10)) + CREATURE_RANDOM(newtng, (newcrstat->strength / 10));
     // Make sure strength_upgrade is not above the max allowed.

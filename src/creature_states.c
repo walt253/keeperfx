@@ -564,6 +564,7 @@ TbBool creature_model_bleeds(unsigned long crmodel)
   }
   return crstat->bleeds;
 }
+
 /******************************************************************************/
 /** Returns type of given creature state.
  *
@@ -574,7 +575,7 @@ long get_creature_state_type_f(const struct Thing *thing, const char *func_name)
 {
     long state_type;
     unsigned long state = thing->active_state;
-    if ((state > 0) && (state < CREATURE_STATES_COUNT))
+    if ((state >= 0) && (state < CREATURE_STATES_COUNT))
     {
         state_type = states[state].state_type;
     }
@@ -587,7 +588,7 @@ long get_creature_state_type_f(const struct Thing *thing, const char *func_name)
     if (state_type == CrStTyp_Move)
     {
         state = thing->continue_state;
-        if ((state > 0) && (state < CREATURE_STATES_COUNT))
+        if ((state >= 0) && (state < CREATURE_STATES_COUNT))
         {
             state_type = states[state].state_type;
         }
@@ -1607,12 +1608,12 @@ short creature_cannot_find_anything_to_do(struct Thing *creatng)
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     if ((game.play_gameturn - cctrl->countdown) >= 128)
     {
-				set_start_state(creatng);
-				return 0;
+        set_start_state(creatng);
+        return 0;
     }
     if (creature_choose_random_destination_on_valid_adjacent_slab(creatng))
     {
-				creatng->continue_state = CrSt_CreatureCannotFindAnythingToDo;
+        creatng->continue_state = CrSt_CreatureCannotFindAnythingToDo;
     }
     return 1;
 }
@@ -2891,20 +2892,25 @@ TbBool init_creature_state(struct Thing *creatng)
 
 TbBool restore_backup_state(struct Thing *creatng, CrtrStateId active_state, CrtrStateId continue_state)
 {
-    struct StateInfo* active_stati = &states[active_state];
-    struct StateInfo* continue_stati = &states[continue_state];
-    if ((active_stati->cleanup_state != NULL) || ((continue_state != CrSt_Unused) && (continue_stati->cleanup_state != NULL)))
+    struct StateInfo *active_stati = &states[active_state];
+    struct StateInfo *continue_stati = &states[continue_state];
+    if ((active_stati->cleanup_state != NULL)
+    || ((continue_state != CrSt_Unused) && (continue_stati->cleanup_state != NULL)))
     {
-        if ((active_state == CrSt_CreatureInPrison) || (active_state == CrSt_Torturing)
-          || (continue_state == CrSt_CreatureInPrison) || (continue_state == CrSt_Torturing))
+        if ((active_state == CrSt_CreatureInPrison)
+        || (active_state == CrSt_Torturing)
+        || (continue_state == CrSt_CreatureInPrison)
+        || (continue_state == CrSt_Torturing))
         {
             init_creature_state(creatng);
-        } else
+        }
+        else
         {
             set_start_state(creatng);
         }
         return true;
-    } else
+    }
+    else
     {
         internal_set_thing_state(creatng, active_state);
         creatng->continue_state = continue_state;

@@ -1608,12 +1608,12 @@ short creature_cannot_find_anything_to_do(struct Thing *creatng)
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     if ((game.play_gameturn - cctrl->countdown) >= 128)
     {
-				set_start_state(creatng);
-				return 0;
+        set_start_state(creatng);
+        return 0;
     }
     if (creature_choose_random_destination_on_valid_adjacent_slab(creatng))
     {
-				creatng->continue_state = CrSt_CreatureCannotFindAnythingToDo;
+        creatng->continue_state = CrSt_CreatureCannotFindAnythingToDo;
     }
     return 1;
 }

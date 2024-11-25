@@ -1779,28 +1779,33 @@ void level_up_familiar(struct Thing* famlrtng)
     }
 }
 
-void add_creature_to_summon_list(struct Dungeon* dungeon, ThingIndex famlrtng)
+void add_creature_to_summon_list(struct Dungeon *dungeon, ThingIndex famlrtng)
 {
     if (dungeon->num_summon < MAX_SUMMONS)
     {
         dungeon->summon_list[dungeon->num_summon] = famlrtng;
         dungeon->num_summon++;
-    } else
+    }
+    else
     {
         ERRORLOG("Reached maximum limit of summons");
     }
 }
 
-void remove_creature_from_summon_list(struct Dungeon* dungeon, ThingIndex famlrtng)
+void remove_creature_from_summon_list(struct Dungeon *dungeon, ThingIndex famlrtng)
 {
-    if (dungeon->num_summon == 0) {
-        ERRORLOG("No summons to remove");
+    if (dungeon->num_summon == 0)
+    {
+        // ERRORLOG("No summons to remove");
         return;
     }
-    for (int i = 0; i < dungeon->num_summon;i++){
-        if (dungeon->summon_list[i] == famlrtng) {
-            // Shift the rest of the list one position forward
-            for (int j = i; j < dungeon->num_summon -1; j++) {
+    for (int i = 0; i < dungeon->num_summon; i++)
+    {
+        if (dungeon->summon_list[i] == famlrtng)
+        {
+            // Shift the rest of the list one position forward.
+            for (int j = i; j < dungeon->num_summon - 1; j++)
+            {
                 dungeon->summon_list[j] = dungeon->summon_list[j + 1];
             }
             dungeon->summon_list[dungeon->num_summon - 1] = 0;
@@ -1809,6 +1814,7 @@ void remove_creature_from_summon_list(struct Dungeon* dungeon, ThingIndex famlrt
         }
     }
 }
+
 /**
  * @brief Casts a spell by caster creature targeted at given coordinates, most likely using shot to transfer the spell.
  *

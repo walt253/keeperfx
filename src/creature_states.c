@@ -2104,26 +2104,26 @@ short creature_exempt(struct Thing *creatng)
 short creature_follow_leader(struct Thing *creatng)
 {
     TRACE_THING(creatng);
-    struct Thing* leadtng = get_group_leader(creatng);
+    struct Thing *leadtng = get_group_leader(creatng);
     if (!thing_is_creature(leadtng))
     {
-        SYNCLOG("The %s index %d owned by player %d can no longer follow leader - it's invalid",
-            thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
+        /* SYNCLOG("The %s index %d owned by player %d can no longer follow leader - it's invalid",
+            thing_model_name(creatng), (int)creatng->index, (int)creatng->owner); */
         set_start_state(creatng);
         return 1;
     }
     if (leadtng->index == creatng->index)
     {
-        SYNCLOG("The %s index %d owned by player %d became party leader",
-            thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
+        /* SYNCLOG("The %s index %d owned by player %d became party leader",
+            thing_model_name(creatng), (int)creatng->index, (int)creatng->owner); */
         set_start_state(creatng);
         return 1;
     }
-    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
     if ((cctrl->spell_flags & CSAfF_MadKilling) != 0)
     {
-        SYNCLOG("The %s index %d owned by player %d can no longer be in group - became mad",
-            thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
+        /* SYNCLOG("The %s index %d owned by player %d can no longer be in group - became mad",
+            thing_model_name(creatng), (int)creatng->index, (int)creatng->owner); */
         remove_creature_from_group(creatng);
         set_start_state(creatng);
         return 1;
@@ -2131,16 +2131,16 @@ short creature_follow_leader(struct Thing *creatng)
     struct Coord3d follwr_pos;
     if (!get_free_position_behind_leader(leadtng, &follwr_pos))
     {
-        SYNCLOG("The %s index %d owned by player %d can no longer follow %s - no place amongst followers",
-            thing_model_name(creatng),(int)creatng->index,(int)creatng->owner,thing_model_name(leadtng));
+        /* SYNCLOG("The %s index %d owned by player %d can no longer follow %s - no place amongst followers",
+            thing_model_name(creatng), (int)creatng->index, (int)creatng->owner, thing_model_name(leadtng)); */
         set_start_state(creatng);
         return 1;
     }
     int fails_amount = cctrl->follow_leader_fails;
-    if (fails_amount > 12) //When set too low, group might disband before a white wall is breached
+    if (fails_amount > 12) // When set too low, group might disband before a white wall is breached.
     {
-        SYNCDBG(3,"Removing %s index %d owned by player %d from group due to fails to follow",
-            thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
+        /* SYNCDBG(3, "Removing %s index %d owned by player %d from group due to fails to follow",
+            thing_model_name(creatng), (int)creatng->index, (int)creatng->owner); */
         remove_creature_from_group(creatng);
         return 0;
     }
@@ -2152,47 +2152,37 @@ short creature_follow_leader(struct Thing *creatng)
     MapCoordDelta distance_to_follower_pos = get_chessboard_distance(&creatng->mappos, &follwr_pos);
     TbBool cannot_reach_leader = creature_cannot_move_directly_to(creatng, &leadtng->mappos);
     int speed = get_creature_speed(leadtng);
-    // If we're too far from the designated position, do a speed run
-    if (distance_to_follower_pos > subtile_coord(12,0))
+    // If we're too far from the designated position, do a speed run.
+    if (distance_to_follower_pos > subtile_coord(12, 0))
     {
         speed = 2 * speed;
         if (speed >= MAX_VELOCITY)
+        {
             speed = MAX_VELOCITY;
+        }
         if (creature_move_to(creatng, &follwr_pos, speed, 0, 0) == -1)
         {
-            if (cannot_reach_leader) // only count fails when we're not able to get to the leader, instead of getting a position in the trail it cannot reach.
+            if (cannot_reach_leader) // Only count fails when we're not able to get to the leader, instead of getting a position in the trail it cannot reach.
             {
                 cctrl->follow_leader_fails++;
             }
-          return 0;
+            return 0;
         }
-    } else
-    // If we're far from the designated position, move considerably faster
-    if (distance_to_follower_pos > subtile_coord(6,0))
+    }
+    else if (distance_to_follower_pos > subtile_coord(6, 0)) // If we're far from the designated position, move considerably faster.
     {
-        if (speed > 4) {
+        if (speed > 4)
+        {
             speed = 5 * speed / 4;
-        } else {
+        }
+        else
+        {
             speed = speed + 1;
         }
         if (speed >= MAX_VELOCITY)
+        {
             speed = MAX_VELOCITY;
-        if (creature_move_to(creatng, &follwr_pos, speed, 0, 0) == -1)
-        {
-            if (cannot_reach_leader)
-            {
-                cctrl->follow_leader_fails++;
-            }
-          return 0;
         }
-    } else
-    // If we're close, continue moving at normal speed
-    if (distance_to_follower_pos <= subtile_coord(2,0))
-    {
-        if (distance_to_follower_pos <= 0)
-        {
-            creature_turn_to_face(creatng, &leadtng->mappos);
-        } else
         if (creature_move_to(creatng, &follwr_pos, speed, 0, 0) == -1)
         {
             if (cannot_reach_leader)
@@ -2201,16 +2191,36 @@ short creature_follow_leader(struct Thing *creatng)
             }
             return 0;
         }
-    } else
-    // If we're in between, move just a bit faster than leader
+    }
+    else if (distance_to_follower_pos <= subtile_coord(2, 0)) // If we're close, continue moving at normal speed.
     {
-        if (speed > 8) {
+        if (distance_to_follower_pos <= 0)
+        {
+            creature_turn_to_face(creatng, &leadtng->mappos);
+        }
+        else if (creature_move_to(creatng, &follwr_pos, speed, 0, 0) == -1)
+        {
+            if (cannot_reach_leader)
+            {
+                cctrl->follow_leader_fails++;
+            }
+            return 0;
+        }
+    }
+    else // If we're in between, move just a bit faster than leader.
+    {
+        if (speed > 8)
+        {
             speed = 9 * speed / 8;
-        } else {
+        }
+        else
+        {
             speed = speed + 1;
         }
         if (speed >= MAX_VELOCITY)
+        {
             speed = MAX_VELOCITY;
+        }
         if (creature_move_to(creatng, &follwr_pos, speed, 0, 0) == -1)
         {
             if (cannot_reach_leader)

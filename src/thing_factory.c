@@ -417,7 +417,7 @@ struct Thing *create_thing_at_position_then_move_to_valid_and_add_light(struct C
     {
         if (!move_creature_to_nearest_valid_position(thing))
         {
-            ERRORLOG("The %s was created in wall, removing", thing_model_name(thing));
+            // ERRORLOG("The %s was created in wall, removing", thing_model_name(thing));
             delete_thing_structure(thing, 0);
             return INVALID_THING;
         }

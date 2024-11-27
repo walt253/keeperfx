@@ -4605,6 +4605,7 @@ TbBool create_random_evil_creature(MapCoord x, MapCoord y, PlayerNumber owner, C
     thing->mappos.z.val = pos.z.val;
     remove_first_creature(thing);
     set_first_creature(thing);
+    set_start_state(thing);
     CrtrExpLevel lv = GAME_RANDOM(max_lv);
     set_creature_level(thing, lv);
     return true;

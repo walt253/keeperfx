@@ -449,7 +449,7 @@ void process_creature_instance(struct Thing *thing)
     TRACE_THING(thing);
     cctrl = creature_control_get_from_thing(thing);
     SYNCDBG(19, "Starting for %s index %d instance %d", thing_model_name(thing), (int)thing->index, (int)cctrl->instance_id);
-    if (cctrl->inst_turn > cctrl->inst_total_turns)
+    if (cctrl->inst_turn >= cctrl->inst_total_turns)
     {
         if (!cctrl->inst_repeat)
         {
@@ -800,6 +800,11 @@ long instf_attack_room_slab(struct Thing *creatng, long *param)
     {
         ERRORLOG("The %s index %d is not on room",thing_model_name(creatng),(int)creatng->index);
         return 0;
+    }
+    if (room_cannot_vandalise(room->kind))
+    {
+        set_start_state(creatng);
+        return 0; // Stop the creature from vandalizing the room if the player managed to move it from a breakable room to one that cannot be vandalized.
     }
     SYNCDBG(8,"Executing for %s index %d",thing_model_name(creatng),(int)creatng->index);
     struct SlabMap* slb = get_slabmap_thing_is_on(creatng);

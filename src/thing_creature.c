@@ -4455,6 +4455,7 @@ TbBool create_random_evil_creature(MapCoord x, MapCoord y, PlayerNumber owner, C
     thing->mappos.z.val = pos.z.val;
     remove_first_creature(thing);
     set_first_creature(thing);
+    set_start_state(thing);
     CrtrExpLevel lv = GAME_RANDOM(max_lv);
     set_creature_level(thing, lv);
     return true;
@@ -4514,6 +4515,7 @@ TbBool create_random_hero_creature(MapCoord x, MapCoord y, PlayerNumber owner, C
     thing->mappos.z.val = pos.z.val;
     remove_first_creature(thing);
     set_first_creature(thing);
+    set_start_state(thing);
     CrtrExpLevel lv = GAME_RANDOM(max_lv);
     set_creature_level(thing, lv);
     return true;
@@ -4551,6 +4553,7 @@ struct Thing *create_owned_special_digger(MapCoord x, MapCoord y, PlayerNumber o
     thing->mappos.z.val = pos.z.val;
     remove_first_creature(thing);
     set_first_creature(thing);
+    set_start_state(thing);
     return thing;
 }
 

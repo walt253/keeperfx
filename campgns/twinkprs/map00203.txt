@@ -14,6 +14,9 @@ REM    the Free Software Foundation; either version 2 of the License, or
 REM    (at your option) any later version.
 REM ****************************************************************************
 
+LEVEL_VERSION(1)
+SET_GAME_RULE(BREAK_NEUTRAL_WALLS,64)
+
 START_MONEY(PLAYER0,10000)
 
 SET_GENERATE_SPEED(100)
@@ -28,9 +31,6 @@ REM   state can be changed to "2" by claiming second entrance
 REM   state 3 - continuously spawn thieves
 REM   state can be changed to "3" if proximity of hero heart is reached
 REM   state 4 - final hero partys sequence
-
-LEVEL_VERSION(1)
-SET_GAME_RULE(BREAK_NEUTRAL_WALLS,64)
 
 SET_FLAG(PLAYER0,FLAG0,0)
 

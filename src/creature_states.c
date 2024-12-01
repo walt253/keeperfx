@@ -4165,19 +4165,6 @@ TbBool creature_is_hostile_towards(const struct Thing *fightng, const struct Thi
     return false;
 }
 
-TbBool creature_is_hostile_towards(const struct Thing *fightng, const struct Thing *enmtng)
-{
-    struct CreatureStats* crstat = creature_stats_get_from_thing(fightng);
-    for (int i = 0; i < CREATURE_TYPES_MAX; i++)
-    {
-        if ((crstat->hostile_towards[i] == enmtng->model) || (crstat->hostile_towards[i] == CREATURE_ANY))
-        {
-            return true;
-        }
-    }
-    return false;
-}
-
 TbBool creature_can_be_hostile(const struct Thing *fightng, const struct Thing *enmtng)
 {
     // Creatures cannot be hostile towards allies if influenced by CTA.

@@ -132,17 +132,18 @@ const struct NamedCommand creatmodel_properties_commands[] = {
   {"FAT",               31},
   {"NO_STEAL_HERO",     32},
   {"PREFER_STEAL",      33},
-  {"IMMUNE_TO_CHARM",   34},
-  {"IMMUNE_TO_FREEZE",  35},
-  {"IMMUNE_TO_SLOW",    36},
-  {"SELF_RECOVERY",     37},
-  {"RESIST_TO_MAGIC",   38},
-  {"MECHANICAL",        39},
-  {"UNDEAD",            40},
-  {"THIEF",             41},
-  {"ETHEREAL",          42},
-  {"HOARFROST",         43},
-  {"BOSS",              44},
+  {"EVENTFUL_DEATH",    34},
+  {"IMMUNE_TO_CHARM",   35},
+  {"IMMUNE_TO_FREEZE",  36},
+  {"IMMUNE_TO_SLOW",    37},
+  {"SELF_RECOVERY",     38},
+  {"RESIST_TO_MAGIC",   39},
+  {"MECHANICAL",        40},
+  {"UNDEAD",            41},
+  {"THIEF",             42},
+  {"ETHEREAL",          43},
+  {"HOARFROST",         44},
+  {"BOSS",              45},
   {NULL,                 0},
   };
 
@@ -767,47 +768,51 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
                 crconf->model_flags |= CMF_PreferSteal;
                 n++;
                 break;
-            case 34: // IMMUNE_TO_CHARM
+            case 34: // EVENTFUL_DEATH
+                crconf->model_flags |= CMF_EventfulDeath;
+                n++;
+                break;
+            case 35: // IMMUNE_TO_CHARM
                 crstat->immune_to_charm = true;
                 n++;
                 break;
-            case 35: // IMMUNE_TO_FREEZE
+            case 36: // IMMUNE_TO_FREEZE
                 crstat->immune_to_freeze = true;
                 n++;
                 break;
-            case 36: // IMMUNE_TO_SLOW
+            case 37: // IMMUNE_TO_SLOW
                 crstat->immune_to_slow = true;
                 n++;
                 break;
-            case 37: // SELF_RECOVERY
+            case 38: // SELF_RECOVERY
                 crstat->self_recovery = true;
                 n++;
                 break;
-            case 38: // RESIST_TO_MAGIC
+            case 39: // RESIST_TO_MAGIC
                 crstat->resist_to_magic = true;
                 n++;
                 break;
-            case 39: // MECHANICAL
+            case 40: // MECHANICAL
                 crstat->is_mechanical = true;
                 n++;
                 break;
-            case 40: // UNDEAD
+            case 41: // UNDEAD
                 crstat->is_undead = true;
                 n++;
                 break;
-            case 41: // THIEF
+            case 42: // THIEF
                 crstat->is_thief = true;
                 n++;
                 break;
-            case 42: // ETHEREAL
+            case 43: // ETHEREAL
                 crstat->ethereal = true;
                 n++;
                 break;
-            case 43: // HOARFROST
+            case 44: // HOARFROST
                 crstat->hoarfrost = true;
                 n++;
                 break;
-            case 44: // BOSS
+            case 45: // BOSS
                 crstat->boss = true;
                 n++;
                 break;

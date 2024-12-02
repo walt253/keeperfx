@@ -712,79 +712,91 @@ void make_camera_deviations(struct PlayerInfo *player,struct Dungeon *dungeon)
 
 void redraw_isometric_view(void)
 {
-    SYNCDBG(6,"Starting");
-
-    struct PlayerInfo* player = get_my_player();
+    SYNCDBG(6, "Starting");
+    struct PlayerInfo *player = get_my_player();
     if (player->acamera == NULL)
+    {
         return;
+    }
     struct Coord3d pos;
     memcpy(&pos, &player->acamera->mappos, sizeof(struct Coord3d));
     TbGraphicsWindow ewnd;
     LbMemorySet(&ewnd, 0, sizeof(TbGraphicsWindow));
     if (player->field_45F != 1)
-      player->field_45F = 1;
-    struct Dungeon* dungeon = get_players_num_dungeon(my_player_number);
-    // Camera position modifications
-    make_camera_deviations(player,dungeon);
+    {
+        player->field_45F = 1;
+    }
+    struct Dungeon *dungeon = get_players_num_dungeon(my_player_number);
+    // Camera position modifications.
+    make_camera_deviations(player, dungeon);
     update_explored_flags_for_power_sight(player);
     if ((game.flags_font & FFlg_unk08) != 0)
     {
-        store_engine_window(&ewnd,1);
+        store_engine_window(&ewnd, 1);
         setup_engine_window(ewnd.x, ewnd.y, ewnd.width >> 1, ewnd.height >> 1);
     }
-    engine(player,&player->cameras[CamIV_Isometric]);
+    engine(player, &player->cameras[CamIV_Isometric]);
     if ((game.flags_font & FFlg_unk08) != 0)
     {
         load_engine_window(&ewnd);
     }
     if (smooth_on)
     {
-        store_engine_window(&ewnd,pixel_size);
-        smooth_screen_area(lbDisplay.WScreen, ewnd.x, ewnd.y,
-            ewnd.width, ewnd.height, lbDisplay.GraphicsScreenWidth);
+        store_engine_window(&ewnd, pixel_size);
+        smooth_screen_area(lbDisplay.WScreen, ewnd.x, ewnd.y, ewnd.width, ewnd.height, lbDisplay.GraphicsScreenWidth);
     }
     remove_explored_flags_for_power_sight(player);
-    if ((game.operation_flags & GOF_ShowGui) != 0) {
+    if ((game.operation_flags & GOF_ShowGui) != 0)
+    {
         draw_whole_status_panel();
     }
     draw_gui();
-    if ((game.operation_flags & GOF_ShowGui) != 0) {
+    if ((game.operation_flags & GOF_ShowGui) != 0)
+    {
         draw_overlay_compass(player->minimap_pos_x, player->minimap_pos_y);
     }
     message_draw();
     gui_draw_all_boxes();
     draw_power_hand();
     draw_tooltip();
-    memcpy(&player->acamera->mappos,&pos,sizeof(struct Coord3d));
-    SYNCDBG(8,"Finished");
+    memcpy(&player->acamera->mappos, &pos, sizeof(struct Coord3d));
+    SYNCDBG(8, "Finished");
 }
 
 void redraw_frontview(void)
 {
-    SYNCDBG(6,"Starting");
+    SYNCDBG(6, "Starting");
     long w;
     long h;
-    struct PlayerInfo* player = get_my_player();
+    struct PlayerInfo *player = get_my_player();
+    struct Dungeon *dungeon = get_players_num_dungeon(my_player_number);
+    // Camera position modifications.
+    make_camera_deviations(player, dungeon);
     update_explored_flags_for_power_sight(player);
     if ((game.flags_font & FFlg_unk08) != 0)
     {
-      w = player->engine_window_width;
-      h = player->engine_window_height;
-      setup_engine_window(player->engine_window_x, player->engine_window_y, w, h >> 1);
-    } else
+        w = player->engine_window_width;
+        h = player->engine_window_height;
+        setup_engine_window(player->engine_window_x, player->engine_window_y, w, h >> 1);
+    }
+    else
     {
-      w = 0;
-      h = 0;
+        w = 0;
+        h = 0;
     }
     draw_frontview_engine(&player->cameras[CamIV_FrontView]);
     if ((game.flags_font & FFlg_unk08) != 0)
-      setup_engine_window(player->engine_window_x, player->engine_window_y, w, h);
+    {
+        setup_engine_window(player->engine_window_x, player->engine_window_y, w, h);
+    }
     remove_explored_flags_for_power_sight(player);
-    if ((game.operation_flags & GOF_ShowGui) != 0) {
+    if ((game.operation_flags & GOF_ShowGui) != 0)
+    {
         draw_whole_status_panel();
     }
     draw_gui();
-    if ((game.operation_flags & GOF_ShowGui) != 0) {
+    if ((game.operation_flags & GOF_ShowGui) != 0)
+    {
         draw_overlay_compass(player->minimap_pos_x, player->minimap_pos_y);
     }
     message_draw();

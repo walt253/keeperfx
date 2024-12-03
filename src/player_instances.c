@@ -1259,6 +1259,10 @@ TbBool player_place_trap_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumb
     }
     else if (trap_cfg->instant_placement)
     {
+        // if (remove_workshop_item_from_amount_stored(oldowner, TCls_Trap, tngmodel, WrkCrtF_NoOffmap))
+        //{
+            remove_workshop_item_from_amount_stored(plyr_idx, TCls_Trap, tngmodel, WrkCrtF_NoOffmap);
+        //}
         remove_workshop_object_from_player(plyr_idx, trap_crate_object_model(tngmodel));
         rearm_trap(traptng);
         dungeon->lvstats.traps_armed++;

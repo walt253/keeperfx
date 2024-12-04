@@ -138,10 +138,14 @@ long process_temple_cure(struct Thing *creatng)
 {
     TRACE_THING(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    if (creature_affected_by_spell(creatng, SplK_Disease))
-        terminate_thing_spell_effect(creatng, SplK_Disease);
-    if (creature_affected_by_spell(creatng, SplK_Chicken))
-        terminate_thing_spell_effect(creatng, SplK_Chicken);
+    if (creature_affected_by_spell(creatng, CSAfF_Disease))
+    {
+        terminate_thing_spell_effect(creatng, CSAfF_Disease);
+    }
+    if (creature_affected_by_spell(creatng, CSAfF_Disease))
+    {
+        terminate_thing_spell_effect(creatng, CSAfF_Disease);
+    }
     cctrl->temple_cure_gameturn = game.play_gameturn;
     return 1;
 }

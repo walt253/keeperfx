@@ -789,12 +789,12 @@ long get_free_spell_slot(struct Thing *creatng)
     for (i=0; i < CREATURE_MAX_SPELLS_CASTED_AT; i++)
     {
         cspell = &cctrl->casted_spells[i];
-        // If there's unused slot, return it immediately
+        // If there's unused slot, return it immediately.
         if (cspell->spkind == SplK_None)
         {
             return i;
         }
-        // Otherwise, select the one making minimum damage
+        // Otherwise, select the one making minimum damage.
         long k = abs(cspell->duration);
         if (k < cval)
         {
@@ -802,9 +802,10 @@ long get_free_spell_slot(struct Thing *creatng)
             ci = i;
         }
     }
-    // Terminate the min damage effect and return its slot index
+    // Terminate the min damage effect and return its slot index.
     cspell = &cctrl->casted_spells[ci];
-    terminate_thing_spell_effect(creatng, cspell->spkind);
+    struct SpellConfig *spconf = get_spell_config(cspell->spkind);
+    terminate_thing_spell_effect(creatng, spconf->spell_flags);
     for (i=0; i < CREATURE_MAX_SPELLS_CASTED_AT; i++)
     {
         cspell = &cctrl->casted_spells[i];
@@ -1449,7 +1450,8 @@ void process_thing_spell_effects(struct Thing *thing)
         }
         cspell->duration--;
         if (cspell->duration <= 0) {
-            terminate_thing_spell_effect(thing, cspell->spkind);
+            struct SpellConfig *spconf = get_spell_config(cspell->spkind);
+            terminate_thing_spell_effect(thing, spconf->spell_flags);
         }
     }
     // Slap is not in spell array, it is so common that has its own dedicated duration
@@ -2830,14 +2832,14 @@ struct Thing* kill_creature(struct Thing *creatng, struct Thing *killertng, Play
         return INVALID_THING;
     }
     // Dying creatures must be visible and no chicken
-    if (creature_affected_by_spell(creatng, SplK_Invisibility)) {
-        terminate_thing_spell_effect(creatng, SplK_Invisibility);
+    if (creature_affected_by_spell(creatng, CSAfF_Invisibility)) {
+        terminate_thing_spell_effect(creatng, CSAfF_Invisibility);
     }
-    if (creature_affected_by_spell(creatng, SplK_Chicken)) {
-        terminate_thing_spell_effect(creatng, SplK_Chicken);
+    if (creature_affected_by_spell(creatng, CSAfF_Chicken)) {
+        terminate_thing_spell_effect(creatng, CSAfF_Chicken);
     }
-    if (creature_affected_by_spell(creatng, SplK_Rebound)) {
-        terminate_thing_spell_effect(creatng, SplK_Rebound);
+    if (creature_affected_by_spell(creatng, CSAfF_Rebound)) {
+        terminate_thing_spell_effect(creatng, CSAfF_Rebound);
     }
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     if ((cctrl->unsummon_turn > 0) && (cctrl->unsummon_turn > game.play_gameturn))

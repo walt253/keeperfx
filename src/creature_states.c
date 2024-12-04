@@ -763,44 +763,49 @@ TbBool creature_is_fleeing_combat(const struct Thing *thing)
     return false;
 }
 
-/**
+/*
  * Returns if creature is in general in CTA following state.
- * Following CTA may be interrupted by fights and other events; if this returns true,
- *  the creature should get back to following CTA when other activity (like battle) is finished.
+ * Following CTA may be interrupted by fights and other events.
+ * If true, the creature should get back to following CTA when other activity (like battle) is finished.
  * @param thing
  * @return
  */
 TbBool creature_affected_by_call_to_arms(const struct Thing *thing)
 {
-    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    return ((cctrl->spell_flags & CSAfF_CalledToArms) != 0);
+	struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
+	return ((cctrl->spell_flags & CSAfF_CalledToArms) != 0);
 }
 
-/**
+/*
  * Returns if creature is currently directly in CTA following state.
  * @param thing
  * @return
  */
 TbBool creature_is_called_to_arms(const struct Thing *thing)
 {
-    CrtrStateId i = get_creature_state_besides_interruptions(thing);
-    if ((i == CrSt_AlreadyAtCallToArms) || (i == CrSt_ArriveAtCallToArms))
-        return true;
-    return false;
+	CrtrStateId i = get_creature_state_besides_interruptions(thing);
+	if ((i == CrSt_AlreadyAtCallToArms) || (i == CrSt_ArriveAtCallToArms))
+	{
+		return true;
+	}
+	return false;
 }
 
 TbBool creature_is_taking_salary_activity(const struct Thing *thing)
 {
-    CrtrStateId crstate = get_creature_state_besides_move(thing);
-    if ((crstate == CrSt_CreatureWantsSalary) || (crstate == CrSt_CreatureTakeSalary))
-        return true;
-    return false;
+	CrtrStateId crstate = get_creature_state_besides_move(thing);
+	if ((crstate == CrSt_CreatureWantsSalary) || (crstate == CrSt_CreatureTakeSalary))
+	{
+		return true;
+	}
+	return false;
 }
 
 TbBool creature_is_arming_trap(const struct Thing *thing)
 {
     CrtrStateId crstate = get_creature_state_besides_move(thing);
-    if (crstate == CrSt_CreaturePicksUpTrapObject) {
+    if (crstate == CrSt_CreaturePicksUpTrapObject)
+	{
         return true;
     }
     crstate = get_creature_state_besides_drag(thing);

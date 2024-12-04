@@ -186,16 +186,19 @@ long process_torture_visuals(struct Thing *creatng, struct Room *room, CreatureJ
     switch (cctrl->tortured.vis_state)
     {
     case CTVS_TortureRandMove:
-        if (game.play_gameturn - cctrl->tortured.gameturn_9Ex > 100) {
+        if (game.play_gameturn - cctrl->tortured.gameturn_9Ex > 100)
+        {
             cctrl->tortured.vis_state = CTVS_TortureGoToDevice;
         }
-        if (!creature_setup_adjacent_move_for_job_within_room(creatng, room, jobpref)) {
+        if (!creature_setup_adjacent_move_for_job_within_room(creatng, room, jobpref))
+        {
             return CrStRet_Unchanged;
         }
         creatng->continue_state = get_continue_state_for_job(jobpref);
         return 1;
     case CTVS_TortureGoToDevice:
-        if (!setup_torture_move_to_device(creatng, room, jobpref)) {
+        if (!setup_torture_move_to_device(creatng, room, jobpref))
+        {
             cctrl->tortured.vis_state = CTVS_TortureRandMove;
             cctrl->tortured.gameturn_9Ex = game.play_gameturn;
             return CrStRet_Unchanged;
@@ -205,18 +208,23 @@ long process_torture_visuals(struct Thing *creatng, struct Room *room, CreatureJ
         return 1;
     case CTVS_TortureInDevice:
         sectng = thing_get(cctrl->tortured.assigned_torturer);
-        if (creature_turn_to_face_angle(creatng, sectng->move_angle_xy) >= LbFPMath_PI/12) {
+        if (creature_turn_to_face_angle(creatng, sectng->move_angle_xy) >= LbFPMath_PI / 12)
+        {
             return CrStRet_Unchanged;
         }
         clear_flag(creatng->movement_flags, TMvF_Flying);
         clear_flag(cctrl->spell_flags, CSAfF_Flying);
         creatng->mappos.z.val = get_thing_height_at(creatng, &creatng->mappos);
-        if (cctrl->instance_id == CrInst_NULL) {
+        if (cctrl->instance_id == CrInst_NULL)
+        {
             set_creature_instance(creatng, CrInst_TORTURED, 0, 0);
         }
-        if (thing_exists(sectng)) {
+        if (thing_exists(sectng))
+        {
             sectng->rendering_flags |= TRF_Invisible;
-        } else {
+        }
+        else
+        {
             ERRORLOG("No device for torture");
         }
         dturn = game.play_gameturn - cctrl->tortured.gameturn_A2x;

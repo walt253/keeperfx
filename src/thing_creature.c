@@ -861,233 +861,252 @@ TbBool free_spell_slot(struct Thing *thing, long slot_idx)
 
 void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, long spell_lev)
 {
-    struct CreatureStats *crstat = creature_stats_get(thing->model);
-    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
-    struct ComponentVector cvect;
-    struct Coord3d pos;
-    struct Thing *ntng;
-    long i = get_free_spell_slot(thing);
-    if (spell_lev > SPELL_MAX_LEVEL)
-    {
-        spell_lev = SPELL_MAX_LEVEL;
-    }
-    // This pointer may be invalid if spell_idx is incorrect. But we're using it only when correct.
-    const struct SpellConfig *spconf = get_spell_config(spell_idx);
-    const struct MagicStats *pwrdynst = get_power_dynamic_stats(spconf->linked_power);
-    short duration;
-    // If not linked to a keeper power, use the duration set on the spell, otherwise use the strength or duration of the linked power.
-    if (spconf->linked_power == 0)
-    {
-        duration = spconf->duration;
-    }
-    else if (pwrdynst->duration == 0)
-    {
-        duration = pwrdynst->strength[spell_lev];
-    }
-    else
-    {
-        duration = pwrdynst->duration;
-    }
-    if (i != -1)
-    {
-        fill_spell_slot(thing, i, spell_idx, duration);
-        cctrl->spell_flags |= spconf->spell_flags;
-        if ((flag_is_set(cctrl->spell_flags, CSAfF_Slow)) || (flag_is_set(cctrl->spell_flags, CSAfF_Speed)))
-        {
-            cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
-        }
-        if (flag_is_set(cctrl->spell_flags, CSAfF_Armour))
-        {
-            long num_protect = 0;
-            for (int k = 0; k < 2; k++)
-            {
-                set_coords_to_cylindric_shift(&pos, &thing->mappos, 32, num_protect, k * (thing->clipbox_size_z >> 1));
-                ntng = create_object(&pos, ObjMdl_LightBall, thing->owner, -1);
-                if (!thing_is_invalid(ntng))
-                {
-                    cctrl->spell_tngidx_armour[k] = ntng->index;
-                    ntng->health = pwrdynst->strength[spell_lev] + 1;
-                    ntng->armor.belongs_to = thing->index;
-                    ntng->armor.shspeed = k;
-                    ntng->move_angle_xy = thing->move_angle_xy;
-                    ntng->move_angle_z = thing->move_angle_z;
-                    angles_to_vector(ntng->move_angle_xy, ntng->move_angle_z, 32, &cvect);
-                    ntng->veloc_push_add.x.val += cvect.x;
-                    ntng->veloc_push_add.y.val += cvect.y;
-                    ntng->veloc_push_add.z.val += cvect.z;
-                    ntng->state_flags |= TF1_PushAdd;
-                }
-                num_protect += 2 * LbFPMath_PI / 3;
-            }
-        }
-        if (flag_is_set(cctrl->spell_flags, CSAfF_Flying))
-        {
-            thing->movement_flags |= TMvF_Flying;
-        }
-        if (flag_is_set(cctrl->spell_flags, CSAfF_Invisibility))
-        {
-            cctrl->force_visible = 0;
-        }
-        if (flag_is_set(cctrl->spell_flags, CSAfF_Light))
-        {
-            if (!crstat->illuminated)
-            {
-                illuminate_creature(thing);
-            }
-        }
-        if ((flag_is_set(cctrl->spell_flags, CSAfF_Disease)) && (!flag_is_set(game.conf.crtr_conf.model[thing->model].model_flags, CMF_NeverSick)))
-        {
-            if (cctrl->disease_caster_plyridx == thing->owner)
-            {
-                cctrl->disease_caster_plyridx = game.neutral_player_num;
-            }
-            long num_disease = 0;
-            cctrl->disease_start_turn = game.play_gameturn;
-            for (int j = 0; j < 3; j++)
-            {
-                pos.x.val = thing->mappos.x.val;
-                pos.y.val = thing->mappos.y.val;
-                pos.z.val = thing->mappos.z.val;
-                pos.x.val += distance_with_angle_to_coord_x(32, num_disease);
-                pos.y.val += distance_with_angle_to_coord_y(32, num_disease);
-                pos.z.val += j * (long)(thing->clipbox_size_z >> 1);
-                ntng = create_object(&pos, ObjMdl_Disease, thing->owner, -1);
-                if (!thing_is_invalid(ntng))
-                {
-                    cctrl->spell_tngidx_disease[j] = ntng->index;
-                    ntng->health = pwrdynst->strength[spell_lev] + 1;
-                    ntng->disease.belongs_to = thing->index;
-                    ntng->disease.effect_slot = j;
-                    ntng->move_angle_xy = thing->move_angle_xy;
-                    ntng->move_angle_z = thing->move_angle_z;
-                    angles_to_vector(ntng->move_angle_xy, ntng->move_angle_z, 32, &cvect);
-                    ntng->veloc_push_add.x.val += cvect.x;
-                    ntng->veloc_push_add.y.val += cvect.y;
-                    ntng->veloc_push_add.z.val += cvect.z;
-                    ntng->state_flags |= TF1_PushAdd;
-                }
-                num_disease += 2 * LbFPMath_PI / 3;
-            }
-        }
-        if ((flag_is_set(cctrl->spell_flags, CSAfF_Chicken)) && (!flag_is_set(game.conf.crtr_conf.model[thing->model].model_flags, CMF_NeverChickens)))
-        {
-            external_set_thing_state(thing, CrSt_CreatureChangeToChicken);
-            cctrl->countdown = duration;
-        }
-        if (flag_is_set(cctrl->spell_flags, CSAfF_Timebomb))
-        {
-            cctrl->timebomb_countdown = duration;
-        }
-        if (flag_is_set(cctrl->spell_flags, CSAfF_Freeze))
-        {
-            cctrl->stateblock_flags |= CCSpl_Freeze;
-            if ((thing->movement_flags & TMvF_Flying) != 0)
-            {
-                cctrl->spell_flags |= CSAfF_Grounded;
-                thing->movement_flags &= ~TMvF_Flying;
-            }
-            creature_set_speed(thing, 0);
-        }
-        if (flag_is_set(cctrl->spell_flags, CSAfF_Teleport))
-        {
-            cctrl->stateblock_flags |= CCSpl_Teleport;
-        }
-        if (flag_is_set(cctrl->spell_flags, CSAfF_Heal))
-        {
-            HitPoints heal_amount = saturate_set_signed(thing->health + pwrdynst->strength[spell_lev], 16);
-            if (heal_amount < 0)
-            {
-                thing->health = 0;
-            }
-            else
-            {
-                thing->health = min(heal_amount, cctrl->max_health);
-            }
-        }
-        if (spconf->aura_effect != 0)
-        {
-            cctrl->spell_aura = spconf->aura_effect;
-            cctrl->spell_aura_duration = spconf->duration;
-        }
-    }
+	struct CreatureStats *crstat = creature_stats_get(thing->model);
+	struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
+	struct ComponentVector cvect;
+	struct Coord3d pos;
+	struct Thing *ntng;
+	if (spell_lev > SPELL_MAX_LEVEL)
+	{
+		spell_lev = SPELL_MAX_LEVEL;
+	}
+	// This pointer may be invalid if spell_idx is incorrect. But we're using it only when correct.
+	const struct SpellConfig *spconf = get_spell_config(spell_idx);
+	const struct MagicStats *pwrdynst = get_power_dynamic_stats(spconf->linked_power);
+	GameTurn duration;
+	// If not linked to a keeper power, use the duration set on the spell, otherwise use the strength or duration of the linked power.
+	if (spconf->linked_power == 0)
+	{
+		duration = spconf->duration;
+	}
+	else if (pwrdynst->duration == 0)
+	{
+		duration = pwrdynst->strength[spell_lev];
+	}
+	else
+	{
+		duration = pwrdynst->duration;
+	}
+	long i = get_free_spell_slot(thing);
+	if (i != -1)
+	{
+		fill_spell_slot(thing, i, spell_idx, duration);
+		set_flag(cctrl->spell_flags, spconf->spell_flags);
+		if ((flag_is_set(spconf->spell_flags, CSAfF_Slow)) || (flag_is_set(spconf->spell_flags, CSAfF_Speed)))
+		{
+			cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
+		}
+		if (flag_is_set(spconf->spell_flags, CSAfF_Armour))
+		{
+			long num_protect = 0;
+			for (int k = 0; k < 2; k++)
+			{
+				set_coords_to_cylindric_shift(&pos, &thing->mappos, 32, num_protect, k * (thing->clipbox_size_z >> 1));
+				ntng = create_object(&pos, ObjMdl_LightBall, thing->owner, -1);
+				if (!thing_is_invalid(ntng))
+				{
+					cctrl->spell_tngidx_armour[k] = ntng->index;
+					ntng->health = pwrdynst->strength[spell_lev] + 1;
+					ntng->armor.belongs_to = thing->index;
+					ntng->armor.shspeed = k;
+					ntng->move_angle_xy = thing->move_angle_xy;
+					ntng->move_angle_z = thing->move_angle_z;
+					angles_to_vector(ntng->move_angle_xy, ntng->move_angle_z, 32, &cvect);
+					ntng->veloc_push_add.x.val += cvect.x;
+					ntng->veloc_push_add.y.val += cvect.y;
+					ntng->veloc_push_add.z.val += cvect.z;
+					ntng->state_flags |= TF1_PushAdd;
+				}
+				num_protect += 2 * LbFPMath_PI / 3;
+			}
+		}
+		if (flag_is_set(spconf->spell_flags, CSAfF_Flying))
+		{
+			thing->movement_flags |= TMvF_Flying;
+		}
+		if (flag_is_set(spconf->spell_flags, CSAfF_Invisibility))
+		{
+			cctrl->force_visible = 0;
+		}
+		if (flag_is_set(spconf->spell_flags, CSAfF_Light))
+		{
+			if (!crstat->illuminated)
+			{
+				illuminate_creature(thing);
+			}
+		}
+		if ((flag_is_set(spconf->spell_flags, CSAfF_Disease)) && (!flag_is_set(game.conf.crtr_conf.model[thing->model].model_flags, CMF_NeverSick)))
+		{
+			if (cctrl->disease_caster_plyridx == thing->owner)
+			{
+				cctrl->disease_caster_plyridx = game.neutral_player_num;
+			}
+			long num_disease = 0;
+			cctrl->disease_start_turn = game.play_gameturn;
+			for (int j = 0; j < 3; j++)
+			{
+				pos.x.val = thing->mappos.x.val;
+				pos.y.val = thing->mappos.y.val;
+				pos.z.val = thing->mappos.z.val;
+				pos.x.val += distance_with_angle_to_coord_x(32, num_disease);
+				pos.y.val += distance_with_angle_to_coord_y(32, num_disease);
+				pos.z.val += j * (long)(thing->clipbox_size_z >> 1);
+				ntng = create_object(&pos, ObjMdl_Disease, thing->owner, -1);
+				if (!thing_is_invalid(ntng))
+				{
+					cctrl->spell_tngidx_disease[j] = ntng->index;
+					ntng->health = pwrdynst->strength[spell_lev] + 1;
+					ntng->disease.belongs_to = thing->index;
+					ntng->disease.effect_slot = j;
+					ntng->move_angle_xy = thing->move_angle_xy;
+					ntng->move_angle_z = thing->move_angle_z;
+					angles_to_vector(ntng->move_angle_xy, ntng->move_angle_z, 32, &cvect);
+					ntng->veloc_push_add.x.val += cvect.x;
+					ntng->veloc_push_add.y.val += cvect.y;
+					ntng->veloc_push_add.z.val += cvect.z;
+					ntng->state_flags |= TF1_PushAdd;
+				}
+				num_disease += 2 * LbFPMath_PI / 3;
+			}
+		}
+		if ((flag_is_set(spconf->spell_flags, CSAfF_Chicken)) && (!flag_is_set(game.conf.crtr_conf.model[thing->model].model_flags, CMF_NeverChickens)))
+		{
+			external_set_thing_state(thing, CrSt_CreatureChangeToChicken);
+			cctrl->countdown = duration;
+		}
+		if (flag_is_set(spconf->spell_flags, CSAfF_Timebomb))
+		{
+			cctrl->timebomb_countdown = duration;
+		}
+		if (flag_is_set(spconf->spell_flags, CSAfF_Freeze))
+		{
+			cctrl->stateblock_flags |= CCSpl_Freeze;
+			if ((thing->movement_flags & TMvF_Flying) != 0)
+			{
+				cctrl->spell_flags |= CSAfF_Grounded;
+				thing->movement_flags &= ~TMvF_Flying;
+			}
+			creature_set_speed(thing, 0);
+		}
+		if (flag_is_set(spconf->spell_flags, CSAfF_Teleport))
+		{
+			cctrl->stateblock_flags |= CCSpl_Teleport;
+		}
+		if (flag_is_set(spconf->spell_flags, CSAfF_Heal))
+		{
+			HitPoints heal_amount;
+			// TODO: make a new field for unlinked heal spell.
+			if (spconf->linked_power == 0)
+			{
+				heal_amount = 0;
+			}
+			else
+			{
+				heal_amount = saturate_set_signed(thing->health + pwrdynst->strength[spell_lev], 16);
+			}
+			if (heal_amount < 0)
+			{
+				thing->health = 0;
+			}
+			else
+			{
+				thing->health = min(heal_amount, cctrl->max_health);
+			}
+		}
+		if (spconf->aura_effect != 0)
+		{
+			cctrl->spell_aura = spconf->aura_effect;
+			cctrl->spell_aura_duration = spconf->duration;
+		}
+	}
 }
 
 void reapply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long spell_lev, long idx)
 {
-    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    if (spell_lev > SPELL_MAX_LEVEL)
-        spell_lev = SPELL_MAX_LEVEL;
-    struct CastedSpellData* cspell = &cctrl->casted_spells[idx];
-    // This pointer may be invalid if spell_idx is incorrect. But we're using it only when correct.
-    struct SpellConfig* spconf = get_spell_config(spell_idx);
-    const struct MagicStats* pwrdynst = get_power_dynamic_stats(spconf->linked_power);
-
-    short duration;
-    if (spconf->linked_power == 0)
-    {
-        duration = spconf->duration;
-    } else
-    if (pwrdynst->duration == 0)
-    {
-        duration = pwrdynst->strength[spell_lev];
-    } else
-    {
-        duration = pwrdynst->duration;
-    }
-    cspell->duration = duration;
-
-    switch (spell_idx)
-    {
-    case SplK_Freeze:
-        creature_set_speed(thing, 0);
-        break;
-    case SplK_Heal:
-    {
-        HitPoints i = saturate_set_signed(thing->health + pwrdynst->strength[spell_lev], 16);
-        if (i < 0)
-        {
-          thing->health = 0;
-        } else {
-          thing->health = min(i,cctrl->max_health);
-        }
-        break;
-    }
-    case SplK_Chicken:
-        external_set_thing_state(thing, CrSt_CreatureChangeToChicken);
-        cctrl->countdown = duration/5;
-        cspell->duration = pwrdynst->strength[spell_lev];
-        break;
-    default:
-        break;
-    }
-    if (spconf->aura_effect != 0)
-    {
-        cctrl->spell_aura = spconf->aura_effect;
-        cctrl->spell_aura_duration = spconf->duration;
-    }
+	struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
+	if (spell_lev > SPELL_MAX_LEVEL)
+	{
+		spell_lev = SPELL_MAX_LEVEL;
+	}
+	struct CastedSpellData *cspell = &cctrl->casted_spells[idx];
+	// This pointer may be invalid if spell_idx is incorrect. But we're using it only when correct.
+	struct SpellConfig *spconf = get_spell_config(spell_idx);
+	const struct MagicStats *pwrdynst = get_power_dynamic_stats(spconf->linked_power);
+	GameTurn duration;
+	// If not linked to a keeper power, use the duration set on the spell, otherwise use the strength or duration of the linked power.
+	if (spconf->linked_power == 0)
+	{
+		duration = spconf->duration;
+	}
+	else if (pwrdynst->duration == 0)
+	{
+		duration = pwrdynst->strength[spell_lev];
+	}
+	else
+	{
+		duration = pwrdynst->duration;
+	}
+	cspell->duration = duration;
+	if (flag_is_set(spconf->spell_flags, CSAfF_Chicken))
+	{
+		external_set_thing_state(thing, CrSt_CreatureChangeToChicken);
+		cctrl->countdown = duration / 5;
+	}
+	if (flag_is_set(spconf->spell_flags, CSAfF_Freeze))
+	{
+		creature_set_speed(thing, 0);
+	}
+	if (flag_is_set(spconf->spell_flags, CSAfF_Heal))
+	{
+		HitPoints heal_amount;
+		// TODO: make a new field for unlinked heal spell.
+		if (spconf->linked_power == 0)
+		{
+			heal_amount = 0;
+		}
+		else
+		{
+			heal_amount = saturate_set_signed(thing->health + pwrdynst->strength[spell_lev], 16);
+		}
+		if (heal_amount < 0)
+		{
+			thing->health = 0;
+		}
+		else
+		{
+			thing->health = min(heal_amount, cctrl->max_health);
+		}
+	}
+	if (spconf->aura_effect != 0)
+	{
+		cctrl->spell_aura = spconf->aura_effect;
+		cctrl->spell_aura_duration = spconf->duration;
+	}
 }
 
 void apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, long spell_lev)
 {
-    // Make sure the creature level isn't larger than max spell level
-    if (spell_lev > SPELL_MAX_LEVEL)
-        spell_lev = SPELL_MAX_LEVEL;
-    SYNCDBG(6,"Applying %s to %s index %d",spell_code_name(spell_idx),thing_model_name(thing),(int)thing->index);
-    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    if (creature_control_invalid(cctrl))
-    {
-        ERRORLOG("Invalid creature tried to accept spell %s",spell_code_name(spell_idx));
-        return;
-    }
-    for (long i = 0; i < CREATURE_MAX_SPELLS_CASTED_AT; i++)
-    {
-        if (cctrl->casted_spells[i].spkind == spell_idx)
-        {
-            reapply_spell_effect_to_thing(thing, spell_idx, spell_lev, i);
-            return;
-        }
-    }
-    first_apply_spell_effect_to_thing(thing, spell_idx, spell_lev);
+	// Make sure the creature level isn't larger than max spell level.
+	if (spell_lev > SPELL_MAX_LEVEL)
+	{
+		spell_lev = SPELL_MAX_LEVEL;
+	}
+	SYNCDBG(6, "Applying %s to %s index %d", spell_code_name(spell_idx), thing_model_name(thing), (int)thing->index);
+	struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
+	if (creature_control_invalid(cctrl))
+	{
+		ERRORLOG("Invalid creature tried to accept spell %s", spell_code_name(spell_idx));
+		return;
+	}
+	for (long i = 0; i < CREATURE_MAX_SPELLS_CASTED_AT; i++)
+	{
+		if (cctrl->casted_spells[i].spkind == spell_idx)
+		{
+			reapply_spell_effect_to_thing(thing, spell_idx, spell_lev, i);
+			return;
+		}
+	}
+	first_apply_spell_effect_to_thing(thing, spell_idx, spell_lev);
 }
 
 void terminate_thing_spell_effect(struct Thing *thing, SpellKind spkind)

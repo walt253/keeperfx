@@ -148,10 +148,10 @@ TbBool creature_has_lair_room(const struct Thing *creatng);
 struct Room *get_creature_lair_room(const struct Thing *creatng);
 TbBool remove_creature_lair(struct Thing *thing);
 
-TbBool creature_affected_by_spell(const struct Thing *thing, SpellKind spkind);
+TbBool creature_affected_by_spell(const struct Thing *thing, unsigned long spell_flags);
 TbBool creature_affected_by_slap(const struct Thing *thing);
 void apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, long spell_lev);
-void terminate_thing_spell_effect(struct Thing *thing, SpellKind spkind);
+void terminate_thing_spell_effect(struct Thing *thing, unsigned long spell_flags);
 void process_thing_spell_effects(struct Thing *thing);
 void process_thing_spell_effects_while_blocked(struct Thing *thing);
 void delete_effects_attached_to_creature(struct Thing *creatng);

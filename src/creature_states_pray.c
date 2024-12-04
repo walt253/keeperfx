@@ -142,9 +142,9 @@ long process_temple_cure(struct Thing *creatng)
     {
         terminate_thing_spell_effect(creatng, CSAfF_Disease);
     }
-    if (creature_affected_by_spell(creatng, CSAfF_Disease))
+    if (creature_affected_by_spell(creatng, CSAfF_Chicken))
     {
-        terminate_thing_spell_effect(creatng, CSAfF_Disease);
+        terminate_thing_spell_effect(creatng, CSAfF_Chicken);
     }
     cctrl->temple_cure_gameturn = game.play_gameturn;
     return 1;

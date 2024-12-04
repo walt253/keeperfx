@@ -142,7 +142,7 @@ void process_dungeon_destroy(struct Thing* heartng)
             }
             else if (dungeon->heart_destroy_turn == 28)
             {
-                terminate_thing_spell_effect(soultng, SplK_Invisibility);
+                terminate_thing_spell_effect(soultng, CSAfF_Invisibility);
             }
             else if (dungeon->heart_destroy_turn == 30)
             {

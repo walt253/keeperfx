@@ -396,11 +396,12 @@ TbBool player_uses_power_call_to_arms(PlayerNumber plyr_idx)
 
 void creature_stop_affected_by_call_to_arms(struct Thing *thing)
 {
-    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    cctrl->spell_flags &= ~CSAfF_CalledToArms;
+    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
+    clear_flag(cctrl->spell_flags, CSAfF_CalledToArms);
     if (!thing_is_picked_up(thing) && !creature_is_being_unconscious(thing))
     {
-        if (creature_is_called_to_arms(thing)) {
+        if (creature_is_called_to_arms(thing))
+        {
             set_start_state(thing);
         }
     }

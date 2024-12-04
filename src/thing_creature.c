@@ -984,7 +984,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
 			cctrl->stateblock_flags |= CCSpl_Freeze;
 			if ((thing->movement_flags & TMvF_Flying) != 0)
 			{
-				cctrl->spell_flags |= CSAfF_Grounded;
+				set_flag(cctrl->spell_flags, CSAfF_Grounded);
 				thing->movement_flags &= ~TMvF_Flying;
 			}
 			creature_set_speed(thing, 0);
@@ -1120,16 +1120,16 @@ void terminate_thing_spell_effect(struct Thing *thing, unsigned long spell_flags
     switch (spkind)
     {
     case SplK_Freeze:
-        cctrl->spell_flags &= ~CSAfF_Freeze;
-        cctrl->stateblock_flags &= ~CCSpl_Freeze;
+		clear_flag(cctrl->spell_flags, CSAfF_Freeze);
+		clear_flag(cctrl->stateblock_flags, CCSpl_Freeze);
         if ((cctrl->spell_flags & CSAfF_Grounded) != 0)
         {
-            thing->movement_flags |= TMvF_Flying;
-            cctrl->spell_flags &= ~CSAfF_Grounded;
+			set_flag(thing->movement_flags, TMvF_Flying);
+			clear_flag(cctrl->spell_flags, CSAfF_Grounded);
         }
         break;
     case SplK_Armour:
-        cctrl->spell_flags &= ~CSAfF_Armour;
+		clear_flag(cctrl->spell_flags, CSAfF_Armour);
         for (i=0; i < 3; i++)
         {
             ThingIndex eff_idx = cctrl->spell_tngidx_armour[i];
@@ -1142,34 +1142,35 @@ void terminate_thing_spell_effect(struct Thing *thing, unsigned long spell_flags
         }
         break;
     case SplK_Rebound:
-        cctrl->spell_flags &= ~CSAfF_Rebound;
+		clear_flag(cctrl->spell_flags, CSAfF_Rebound);
         break;
     case SplK_Invisibility:
-        cctrl->spell_flags &= ~CSAfF_Invisibility;
+		clear_flag(cctrl->spell_flags, CSAfF_Invisibility);
         cctrl->force_visible = 0;
         break;
     case SplK_Teleport:
-        cctrl->stateblock_flags &= ~CCSpl_Teleport;
+		clear_flag(cctrl->spell_flags, CSAfF_Teleport);
+		clear_flag(cctrl->stateblock_flags, CCSpl_Teleport);
         break;
     case SplK_Speed:
-        cctrl->spell_flags &= ~CSAfF_Speed;
+		clear_flag(cctrl->spell_flags, CSAfF_Speed);
         cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
         break;
     case SplK_Slow:
-        cctrl->spell_flags &= ~CSAfF_Slow;
+		clear_flag(cctrl->spell_flags, CSAfF_Slow);
         cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
         break;
     case SplK_Fly:
         //TODO SPELLS Strange condition regarding the fly - verify why it's here
         if ((get_creature_model_flags(thing) & CMF_IsDiptera) == 0)
-            thing->movement_flags &= ~TMvF_Flying;
-        cctrl->spell_flags &= ~CSAfF_Flying;
+            clear_flag(thing->movement_flags, TMvF_Flying);
+        clear_flag(cctrl->spell_flags, CSAfF_Flying);
         break;
     case SplK_Sight:
-        cctrl->spell_flags &= ~CSAfF_Sight;
+        clear_flag(cctrl->spell_flags, CSAfF_Sight);
         break;
     case SplK_Disease:
-        cctrl->spell_flags &= ~CSAfF_Disease;
+        clear_flag(cctrl->spell_flags, CSAfF_Disease);
         for (i=0; i < 3; i++)
         {
             ThingIndex eff_idx = cctrl->spell_tngidx_disease[i];
@@ -1182,7 +1183,7 @@ void terminate_thing_spell_effect(struct Thing *thing, unsigned long spell_flags
         }
         break;
     case SplK_Chicken:
-        cctrl->spell_flags &= ~CSAfF_Chicken;
+        clear_flag(cctrl->spell_flags, CSAfF_Chicken);
         external_set_thing_state(thing, CrSt_CreatureChangeFromChicken);
         cctrl->countdown = 10;
         break;
@@ -1192,7 +1193,7 @@ void terminate_thing_spell_effect(struct Thing *thing, unsigned long spell_flags
     {
         if (thing->light_id != 0)
         {
-            cctrl->spell_flags &= ~CSAfF_Light;
+            clear_flag(cctrl->spell_flags, CSAfF_Light);
             if ((thing->rendering_flags & TRF_Invisible) != 0)
             {
                 light_set_light_intensity(thing->light_id, (light_get_light_intensity(thing->light_id) - 20));
@@ -1648,8 +1649,8 @@ void thing_summon_temporary_creature(struct Thing* creatng, ThingModel model, ch
                             famlrtng->veloc_push_add.x.val += CREATURE_RANDOM(thing, 161) - 80;
                             famlrtng->veloc_push_add.y.val += CREATURE_RANDOM(thing, 161) - 80;
                             famlrtng->veloc_push_add.z.val += 0;
-                            famlrtng->state_flags |= TF1_PushAdd;
-                            famcctrl->spell_flags |= CSAfF_MagicFall;
+                            set_flag(famlrtng->state_flags, TF1_PushAdd);
+                            set_flag(famcctrl->spell_flags, CSAfF_MagicFall);
                             famlrtng->move_angle_xy = 0;
                         }
                     }
@@ -2385,7 +2386,7 @@ void creature_rebirth_at_lair(struct Thing *thing)
     thing->health = cctrl->max_health;
     if (creature_affected_by_spell(thing, CSAfF_Timebomb))
     {
-        cctrl->spell_flags &= ~CSAfF_Timebomb;
+        clear_flag(cctrl->spell_flags, CSAfF_Timebomb);
         thing->veloc_push_add.x.val = 0;
         thing->veloc_push_add.y.val = 0;
         thing->state_flags &= ~TF1_PushAdd;
@@ -2766,7 +2767,7 @@ void delete_effects_attached_to_creature(struct Thing *creatng)
     }
     if (creature_affected_by_spell(creatng, SplK_Armour))
     {
-        cctrl->spell_flags &= ~CSAfF_Armour;
+        clear_flag(cctrl->spell_flags, CSAfF_Armour);
         for (i=0; i < 3; i++)
         {
             k = cctrl->spell_tngidx_armour[i];
@@ -2780,7 +2781,7 @@ void delete_effects_attached_to_creature(struct Thing *creatng)
     }
     if (creature_affected_by_spell(creatng, SplK_Disease))
     {
-        cctrl->spell_flags &= ~CSAfF_Disease;
+        clear_flag(cctrl->spell_flags, CSAfF_Disease);
         for (i=0; i < 3; i++)
         {
             k = cctrl->spell_tngidx_disease[i];
@@ -4318,23 +4319,23 @@ struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumbe
 
 TbBool creature_increase_level(struct Thing *thing)
 {
-  struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-  if (creature_control_invalid(cctrl))
-  {
-      ERRORLOG("Invalid creature control; no action");
-      return false;
-  }
-  struct Dungeon* dungeon = get_dungeon(thing->owner);
-  if (dungeon->creature_max_level[thing->model] > cctrl->explevel)
-  {
-      struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-      if ((cctrl->explevel < CREATURE_MAX_LEVEL-1) || (crstat->grow_up != 0))
-      {
-          cctrl->spell_flags |= CSAfF_ExpLevelUp;
-          return true;
-      }
-  }
-  return false;
+	struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
+	if (creature_control_invalid(cctrl))
+	{
+		ERRORLOG("Invalid creature control; no action");
+		return false;
+	}
+	struct Dungeon *dungeon = get_dungeon(thing->owner);
+	if (dungeon->creature_max_level[thing->model] > cctrl->explevel)
+	{
+		struct CreatureStats *crstat = creature_stats_get_from_thing(thing);
+		if ((cctrl->explevel < CREATURE_MAX_LEVEL - 1) || (crstat->grow_up != 0))
+		{
+			set_flag(cctrl->spell_flags, CSAfF_ExpLevelUp);
+			return true;
+		}
+	}
+	return false;
 }
 
 TbBool creature_change_multiple_levels(struct Thing *thing, int count)
@@ -4356,7 +4357,7 @@ TbBool creature_change_multiple_levels(struct Thing *thing, int count)
                 struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
                 if ((cctrl->explevel < CREATURE_MAX_LEVEL - 1) || (crstat->grow_up != 0))
                 {
-                    cctrl->spell_flags |= CSAfF_ExpLevelUp;
+                    set_flag(cctrl->spell_flags, CSAfF_ExpLevelUp);
                     update_creature_levels(thing);
                     k++;
                 }
@@ -5778,7 +5779,7 @@ long update_creature_levels(struct Thing *thing)
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     if ((cctrl->spell_flags & CSAfF_ExpLevelUp) == 0)
         return 0;
-    cctrl->spell_flags &= ~CSAfF_ExpLevelUp;
+    clear_flag(cctrl->spell_flags, CSAfF_ExpLevelUp);
     // If a creature is not on highest level, just update the level
     if (cctrl->explevel+1 < CREATURE_MAX_LEVEL)
     {
@@ -6306,7 +6307,7 @@ struct Thing *script_create_creature_at_location(PlayerNumber plyr_idx, ThingMod
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     if (fall_from_gate)
     {
-        cctrl->spell_flags |= CSAfF_MagicFall;
+        set_flag(cctrl->spell_flags, CSAfF_MagicFall);
         thing->veloc_push_add.x.val += PLAYER_RANDOM(plyr_idx, 193) - 96;
         thing->veloc_push_add.y.val += PLAYER_RANDOM(plyr_idx, 193) - 96;
         if ((thing->movement_flags & TMvF_Flying) != 0) {

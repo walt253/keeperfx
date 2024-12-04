@@ -1594,15 +1594,15 @@ short creature_being_dropped(struct Thing *creatng)
 short creature_cannot_find_anything_to_do(struct Thing *creatng)
 {
     TRACE_THING(creatng);
-	struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-	if ((game.play_gameturn - cctrl->countdown) >= 128)
-	{
-		set_start_state(creatng);
-		return 0;
-	}
-	if (creature_choose_random_destination_on_valid_adjacent_slab(creatng))
-		creatng->continue_state = CrSt_CreatureCannotFindAnythingToDo;
-	return 1;
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    if ((game.play_gameturn - cctrl->countdown) >= 128)
+    {
+        set_start_state(creatng);
+        return 0;
+    }
+    if (creature_choose_random_destination_on_valid_adjacent_slab(creatng))
+        creatng->continue_state = CrSt_CreatureCannotFindAnythingToDo;
+    return 1;
 }
 
 /**
@@ -1651,29 +1651,32 @@ void set_creature_size_stuff(struct Thing *creatng)
 short creature_change_from_chicken(struct Thing *creatng)
 {
     TRACE_THING(creatng);
-    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
     creature_set_speed(creatng, 0);
     if (cctrl->countdown > 0)
+    {
         cctrl->countdown--;
+    }
     if (cctrl->countdown > 0)
-    { // Changing under way - gradually modify size of the creature
-        creatng->rendering_flags |= TRF_Invisible;
-        creatng->size_change |= TSC_ChangeSize;
-        struct Thing* efftng = create_effect_element(&creatng->mappos, TngEffElm_Chicken, creatng->owner);
+    { // Changing under way - gradually modify size of the creature.
+        set_flag(creatng->rendering_flags, TRF_Invisible);
+        set_flag(creatng->size_change, TSC_ChangeSize);
+        struct Thing *efftng = create_effect_element(&creatng->mappos, TngEffElm_Chicken, creatng->owner);
         if (!thing_is_invalid(efftng))
         {
             long n = (10 - cctrl->countdown) * (game.conf.crtr_conf.sprite_size + (game.conf.crtr_conf.sprite_size * game.conf.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100) / 10;
             unsigned long k = get_creature_anim(creatng, 0);
             set_thing_draw(efftng, k, 256, n, -1, 0, ODC_Default);
-            efftng->rendering_flags &= ~TRF_Transpar_Flags;
-            efftng->rendering_flags |= TRF_Transpar_8;
+            clear_flag(efftng->rendering_flags, TRF_Transpar_Flags);
+            set_flag(efftng->rendering_flags, TRF_Transpar_8);
         }
         return 0;
-    } else
+    }
+    else
     {
-        creatng->rendering_flags &= ~TRF_Invisible;
-        cctrl->stateblock_flags &= ~CCSpl_ChickenRel;
-        cctrl->spell_flags &= ~CSAfF_Chicken;
+        clear_flag(creatng->rendering_flags, TRF_Invisible);
+        clear_flag(cctrl->stateblock_flags, CCSpl_ChickenRel);
+        clear_flag(cctrl->spell_flags, CSAfF_Chicken);
         set_creature_size_stuff(creatng);
         set_start_state(creatng);
         return 1;
@@ -1683,28 +1686,30 @@ short creature_change_from_chicken(struct Thing *creatng)
 short creature_change_to_chicken(struct Thing *creatng)
 {
     TRACE_THING(creatng);
-    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
     creature_set_speed(creatng, 0);
     if (cctrl->countdown > 0)
+    {
         cctrl->countdown--;
+    }
     if (cctrl->countdown > 0)
     {
-      creatng->size_change |= TSC_ChangeSize;
-      creatng->rendering_flags |= TRF_Invisible;
-      struct Thing* efftng = create_effect_element(&creatng->mappos, TngEffElm_Chicken, creatng->owner);
-      if (!thing_is_invalid(efftng))
-      {
-          unsigned long k = convert_td_iso(819);
-          set_thing_draw(efftng, k, 0, 1200 * cctrl->countdown / 10 + game.conf.crtr_conf.sprite_size, -1, 0, ODC_Default);
-          efftng->rendering_flags &= ~TRF_Transpar_Flags;
-          efftng->rendering_flags |= TRF_Transpar_8;
-      }
-      return 0;
+        set_flag(creatng->size_change, TSC_ChangeSize);
+        set_flag(creatng->rendering_flags, TRF_Invisible);
+        struct Thing *efftng = create_effect_element(&creatng->mappos, TngEffElm_Chicken, creatng->owner);
+        if (!thing_is_invalid(efftng))
+        {
+            unsigned long k = convert_td_iso(819);
+            set_thing_draw(efftng, k, 0, 1200 * cctrl->countdown / 10 + game.conf.crtr_conf.sprite_size, -1, 0, ODC_Default);
+            clear_flag(efftng->rendering_flags, TRF_Transpar_Flags);
+            set_flag(efftng->rendering_flags, TRF_Transpar_8);
+        }
+        return 0;
     }
     set_flag(cctrl->spell_flags, CSAfF_Chicken);
-    creatng->rendering_flags &= ~TRF_Invisible;
+    clear_flag(creatng->rendering_flags, TRF_Invisible);
     set_creature_size_stuff(creatng);
-    creatng->state_flags &= ~TF1_Unkn10;
+    clear_flag(creatng->state_flags, TF1_Unkn10);
     creatng->active_state = CrSt_CreaturePretendChickenSetupMove;
     creatng->continue_state = CrSt_Unused;
     cctrl->stopped_for_hand_turns = 0;
@@ -4107,20 +4112,25 @@ void remove_health_from_thing_and_display_health(struct Thing *thing, HitPoints 
 
 TbBool process_creature_hunger(struct Thing *thing)
 {
-    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-    if ( (crstat->hunger_rate == 0) || creature_affected_by_spell(thing, CSAfF_Freeze) || is_neutral_thing(thing))
+    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
+    struct CreatureStats *crstat = creature_stats_get_from_thing(thing);
+    if ((crstat->hunger_rate == 0) || creature_affected_by_spell(thing, CSAfF_Freeze) || is_neutral_thing(thing))
+    {
         return false;
-    SYNCDBG(19,"Hungering %s index %d",thing_model_name(thing), (int)thing->index);
+    }
+    SYNCDBG(19, "Hungering %s index %d", thing_model_name(thing), (int)thing->index);
     cctrl->hunger_level++;
     if (!hunger_is_creature_hungry(thing))
+    {
         return false;
+    }
     // HungerHealthLoss is disabled if set to 0 on rules.cfg.
     if (game.conf.rules.health.turns_per_hunger_health_loss > 0)
     {
         // Make sure every creature loses health on different turn.
-        if (((game.play_gameturn + thing->index) % game.conf.rules.health.turns_per_hunger_health_loss) == 0) {
-            SYNCDBG(9,"The %s index %d lost %d health due to hunger",thing_model_name(thing), (int)thing->index, (int)game.conf.rules.health.hunger_health_loss);
+        if (((game.play_gameturn + thing->index) % game.conf.rules.health.turns_per_hunger_health_loss) == 0)
+        {
+            SYNCDBG(9, "The %s index %d lost %d health due to hunger", thing_model_name(thing), (int)thing->index, (int)game.conf.rules.health.hunger_health_loss);
             remove_health_from_thing_and_display_health(thing, game.conf.rules.health.hunger_health_loss);
             return true;
         }
@@ -4397,7 +4407,7 @@ long get_thing_navigation_distance(struct Thing* creatng, struct Coord3d* pos, u
         creatng->mappos.y.val,
         pos->x.val,
         pos->y.val,
-	    -2, nav_sizexy, __func__);
+        -2, nav_sizexy, __func__);
     nav_thing_can_travel_over_lava = 0;
 
     int distance = 0;
@@ -4577,20 +4587,25 @@ long process_work_speed_on_work_value(const struct Thing *thing, long base_val)
 
 TbBool check_experience_upgrade(struct Thing *thing)
 {
-    struct Dungeon* dungeon = get_dungeon(thing->owner);
-    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    struct Dungeon *dungeon = get_dungeon(thing->owner);
+    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
+    struct CreatureStats *crstat = creature_stats_get_from_thing(thing);
     long i = crstat->to_level[cctrl->explevel] << 8;
     if (cctrl->exp_points < i)
+    {
         return false;
+    }
     cctrl->exp_points -= i;
     if (cctrl->explevel < dungeon->creature_max_level[thing->model])
     {
-      if ((cctrl->explevel < CREATURE_MAX_LEVEL-1) || (crstat->grow_up != 0))
-        set_flag(cctrl->spell_flags, CSAfF_ExpLevelUp);
+        if ((cctrl->explevel < CREATURE_MAX_LEVEL - 1) || (crstat->grow_up != 0))
+        {
+            set_flag(cctrl->spell_flags, CSAfF_ExpLevelUp);
+        }
     }
     return true;
 }
+
 /******************************************************************************/
 TbBool internal_set_thing_state(struct Thing *thing, CrtrStateId nState)
 {

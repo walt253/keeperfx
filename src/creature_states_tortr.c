@@ -208,8 +208,8 @@ long process_torture_visuals(struct Thing *creatng, struct Room *room, CreatureJ
         if (creature_turn_to_face_angle(creatng, sectng->move_angle_xy) >= LbFPMath_PI/12) {
             return CrStRet_Unchanged;
         }
-        creatng->movement_flags &= ~TMvF_Flying;
-        cctrl->spell_flags &= ~CSAfF_Flying;
+        clear_flag(creatng->movement_flags, TMvF_Flying);
+        clear_flag(cctrl->spell_flags, CSAfF_Flying);
         creatng->mappos.z.val = get_thing_height_at(creatng, &creatng->mappos);
         if (cctrl->instance_id == CrInst_NULL) {
             set_creature_instance(creatng, CrInst_TORTURED, 0, 0);

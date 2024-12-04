@@ -1665,9 +1665,10 @@ TbBool update_creature_influenced_by_call_to_arms_at_pos(struct Thing *creatng, 
     }
     setup_person_move_to_coord(creatng, cta_pos, NavRtF_Default);
     creatng->continue_state = CrSt_ArriveAtCallToArms;
-    cctrl->spell_flags |= CSAfF_CalledToArms;
-    if ((cctrl->flgfield_1 & CCFlg_NoCompControl) != 0) {
-        WARNLOG("The %s index %d is called to arms with no comp control, fixing",thing_model_name(creatng),(int)creatng->index);
+    set_flag(cctrl->spell_flags, CSAfF_CalledToArms);
+    if ((cctrl->flgfield_1 & CCFlg_NoCompControl) != 0)
+    {
+        WARNLOG("The %s index %d is called to arms with no comp control, fixing", thing_model_name(creatng), (int)creatng->index);
         cctrl->flgfield_1 &= ~CCFlg_NoCompControl;
     }
     return true;

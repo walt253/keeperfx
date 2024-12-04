@@ -1585,13 +1585,7 @@ TbBool validate_target_benefits_from_wind
 {
     // Note that we don't need to call validate_target_generic or validate_target_basic because
     // Wind isn't SELF_BUFF. It doesn't require a target, the target parameter is just the source.
-    struct CreatureControl* cctrl = creature_control_get_from_thing(target);
-    if (creature_control_invalid(cctrl))
-    {
-        ERRORLOG("Invalid creature control");
-        return false;
-    }
-    if ((cctrl->spell_flags & CSAfF_PoisonCloud) != 0)
+    if (creature_affected_by_spell(target, CSAfF_PoisonCloud))
     {
         return true;
     }
@@ -1601,7 +1595,6 @@ TbBool validate_target_benefits_from_wind
         // Surrounded by 2+ enemies. This could be definitely smarter but not now.
         return true;
     }
-
     return false;
 }
 
@@ -1620,13 +1613,7 @@ TbBool validate_target_takes_gas_damage(struct Thing* source, struct Thing* targ
 {
     // Note that we don't need to call validate_target_generic or validate_target_basic because
     // Wind isn't SELF_BUFF. It doesn't require a target, the target parameter is just the source.
-    struct CreatureControl* cctrl = creature_control_get_from_thing(target);
-    if (creature_control_invalid(cctrl))
-    {
-        ERRORLOG("Invalid creature control");
-        return false;
-    }
-    if ((cctrl->spell_flags & CSAfF_PoisonCloud) != 0)
+    if (creature_affected_by_spell(target, CSAfF_PoisonCloud))
     {
         return true;
     }

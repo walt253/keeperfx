@@ -415,7 +415,7 @@ long player_list_creature_filter_best_for_sacrifice(const struct Thing *thing, M
 
     if ((cctrl->combat_flags == 0) && (param->num2 || thing->creature.gold_carried == 0)) //no gold carried if no gem access
     {
-        if (creature_is_being_unconscious(thing) || creature_affected_by_spell(thing, SplK_Chicken))
+        if (creature_is_being_unconscious(thing) || creature_affected_by_spell(thing, CSAfF_Chicken))
             return -1;
         if (creature_is_being_dropped(thing) || !can_thing_be_picked_up_by_player(thing, param->plyr_idx))
             return -1;
@@ -606,7 +606,7 @@ struct Thing * find_imp_for_pickup(struct Computer2 *comp, MapSubtlCoord stl_x, 
         // Thing list loop body
         if (cctrl->combat_flags == 0)
         {
-            if (!creature_is_being_unconscious(thing) && !creature_affected_by_spell(thing, SplK_Chicken))
+            if (!creature_is_being_unconscious(thing) && !creature_affected_by_spell(thing, CSAfF_Chicken))
             {
                 if (!creature_is_being_dropped(thing) && can_thing_be_picked_up_by_player(thing, dungeon->owner))
                 {

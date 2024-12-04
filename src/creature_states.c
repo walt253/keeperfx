@@ -1701,7 +1701,7 @@ short creature_change_to_chicken(struct Thing *creatng)
       }
       return 0;
     }
-    cctrl->spell_flags |= CSAfF_Chicken;
+    set_flag(cctrl->spell_flags, CSAfF_Chicken);
     creatng->rendering_flags &= ~TRF_Invisible;
     set_creature_size_stuff(creatng);
     creatng->state_flags &= ~TF1_Unkn10;
@@ -4109,7 +4109,7 @@ TbBool process_creature_hunger(struct Thing *thing)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-    if ( (crstat->hunger_rate == 0) || creature_affected_by_spell(thing, SplK_Freeze) || is_neutral_thing(thing))
+    if ( (crstat->hunger_rate == 0) || creature_affected_by_spell(thing, CSAfF_Freeze) || is_neutral_thing(thing))
         return false;
     SYNCDBG(19,"Hungering %s index %d",thing_model_name(thing), (int)thing->index);
     cctrl->hunger_level++;
@@ -4559,7 +4559,7 @@ short state_cleanup_unconscious(struct Thing *creatng)
 long process_work_speed_on_work_value(const struct Thing *thing, long base_val)
 {
     long val = base_val;
-    if (creature_affected_by_spell(thing, SplK_Speed))
+    if (creature_affected_by_spell(thing, CSAfF_Speed))
         val = 2 * val;
     if (creature_affected_by_slap(thing))
         val = 4 * val / 3;
@@ -4587,7 +4587,7 @@ TbBool check_experience_upgrade(struct Thing *thing)
     if (cctrl->explevel < dungeon->creature_max_level[thing->model])
     {
       if ((cctrl->explevel < CREATURE_MAX_LEVEL-1) || (crstat->grow_up != 0))
-        cctrl->spell_flags |= CSAfF_ExpLevelUp;
+        set_flag(cctrl->spell_flags, CSAfF_ExpLevelUp);
     }
     return true;
 }
@@ -4730,13 +4730,13 @@ short set_start_state_f(struct Thing *thing,const char *func_name)
         initialise_thing_state(thing, CrSt_ManualControl);
         return thing->active_state;
     }
-    if (creature_affected_by_spell(thing, SplK_Chicken))
+    if (creature_affected_by_spell(thing, CSAfF_Chicken))
     {
         cleanup_current_thing_state(thing);
         initialise_thing_state(thing, CrSt_CreaturePretendChickenSetupMove);
         return thing->active_state;
     }
-    if (creature_affected_by_spell(thing, SplK_TimeBomb))
+    if (creature_affected_by_spell(thing, CSAfF_Timebomb))
     {
         cleanup_current_thing_state(thing);
         initialise_thing_state(thing, CrSt_Timebomb);

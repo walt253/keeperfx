@@ -394,11 +394,11 @@ TbBool can_cast_power_on_thing(PlayerNumber plyr_idx, const struct Thing *thing,
                 SYNCDBG(8,"Player %d cannot cast %s on %s index %d while entering/leaving",(int)plyr_idx,power_code_name(pwkind),thing_model_name(thing),(int)thing->index);
                 return false;
             }
-            if (creature_affected_by_spell(thing, SplK_Teleport)) {
+            if (creature_affected_by_spell(thing, CSAfF_Teleport)) {
                 SYNCDBG(8,"Player %d cannot cast %s on %s index %d while teleporting",(int)plyr_idx,power_code_name(pwkind),thing_model_name(thing),(int)thing->index);
                 return false;
             }
-            if (creature_affected_by_spell(thing, SplK_TimeBomb)) {
+            if (creature_affected_by_spell(thing, CSAfF_Timebomb)) {
                 SYNCDBG(8,"Player %d cannot cast %s on %s index %d because TimeBomb blocks it",(int)plyr_idx,power_code_name(pwkind),thing_model_name(thing),(int)thing->index);
                 return false;
             }
@@ -979,7 +979,7 @@ static TbResult magic_use_power_armageddon(PowerKind power_kind, PlayerNumber pl
             cctrl->armageddon_teleport_turn = 0;
         } else
         // Creatures killed by Armageddon
-        if (creature_affected_by_spell(thing, SplK_Chicken))
+        if (creature_affected_by_spell(thing, CSAfF_Chicken))
         {
             kill_creature(thing, heartng, plyr_idx, CrDed_DiedInBattle);
         } else

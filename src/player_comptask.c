@@ -2831,7 +2831,7 @@ struct Thing *find_creature_for_defend_pickup(struct Computer2 *comp)
             {
                 if (!creature_is_fleeing_combat(thing) && !creature_is_at_alarm(thing))
                 {
-                    if (!creature_is_being_unconscious(thing) && !creature_affected_by_spell(thing, SplK_Chicken))
+                    if (!creature_is_being_unconscious(thing) && !creature_affected_by_spell(thing, CSAfF_Chicken))
                     {
                         if (!creature_is_doing_lair_activity(thing) && !creature_is_being_dropped(thing))
                         {

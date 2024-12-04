@@ -320,11 +320,12 @@ TbBool attempt_anger_job_damage_walls(struct Thing *creatng)
 TbBool attempt_anger_job_mad_psycho(struct Thing *creatng)
 {
     TRACE_THING(creatng);
-    if (!external_set_thing_state(creatng, CrSt_MadKillingPsycho)) {
+    if (!external_set_thing_state(creatng, CrSt_MadKillingPsycho))
+    {
         return false;
     }
-    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    cctrl->spell_flags |= CSAfF_MadKilling;
+    struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
+    set_flag(cctrl->spell_flags, CSAfF_MadKilling);
     cctrl->mad_psycho.byte_9A = 0;
     return true;
 }
@@ -1181,11 +1182,11 @@ TbBool attempt_job_secondary_preference(struct Thing *creatng, long jobpref)
         if (creature_can_do_job_for_player(creatng, creatng->owner, new_job, JobChk_None))
         {
             if (send_creature_to_job_for_player(creatng, creatng->owner, new_job))
-			{
-				if (!creature_dislikes_job(creatng, new_job))
-				{
-				    return true;
-				}
+            {
+                if (!creature_dislikes_job(creatng, new_job))
+                {
+                    return true;
+                }
             }
         }
     }

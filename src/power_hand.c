@@ -1359,7 +1359,7 @@ TbBool place_thing_in_power_hand(struct Thing *thing, PlayerNumber plyr_idx)
             return false;
         }
         //Removing combat is called in insert_thing_into_power_hand_list(), so we don't have to do it here
-        if (creature_affected_by_spell(thing, SplK_Chicken))
+        if (creature_affected_by_spell(thing, CSAfF_Chicken))
             i = convert_td_iso(122);
         else
             i = get_creature_anim(thing, CGI_PowerGrab);

@@ -97,12 +97,12 @@ short cleanup_prison(struct Thing *thing)
 short creature_arrived_at_prison(struct Thing *creatng)
 {
     TRACE_THING(creatng);
-    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
     cctrl->target_room_id = 0;
-    struct Room* room = get_room_thing_is_on(creatng);
+    struct Room *room = get_room_thing_is_on(creatng);
     if (!room_initially_valid_as_type_for_thing(room, get_room_role_for_job(Job_CAPTIVITY), creatng))
     {
-        WARNLOG("Room %s owned by player %d is invalid for %s index %d",room_code_name(room->kind),(int)room->owner,thing_model_name(creatng),(int)creatng->index);
+        WARNLOG("Room %s owned by player %d is invalid for %s index %d", room_code_name(room->kind), (int)room->owner, thing_model_name(creatng), (int)creatng->index);
         set_start_state(creatng);
         return 0;
     }
@@ -196,12 +196,12 @@ struct Thing *find_prisoner_for_thing(struct Thing *creatng)
         if (out_delay < 0)
         {
             // If we have a victim which isn't frozen, accept only other unfrozen creatures
-            if ((dist <= LONG_MAX) && !creature_affected_by_spell(thing, SplK_Freeze)) {
+            if ((dist <= LONG_MAX) && !creature_affected_by_spell(thing, CSAfF_Freeze)) {
                 out_creatng = thing;
                 out_delay = -1;
             }
         } else
-        if (creature_affected_by_spell(thing, SplK_Freeze))
+        if (creature_affected_by_spell(thing, CSAfF_Freeze))
         {
             // If the victim is frozen, select one which will unfreeze sooner
             long durt = get_spell_duration_left_on_thing(thing, SplK_Freeze);

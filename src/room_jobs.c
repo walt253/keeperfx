@@ -104,7 +104,7 @@ TbBool add_creature_to_torture_room(struct Thing *creatng, const struct Room *ro
     }
     if (room->owner != game.neutral_player_num)
     {
-        struct Dungeon* dungeon = get_dungeon(room->owner);
+        struct Dungeon *dungeon = get_dungeon(room->owner);
         dungeon->lvstats.creatures_tortured++;
         if (dungeon->tortured_creatures[creatng->model] == 0)
         {

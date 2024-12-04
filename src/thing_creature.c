@@ -238,7 +238,7 @@ TbBool control_creature_as_controller(struct PlayerInfo *player, struct Thing *t
       cam->mappos.z.val += get_creature_eye_height(thing);
       return true;
     }
-    TbBool chicken = (creature_affected_by_spell(thing, SplK_Chicken));
+    TbBool chicken = (creature_affected_by_spell(thing, CSAfF_Chicken));
     if (!chicken)
     {
         cctrl->moveto_pos.x.val = 0;
@@ -274,7 +274,7 @@ TbBool control_creature_as_controller(struct PlayerInfo *player, struct Thing *t
         }
     }
     crstat = creature_stats_get(thing->model);
-    if ( (!crstat->illuminated) && (!creature_affected_by_spell(thing, SplK_Light)) )
+    if ( (!crstat->illuminated) && (!creature_affected_by_spell(thing, CSAfF_Light)) )
     {
         create_light_for_possession(thing);
     }
@@ -1099,7 +1099,7 @@ void apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, long 
 		ERRORLOG("Invalid creature tried to accept spell %s", spell_code_name(spell_idx));
 		return;
 	}
-	for (long i = 0; i < CREATURE_MAX_SPELLS_CASTED_AT; i++)
+	for (int i = 0; i < CREATURE_MAX_SPELLS_CASTED_AT; i++)
 	{
 		if (cctrl->casted_spells[i].spkind == spell_idx)
 		{
@@ -1110,7 +1110,7 @@ void apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, long 
 	first_apply_spell_effect_to_thing(thing, spell_idx, spell_lev);
 }
 
-void terminate_thing_spell_effect(struct Thing *thing, SpellKind spkind)
+void terminate_thing_spell_effect(struct Thing *thing, unsigned long spell_flags)
 {
     TRACE_THING(thing);
     int slot_idx = get_spell_slot(thing, spkind);
@@ -1893,7 +1893,7 @@ struct Thing *find_interesting_object_laying_around_thing(struct Thing *creatng)
 
 TbBool thing_can_be_eaten(struct Thing *thing)
 {
-    if (thing_is_mature_food(thing) || (thing_is_creature(thing) && creature_affected_by_spell(thing, SplK_Chicken)))
+    if (thing_is_mature_food(thing) || (thing_is_creature(thing) && creature_affected_by_spell(thing, CSAfF_Chicken)))
     {
         if (is_thing_directly_controlled(thing) || is_thing_passenger_controlled(thing) || thing_is_picked_up(thing)) {
             return false;
@@ -2383,7 +2383,7 @@ void creature_rebirth_at_lair(struct Thing *thing)
     if (cctrl->explevel > 0)
         set_creature_level(thing, cctrl->explevel-1);
     thing->health = cctrl->max_health;
-    if (creature_affected_by_spell(thing, SplK_TimeBomb))
+    if (creature_affected_by_spell(thing, CSAfF_Timebomb))
     {
         cctrl->spell_flags &= ~CSAfF_Timebomb;
         thing->veloc_push_add.x.val = 0;
@@ -2717,7 +2717,7 @@ struct Thing* cause_creature_death(struct Thing *thing, CrDeathFlags flags)
             add_creature_to_pool(crmodel, 1);
         return creature_death_as_nature_intended(thing);
     } else
-    if (creature_affected_by_spell(thing, SplK_Freeze))
+    if (creature_affected_by_spell(thing, CSAfF_Freeze))
     {
         if ((game.flags_cd & MFlg_DeadBackToPool) != 0)
             add_creature_to_pool(crmodel, 1);
@@ -3603,12 +3603,12 @@ void get_creature_instance_times(const struct Thing *thing, long inst_idx, long 
         itime = inst_inf->time;
         aitime = inst_inf->action_time;
     }
-    if (creature_affected_by_spell(thing, SplK_Slow))
+    if (creature_affected_by_spell(thing, CSAfF_Slow))
     {
         aitime *= 2;
         itime *= 2;
     }
-    if (creature_affected_by_spell(thing, SplK_Speed))
+    if (creature_affected_by_spell(thing, CSAfF_Speed))
     {
         aitime /= 2;
         itime /= 2;
@@ -5215,7 +5215,7 @@ long player_list_creature_filter_needs_to_be_placed_in_room_for_job(const struct
     // If it's angry but not furious, or has lost health due to disease,
     // then should be placed in temple
     if ((anger_is_creature_angry(thing) ||
-     (creature_affected_by_spell(thing, SplK_Disease) && (health_permil <= (game.conf.rules.computer.disease_to_temple_pct*10))))
+     (creature_affected_by_spell(thing, CSAfF_Disease) && (health_permil <= (game.conf.rules.computer.disease_to_temple_pct*10))))
      && creature_can_do_job_for_player(thing, dungeon->owner, Job_TEMPLE_PRAY, JobChk_None))
     {
         // If already at temple, then don't do anything
@@ -5936,7 +5936,7 @@ TngUpdateRet update_creature(struct Thing *thing)
         }
         cctrl = creature_control_get_from_thing(thing);
         struct PlayerInfo* player = get_player(thing->owner);
-        if (creature_affected_by_spell(thing, SplK_Freeze))
+        if (creature_affected_by_spell(thing, CSAfF_Freeze))
         {
             if ((player->additional_flags & PlaAF_FreezePaletteIsActive) == 0)
               PaletteSetPlayerPalette(player, blue_palette);
@@ -6082,13 +6082,13 @@ TbBool creature_is_slappable(const struct Thing *thing, PlayerNumber plyr_idx)
 TbBool creature_is_invisible(const struct Thing *thing)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    return creature_affected_by_spell(thing, SplK_Invisibility) && (cctrl->force_visible <= 0);
+    return creature_affected_by_spell(thing, CSAfF_Invisibility) && (cctrl->force_visible <= 0);
 }
 
 TbBool creature_can_see_invisible(const struct Thing *thing)
 {
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-    return (crstat->can_see_invisible) || creature_affected_by_spell(thing, SplK_Sight);
+    return (crstat->can_see_invisible) || creature_affected_by_spell(thing, CSAfF_Sight);
 }
 
 int claim_neutral_creatures_in_sight(struct Thing *creatng, struct Coord3d *pos, int can_see_slabs)

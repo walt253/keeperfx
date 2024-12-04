@@ -167,7 +167,7 @@ TbBool creature_will_do_combat(const struct Thing *thing)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     // Creature turned to chicken is defenseless
-    if (creature_affected_by_spell(thing, SplK_Chicken))
+    if (creature_affected_by_spell(thing, CSAfF_Chicken))
         return false;
     // Neutral creatures won't fight
     if (is_neutral_thing(thing))
@@ -175,7 +175,7 @@ TbBool creature_will_do_combat(const struct Thing *thing)
     if ((cctrl->flgfield_1 & CCFlg_NoCompControl) != 0)
         return false;
     // Frozen creature cannot attack
-    if (creature_affected_by_spell(thing, SplK_Freeze))
+    if (creature_affected_by_spell(thing, CSAfF_Freeze))
         return false;
     return can_change_from_state_to(thing, thing->active_state, CrSt_CreatureInCombat);
 }

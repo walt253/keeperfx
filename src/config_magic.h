@@ -72,26 +72,29 @@ enum SpellKinds {
 };
 
 enum CreatureSpellAffectedFlags {
-    CSAfF_Slow         = 0x0001,
-    CSAfF_Speed        = 0x0002,
-    CSAfF_Armour       = 0x0004,
-    CSAfF_Rebound      = 0x0008,
-    CSAfF_Flying       = 0x0010,
-    CSAfF_Invisibility = 0x0020,
-    CSAfF_Sight        = 0x0040,
-    CSAfF_Light        = 0x0080, // this was originally Freeze, but that is now done via stateblock_flags
-    CSAfF_Disease      = 0x0100,
-    CSAfF_Chicken      = 0x0200,
-    CSAfF_PoisonCloud  = 0x0400,
-    CSAfF_CalledToArms = 0x0800,
-    CSAfF_MadKilling   = 0x1000,
-    /** The creature does a free fall with magical effect, ie. it was just created with some initial velocity. */
-    CSAfF_MagicFall    = 0x2000,
-    CSAfF_ExpLevelUp   = 0x4000,
-    /** For creature which are normally flying, this informs that its grounded due to spells or its condition. */
-    CSAfF_Grounded     = 0x8000,
-    CSAfF_Timebomb     = 0x10000,
-    CSAfF_Wind         = 0x20000,
+    CSAfF_Slow         = 0x000001,
+    CSAfF_Speed        = 0x000002,
+    CSAfF_Armour       = 0x000004,
+    CSAfF_Rebound      = 0x000008,
+    CSAfF_Flying       = 0x000010,
+    CSAfF_Invisibility = 0x000020,
+    CSAfF_Sight        = 0x000040,
+    CSAfF_Light        = 0x000080,
+    CSAfF_Disease      = 0x000100,
+    CSAfF_Chicken      = 0x000200,
+    CSAfF_PoisonCloud  = 0x000400,
+    CSAfF_CalledToArms = 0x000800,
+    CSAfF_MadKilling   = 0x001000,
+    /* The creature does a free fall with magical effect, ie. it was just created with some initial velocity. */
+    CSAfF_MagicFall    = 0x002000,
+    CSAfF_ExpLevelUp   = 0x004000,
+    /* For creature which are normally flying, this informs that its grounded due to spells or its condition. */
+    CSAfF_Grounded     = 0x008000,
+    CSAfF_Timebomb     = 0x010000,
+    CSAfF_Wind         = 0x020000,
+    CSAfF_Freeze       = 0x040000,
+    CSAfF_Teleport     = 0x080000,
+    CSAfF_Heal         = 0x100000,
 };
 
 enum PowerKinds {

@@ -866,7 +866,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
     struct ComponentVector cvect;
     struct Coord3d pos;
     struct Thing *ntng;
-    SpellKind i = get_free_spell_slot(thing);
+    long i = get_free_spell_slot(thing);
     if (spell_lev > SPELL_MAX_LEVEL)
     {
         spell_lev = SPELL_MAX_LEVEL;
@@ -935,7 +935,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
                 illuminate_creature(thing);
             }
         }
-        if ((flag_is_set(cctrl->spell_flags, CSAfF_Disease)) && (!flag_is_set(crstat->model_flags, CMF_NeverSick)))
+        if ((flag_is_set(cctrl->spell_flags, CSAfF_Disease)) && (!flag_is_set(game.conf.crtr_conf.model[thing->model].model_flags, CMF_NeverSick)))
         {
             if (cctrl->disease_caster_plyridx == thing->owner)
             {
@@ -969,7 +969,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
                 num_disease += 2 * LbFPMath_PI / 3;
             }
         }
-        if ((flag_is_set(cctrl->spell_flags, CSAfF_Chicken)) && (!flag_is_set(crstat->model_flags, CMF_NeverChickens)))
+        if ((flag_is_set(cctrl->spell_flags, CSAfF_Chicken)) && (!flag_is_set(game.conf.crtr_conf.model[thing->model].model_flags, CMF_NeverChickens)))
         {
             external_set_thing_state(thing, CrSt_CreatureChangeToChicken);
             cctrl->countdown = duration;

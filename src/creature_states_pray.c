@@ -137,16 +137,10 @@ CrStateRet praying_in_temple(struct Thing *thing)
 long process_temple_cure(struct Thing *creatng)
 {
     TRACE_THING(creatng);
+    clean_spell_flags(creatng, CSAfF_Disease);
+    clean_spell_flags(creatng, CSAfF_Chicken);
+    // TODO: Should Temple also cure Slow and Freeze?
     struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
-    if (creature_affected_by_spell(creatng, CSAfF_Disease))
-    {
-        terminate_thing_spell_effect(creatng, CSAfF_Disease);
-    }
-    if (creature_affected_by_spell(creatng, CSAfF_Chicken))
-    {
-        terminate_thing_spell_effect(creatng, CSAfF_Chicken);
-    }
-    // TODO: Should Temple also cure Slow, Freeze and others negatives status such as Mad Killing?
     cctrl->temple_cure_gameturn = game.play_gameturn;
     return 1;
 }

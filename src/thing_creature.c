@@ -2764,6 +2764,19 @@ void delete_familiars_attached_to_creature(struct Thing* sumntng)
     }
 }
 
+void clean_spell_flags(struct Thing *creatng, unsigned long spell_flags)
+{
+    struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
+    for (int i = 0; i < CREATURE_MAX_SPELLS_CASTED_AT; i++)
+    {
+        if ((flag_is_set(cctrl->spell_flags, spell_flags))
+        && (flag_is_set(cctrl->casted_spells[i].spkind, spell_flags)))
+        {
+            terminate_thing_spell_effect(creatng, cctrl->casted_spells[i].spkind);
+        }
+    }
+}
+
 struct Thing *kill_creature(struct Thing *creatng, struct Thing *killertng, PlayerNumber killer_plyr_idx, CrDeathFlags flags)
 {
     SYNCDBG(18, "Starting");
@@ -2787,24 +2800,16 @@ struct Thing *kill_creature(struct Thing *creatng, struct Thing *killertng, Play
     }
     struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
     // Dying creatures must be visible and no chicken.
-    for (int i = 0; i < CREATURE_MAX_SPELLS_CASTED_AT; i++)
-    { // Maybe best to remove the conditions and simply terminate all the spell effects?
-        if ((flag_is_set(cctrl->spell_flags, CSAfF_Invisibility))
-        && (flag_is_set(cctrl->casted_spells[i].spkind, CSAfF_Invisibility)))
-        {
-            terminate_thing_spell_effect(creatng, cctrl->casted_spells[i].spkind);
-        }
-        if ((flag_is_set(cctrl->spell_flags, CSAfF_Chicken))
-        && (flag_is_set(cctrl->casted_spells[i].spkind, CSAfF_Chicken)))
-        {
-            terminate_thing_spell_effect(creatng, cctrl->casted_spells[i].spkind);
-        }
-        if ((flag_is_set(cctrl->spell_flags, CSAfF_Rebound))
-        && (flag_is_set(cctrl->casted_spells[i].spkind, CSAfF_Rebound)))
-        {
-            terminate_thing_spell_effect(creatng, cctrl->casted_spells[i].spkind);
-        }
-    }
+    clean_spell_flags(creatng, CSAfF_Invisibility);
+    clean_spell_flags(creatng, CSAfF_Chicken);
+    clean_spell_flags(creatng, CSAfF_Rebound);
+    /*
+    * But maybe it should simply terminate all the active spell effects:
+    * for (int i = 0; i < CREATURE_MAX_SPELLS_CASTED_AT; i++)
+    * { 
+    *     terminate_thing_spell_effect(creatng, cctrl->casted_spells[i].spkind);
+    * }
+    */
     if ((cctrl->unsummon_turn > 0) && (cctrl->unsummon_turn > game.play_gameturn))
     {
         create_effect_around_thing(creatng, ball_puff_effects[creatng->owner]);

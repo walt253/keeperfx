@@ -1202,7 +1202,7 @@ TbBool validate_source_basic
     if (cctrl->instance_id != CrInst_NULL)
     {
         SYNCDBG(15, "%s(%d) already has an instance %s.", thing_model_name(source), source->index,
-                creature_instance_code_name(cctrl->instance_id));
+            creature_instance_code_name(cctrl->instance_id));
         return false;
     }
     // Return false if any check below is true.

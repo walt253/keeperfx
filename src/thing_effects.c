@@ -1431,7 +1431,7 @@ MapCoordDelta max_dist, HitPoints max_damage, long blow_strength, unsigned char 
                 }
                 break;
             case AAffT_GasSlow:
-                if (!creature_affected_by_spell(tngdst, SplK_Slow))
+                if (!flag_is_set(cctrl->spell_flags, CSAfF_Slow))
                 {
                     struct CreatureControl *srcctrl;
                     srcctrl = creature_control_get_from_thing(tngsrc);
@@ -1446,7 +1446,7 @@ MapCoordDelta max_dist, HitPoints max_damage, long blow_strength, unsigned char 
                     SYNCDBG(7, "Causing %d damage to %s at distance %d", (int)damage, thing_model_name(tngdst), (int)distance);
                     apply_damage_to_thing_and_display_health(tngdst, damage, damage_type, tngsrc->owner);
                 }
-                if (!creature_affected_by_spell(tngdst, SplK_Slow))
+                if (!flag_is_set(cctrl->spell_flags, CSAfF_Slow))
                 {
                     struct CreatureControl *srcctrl;
                     srcctrl = creature_control_get_from_thing(tngsrc);
@@ -1454,7 +1454,7 @@ MapCoordDelta max_dist, HitPoints max_damage, long blow_strength, unsigned char 
                 }
                 break;
             case AAffT_GasDisease:
-                if (!creature_affected_by_spell(tngdst, SplK_Disease))
+                if (!flag_is_set(cctrl->spell_flags, CSAfF_Disease))
                 {
                     struct CreatureControl *srcctrl;
                     srcctrl = creature_control_get_from_thing(tngsrc);

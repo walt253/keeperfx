@@ -2188,6 +2188,7 @@ long electricity_affecting_area(const struct Coord3d *pos, PlayerNumber immune_p
 {
     long naffected = 0;
     const struct StructureList* slist = get_list_for_thing_class(TCls_Creature);
+	struct CreatureControl *cctrl;
     long i = slist->index;
     unsigned long k = 0;
     while (i != 0)
@@ -2199,19 +2200,20 @@ long electricity_affecting_area(const struct Coord3d *pos, PlayerNumber immune_p
           break;
         }
         i = thing->next_of_class;
-        // Per-thing code
+        // Per-thing code.
         if (!thing_is_picked_up(thing))
         {
             if (thing->owner != immune_plyr_idx)
             {
-              if (!creature_affected_by_spell(thing, CSAfF_Armour))
+              cctrl = creature_control_get_from_thing(thing);
+              if (!flag_is_set(cctrl->spell_flags, CSAfF_Armour))
               {
                   if (electricity_affecting_thing(INVALID_THING, thing, pos, range, max_damage, immune_plyr_idx))
                       naffected++;
               }
             }
         }
-        // Per-thing code ends
+        // Per-thing code ends.
         k++;
         if (k > THINGS_COUNT)
         {

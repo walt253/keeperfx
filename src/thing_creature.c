@@ -2767,10 +2767,12 @@ void delete_familiars_attached_to_creature(struct Thing* sumntng)
 void clean_spell_flags(struct Thing *creatng, unsigned long spell_flags)
 {
     struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
+    const struct SpellConfig *spconf;
     for (int i = 0; i < CREATURE_MAX_SPELLS_CASTED_AT; i++)
     {
+        spconf = get_spell_config(cctrl->casted_spells[i].spkind)
         if ((flag_is_set(cctrl->spell_flags, spell_flags))
-        && (flag_is_set(cctrl->casted_spells[i].spkind, spell_flags)))
+        && (flag_is_set(spconf->spell_flags, spell_flags)))
         {
             terminate_thing_spell_effect(creatng, cctrl->casted_spells[i].spkind);
         }

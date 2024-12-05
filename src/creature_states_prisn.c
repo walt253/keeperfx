@@ -162,59 +162,78 @@ struct Thing *find_prisoner_for_thing(struct Thing *creatng)
 {
     long i;
     TRACE_THING(creatng);
-    struct Room* room = INVALID_ROOM;
-    if (!is_neutral_thing(creatng)) {
+    struct Room *room = INVALID_ROOM;
+    if (!is_neutral_thing(creatng))
+    {
         room = find_nearest_room_of_role_for_thing_with_used_capacity(creatng, creatng->owner, RoRoF_Prison, NavRtF_Default, 1);
     }
-    if (room_exists(room)) {
+    if (room_exists(room))
+    {
         i = room->creatures_list;
-    } else {
+    }
+    else
+    {
         i = 0;
     }
-    struct Thing* out_creatng = INVALID_THING;
+    struct Thing *out_creatng = INVALID_THING;
     long out_delay = LONG_MAX;
     unsigned long k = 0;
     while (i != 0)
     {
-        struct Thing* thing = thing_get(i);
+        struct Thing *thing = thing_get(i);
         TRACE_THING(thing);
-        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+        struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
         if (!creature_control_exists(cctrl))
         {
-            ERRORLOG("Jump to invalid creature %ld detected",i);
+            ERRORLOG("Jump to invalid creature %ld detected", i);
             break;
         }
         i = cctrl->next_in_room;
-        // Per creature code
+        // Per creature code.
         long dist = get_chessboard_distance(&creatng->mappos, &thing->mappos);
         if (out_delay < 0)
         {
-            // If we have a victim which isn't frozen, accept only other unfrozen creatures
-            if ((dist <= LONG_MAX) && !creature_affected_by_spell(thing, CSAfF_Freeze)) {
+            // If we have a victim which isn't frozen, accept only other unfrozen creatures.
+            if ((dist <= LONG_MAX) && !flag_is_set(cctrl->spell_flags, CSAfF_Freeze))
+            {
                 out_creatng = thing;
                 out_delay = -1;
             }
-        } else
-        if (creature_affected_by_spell(thing, CSAfF_Freeze))
+        }
+        else if (flag_is_set(cctrl->spell_flags, CSAfF_Freeze))
         {
-            // If the victim is frozen, select one which will unfreeze sooner
-            long durt = get_spell_duration_left_on_thing(thing, SplK_Freeze);
-            if ((durt > 0) && (out_delay > durt)) {
+            // If the victim is frozen, select one which will unfreeze sooner.
+            long durt = 0; // Initialize durt with a safe value.
+            const struct SpellConfig *spconf;
+            for (int i = 0; i < CREATURE_MAX_SPELLS_CASTED_AT; i++)
+            {
+                spconf = get_spell_config(cctrl->casted_spells[i].spkind);
+                if (flag_is_set(spconf->spell_flags, CSAfF_Freeze))
+                {
+                    // Get the duration if an active freeze spell is found.
+                    durt = get_spell_duration_left_on_thing(thing, cctrl->casted_spells[i].spkind);
+                    break; // Once found an active freeze spell, no need to check further.
+                }
+            }
+            // If a valid freeze spell is found, compare its duration to out_delay.
+            if (durt > 0 && out_delay > durt)
+            {
                 out_creatng = thing;
                 out_delay = durt;
             }
-        } else
+        }
+        else
         {
-            // Found first unfrozen victim - change out_delay to mark thet we no longer want frozen ones
+            // Found first unfrozen victim - change out_delay to mark thet we no longer want frozen ones.
             out_creatng = thing;
             out_delay = -1;
         }
-        // Per creature code ends
+        // Per creature code ends.
         k++;
         if (k > THINGS_COUNT)
         {
-          ERRORLOG("Infinite loop detected when sweeping creatures list");
-          break;
+            ERRORLOG("Infinite loop detected when sweeping creatures list");
+            break;
         }
     }
     return out_creatng;

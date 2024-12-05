@@ -1338,14 +1338,20 @@ TbBool validate_target_generic
  */
 TbBool validate_target_non_idle(struct Thing* source, struct Thing* target, CrInstance inst_idx, int32_t param1,int32_t param2)
 {
+    struct CreatureControl *cctrl = creature_control_get_from_thing(target);
+    if (creature_control_invalid(cctrl))
+    {
+        ERRORLOG("Invalid creature control");
+        return false;
+    }
     if (!validate_target_generic(source, target, inst_idx, param1, param2))
     {
         return false;
     }
-    struct InstanceInfo* inst_inf = creature_instance_info_get(inst_idx);
-    SpellKind spl_idx = inst_inf->func_params[0];
+    struct InstanceInfo *inst_inf = creature_instance_info_get(inst_idx);
+    const struct SpellConfig *spconf = get_spell_config(inst_inf->func_params[0]);
     long state_type = get_creature_state_type(target);
-    if ((state_type != CrStTyp_Idle) && !creature_affected_by_spell(target, spl_idx))
+    if ((state_type != CrStTyp_Idle) && !flag_is_set(cctrl->spell_flags, spconf->spell_flags))
     {
         return true;
     }
@@ -1371,24 +1377,27 @@ TbBool validate_target_even_in_prison
     int32_t param2
     )
 {
-    // We don't check the spatial conditions, such as distacne, angle, and sight here, because
-    // they should be checked in the search function.
+    struct CreatureControl *cctrl = creature_control_get_from_thing(target);
+    if (creature_control_invalid(cctrl))
+    {
+        ERRORLOG("Invalid creature control");
+        return false;
+    }
+    // We don't check the spatial conditions, such as distance, angle, and sight.
+    // They should be checked in the search function.
     if (!validate_target_basic(source, target, inst_idx, param1, param2) || creature_is_being_unconscious(target))
     {
         return false;
     }
-
-    struct InstanceInfo* inst_inf = creature_instance_info_get(inst_idx);
-    SpellKind spl_idx = inst_inf->func_params[0];
-    struct SpellConfig* spconf = get_spell_config(spl_idx);
-    if (spell_config_is_invalid(spconf) || creature_affected_by_spell(target, spl_idx))
+    struct InstanceInfo *inst_inf = creature_instance_info_get(inst_idx);
+    const struct SpellConfig *spconf = get_spell_config(inst_inf->func_params[0]);
+    if (spell_config_is_invalid(spconf) || flag_is_set(cctrl->spell_flags, spconf->spell_flags))
     {
         // If this instance has wrong spell, or the target has been affected by this spell, return false.
         SYNCDBG(12, "%s(%d) is not a valid target for %s because it has been affected by the spell.",
             thing_model_name(target), target->index, creature_instance_code_name(inst_idx));
         return false;
     }
-
     return true;
 }
 

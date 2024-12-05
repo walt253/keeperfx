@@ -241,20 +241,24 @@ TbBool can_cast_spell_f(PlayerNumber plyr_idx, PowerKind pwkind, MapSubtlCoord s
  */
 TbBool can_cast_power_on_thing(PlayerNumber plyr_idx, const struct Thing *thing, PowerKind pwkind)
 {
-    SYNCDBG(18,"Starting for %s on %s index %d",power_code_name(pwkind),thing_model_name(thing),(int)thing->index);
-    // Picked up things are immune to spells
-    if (thing_is_picked_up(thing)) {
+    SYNCDBG(18, "Starting for %s on %s index %d", power_code_name(pwkind), thing_model_name(thing), (int)thing->index);
+    // Picked up things are immune to spells.
+    if (thing_is_picked_up(thing))
+    {
         return false;
     }
     struct PowerConfigStats *powerst;
     powerst = get_power_model_stats(pwkind);
     if (power_model_stats_invalid(powerst))
+    {
         return false;
+    }
     if ((powerst->can_cast_flags & PwCast_NeedsDelay) != 0)
     {
-        struct PlayerInfo* player;
+        struct PlayerInfo *player;
         player = get_player(plyr_idx);
-        if (game.play_gameturn <= player->power_of_cooldown_turn) {
+        if (game.play_gameturn <= player->power_of_cooldown_turn)
+        {
             return false;
         }
     }
@@ -262,56 +266,70 @@ TbBool can_cast_power_on_thing(PlayerNumber plyr_idx, const struct Thing *thing,
     {
         if ((powerst->can_cast_flags & PwCast_OwnedFood) != 0)
         {
-            if (thing->owner == plyr_idx) {
-                if (object_is_mature_food(thing))  {
+            if (thing->owner == plyr_idx)
+            {
+                if (object_is_mature_food(thing))
+                {
                     return true;
                 }
             }
         }
         if ((powerst->can_cast_flags & PwCast_NeutrlFood) != 0)
         {
-            if (is_neutral_thing(thing)) {
-                if (object_is_mature_food(thing))  {
+            if (is_neutral_thing(thing))
+            {
+                if (object_is_mature_food(thing))
+                {
                     return true;
                 }
             }
         }
         if ((powerst->can_cast_flags & PwCast_EnemyFood) != 0)
         {
-            if ((thing->owner != plyr_idx) && !is_neutral_thing(thing)) {
-                if (object_is_mature_food(thing))  {
+            if ((thing->owner != plyr_idx) && !is_neutral_thing(thing))
+            {
+                if (object_is_mature_food(thing))
+                {
                     return true;
                 }
             }
         }
         if ((powerst->can_cast_flags & PwCast_OwnedGold) != 0)
         {
-            if (thing->owner == plyr_idx) {
-                if (object_is_gold_pile(thing) || object_is_gold_hoard(thing)) {
+            if (thing->owner == plyr_idx)
+            {
+                if (object_is_gold_pile(thing) || object_is_gold_hoard(thing))
+                {
                     return true;
                 }
             }
         }
         if ((powerst->can_cast_flags & PwCast_NeutrlGold) != 0)
         {
-            if (is_neutral_thing(thing)) {
-                if (object_is_gold_pile(thing) || object_is_gold_hoard(thing)) {
+            if (is_neutral_thing(thing))
+            {
+                if (object_is_gold_pile(thing) || object_is_gold_hoard(thing))
+                {
                     return true;
                 }
             }
         }
         if ((powerst->can_cast_flags & PwCast_EnemyGold) != 0)
         {
-            if ((thing->owner != plyr_idx) && !is_neutral_thing(thing)) {
-                if (object_is_gold_pile(thing) || object_is_gold_hoard(thing)) {
+            if ((thing->owner != plyr_idx) && !is_neutral_thing(thing))
+            {
+                if (object_is_gold_pile(thing) || object_is_gold_hoard(thing))
+                {
                     return true;
                 }
             }
         }
         if ((powerst->can_cast_flags & PwCast_OwnedSpell) != 0)
         {
-            if (thing->owner == plyr_idx) {
-                if (thing_is_spellbook(thing))  {
+            if (thing->owner == plyr_idx)
+            {
+                if (thing_is_spellbook(thing))
+                {
                     return true;
                 }
             }
@@ -321,8 +339,10 @@ TbBool can_cast_power_on_thing(PlayerNumber plyr_idx, const struct Thing *thing,
     {
         if ((powerst->can_cast_flags & PwCast_OwnedBoulders) != 0)
         {
-            if (thing->owner == plyr_idx) {
-                if (shot_is_slappable(thing, plyr_idx))  {
+            if (thing->owner == plyr_idx)
+            {
+                if (shot_is_slappable(thing, plyr_idx))
+                {
                     return true;
                 }
             }
@@ -330,13 +350,15 @@ TbBool can_cast_power_on_thing(PlayerNumber plyr_idx, const struct Thing *thing,
     }
     if (thing_is_deployed_trap(thing))
     {
-        // Allow the boulder trap
+        // Allow the boulder trap.
         if ((powerst->can_cast_flags & PwCast_OwnedBoulders) != 0)
         {
-            if (thing->owner == plyr_idx) {
+            if (thing->owner == plyr_idx)
+            {
                 struct TrapConfigStats *trapst;
                 trapst = &game.conf.trapdoor_conf.trap_cfgstats[thing->model];
-                if ((trapst->slappable > 0) && trap_is_active(thing)) {
+                if ((trapst->slappable > 0) && trap_is_active(thing))
+                {
                     return true;
                 }
             }
@@ -344,6 +366,7 @@ TbBool can_cast_power_on_thing(PlayerNumber plyr_idx, const struct Thing *thing,
     }
     if (thing_is_creature(thing))
     {
+        struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
         if (creature_is_leaving_and_cannot_be_stopped(thing))
         {
             return false;
@@ -362,10 +385,11 @@ TbBool can_cast_power_on_thing(PlayerNumber plyr_idx, const struct Thing *thing,
                 return false;
             }
         }
-        // Don't allow casting on own creatures kept by enemy - they're out of our control
+        // Don't allow casting on own creatures kept by enemy - they're out of our control.
         if (thing->owner == plyr_idx)
         {
-            if (creature_is_kept_in_custody_by_enemy(thing)) {
+            if (creature_is_kept_in_custody_by_enemy(thing))
+            {
                 return false;
             }
         }
@@ -375,50 +399,59 @@ TbBool can_cast_power_on_thing(PlayerNumber plyr_idx, const struct Thing *thing,
         }
         if ((powerst->can_cast_flags & PwCast_NConscCrtrs) == 0)
         {
-            if (creature_is_being_unconscious(thing) || creature_is_dying(thing)) {
-                SYNCDBG(8,"Player %d cannot cast %s on unconscious %s index %d",(int)plyr_idx,power_code_name(pwkind),thing_model_name(thing),(int)thing->index);
+            if (creature_is_being_unconscious(thing) || creature_is_dying(thing))
+            {
+                SYNCDBG(8, "Player %d cannot cast %s on unconscious %s index %d", (int)plyr_idx, power_code_name(pwkind), thing_model_name(thing), (int)thing->index);
                 return false;
             }
         }
         if ((powerst->can_cast_flags & PwCast_BoundCrtrs) == 0)
         {
-            if (armageddon_blocks_creature_pickup(thing, plyr_idx)) {
-                SYNCDBG(8,"Player %d cannot cast %s while armageddon blocks %s index %d",(int)plyr_idx,power_code_name(pwkind),thing_model_name(thing),(int)thing->index);
+            if (armageddon_blocks_creature_pickup(thing, plyr_idx))
+            {
+                SYNCDBG(8, "Player %d cannot cast %s while armageddon blocks %s index %d", (int)plyr_idx, power_code_name(pwkind), thing_model_name(thing), (int)thing->index);
                 return false;
             }
-            if (creature_is_dragging_something(thing)) {
-                SYNCDBG(8,"Player %d cannot cast %s while %s index %d is dragging something",(int)plyr_idx,power_code_name(pwkind),thing_model_name(thing),(int)thing->index);
+            if (creature_is_dragging_something(thing))
+            {
+                SYNCDBG(8, "Player %d cannot cast %s while %s index %d is dragging something", (int)plyr_idx, power_code_name(pwkind), thing_model_name(thing), (int)thing->index);
                 return false;
             }
-            if (creature_is_being_sacrificed(thing) || creature_is_being_summoned(thing)) {
-                SYNCDBG(8,"Player %d cannot cast %s on %s index %d while entering/leaving",(int)plyr_idx,power_code_name(pwkind),thing_model_name(thing),(int)thing->index);
+            if (creature_is_being_sacrificed(thing) || creature_is_being_summoned(thing))
+            {
+                SYNCDBG(8, "Player %d cannot cast %s on %s index %d while entering/leaving", (int)plyr_idx, power_code_name(pwkind), thing_model_name(thing), (int)thing->index);
                 return false;
             }
-            if (creature_affected_by_spell(thing, CSAfF_Teleport)) {
-                SYNCDBG(8,"Player %d cannot cast %s on %s index %d while teleporting",(int)plyr_idx,power_code_name(pwkind),thing_model_name(thing),(int)thing->index);
+            if (flag_is_set(cctrl->stateblock_flags, CCSpl_Teleport))
+            {
+                SYNCDBG(8, "Player %d cannot cast %s on %s index %d while teleporting", (int)plyr_idx, power_code_name(pwkind), thing_model_name(thing), (int)thing->index);
                 return false;
             }
-            if (creature_affected_by_spell(thing, CSAfF_Timebomb)) {
-                SYNCDBG(8,"Player %d cannot cast %s on %s index %d because TimeBomb blocks it",(int)plyr_idx,power_code_name(pwkind),thing_model_name(thing),(int)thing->index);
+            if (flag_is_set(cctrl->spell_flags, CSAfF_Timebomb))
+            {
+                SYNCDBG(8, "Player %d cannot cast %s on %s index %d because TimeBomb blocks it", (int)plyr_idx, power_code_name(pwkind), thing_model_name(thing), (int)thing->index);
                 return false;
             }
         }
-        // If allowed custody creatures - allow some enemies
+        // If allowed custody creatures - allow some enemies.
         if ((powerst->can_cast_flags & PwCast_CustodyCrtrs) != 0)
         {
-            if (creature_is_kept_in_custody_by_player(thing, plyr_idx)) {
+            if (creature_is_kept_in_custody_by_player(thing, plyr_idx))
+            {
                 return true;
             }
         }
         if ((powerst->can_cast_flags & PwCast_OwnedCrtrs) != 0)
         {
-            if (thing->owner == plyr_idx) {
+            if (thing->owner == plyr_idx)
+            {
                 return true;
             }
         }
         if ((powerst->can_cast_flags & PwCast_AlliedCrtrs) != 0)
         {
-            if (players_are_mutual_allies(plyr_idx, thing->owner)) {
+            if (players_are_mutual_allies(plyr_idx, thing->owner))
+            {
                 return true;
             }
         }
@@ -430,7 +463,7 @@ TbBool can_cast_power_on_thing(PlayerNumber plyr_idx, const struct Thing *thing,
             }
         }
     }
-    SYNCDBG(18,"Player %d cannot cast %s on %s index %d, no condition met",(int)plyr_idx,power_code_name(pwkind),thing_model_name(thing),(int)thing->index);
+    SYNCDBG(18, "Player %d cannot cast %s on %s index %d, no condition met", (int)plyr_idx, power_code_name(pwkind), thing_model_name(thing), (int)thing->index);
     return false;
 }
 
@@ -1143,30 +1176,33 @@ static TbResult magic_use_power_hold_audience(PowerKind power_kind, PlayerNumber
 
 static TbResult magic_use_power_chicken(PowerKind power_kind, PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel, unsigned long mod_flags)
 {
-    // If this spell is already casted at that creature, do nothing
-    if (thing_affected_by_spell(thing, SplK_Chicken)) {
+    struct PowerConfigStats *powerst = get_power_model_stats(power_kind);
+    struct SpellConfig *spconf = get_spell_config(powerst->spell_idx);
+    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
+    // If this spell is already casted at that creature, do nothing.
+    if (flag_is_set(cctrl->spell_flags, spconf->spell_flags))
+    {
         return Lb_OK;
     }
     if ((mod_flags & PwMod_CastForFree) == 0)
     {
-        // If we can't afford the spell, fail
-        if (!pay_for_spell(plyr_idx, power_kind, splevel)) {
+        // If we can't afford the spell, fail.
+        if (!pay_for_spell(plyr_idx, power_kind, splevel))
+        {
             return Lb_FAIL;
         }
     }
-    // Check if the creature kind isn't affected by that spell
+    // Check if the creature kind isn't affected by that spell.
     if ((get_creature_model_flags(thing) & CMF_NeverChickens) != 0)
     {
         thing_play_sample(thing, 58, 20, 0, 3, 0, 2, 128);
         return Lb_SUCCESS;
     }
-    apply_spell_effect_to_thing(thing, SplK_Chicken, splevel);
-    struct PowerConfigStats *powerst;
-    powerst = get_power_model_stats(power_kind);
+    // Since it's now configurable this means 'magic_use_power_chicken' can be used for whatever spell but it won't cast on NeverChickens!
+    apply_spell_effect_to_thing(thing, powerst->spell_idx, splevel);
     thing_play_sample(thing, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
     return Lb_SUCCESS;
 }
-
 
 static TbResult magic_use_power_hand(PowerKind power_kind, PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel, unsigned long mod_flags)
 {
@@ -1181,31 +1217,34 @@ static TbResult magic_use_power_hand(PowerKind power_kind, PlayerNumber plyr_idx
 
 static TbResult magic_use_power_disease(PowerKind power_kind, PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel, unsigned long mod_flags)
 {
-    // If this spell is already casted at that creature, do nothing
-    if (thing_affected_by_spell(thing, SplK_Disease)) {
+    struct PowerConfigStats *powerst = get_power_model_stats(power_kind);
+    struct SpellConfig *spconf = get_spell_config(powerst->spell_idx);
+    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
+    // If this spell is already casted at that creature, do nothing.
+    if (flag_is_set(cctrl->spell_flags, spconf->spell_flags))
+    {
         return Lb_OK;
     }
     if ((mod_flags & PwMod_CastForFree) == 0)
     {
-        // If we can't afford the spell, fail
-        if (!pay_for_spell(plyr_idx, power_kind, splevel)) {
+        // If we can't afford the spell, fail.
+        if (!pay_for_spell(plyr_idx, power_kind, splevel))
+        {
             return Lb_FAIL;
         }
     }
-    // Check if the creature kind isn't affected by that spell
+    // Check if the creature kind isn't affected by that spell.
     if ((get_creature_model_flags(thing) & CMF_NeverSick) != 0)
     {
         thing_play_sample(thing, 58, 20, 0, 3, 0, 2, 128);
         return Lb_SUCCESS;
     }
-    apply_spell_effect_to_thing(thing, SplK_Disease, splevel);
+    // Since it's now configurable this means 'magic_use_power_disease' can be used for whatever spell but it won't cast on NeverSick!
+    apply_spell_effect_to_thing(thing, powerst->spell_idx, splevel);
+    if (flag_is_set(spconf->spell_flags, CSAfF_Disease))
     {
-        struct CreatureControl *cctrl;
-        cctrl = creature_control_get_from_thing(thing);
         cctrl->disease_caster_plyridx = plyr_idx;
     }
-    struct PowerConfigStats *powerst;
-    powerst = get_power_model_stats(power_kind);
     thing_play_sample(thing, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 3, FULL_LOUDNESS);
     return Lb_SUCCESS;
 }
@@ -1277,19 +1316,27 @@ static TbResult magic_use_power_destroy_walls(PowerKind power_kind, PlayerNumber
 static TbResult magic_use_power_time_bomb(PowerKind power_kind, PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel, unsigned long mod_flags)
 {
     struct PowerConfigStats *powerst = get_power_model_stats(power_kind);
-    if (thing_affected_by_spell(thing, powerst->spell_idx)) {
+    struct SpellConfig *spconf = get_spell_config(powerst->spell_idx);
+    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
+    // If this spell is already casted at that creature, do nothing.
+    if (flag_is_set(cctrl->spell_flags, spconf->spell_flags))
+    {
         return Lb_OK;
     }
     if ((mod_flags & PwMod_CastForFree) == 0)
     {
-        // If we can't afford the spell, fail
-        if (!pay_for_spell(plyr_idx, power_kind, splevel)) {
+        // If we can't afford the spell, fail.
+        if (!pay_for_spell(plyr_idx, power_kind, splevel))
+        {
             return Lb_FAIL;
         }
     }
     apply_spell_effect_to_thing(thing, powerst->spell_idx, splevel);
     thing_play_sample(thing, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 3, FULL_LOUDNESS);
-    initialise_thing_state(thing, CrSt_Timebomb);
+    if (flag_is_set(spconf->spell_flags, CSAfF_Timebomb))
+    { // Only initialise state if the spell_idx has Timebomb flag.
+        initialise_thing_state(thing, CrSt_Timebomb);
+    } // TODO: Should probably merge 'magic_use_power_time_bomb' with 'magic_use_power_apply_spell'?
     return Lb_SUCCESS;
 }
 
@@ -1417,28 +1464,28 @@ static TbResult magic_use_power_heal(PowerKind power_kind, PlayerNumber plyr_idx
 
 static TbResult magic_use_power_apply_spell(PowerKind power_kind, PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel, unsigned long mod_flags)
 {
-    struct PowerConfigStats *powerst;
-    powerst = get_power_model_stats(power_kind);
-
-    // If this spell is already casted at that creature, do nothing
-    if (thing_affected_by_spell(thing, powerst->spell_idx)) {
+    struct PowerConfigStats *powerst = get_power_model_stats(power_kind);
+    struct SpellConfig *spconf = get_spell_config(powerst->spell_idx);
+    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
+    // If this spell is already casted at that creature, do nothing.
+    if (flag_is_set(cctrl->spell_flags, spconf->spell_flags))
+    {
         return Lb_OK;
     }
     if ((mod_flags & PwMod_CastForFree) == 0)
     {
-        // If we can't afford the spell, fail
-        if (!pay_for_spell(plyr_idx, power_kind, splevel)) {
+        // If we can't afford the spell, fail.
+        if (!pay_for_spell(plyr_idx, power_kind, splevel))
+        {
             return Lb_FAIL;
         }
     }
-    if(powerst->effect_id != 0)
+    if (powerst->effect_id != 0)
     {
         struct Coord3d effpos = thing->mappos;
         effpos.z.val = get_ceiling_height_above_thing_at(thing, &thing->mappos);
         create_used_effect_or_element(&effpos, powerst->effect_id, thing->owner);
     }
-
-
     thing_play_sample(thing, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
     apply_spell_effect_to_thing(thing, powerst->spell_idx, splevel);
     return Lb_SUCCESS;

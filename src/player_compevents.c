@@ -409,30 +409,36 @@ long computer_event_check_fighters(struct Computer2 *comp, struct ComputerEvent 
 
 PowerKind computer_choose_attack_spell(struct Computer2 *comp, struct ComputerEvent *cevent, struct Thing *creatng)
 {
-    struct Dungeon* dungeon = comp->dungeon;
+    struct Dungeon *dungeon = comp->dungeon;
+    struct PowerConfigStats *powerst;
+    struct SpellConfig *spconf;
+    struct CreatureControl *cctrl;
     int i = (cevent->param3 + 1) % (sizeof(computer_attack_spells) / sizeof(computer_attack_spells[0]));
-    // Do the loop if we've reached starting value
+    // Do the loop if we've reached starting value.
     while (i != cevent->param3)
     {
-        struct ComputerSpells* caspl = &computer_attack_spells[i];
-        // If we've reached end of array, loop it
-        if (caspl->pwkind == PwrK_None) {
+        struct ComputerSpells *caspl = &computer_attack_spells[i];
+        // If we've reached end of array, loop it.
+        if (caspl->pwkind == PwrK_None)
+        {
             i = 0;
             continue;
         }
-
-        // Only cast lightning on imps, don't waste expensive chicken or disease spells
+        // Only cast lightning on imps, don't waste expensive chicken or disease spells.
         if ((thing_is_creature_special_digger(creatng)) && (caspl->pwkind != PwrK_LIGHTNING))
         {
             i++;
             continue;
         }
-
         if (can_cast_spell(dungeon->owner, caspl->pwkind, creatng->mappos.x.stl.num, creatng->mappos.y.stl.num, creatng, CastChk_Default))
         {
-            if (!thing_affected_by_spell(creatng, caspl->pwkind))
+            powerst = get_power_model_stats(caspl->pwkind);
+            spconf = get_spell_config(powerst->spell_idx);
+            cctrl = creature_control_get_from_thing(creatng);
+            if (!flag_is_set(cctrl->spell_flags, spconf->spell_flags))
             {
-                if (computer_able_to_use_power(comp, caspl->pwkind, cevent->param1, caspl->amount_able)) {
+                if (computer_able_to_use_power(comp, caspl->pwkind, cevent->param1, caspl->amount_able))
+                {
                     cevent->param3 = i;
                     return caspl->pwkind;
                 }

@@ -194,28 +194,16 @@ struct Thing *find_prisoner_for_thing(struct Thing *creatng)
         if (out_delay < 0)
         {
             // If we have a victim which isn't frozen, accept only other unfrozen creatures.
-            if ((dist <= LONG_MAX) && !flag_is_set(cctrl->spell_flags, CSAfF_Freeze))
+            if ((dist <= LONG_MAX) && !flag_is_set(cctrl->stateblock_flags, CCSpl_Freeze))
             {
                 out_creatng = thing;
                 out_delay = -1;
             }
         }
-        else if (flag_is_set(cctrl->spell_flags, CSAfF_Freeze))
+        else if (flag_is_set(cctrl->stateblock_flags, CCSpl_Freeze))
         {
             // If the victim is frozen, select one which will unfreeze sooner.
-            long durt = 0; // Initialize durt with a safe value.
-            struct SpellConfig *spconf;
-            for (int spell_idx = 0; spell_idx < CREATURE_MAX_SPELLS_CASTED_AT; spell_idx++)
-            {
-                spconf = get_spell_config(cctrl->casted_spells[spell_idx].spkind);
-                if (flag_is_set(spconf->spell_flags, CSAfF_Freeze))
-                {
-                    // Get the duration if an active freeze spell is found.
-                    durt = get_spell_duration_left_on_thing(thing, cctrl->casted_spells[spell_idx].spkind);
-                    break; // Once found an active freeze spell, no need to check further.
-                }
-            }
-            // If a valid freeze spell is found, compare its duration to out_delay.
+            long durt = get_spell_duration_left_on_thing(thing, CSAfF_Freeze);
             if (durt > 0 && out_delay > durt)
             {
                 out_creatng = thing;
@@ -386,13 +374,12 @@ TbBool process_prisoner_skelification(struct Thing *thing, struct Room *room)
 
 void food_set_wait_to_be_eaten(struct Thing *thing)
 {
-
     TRACE_THING(thing);
-    if ( thing_is_creature(thing) )
+    if (thing_is_creature(thing))
     {
         struct CreatureControl *cctrl;
         cctrl = creature_control_get_from_thing(thing);
-        cctrl->stateblock_flags |= CCSpl_ChickenRel;
+        set_flag(cctrl->stateblock_flags, CCSpl_ChickenRel);
     }
     else
     {

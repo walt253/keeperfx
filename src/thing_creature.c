@@ -688,40 +688,26 @@ TbBool creature_affected_by_slap(const struct Thing *thing)
  * Returns remaining duration of a spell casted on a thing.
  * @param thing The thing which can have spells casted on.
  * @param spkind The spell kind to be checked.
- * @see thing_affected_by_spell()
  */
-GameTurnDelta get_spell_duration_left_on_thing_f(const struct Thing *thing, SpellKind spkind, const char *func_name)
+GameTurnDelta get_spell_duration_left_on_thing_f(const struct Thing *thing, unsigned long spell_flags, const char *func_name)
 {
     struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
+    struct SpellConfig *spconf;
     if (creature_control_invalid(cctrl))
     {
         ERRORLOG("%s: Invalid creature control for thing %d", func_name, (int)thing->index);
         return 0;
     }
-    for (int i = 0; i < CREATURE_MAX_SPELLS_CASTED_AT; i++)
+    for (int spell_idx = 0; spell_idx < CREATURE_MAX_SPELLS_CASTED_AT; spell_idx++)
     {
-        struct CastedSpellData *cspell = &cctrl->casted_spells[i];
-        if (cspell->spkind == spkind)
+        spconf = get_spell_config(cctrl->casted_spells[spell_idx].spkind)
+        if (flag_is_set(spconf->spell_flags, spell_flags))
         {
-            return cspell->duration;
+            return cctrl->casted_spells[spell_idx].duration;
         }
     }
-    if (strcmp(func_name, "thing_affected_by_spell") != 0)
-    {
-        ERRORLOG("%s: No spell of type %d on %s index %d", func_name, (int)spkind, thing_model_name(thing), (int)thing->index);
-    }
+    ERRORLOG("%s: No spell of type %d on %s index %d", func_name, (int)spkind, thing_model_name(thing), (int)thing->index);
     return 0;
-}
-
-/*
- * Returns if given spell is within list of spells affected by a thing.
- * @param thing The thing which can have spells casted on.
- * @param spkind The spell kind to be checked.
- * @see get_spell_duration_left_on_thing() to get remaining time of the affection.
- */
-TbBool thing_affected_by_spell(const struct Thing *thing, SpellKind spkind)
-{
-    return (get_spell_duration_left_on_thing(thing, spkind) > 0);
 }
 
 long get_free_spell_slot(struct Thing *creatng)
@@ -934,7 +920,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
         }
         if (flag_is_set(spconf->spell_flags, CSAfF_Freeze))
         {
-            cctrl->stateblock_flags |= CCSpl_Freeze;
+            set_flag(cctrl->stateblock_flags, CCSpl_Freeze);
             if ((thing->movement_flags & TMvF_Flying) != 0)
             {
                 set_flag(cctrl->spell_flags, CSAfF_Grounded);
@@ -944,7 +930,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
         }
         if (flag_is_set(spconf->spell_flags, CSAfF_Teleport))
         {
-            cctrl->stateblock_flags |= CCSpl_Teleport;
+            set_flag(cctrl->stateblock_flags, CCSpl_Teleport);
         }
         if (flag_is_set(spconf->spell_flags, CSAfF_Heal))
         {
@@ -2632,34 +2618,36 @@ unsigned long remove_parent_thing_from_things_in_list(struct StructureList *list
     return n;
 }
 
-struct Thing* cause_creature_death(struct Thing *thing, CrDeathFlags flags)
+struct Thing *cause_creature_death(struct Thing *thing, CrDeathFlags flags)
 {
-    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
     anger_set_creature_anger_all_types(thing, 0);
-    remove_parent_thing_from_things_in_list(&game.thing_lists[TngList_Shots],thing->index);
+    remove_parent_thing_from_things_in_list(&game.thing_lists[TngList_Shots], thing->index);
     ThingModel crmodel = thing->model;
-    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-    if (!thing_exists(thing)) 
+    struct CreatureStats *crstat = creature_stats_get_from_thing(thing);
+    if (!thing_exists(thing))
     {
-        set_flag(flags,CrDed_NoEffects);
+        set_flag(flags, CrDed_NoEffects);
     }
-    if ((!flag_is_set(flags,CrDed_NoEffects)) && (crstat->rebirth != 0)
-     && (cctrl->lairtng_idx > 0) && (crstat->rebirth-1 <= cctrl->explevel)
-        && (!flag_is_set(flags,CrDed_NoRebirth)) )
+    if ((!flag_is_set(flags, CrDed_NoEffects))
+    && (crstat->rebirth != 0)
+    && (cctrl->lairtng_idx > 0)
+    && (crstat->rebirth - 1 <= cctrl->explevel)
+    && (!flag_is_set(flags, CrDed_NoRebirth)))
     {
         creature_rebirth_at_lair(thing);
         return INVALID_THING;
     }
     creature_throw_out_gold(thing);
-    // Beyond this point, the creature thing is bound to be deleted
-    if ((!flag_is_set(flags,CrDed_NotReallyDying)) || (flag_is_set(game.conf.rules.game.classic_bugs_flags,ClscBug_ResurrectRemoved)))
+    // Beyond this point, the creature thing is bound to be deleted.
+    if ((!flag_is_set(flags, CrDed_NotReallyDying)) || (flag_is_set(game.conf.rules.game.classic_bugs_flags, ClscBug_ResurrectRemoved)))
     {
-        // If the creature is leaving dungeon, or being transformed, then CrDed_NotReallyDying should be set
+        // If the creature is leaving dungeon, or being transformed, then CrDed_NotReallyDying should be set.
         update_dead_creatures_list_for_owner(thing);
     }
-    if (flag_is_set(get_creature_model_flags(thing), CMF_EventfulDeath)) //updates LAST_DEATH_EVENT for mapmakers
+    if (flag_is_set(get_creature_model_flags(thing), CMF_EventfulDeath)) // Updates LAST_DEATH_EVENT for mapmakers.
     {
-        struct Dungeon* dungeon = get_dungeon(thing->owner);
+        struct Dungeon *dungeon = get_dungeon(thing->owner);
         if (!dungeon_invalid(dungeon))
         {
             memcpy(&dungeon->last_eventful_death_location, &thing->mappos, sizeof(struct Coord3d));
@@ -2672,29 +2660,38 @@ struct Thing* cause_creature_death(struct Thing *thing, CrDeathFlags flags)
             add_creature_to_pool(crmodel, 1);
         }
         delete_thing_structure(thing, 0);
-    } else
-    if (!creature_model_bleeds(thing->model))
+    }
+    else if (!creature_model_bleeds(thing->model))
     {
-        // Non-bleeding creatures have no flesh explosion effects
+        // Non-bleeding creatures have no flesh explosion effects.
         if ((game.flags_cd & MFlg_DeadBackToPool) != 0)
+        {
             add_creature_to_pool(crmodel, 1);
+        }
         return creature_death_as_nature_intended(thing);
-    } else
-    if (creature_affected_by_spell(thing, CSAfF_Freeze))
+    }
+    else if (flag_is_set(cctrl->stateblock_flags, CCSpl_Freeze))
     {
         if ((game.flags_cd & MFlg_DeadBackToPool) != 0)
+        {
             add_creature_to_pool(crmodel, 1);
+        }
         return thing_death_ice_explosion(thing);
-    } else
-    if ( (shot_model_makes_flesh_explosion(cctrl->shot_model)) || (cctrl->timebomb_death) )
+    }
+    else if ((shot_model_makes_flesh_explosion(cctrl->shot_model)) || (cctrl->timebomb_death))
     {
         if ((game.flags_cd & MFlg_DeadBackToPool) != 0)
+        {
             add_creature_to_pool(crmodel, 1);
+        }
         return thing_death_flesh_explosion(thing);
-    } else
+    }
+    else
     {
         if ((game.flags_cd & MFlg_DeadBackToPool) != 0)
+        {
             add_creature_to_pool(crmodel, 1);
+        }
         return creature_death_as_nature_intended(thing);
     }
     return INVALID_THING;
@@ -2702,11 +2699,13 @@ struct Thing* cause_creature_death(struct Thing *thing, CrDeathFlags flags)
 
 void prepare_to_controlled_creature_death(struct Thing *thing)
 {
-    struct PlayerInfo* player = get_player(thing->owner);
+    struct PlayerInfo *player = get_player(thing->owner);
     leave_creature_as_controller(player, thing);
     player->influenced_thing_idx = 0;
     if (player->id_number == thing->owner)
+    {
         setup_eye_lens(0);
+    }
     set_camera_zoom(player->acamera, player->dungeon_camera_zoom);
     if (player->id_number == thing->owner)
     {
@@ -2714,8 +2713,8 @@ void prepare_to_controlled_creature_death(struct Thing *thing)
         turn_off_query_menus();
         turn_on_main_panel_menu();
         set_flag_value(game.operation_flags, GOF_ShowPanel, (game.operation_flags & GOF_ShowGui) != 0);
-  }
-  light_turn_light_on(player->cursor_light_idx);
+    }
+    light_turn_light_on(player->cursor_light_idx);
 }
 
 void delete_effects_attached_to_creature(struct Thing *creatng)
@@ -5933,7 +5932,7 @@ TngUpdateRet update_creature(struct Thing *thing)
         }
         cctrl = creature_control_get_from_thing(thing);
         struct PlayerInfo *player = get_player(thing->owner);
-        if (flag_is_set(cctrl->spell_flags, CSAfF_Freeze))
+        if (flag_is_set(cctrl->stateblock_flags, CCSpl_Freeze))
         {
             if (!flag_is_set(player->additional_flags, PlaAF_FreezePaletteIsActive))
             {

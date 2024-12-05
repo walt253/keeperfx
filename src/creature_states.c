@@ -951,7 +951,7 @@ TbBool restore_creature_flight_flag(struct Thing *creatng)
     if ((crstat->flying) || flag_is_set(cctrl->spell_flags, CSAfF_Flying))
     {
         // Even flying creature is grounded while frozen.
-        if (!flag_is_set(cctrl->spell_flags, CSAfF_Freeze))
+        if (!flag_is_set(cctrl->stateblock_flags, CCSpl_Freeze))
         {
             set_flag(creatng->movement_flags, TMvF_Flying);
             return true;
@@ -2712,8 +2712,8 @@ short creature_present_to_dungeon_heart(struct Thing *creatng)
 short creature_pretend_chicken_move(struct Thing *creatng)
 {
     TRACE_THING(creatng);
-    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    if ((cctrl->stateblock_flags & CCSpl_ChickenRel) != 0)
+    struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
+    if (flag_is_set(cctrl->stateblock_flags, CCSpl_ChickenRel))
     {
         return 1;
     }
@@ -2722,8 +2722,8 @@ short creature_pretend_chicken_move(struct Thing *creatng)
     if (move_ret == 1)
     {
         internal_set_thing_state(creatng, CrSt_CreaturePretendChickenSetupMove);
-    } else
-    if (move_ret == -1)
+    }
+    else if (move_ret == -1)
     {
         internal_set_thing_state(creatng, CrSt_CreaturePretendChickenSetupMove);
     }
@@ -2734,37 +2734,31 @@ short creature_pretend_chicken_setup_move(struct Thing *creatng)
 {
     struct Room *room;
     struct Coord3d random_pos;
-
-    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-
-    if ((cctrl->stateblock_flags & CCSpl_ChickenRel) != 0)
+    struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
+    if (flag_is_set(cctrl->stateblock_flags, CCSpl_ChickenRel))
     {
         return 1;
     }
-
     long offsetted_gameturn = game.play_gameturn + creatng->index;
-
-    if ( (offsetted_gameturn % 16) == 0 )
+    if ((offsetted_gameturn % 16) == 0)
     {
         room = get_room_thing_is_on(creatng);
-
-        if (room_is_invalid(room) || !room_role_matches(room->kind,RoRoF_FoodStorage) || room->owner != creatng->owner )
+        if (room_is_invalid(room) || !room_role_matches(room->kind, RoRoF_FoodStorage) || room->owner != creatng->owner)
         {
             room = find_random_room_of_role_for_thing(creatng, creatng->owner, RoRoF_FoodStorage, 0);
         }
-
-        if ( !room_is_invalid(room) )
+        if (!room_is_invalid(room))
         {
-            if ( find_random_valid_position_for_thing_in_room(creatng, room, &random_pos) )
+            if (find_random_valid_position_for_thing_in_room(creatng, room, &random_pos))
             {
-                setup_person_move_close_to_position(creatng,random_pos.x.stl.num,random_pos.y.stl.num, 0);
+                setup_person_move_close_to_position(creatng, random_pos.x.stl.num, random_pos.y.stl.num, 0);
                 internal_set_thing_state(creatng, CrSt_CreaturePretendChickenMove);
                 return 1;
             }
         }
-        else if ( get_random_position_in_dungeon_for_creature(creatng->owner, CrWaS_WithinDungeon, creatng, &random_pos) )
+        else if (get_random_position_in_dungeon_for_creature(creatng->owner, CrWaS_WithinDungeon, creatng, &random_pos))
         {
-            setup_person_move_close_to_position(creatng,random_pos.x.stl.num,random_pos.y.stl.num, 0);
+            setup_person_move_close_to_position(creatng, random_pos.x.stl.num, random_pos.y.stl.num, 0);
             internal_set_thing_state(creatng, CrSt_CreaturePretendChickenMove);
         }
     }

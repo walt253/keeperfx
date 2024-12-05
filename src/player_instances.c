@@ -132,7 +132,7 @@ struct PlayerInstanceInfo player_instance_info[PLAYER_INSTANCES_COUNT] = {
 /******************************************************************************/
 long pinstfs_hand_grab(struct PlayerInfo *player, long *n)
 {
-    struct Thing* thing = thing_get(player->hand_thing_idx);
+    struct Thing *thing = thing_get(player->hand_thing_idx);
     if (!thing_is_invalid(thing))
     {
         set_power_hand_graphic(player->id_number, HndA_Pickup);
@@ -142,21 +142,23 @@ long pinstfs_hand_grab(struct PlayerInfo *player, long *n)
 
 long pinstfe_hand_grab(struct PlayerInfo *player, long *n)
 {
-    SYNCDBG(8,"Starting");
-    struct Thing* dsttng = thing_get(player->influenced_thing_idx);
-    if (dsttng->creation_turn != player->influenced_thing_creation) {
-        WARNLOG("The thing index %d is no longer the same",(int)player->influenced_thing_idx);
+    SYNCDBG(8, "Starting");
+    struct Thing *dsttng = thing_get(player->influenced_thing_idx);
+    if (dsttng->creation_turn != player->influenced_thing_creation)
+    {
+        WARNLOG("The thing index %d is no longer the same", (int)player->influenced_thing_idx);
         player->influenced_thing_creation = 0;
         player->influenced_thing_idx = 0;
         return 0;
     }
     player->influenced_thing_creation = 0;
     player->influenced_thing_idx = 0;
-    if (magic_use_available_power_on_thing(player->id_number, PwrK_HAND, 0,dsttng->mappos.x.stl.num, dsttng->mappos.y.stl.num, dsttng, PwMod_Default) == Lb_FAIL) {
-        WARNLOG("Cannot pick up %s index %d",thing_model_name(dsttng),(int)dsttng->index);
+    if (magic_use_available_power_on_thing(player->id_number, PwrK_HAND, 0, dsttng->mappos.x.stl.num, dsttng->mappos.y.stl.num, dsttng, PwMod_Default) == Lb_FAIL)
+    {
+        WARNLOG("Cannot pick up %s index %d", thing_model_name(dsttng), (int)dsttng->index);
         return 0;
     }
-    struct Thing* handtng = thing_get(player->hand_thing_idx);
+    struct Thing *handtng = thing_get(player->hand_thing_idx);
     if (!thing_is_invalid(handtng))
     {
         set_power_hand_graphic(player->id_number, HndA_Pickup);
@@ -166,8 +168,8 @@ long pinstfe_hand_grab(struct PlayerInfo *player, long *n)
 
 long pinstfs_hand_drop(struct PlayerInfo *player, long *n)
 {
-    struct Dungeon* dungeon = get_players_dungeon(player);
-    struct Thing* thing = thing_get(player->hand_thing_idx);
+    struct Dungeon *dungeon = get_players_dungeon(player);
+    struct Thing *thing = thing_get(player->hand_thing_idx);
     player->influenced_thing_idx = dungeon->things_in_hand[0];
     if (!thing_is_invalid(thing))
     {
@@ -178,7 +180,7 @@ long pinstfs_hand_drop(struct PlayerInfo *player, long *n)
 
 long pinstfe_hand_drop(struct PlayerInfo *player, long *n)
 {
-    struct Thing* thing = thing_get(player->hand_thing_idx);
+    struct Thing *thing = thing_get(player->hand_thing_idx);
     if (!thing_is_invalid(thing))
     {
         set_power_hand_graphic(player->id_number, HndA_Hover);
@@ -189,7 +191,7 @@ long pinstfe_hand_drop(struct PlayerInfo *player, long *n)
 
 long pinstfs_hand_whip(struct PlayerInfo *player, long *n)
 {
-    struct Thing* thing = thing_get(player->hand_thing_idx);
+    struct Thing *thing = thing_get(player->hand_thing_idx);
     if (!thing_is_invalid(thing))
     {
         set_power_hand_graphic(player->id_number, HndA_Slap);
@@ -199,94 +201,100 @@ long pinstfs_hand_whip(struct PlayerInfo *player, long *n)
 
 long pinstfe_hand_whip(struct PlayerInfo *player, long *n)
 {
-    struct PowerConfigStats* powerst = get_power_model_stats(PwrK_SLAP);
-    struct Thing* thing = thing_get(player->influenced_thing_idx);
+    struct PowerConfigStats *powerst = get_power_model_stats(PwrK_SLAP);
+    struct Thing *thing = thing_get(player->influenced_thing_idx);
     struct TrapConfigStats *trapst;
-    struct ShotConfigStats* shotst;
+    struct ShotConfigStats *shotst;
     if (!thing_exists(thing) || (thing->creation_turn != player->influenced_thing_creation) || (!thing_slappable(thing, player->id_number)))
     {
         player->influenced_thing_creation = 0;
         player->influenced_thing_idx = 0;
         return 0;
-  }
-  switch (thing->class_id)
-  {
-  case TCls_Creature:
-  {
-      struct Coord3d pos;
-      if (creature_affected_by_spell(thing, CSAfF_Freeze))
-      {
-          kill_creature(thing, INVALID_THING, thing->owner, CrDed_Default);
-      } else
-      {
-          slap_creature(player, thing);
-          pos.x.val = thing->mappos.x.val;
-          pos.y.val = thing->mappos.y.val;
-          pos.z.val = thing->mappos.z.val + (thing->clipbox_size_z >> 1);
-          if ( creature_model_bleeds(thing->model) )
-              create_effect(&pos, TngEff_HitBleedingUnit, thing->owner);
-          thing_play_sample(thing, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 3, FULL_LOUDNESS);
-          struct Camera* cam = player->acamera;
-          if (cam != NULL)
-          {
-            thing->veloc_base.x.val += distance_with_angle_to_coord_x(64, cam->orient_a);
-            thing->veloc_base.y.val += distance_with_angle_to_coord_y(64, cam->orient_a);
-          }
-      }
-      break;
-  }
-  case TCls_Shot:
-      shotst = get_shot_model_stats(thing->model);
-      if (shotst->model_flags & ShMF_Boulder)
-      {
-          thing->move_angle_xy = player->acamera->orient_a;
-          if (thing->model != ShM_SolidBoulder) // TODO CONFIG shot model dependency, make config option instead.
-          {
-              thing->health -= game.conf.rules.game.boulder_reduce_health_slap;
-          }
-      }
-      else
-      {
-          detonate_shot(thing,true);
-      }
-      break;
-  case TCls_Trap:
-      trapst = get_trap_model_stats(thing->model);
-      if ((trapst->slappable > 0) && trap_is_active(thing))
-      {
-          struct Thing* trgtng = INVALID_THING;
-          shotst = get_shot_model_stats(trapst->created_itm_model);
-          if (trapst->slappable == 1)
-          {
-              external_activate_trap_shot_at_angle(thing, player->acamera->orient_a, trgtng);
-          } else
-          if (trapst->slappable == 2)
-          {
-              trgtng = get_nearest_enemy_creature_in_sight_and_range_of_trap(thing);
-              external_activate_trap_shot_at_angle(thing, player->acamera->orient_a, trgtng);
-          }
-      }
-      break;
-      case TCls_Object:
-      {
-          struct Thing* efftng;
-          if (object_is_slappable(thing, player->id_number))
-          {
-            efftng = create_effect(&thing->mappos, TngEff_Dummy, thing->owner);
-            if (!thing_is_invalid(efftng))
-              thing_play_sample(efftng, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 3, FULL_LOUDNESS);
-            slap_object(thing);
-          }
-          break;
-      }
-  }
-  set_player_instance(player, PI_WhipEnd, false);
-  return 0;
+    }
+    switch (thing->class_id)
+    {
+        case TCls_Creature:
+        {
+            struct Coord3d pos;
+            struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
+            if (flag_is_set(cctrl->stateblock_flags, CCSpl_Freeze))
+            {
+                kill_creature(thing, INVALID_THING, thing->owner, CrDed_Default);
+            }
+            else
+            {
+                slap_creature(player, thing);
+                pos.x.val = thing->mappos.x.val;
+                pos.y.val = thing->mappos.y.val;
+                pos.z.val = thing->mappos.z.val + (thing->clipbox_size_z >> 1);
+                if (creature_model_bleeds(thing->model))
+                {
+                    create_effect(&pos, TngEff_HitBleedingUnit, thing->owner);
+                }
+                thing_play_sample(thing, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 3, FULL_LOUDNESS);
+                struct Camera *cam = player->acamera;
+                if (cam != NULL)
+                {
+                    thing->veloc_base.x.val += distance_with_angle_to_coord_x(64, cam->orient_a);
+                    thing->veloc_base.y.val += distance_with_angle_to_coord_y(64, cam->orient_a);
+                }
+            }
+            break;
+        }
+        case TCls_Shot:
+            shotst = get_shot_model_stats(thing->model);
+            if (shotst->model_flags & ShMF_Boulder)
+            {
+                thing->move_angle_xy = player->acamera->orient_a;
+                if (thing->model != ShM_SolidBoulder) // TODO CONFIG shot model dependency, make config option instead.
+                {
+                    thing->health -= game.conf.rules.game.boulder_reduce_health_slap;
+                }
+            }
+            else
+            {
+                detonate_shot(thing, true);
+            }
+            break;
+        case TCls_Trap:
+            trapst = get_trap_model_stats(thing->model);
+            if ((trapst->slappable > 0) && trap_is_active(thing))
+            {
+                struct Thing *trgtng = INVALID_THING;
+                shotst = get_shot_model_stats(trapst->created_itm_model);
+                if (trapst->slappable == 1)
+                {
+                    external_activate_trap_shot_at_angle(thing, player->acamera->orient_a, trgtng);
+                }
+                else if (trapst->slappable == 2)
+                {
+                    trgtng = get_nearest_enemy_creature_in_sight_and_range_of_trap(thing);
+                    external_activate_trap_shot_at_angle(thing, player->acamera->orient_a, trgtng);
+                }
+            }
+            break;
+        case TCls_Object:
+        {
+            struct Thing *efftng;
+            if (object_is_slappable(thing, player->id_number))
+            {
+                efftng = create_effect(&thing->mappos, TngEff_Dummy, thing->owner);
+                if (!thing_is_invalid(efftng))
+                {
+                    thing_play_sample(efftng, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 3, FULL_LOUDNESS);
+                }
+                slap_object(thing);
+            }
+            break;
+        }
+    }
+    set_player_instance(player, PI_WhipEnd, false);
+    return 0;
 }
 
 long pinstfs_hand_whip_end(struct PlayerInfo *player, long *n)
 {
-    struct Thing* thing = thing_get(player->hand_thing_idx);
+    struct Thing *thing = thing_get(player->hand_thing_idx);
     if (!thing_is_invalid(thing))
     {
         set_power_hand_graphic(player->id_number, HndA_SideSlap);
@@ -296,7 +304,7 @@ long pinstfs_hand_whip_end(struct PlayerInfo *player, long *n)
 
 long pinstfe_hand_whip_end(struct PlayerInfo *player, long *n)
 {
-    struct Thing* thing = thing_get(player->hand_thing_idx);
+    struct Thing *thing = thing_get(player->hand_thing_idx);
     if (!thing_is_invalid(thing))
     {
         set_power_hand_graphic(player->id_number, HndA_SideHover);
@@ -409,17 +417,19 @@ long pinstfm_control_creature(struct PlayerInfo *player, long *n)
 
 long pinstfe_direct_control_creature(struct PlayerInfo *player, long *n)
 {
-    struct Thing* thing = thing_get(player->influenced_thing_idx);
+    struct Thing *thing = thing_get(player->influenced_thing_idx);
     if (!thing_is_invalid(thing))
     {
-        if (!control_creature_as_controller(player, thing)) {
+        if (!control_creature_as_controller(player, thing))
+        {
             thing = INVALID_THING;
         }
     }
     if (thing_is_invalid(thing))
     {
         set_camera_zoom(player->acamera, player->dungeon_camera_zoom);
-        if (is_my_player(player)) {
+        if (is_my_player(player))
+        {
             PaletteSetPlayerPalette(player, engine_palette);
         }
         player->allocflags &= ~PlaF_KeyboardInputDisabled;
@@ -433,7 +443,9 @@ long pinstfe_direct_control_creature(struct PlayerInfo *player, long *n)
         load_swipe_graphic_for_creature(thing);
         if (my_player)
         {
-            if (creature_affected_by_spell(thing, CSAfF_Freeze)) {
+            struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
+            if (flag_is_set(cctrl->stateblock_flags, CCSpl_Freeze))
+            {
                 PaletteSetPlayerPalette(player, blue_palette);
             }
         }
@@ -448,7 +460,7 @@ long pinstfe_direct_control_creature(struct PlayerInfo *player, long *n)
 
 long pinstfe_passenger_control_creature(struct PlayerInfo *player, long *n)
 {
-    struct Thing* thing = thing_get(player->influenced_thing_idx);
+    struct Thing *thing = thing_get(player->influenced_thing_idx);
     if (!thing_is_invalid(thing))
     {
         load_swipe_graphic_for_creature(thing);

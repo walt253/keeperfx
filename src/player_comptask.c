@@ -3111,7 +3111,7 @@ long task_magic_speed_up(struct Computer2 *comp, struct ComputerTask *ctask)
     struct Dungeon *dungeon;
     struct Thing *creatng;
     int k = 0;
-    SYNCDBG(9,"Starting");
+    SYNCDBG(9, "Starting");
     dungeon = comp->dungeon;
     creatng = thing_get(ctask->attack_magic.target_thing_idx);
     if (thing_is_invalid(creatng))
@@ -3124,35 +3124,36 @@ long task_magic_speed_up(struct Computer2 *comp, struct ComputerTask *ctask)
         remove_task(comp, ctask);
         return CTaskRet_Unk4;
     }
-    if (computer_able_to_use_power(comp, PwrK_SPEEDCRTR, ctask->attack_magic.splevel, 1) && !thing_affected_by_spell(creatng, PwrK_SPEEDCRTR))
+    struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
+    if (computer_able_to_use_power(comp, PwrK_SPEEDCRTR, ctask->attack_magic.splevel, 1) && !flag_is_set(cctrl->spell_flags, CSAfF_Speed))
     {
         if (try_game_action(comp, dungeon->owner, GA_UsePwrSpeedUp, ctask->attack_magic.splevel, 0, 0, ctask->attack_magic.target_thing_idx, 0) > Lb_OK)
         {
             k = 1;
         }
     }
-    else if (computer_able_to_use_power(comp, PwrK_PROTECT, ctask->attack_magic.splevel, 1) && !thing_affected_by_spell(creatng, PwrK_PROTECT))
+    else if (computer_able_to_use_power(comp, PwrK_PROTECT, ctask->attack_magic.splevel, 1) && !flag_is_set(cctrl->spell_flags, CSAfF_Armour))
     {
         if (try_game_action(comp, dungeon->owner, GA_UsePwrArmour, ctask->attack_magic.splevel, 0, 0, ctask->attack_magic.target_thing_idx, 0) > Lb_OK)
         {
             k = 1;
         }
     }
-    else if (computer_able_to_use_power(comp, PwrK_REBOUND, ctask->attack_magic.splevel, 1) && !thing_affected_by_spell(creatng, PwrK_REBOUND))
+    else if (computer_able_to_use_power(comp, PwrK_REBOUND, ctask->attack_magic.splevel, 1) && !flag_is_set(cctrl->spell_flags, CSAfF_Rebound))
     {
         if (try_game_action(comp, dungeon->owner, GA_UsePwrRebound, ctask->attack_magic.splevel, 0, 0, ctask->attack_magic.target_thing_idx, 0) > Lb_OK)
         {
             k = 1;
         }
     }
-    if (computer_able_to_use_power(comp, PwrK_FLIGHT, ctask->attack_magic.splevel, 1) && !thing_affected_by_spell(creatng, PwrK_FLIGHT))
+    if (computer_able_to_use_power(comp, PwrK_FLIGHT, ctask->attack_magic.splevel, 1) && !flag_is_set(cctrl->spell_flags, CSAfF_Flying))
     {
         if (try_game_action(comp, dungeon->owner, GA_UsePwrFlight, ctask->attack_magic.splevel, 0, 0, ctask->attack_magic.target_thing_idx, 0) > Lb_OK)
         {
             k = 1;
         }
     }
-    if (computer_able_to_use_power(comp, PwrK_VISION, ctask->attack_magic.splevel, 1) && !thing_affected_by_spell(creatng, PwrK_VISION))
+    if (computer_able_to_use_power(comp, PwrK_VISION, ctask->attack_magic.splevel, 1) && !flag_is_set(cctrl->spell_flags, CSAfF_Sight))
     {
         if (try_game_action(comp, dungeon->owner, GA_UsePwrVision, ctask->attack_magic.splevel, 0, 0, ctask->attack_magic.target_thing_idx, 0) > Lb_OK)
         {

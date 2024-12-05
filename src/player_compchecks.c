@@ -773,24 +773,24 @@ long computer_check_for_quick_attack(struct Computer2 *comp, struct ComputerChec
 
 struct Thing *computer_check_creatures_in_room_for_accelerate(struct Computer2 *comp, struct Room *room)
 {
-    struct Dungeon* dungeon = comp->dungeon;
+    struct Dungeon *dungeon = comp->dungeon;
     long i = room->creatures_list;
     unsigned long k = 0;
     while (i != 0)
     {
-        struct Thing* thing = thing_get(i);
-        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+        struct Thing *thing = thing_get(i);
+        struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
         if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
         {
-            ERRORLOG("Jump to invalid creature %ld detected",i);
+            ERRORLOG("Jump to invalid creature %ld detected", i);
             break;
         }
         i = cctrl->next_in_room;
-        // Per creature code
-        if (!thing_affected_by_spell(thing, SplK_Speed))
+        // Per creature code.
+        if (!flag_is_set(cctrl->spell_flags, CSAfF_Speed))
         {
             long n = get_creature_state_besides_move(thing);
-            struct StateInfo* stati = get_thing_state_info_num(n);
+            struct StateInfo *stati = get_thing_state_info_num(n);
             if (stati->state_type == CrStTyp_Work)
             {
                 if (try_game_action(comp, dungeon->owner, GA_UsePwrSpeedUp, POWER_MAX_LEVEL, 0, 0, thing->index, 0) > Lb_OK)
@@ -799,7 +799,7 @@ struct Thing *computer_check_creatures_in_room_for_accelerate(struct Computer2 *
                 }
             }
         }
-        // Per creature code ends
+        // Per creature code ends.
         k++;
         if (k > THINGS_COUNT)
         {
@@ -812,24 +812,24 @@ struct Thing *computer_check_creatures_in_room_for_accelerate(struct Computer2 *
 
 struct Thing *computer_check_creatures_in_room_for_flight(struct Computer2 *comp, struct Room *room)
 {
-    struct Dungeon* dungeon = comp->dungeon;
+    struct Dungeon *dungeon = comp->dungeon;
     long i = room->creatures_list;
     unsigned long k = 0;
     while (i != 0)
     {
-        struct Thing* thing = thing_get(i);
-        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+        struct Thing *thing = thing_get(i);
+        struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
         if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
         {
-            ERRORLOG("Jump to invalid creature %ld detected",i);
+            ERRORLOG("Jump to invalid creature %ld detected", i);
             break;
         }
         i = cctrl->next_in_room;
-        // Per creature code
-        if (!thing_affected_by_spell(thing, SplK_Fly))
+        // Per creature code.
+        if (!flag_is_set(cctrl->spell_flags, CSAfF_Flying))
         {
             long n = get_creature_state_besides_move(thing);
-            struct StateInfo* stati = get_thing_state_info_num(n);
+            struct StateInfo *stati = get_thing_state_info_num(n);
             if (stati->state_type == CrStTyp_Work)
             {
                 if (try_game_action(comp, dungeon->owner, GA_UsePwrFlight, POWER_MAX_LEVEL, 0, 0, thing->index, 0) > Lb_OK)
@@ -838,7 +838,7 @@ struct Thing *computer_check_creatures_in_room_for_flight(struct Computer2 *comp
                 }
             }
         }
-        // Per creature code ends
+        // Per creature code ends.
         k++;
         if (k > THINGS_COUNT)
         {
@@ -851,24 +851,24 @@ struct Thing *computer_check_creatures_in_room_for_flight(struct Computer2 *comp
 
 struct Thing *computer_check_creatures_in_room_for_vision(struct Computer2 *comp, struct Room *room)
 {
-    struct Dungeon* dungeon = comp->dungeon;
+    struct Dungeon *dungeon = comp->dungeon;
     long i = room->creatures_list;
     unsigned long k = 0;
     while (i != 0)
     {
-        struct Thing* thing = thing_get(i);
-        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+        struct Thing *thing = thing_get(i);
+        struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
         if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
         {
-            ERRORLOG("Jump to invalid creature %ld detected",i);
+            ERRORLOG("Jump to invalid creature %ld detected", i);
             break;
         }
         i = cctrl->next_in_room;
-        // Per creature code
-        if (!thing_affected_by_spell(thing, SplK_Sight))
+        // Per creature code.
+        if (!flag_is_set(cctrl->spell_flags, CSAfF_Sight))
         {
             long n = get_creature_state_besides_move(thing);
-            struct StateInfo* stati = get_thing_state_info_num(n);
+            struct StateInfo *stati = get_thing_state_info_num(n);
             if (stati->state_type == CrStTyp_Work)
             {
                 if (try_game_action(comp, dungeon->owner, GA_UsePwrVision, POWER_MAX_LEVEL, 0, 0, thing->index, 0) > Lb_OK)
@@ -877,7 +877,7 @@ struct Thing *computer_check_creatures_in_room_for_vision(struct Computer2 *comp
                 }
             }
         }
-        // Per creature code ends
+        // Per creature code ends.
         k++;
         if (k > THINGS_COUNT)
         {

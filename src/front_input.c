@@ -1778,7 +1778,8 @@ short get_creature_control_action_inputs(void)
                 set_players_packet_action(player, PckA_SelectFPPickup, player->thing_under_hand, 0, 0, 0);
             }
         }
-        if (!creature_affected_by_spell(thing, CSAfF_Chicken))
+        struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
+        if (!flag_is_set(cctrl->spell_flags, CSAfF_Chicken))
         {
             if (numkey != -1)
             {

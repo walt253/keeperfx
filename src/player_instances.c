@@ -931,18 +931,18 @@ void process_player_instances(void)
 
 void leave_creature_as_controller(struct PlayerInfo *player, struct Thing *thing)
 {
-    SYNCDBG(7,"Starting for player %d within %s index %d",(int)player->id_number,thing_model_name(thing),(int)thing->index);
+    SYNCDBG(7, "Starting for player %d within %s index %d", (int)player->id_number, thing_model_name(thing), (int)thing->index);
     if (((thing->owner != player->id_number) && (player->work_state != PSt_FreeCtrlDirect))
-      || (thing->index != player->controlled_thing_idx))
+    || (thing->index != player->controlled_thing_idx))
     {
         set_player_instance(player, PI_Unset, 1);
         set_player_mode(player, PVT_DungeonTop);
         player->allocflags &= ~PlaF_Unknown8;
         set_engine_view(player, player->view_mode_restore);
-        player->cameras[CamIV_Isometric].mappos.x.val = subtile_coord_center(gameadd.map_subtiles_x/2);
-        player->cameras[CamIV_Isometric].mappos.y.val = subtile_coord_center(gameadd.map_subtiles_y/2);
-        player->cameras[CamIV_FrontView].mappos.x.val = subtile_coord_center(gameadd.map_subtiles_x/2);
-        player->cameras[CamIV_FrontView].mappos.y.val = subtile_coord_center(gameadd.map_subtiles_y/2);
+        player->cameras[CamIV_Isometric].mappos.x.val = subtile_coord_center(gameadd.map_subtiles_x / 2);
+        player->cameras[CamIV_Isometric].mappos.y.val = subtile_coord_center(gameadd.map_subtiles_y / 2);
+        player->cameras[CamIV_FrontView].mappos.x.val = subtile_coord_center(gameadd.map_subtiles_x / 2);
+        player->cameras[CamIV_FrontView].mappos.y.val = subtile_coord_center(gameadd.map_subtiles_y / 2);
         clear_selected_thing(player);
         return;
     }
@@ -953,24 +953,28 @@ void leave_creature_as_controller(struct PlayerInfo *player, struct Thing *thing
     player->allocflags &= ~PlaF_Unknown8;
     set_engine_view(player, player->view_mode_restore);
     long i = player->acamera->orient_a;
-    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    struct CreatureStats *crstat = creature_stats_get_from_thing(thing);
+    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
     long k = thing->mappos.z.val + get_creature_eye_height(thing);
-    player->cameras[CamIV_Isometric].mappos.x.val = thing->mappos.x.val + distance_with_angle_to_coord_x(k,i);
-    player->cameras[CamIV_Isometric].mappos.y.val = thing->mappos.y.val + distance_with_angle_to_coord_y(k,i);
-    player->cameras[CamIV_FrontView].mappos.x.val = thing->mappos.x.val + distance_with_angle_to_coord_x(k,i);
-    player->cameras[CamIV_FrontView].mappos.y.val = thing->mappos.y.val + distance_with_angle_to_coord_y(k,i);
+    player->cameras[CamIV_Isometric].mappos.x.val = thing->mappos.x.val + distance_with_angle_to_coord_x(k, i);
+    player->cameras[CamIV_Isometric].mappos.y.val = thing->mappos.y.val + distance_with_angle_to_coord_y(k, i);
+    player->cameras[CamIV_FrontView].mappos.x.val = thing->mappos.x.val + distance_with_angle_to_coord_x(k, i);
+    player->cameras[CamIV_FrontView].mappos.y.val = thing->mappos.y.val + distance_with_angle_to_coord_y(k, i);
     if (thing->class_id == TCls_Creature)
     {
         set_start_state(thing);
         cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
-        if ((cctrl->flgfield_2 & TF2_Spectator) != 0) {
-          delete_thing_structure(thing, 0);
-        } else {
-          disband_creatures_group(thing);
+        if ((cctrl->flgfield_2 & TF2_Spectator) != 0)
+        {
+            delete_thing_structure(thing, 0);
+        }
+        else
+        {
+            disband_creatures_group(thing);
         }
     }
-    if ( (thing->light_id != 0) && (!crstat->illuminated) && (!creature_affected_by_spell(thing, CSAfF_Light)) ) {
+    if ((thing->light_id != 0) && (!crstat->illuminated) && (!flag_is_set(cctrl->spell_flags, CSAfF_Light)))
+    {
         light_delete_light(thing->light_id);
         thing->light_id = 0;
     }
@@ -978,32 +982,32 @@ void leave_creature_as_controller(struct PlayerInfo *player, struct Thing *thing
 
 void leave_creature_as_passenger(struct PlayerInfo *player, struct Thing *thing)
 {
-  SYNCDBG(7,"Starting for player %d within %s index %d",(int)player->id_number,thing_model_name(thing),(int)thing->index);
-  if (((thing->owner != player->id_number) && (player->work_state != PSt_FreeCtrlPassngr))
+    SYNCDBG(7, "Starting for player %d within %s index %d", (int)player->id_number, thing_model_name(thing), (int)thing->index);
+    if (((thing->owner != player->id_number) && (player->work_state != PSt_FreeCtrlPassngr))
     || (thing->index != player->controlled_thing_idx))
-  {
-    set_player_instance(player, PI_Unset, 1);
+    {
+        set_player_instance(player, PI_Unset, 1);
+        set_player_mode(player, PVT_DungeonTop);
+        player->allocflags &= ~PlaF_Unknown8;
+        set_engine_view(player, player->view_mode_restore);
+        player->cameras[CamIV_Isometric].mappos.x.val = subtile_coord_center(gameadd.map_subtiles_x / 2);
+        player->cameras[CamIV_Isometric].mappos.y.val = subtile_coord_center(gameadd.map_subtiles_y / 2);
+        player->cameras[CamIV_FrontView].mappos.x.val = subtile_coord_center(gameadd.map_subtiles_x / 2);
+        player->cameras[CamIV_FrontView].mappos.y.val = subtile_coord_center(gameadd.map_subtiles_y / 2);
+        clear_selected_thing(player);
+        return;
+    }
     set_player_mode(player, PVT_DungeonTop);
+    thing->rendering_flags &= ~TRF_Invisible;
     player->allocflags &= ~PlaF_Unknown8;
     set_engine_view(player, player->view_mode_restore);
-    player->cameras[CamIV_Isometric].mappos.x.val = subtile_coord_center(gameadd.map_subtiles_x/2);
-    player->cameras[CamIV_Isometric].mappos.y.val = subtile_coord_center(gameadd.map_subtiles_y/2);
-    player->cameras[CamIV_FrontView].mappos.x.val = subtile_coord_center(gameadd.map_subtiles_x/2);
-    player->cameras[CamIV_FrontView].mappos.y.val = subtile_coord_center(gameadd.map_subtiles_y/2);
+    long i = player->acamera->orient_a;
+    long k = thing->mappos.z.val + get_creature_eye_height(thing);
+    player->cameras[CamIV_Isometric].mappos.x.val = thing->mappos.x.val + distance_with_angle_to_coord_x(k, i);
+    player->cameras[CamIV_Isometric].mappos.y.val = thing->mappos.y.val + distance_with_angle_to_coord_y(k, i);
+    player->cameras[CamIV_FrontView].mappos.x.val = thing->mappos.x.val + distance_with_angle_to_coord_x(k, i);
+    player->cameras[CamIV_FrontView].mappos.y.val = thing->mappos.y.val + distance_with_angle_to_coord_y(k, i);
     clear_selected_thing(player);
-    return;
-  }
-  set_player_mode(player, PVT_DungeonTop);
-  thing->rendering_flags &= ~TRF_Invisible;
-  player->allocflags &= ~PlaF_Unknown8;
-  set_engine_view(player, player->view_mode_restore);
-  long i = player->acamera->orient_a;
-  long k = thing->mappos.z.val + get_creature_eye_height(thing);
-  player->cameras[CamIV_Isometric].mappos.x.val = thing->mappos.x.val + distance_with_angle_to_coord_x(k,i);
-  player->cameras[CamIV_Isometric].mappos.y.val = thing->mappos.y.val + distance_with_angle_to_coord_y(k,i);
-  player->cameras[CamIV_FrontView].mappos.x.val = thing->mappos.x.val + distance_with_angle_to_coord_x(k,i);
-  player->cameras[CamIV_FrontView].mappos.y.val = thing->mappos.y.val + distance_with_angle_to_coord_y(k,i);
-  clear_selected_thing(player);
 }
 
 TbBool is_thing_passenger_controlled(const struct Thing *thing)

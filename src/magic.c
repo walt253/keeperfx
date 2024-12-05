@@ -930,20 +930,24 @@ TbBool find_power_cast_place(PlayerNumber plyr_idx, PowerKind pwkind, struct Coo
 
 static TbResult magic_use_power_armageddon(PowerKind power_kind, PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel, unsigned long mod_flags)
 {
-    SYNCDBG(6,"Starting");
+    SYNCDBG(6, "Starting");
     unsigned long your_time_gap;
     unsigned long enemy_time_gap;
     your_time_gap = game.armageddon.count_down + game.play_gameturn;
     enemy_time_gap = game.armageddon.count_down + game.play_gameturn;
-    if (game.armageddon_cast_turn != 0) {
+    if (game.armageddon_cast_turn != 0)
+    {
         return Lb_OK;
     }
     if ((mod_flags & PwMod_CastForFree) == 0)
     {
-        // If we can't afford the spell, fail
-        if (!pay_for_spell(plyr_idx, power_kind, 0)) {
+        // If we can't afford the spell, fail.
+        if (!pay_for_spell(plyr_idx, power_kind, 0))
+        {
             if (is_my_player_number(plyr_idx))
+            {
                 output_message(SMsg_GoldNotEnough, 0, true);
+            }
             return Lb_OK;
         }
     }
@@ -954,7 +958,6 @@ static TbResult magic_use_power_armageddon(PowerKind power_kind, PlayerNumber pl
     game.armageddon.mappos.x.val = heartng->mappos.x.val;
     game.armageddon.mappos.y.val = heartng->mappos.y.val;
     game.armageddon.mappos.z.val = heartng->mappos.z.val;
-
     int i;
     int k;
     k = 0;
@@ -966,42 +969,45 @@ static TbResult magic_use_power_armageddon(PowerKind power_kind, PlayerNumber pl
         thing = thing_get(i);
         if (thing_is_invalid(thing))
         {
-          ERRORLOG("Jump to invalid thing detected");
-          break;
+            ERRORLOG("Jump to invalid thing detected");
+            break;
         }
         i = thing->next_of_class;
-        // Per-thing code
+        // Per-thing code.
         struct CreatureControl *cctrl;
         cctrl = creature_control_get_from_thing(thing);
-        // Creatures unaffected by Armageddon
-        if (is_neutral_thing(thing) && !game.conf.rules.magic.armageddon_teleport_neutrals)
+        if (is_neutral_thing(thing) && !game.conf.rules.magic.armageddon_teleport_neutrals) // Creatures unaffected by Armageddon.
         {
             cctrl->armageddon_teleport_turn = 0;
-        } else
-        // Creatures killed by Armageddon
-        if (creature_affected_by_spell(thing, CSAfF_Chicken))
+        }
+        else if (flag_is_set(cctrl->spell_flags, CSAfF_Chicken)) // Creatures killed by Armageddon.
         {
             kill_creature(thing, heartng, plyr_idx, CrDed_DiedInBattle);
-        } else
-        // Creatures teleported by Armageddon
+        }
+        else // Creatures teleported by Armageddon.
         {
             cctrl->armageddon_teleport_turn = your_time_gap;
-            if (thing->owner == plyr_idx) {
+            if (thing->owner == plyr_idx)
+            {
                 your_time_gap += game.conf.rules.magic.armageddon_teleport_your_time_gap;
-            } else {
+            }
+            else
+            {
                 enemy_time_gap += game.conf.rules.magic.armageddon_teleport_enemy_time_gap;
             }
         }
-        // Per-thing code ends
+        // Per-thing code ends.
         k++;
         if (k > THINGS_COUNT)
         {
-          ERRORLOG("Infinite loop detected when sweeping things list");
-          break;
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break;
         }
     }
     if (enemy_time_gap <= your_time_gap)
+    {
         enemy_time_gap = your_time_gap;
+    }
     game.armageddon_over_turn = game.armageddon.duration + enemy_time_gap;
     if (plyr_idx == my_player_number)
     {

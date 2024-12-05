@@ -87,6 +87,7 @@ const struct NamedCommand magic_spell_flags[] = {
     {"FREEZE",       CSAfF_Freeze},
     {"TELEPORT",     CSAfF_Teleport},
     {"HEAL",         CSAfF_Heal},
+    {"FEAR",         CSAfF_Fear},
     {NULL,           0},
 };
 
@@ -352,7 +353,7 @@ struct SpellConfig *get_spell_config(int mgc_idx)
   return &game.conf.magic_conf.spell_config[mgc_idx];
 }
 
-TbBool spell_config_is_invalid(const struct SpellConfig *mgcinfo)
+TbBool spell_config_is_invalid(struct SpellConfig *mgcinfo)
 {
   if (mgcinfo <= &game.conf.magic_conf.spell_config[0])
     return true;

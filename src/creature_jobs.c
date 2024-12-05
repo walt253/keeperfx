@@ -676,33 +676,34 @@ TbBool get_drop_position_for_creature_job_in_dungeon(struct Coord3d *pos, const 
  */
 TbBool creature_can_do_job_for_player(const struct Thing *creatng, PlayerNumber plyr_idx, CreatureJob new_job, unsigned long flags)
 {
-    SYNCDBG(16,"Starting for %s index %d owner %d and job %s",thing_model_name(creatng),(int)creatng->index,(int)creatng->owner,creature_job_code_name(new_job));
+    SYNCDBG(16, "Starting for %s index %d owner %d and job %s", thing_model_name(creatng), (int)creatng->index, (int)creatng->owner, creature_job_code_name(new_job));
+    struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
     if (creature_will_reject_job(creatng, new_job))
     {
-        SYNCDBG(13,"Cannot assign %s for %s index %d owner %d; in not do jobs list",creature_job_code_name(new_job),thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
+        SYNCDBG(13, "Cannot assign %s for %s index %d owner %d; in not do jobs list", creature_job_code_name(new_job), thing_model_name(creatng), (int)creatng->index, (int)creatng->owner);
         return false;
     }
     if (!is_correct_owner_to_perform_job(creatng, plyr_idx, new_job))
     {
-        SYNCDBG(13,"Cannot assign %s for %s index %d owner %d; not correct owner for job",creature_job_code_name(new_job),thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
+        SYNCDBG(13, "Cannot assign %s for %s index %d owner %d; not correct owner for job", creature_job_code_name(new_job), thing_model_name(creatng), (int)creatng->index, (int)creatng->owner);
         return false;
     }
-    // Don't allow creatures changed to chickens to have any job assigned, besides those specifically marked
-    if (creature_affected_by_spell(creatng, SplK_Chicken) && ((get_flags_for_job(new_job) & JoKF_AllowChickenized) == 0))
+    // Don't allow creatures changed to chickens to have any job assigned, besides those specifically marked.
+    if (flag_is_set(cctrl->spell_flags, CSAfF_Chicken) && ((get_flags_for_job(new_job) & JoKF_AllowChickenized) == 0))
     {
-        SYNCDBG(13,"Cannot assign %s for %s index %d owner %d; under chicken spell",creature_job_code_name(new_job),thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
+        SYNCDBG(13, "Cannot assign %s for %s index %d owner %d; under chicken spell", creature_job_code_name(new_job), thing_model_name(creatng), (int)creatng->index, (int)creatng->owner);
         return false;
     }
-    // Check if the job is related to correct player
-    struct CreatureJobConfig* jobcfg = get_config_for_job(new_job);
+    // Check if the job is related to correct player.
+    struct CreatureJobConfig *jobcfg = get_config_for_job(new_job);
     if (creature_job_player_check_func_list[jobcfg->func_plyr_check_idx] == NULL)
     {
-        SYNCDBG(13,"Cannot assign %s for %s index %d owner %d; no check callback",creature_job_code_name(new_job),thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
+        SYNCDBG(13, "Cannot assign %s for %s index %d owner %d; no check callback", creature_job_code_name(new_job), thing_model_name(creatng), (int)creatng->index, (int)creatng->owner);
         return false;
     }
     if (!creature_job_player_check_func_list[jobcfg->func_plyr_check_idx](creatng, plyr_idx, new_job))
     {
-        SYNCDBG(13,"Cannot assign %s for %s index %d owner %d; check callback failed",creature_job_code_name(new_job),thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
+        SYNCDBG(13, "Cannot assign %s for %s index %d owner %d; check callback failed", creature_job_code_name(new_job), thing_model_name(creatng), (int)creatng->index, (int)creatng->owner);
         return false;
     }
     RoomRole job_rrole = get_room_role_for_job(new_job);
@@ -710,19 +711,21 @@ TbBool creature_can_do_job_for_player(const struct Thing *creatng, PlayerNumber 
     {
         if (!player_has_room_of_role(plyr_idx, job_rrole))
         {
-            SYNCDBG(3,"Cannot assign %s in player %d room for %s index %d owner %d; no required room built",creature_job_code_name(new_job),(int)plyr_idx,thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
-            if ((flags & JobChk_PlayMsgOnFail) != 0) {
+            SYNCDBG(3, "Cannot assign %s in player %d room for %s index %d owner %d; no required room built", creature_job_code_name(new_job), (int)plyr_idx, thing_model_name(creatng), (int)creatng->index, (int)creatng->owner);
+            if ((flags & JobChk_PlayMsgOnFail) != 0)
+            {
                 output_message_room_related_from_computer_or_player_action(plyr_idx, get_first_room_kind_for_job(new_job), OMsg_RoomNeeded);
             }
             return false;
         }
         if ((get_flags_for_job(new_job) & JoKF_NeedsCapacity) != 0)
         {
-            struct Room* room = find_room_of_role_with_spare_capacity(plyr_idx, job_rrole, 1);
+            struct Room *room = find_room_of_role_with_spare_capacity(plyr_idx, job_rrole, 1);
             if (room_is_invalid(room))
             {
-                SYNCDBG(3,"Cannot assign %s in player %d room for %s index %d owner %d; not enough room capacity",creature_job_code_name(new_job),(int)plyr_idx,thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
-                if ((flags & JobChk_PlayMsgOnFail) != 0) {
+                SYNCDBG(3, "Cannot assign %s in player %d room for %s index %d owner %d; not enough room capacity", creature_job_code_name(new_job), (int)plyr_idx, thing_model_name(creatng), (int)creatng->index, (int)creatng->owner);
+                if ((flags & JobChk_PlayMsgOnFail) != 0)
+                {
                     output_message_room_related_from_computer_or_player_action(plyr_idx, get_first_room_kind_for_job(new_job), OMsg_RoomTooSmall);
                 }
                 return false;
@@ -853,50 +856,52 @@ TbBool creature_can_take_sleep_near_pos(const struct Thing *creatng, MapSubtlCoo
  */
 TbBool creature_can_do_job_near_position(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, CreatureJob new_job, unsigned long flags)
 {
-    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    SYNCDBG(6,"Starting for %s index %d owner %d and job %s",thing_model_name(creatng),(int)creatng->index,(int)creatng->owner,creature_job_code_name(new_job));
-    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
+    struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
+    SYNCDBG(6, "Starting for %s index %d owner %d and job %s", thing_model_name(creatng), (int)creatng->index, (int)creatng->owner, creature_job_code_name(new_job));
+    struct CreatureStats *crstat = creature_stats_get_from_thing(creatng);
     if (creature_will_reject_job(creatng, new_job))
     {
-        SYNCDBG(3,"Cannot assign %s at (%d,%d) for %s index %d owner %d; in not-do-jobs list",creature_job_code_name(new_job),(int)stl_x,(int)stl_y,thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
-        if ((flags & JobChk_SetStateOnFail) != 0) {
+        SYNCDBG(3, "Cannot assign %s at (%d,%d) for %s index %d owner %d; in not-do-jobs list", creature_job_code_name(new_job), (int)stl_x, (int)stl_y, thing_model_name(creatng), (int)creatng->index, (int)creatng->owner);
+        if ((flags & JobChk_SetStateOnFail) != 0)
+        {
             anger_apply_anger_to_creature(creatng, crstat->annoy_will_not_do_job, AngR_Other, 1);
             external_set_thing_state(creatng, CrSt_CreatureMoan);
             cctrl->countdown = 50;
         }
         return false;
     }
-    // Don't allow creatures changed to chickens to have any job assigned, besides those specifically marked
-    if (creature_affected_by_spell(creatng, SplK_Chicken) && ((get_flags_for_job(new_job) & JoKF_AllowChickenized) == 0))
+    // Don't allow creatures changed to chickens to have any job assigned, besides those specifically marked.
+    if (flag_is_set(cctrl->spell_flags, CSAfF_Chicken) && ((get_flags_for_job(new_job) & JoKF_AllowChickenized) == 0))
     {
-        SYNCDBG(3,"Cannot assign %s at (%d,%d) for %s index %d owner %d; under chicken spell",creature_job_code_name(new_job),(int)stl_x,(int)stl_y,thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
+        SYNCDBG(3, "Cannot assign %s at (%d,%d) for %s index %d owner %d; under chicken spell", creature_job_code_name(new_job), (int)stl_x, (int)stl_y, thing_model_name(creatng), (int)creatng->index, (int)creatng->owner);
         return false;
     }
-    // Check if the job is related to correct map place (room,slab)
+    // Check if the job is related to correct map place (room,slab).
     if (!is_correct_position_to_perform_job(creatng, stl_x, stl_y, new_job))
     {
-        SYNCDBG(3,"Cannot assign %s at (%d,%d) for %s index %d owner %d; not correct place for job",creature_job_code_name(new_job),(int)stl_x,(int)stl_y,thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
+        SYNCDBG(3, "Cannot assign %s at (%d,%d) for %s index %d owner %d; not correct place for job", creature_job_code_name(new_job), (int)stl_x, (int)stl_y, thing_model_name(creatng), (int)creatng->index, (int)creatng->owner);
         return false;
     }
-    struct CreatureJobConfig* jobcfg = get_config_for_job(new_job);
+    struct CreatureJobConfig *jobcfg = get_config_for_job(new_job);
     if (creature_job_coords_check_func_list[jobcfg->func_cord_check_idx] == NULL)
     {
-        SYNCDBG(3,"Cannot assign %s at (%d,%d) for %s index %d owner %d; job has no coord check function",creature_job_code_name(new_job),(int)stl_x,(int)stl_y,thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
+        SYNCDBG(3, "Cannot assign %s at (%d,%d) for %s index %d owner %d; job has no coord check function", creature_job_code_name(new_job), (int)stl_x, (int)stl_y, thing_model_name(creatng), (int)creatng->index, (int)creatng->owner);
         return false;
     }
     if (!creature_job_coords_check_func_list[jobcfg->func_cord_check_idx](creatng, stl_x, stl_y, new_job, flags))
     {
-        SYNCDBG(3,"Cannot assign %s at (%d,%d) for %s index %d owner %d; coord check not passed",creature_job_code_name(new_job),(int)stl_x,(int)stl_y,thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
+        SYNCDBG(3, "Cannot assign %s at (%d,%d) for %s index %d owner %d; coord check not passed", creature_job_code_name(new_job), (int)stl_x, (int)stl_y, thing_model_name(creatng), (int)creatng->index, (int)creatng->owner);
         return false;
     }
-    // If other tests pass, check if related room (if is needed) has capacity to be used for that job
+    // If other tests pass, check if related room (if is needed) has capacity to be used for that job.
     if ((get_flags_for_job(new_job) & JoKF_NeedsCapacity) != 0)
     {
-        struct Room* room = subtile_room_get(stl_x, stl_y);
+        struct Room *room = subtile_room_get(stl_x, stl_y);
         if (!room_has_enough_free_capacity_for_creature_job(room, creatng, new_job))
         {
-            SYNCDBG(3,"Cannot assign %s at (%d,%d) for %s index %d owner %d; not enough room capacity",creature_job_code_name(new_job),(int)stl_x,(int)stl_y,thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
-            if ((flags & JobChk_PlayMsgOnFail) != 0) {
+            SYNCDBG(3, "Cannot assign %s at (%d,%d) for %s index %d owner %d; not enough room capacity", creature_job_code_name(new_job), (int)stl_x, (int)stl_y, thing_model_name(creatng), (int)creatng->index, (int)creatng->owner);
+            if ((flags & JobChk_PlayMsgOnFail) != 0)
+            {
                 output_message_room_related_from_computer_or_player_action(room->owner, room->kind, OMsg_RoomTooSmall);
             }
             return false;

@@ -1198,24 +1198,22 @@ TbBool validate_source_basic
         return false;
     }
     // We assume we usually don't want to overwrite the original instance.
-    struct CreatureControl* cctrl = creature_control_get_from_thing(source);
-    if (cctrl->instance_id != CrInst_NULL) {
+    struct CreatureControl *cctrl = creature_control_get_from_thing(source);
+    if (cctrl->instance_id != CrInst_NULL)
+    {
         SYNCDBG(15, "%s(%d) already has an instance %s.", thing_model_name(source), source->index,
-            creature_instance_code_name(cctrl->instance_id));
+                creature_instance_code_name(cctrl->instance_id));
         return false;
     }
-
-    if (!creature_instance_is_available(source, inst_idx) ||
-        !creature_instance_has_reset(source, inst_idx) ||
-        ((cctrl->stateblock_flags & CCSpl_Freeze) != 0) ||
-        creature_is_fleeing_combat(source) || creature_affected_by_spell(source, SplK_Chicken) ||
-        creature_is_being_unconscious(source) || creature_is_dying(source) ||
-        thing_is_picked_up(source) || creature_is_being_dropped(source) ||
-        creature_is_being_sacrificed(source) || creature_is_being_summoned(source))
+    // Return false if any check below is true.
+    if (flag_is_set(cctrl->stateblock_flags, CCSpl_Freeze) || flag_is_set(cctrl->spell_flags, CSAfF_Chicken)
+    || !creature_instance_is_available(source, inst_idx)|| !creature_instance_has_reset(source, inst_idx)
+    || creature_is_fleeing_combat(source) || creature_is_being_unconscious(source) || creature_is_dying(source)
+    || thing_is_picked_up(source) || creature_is_being_dropped(source)
+    || creature_is_being_sacrificed(source) || creature_is_being_summoned(source))
     {
         return false;
     }
-
     return true;
 }
 
@@ -1349,7 +1347,7 @@ TbBool validate_target_non_idle(struct Thing* source, struct Thing* target, CrIn
         return false;
     }
     struct InstanceInfo *inst_inf = creature_instance_info_get(inst_idx);
-    const struct SpellConfig *spconf = get_spell_config(inst_inf->func_params[0]);
+    struct SpellConfig *spconf = get_spell_config(inst_inf->func_params[0]);
     long state_type = get_creature_state_type(target);
     if ((state_type != CrStTyp_Idle) && !flag_is_set(cctrl->spell_flags, spconf->spell_flags))
     {
@@ -1390,7 +1388,7 @@ TbBool validate_target_even_in_prison
         return false;
     }
     struct InstanceInfo *inst_inf = creature_instance_info_get(inst_idx);
-    const struct SpellConfig *spconf = get_spell_config(inst_inf->func_params[0]);
+    struct SpellConfig *spconf = get_spell_config(inst_inf->func_params[0]);
     if (spell_config_is_invalid(spconf) || flag_is_set(cctrl->spell_flags, spconf->spell_flags))
     {
         // If this instance has wrong spell, or the target has been affected by this spell, return false.

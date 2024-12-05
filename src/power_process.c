@@ -185,9 +185,11 @@ void process_armageddon_influencing_creature(struct Thing *creatng)
 
 void process_disease(struct Thing *creatng)
 {
-    SYNCDBG(18,"Starting");
-    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    if (!creature_affected_by_spell(creatng, SplK_Disease)) {
+    SYNCDBG(18, "Starting");
+    struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
+    struct CreatureControl *tngcctrl;
+    if (!flag_is_set(cctrl->spell_flags, CSAfF_Disease))
+    {
         return;
     }
     if (CREATURE_RANDOM(creatng, 100) < game.conf.rules.magic.disease_transfer_percentage)
@@ -195,34 +197,38 @@ void process_disease(struct Thing *creatng)
         SubtlCodedCoords stl_num = get_subtile_number(creatng->mappos.x.stl.num, creatng->mappos.y.stl.num);
         for (long n = 0; n < AROUND_MAP_LENGTH; n++)
         {
-            struct Map* mapblk = get_map_block_at_pos(stl_num + gameadd.around_map[n]);
+            struct Map *mapblk = get_map_block_at_pos(stl_num + gameadd.around_map[n]);
             unsigned long k = 0;
             long i = get_mapwho_thing_index(mapblk);
             while (i != 0)
             {
-                struct Thing* thing = thing_get(i);
+                struct Thing *thing = thing_get(i);
                 if (thing_is_invalid(thing))
                 {
                     WARNLOG("Jump out of things array");
                     break;
-              }
-              i = thing->next_on_mapblk;
-              // Per thing code
-              if (thing_is_creature(thing) && ((get_creature_model_flags(thing) & CMF_IsSpecDigger) == 0) && ((get_creature_model_flags(thing) & CMF_NeverSick) == 0)
-                && (thing->owner != cctrl->disease_caster_plyridx) && !creature_affected_by_spell(thing, CSAfF_Disease) && (cctrl->disease_caster_plyridx != game.neutral_player_num))
-              {
-                  struct CreatureControl* tngcctrl = creature_control_get_from_thing(thing);
-                  apply_spell_effect_to_thing(thing, SplK_Disease, cctrl->explevel);
-                  tngcctrl->disease_caster_plyridx = cctrl->disease_caster_plyridx;
-              }
-              // Per thing code ends
-              k++;
-              if (k > THINGS_COUNT)
-              {
-                  ERRORLOG("Infinite loop detected when sweeping things list");
-                  break_mapwho_infinite_chain(mapblk);
-                  break;
-              }
+                }
+                i = thing->next_on_mapblk;
+                // Per thing code.
+                tngcctrl = creature_control_get_from_thing(thing);
+                if (thing_is_creature(thing)
+                && ((get_creature_model_flags(thing) & CMF_IsSpecDigger) == 0)
+                && ((get_creature_model_flags(thing) & CMF_NeverSick) == 0)
+                && (thing->owner != cctrl->disease_caster_plyridx)
+                && !flag_is_set(tngcctrl->spell_flags, CSAfF_Disease)
+                && (cctrl->disease_caster_plyridx != game.neutral_player_num))
+                {
+                    apply_spell_effect_to_thing(thing, SplK_Disease, cctrl->explevel);
+                    tngcctrl->disease_caster_plyridx = cctrl->disease_caster_plyridx;
+                }
+                // Per thing code ends.
+                k++;
+                if (k > THINGS_COUNT)
+                {
+                    ERRORLOG("Infinite loop detected when sweeping things list");
+                    break_mapwho_infinite_chain(mapblk);
+                    break;
+                }
             }
         }
     }
@@ -673,8 +679,10 @@ void remove_explored_flags_for_power_sight(struct PlayerInfo *player)
 
 void process_timebomb(struct Thing *creatng)
 {
-    SYNCDBG(18,"Starting");
-    if (!creature_affected_by_spell(creatng, SplK_TimeBomb)) {
+    SYNCDBG(18, "Starting");
+    struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
+    if (!flag_is_set(cctrl->spell_flags, CSAfF_Timebomb))
+    {
         return;
     }
     if (thing_is_picked_up(creatng))
@@ -682,8 +690,7 @@ void process_timebomb(struct Thing *creatng)
         return;
     }
     update_creature_speed(creatng);
-    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    struct Thing* timetng = thing_get(cctrl->timebomb_countdown_id);
+    struct Thing *timetng = thing_get(cctrl->timebomb_countdown_id);
     if (thing_is_invalid(timetng))
     {
         if ((cctrl->timebomb_countdown % game_num_fps) == 0)
@@ -691,7 +698,7 @@ void process_timebomb(struct Thing *creatng)
             long time = (cctrl->timebomb_countdown / game_num_fps);
             timetng = create_price_effect(&creatng->mappos, creatng->owner, time);
             cctrl->timebomb_countdown_id = timetng->index;
-            thing_play_sample(creatng, 853, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+            thing_play_sample(creatng, 853, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS); // 853 is hardcoded ticking sound, could be configurable.
         }
     }
     else
@@ -710,10 +717,10 @@ void process_timebomb(struct Thing *creatng)
             move_thing_in_map(timetng, &pos);
         }
     }
-    struct Thing* trgtng = thing_get(cctrl->timebomb_target_id);
+    struct Thing *trgtng = thing_get(cctrl->timebomb_target_id);
     if (!thing_is_invalid(trgtng))
     {
-        if ( (creatng->mappos.x.stl.num == trgtng->mappos.x.stl.num) && (creatng->mappos.y.stl.num == trgtng->mappos.y.stl.num) )
+        if ((creatng->mappos.x.stl.num == trgtng->mappos.x.stl.num) && (creatng->mappos.y.stl.num == trgtng->mappos.y.stl.num))
         {
             if (abs(creatng->mappos.z.val - trgtng->mappos.z.val) <= creatng->solid_size_z)
             {

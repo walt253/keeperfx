@@ -746,18 +746,19 @@ long anywhere_thing_filter_is_food_available_to_eat_and_owned_by(const struct Th
         {
             if ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
             {
-                // Return the largest value to stop sweeping
+                // Return the largest value to stop sweeping.
                 return LONG_MAX;
             }
         }
     }
     if (thing->class_id == TCls_Creature)
     {
-        if (creature_affected_by_spell(thing, CSAfF_Chicken) && (thing->health > 0))
+        struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
+        if (flag_is_set(cctrl->spell_flags, CSAfF_Chicken) && (thing->health > 0))
         {
             if ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
             {
-                // Return the largest value to stop sweeping
+                // Return the largest value to stop sweeping.
                 return LONG_MAX;
             }
         }
@@ -2187,17 +2188,17 @@ TbBool electricity_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, c
 long electricity_affecting_area(const struct Coord3d *pos, PlayerNumber immune_plyr_idx, long range, long max_damage)
 {
     long naffected = 0;
-    const struct StructureList* slist = get_list_for_thing_class(TCls_Creature);
-	struct CreatureControl *cctrl;
+    const struct StructureList *slist = get_list_for_thing_class(TCls_Creature);
+    struct CreatureControl *cctrl;
     long i = slist->index;
     unsigned long k = 0;
     while (i != 0)
     {
-        struct Thing* thing = thing_get(i);
+        struct Thing *thing = thing_get(i);
         if (thing_is_invalid(thing))
         {
-          ERRORLOG("Jump to invalid thing detected");
-          break;
+            ERRORLOG("Jump to invalid thing detected");
+            break;
         }
         i = thing->next_of_class;
         // Per-thing code.
@@ -2205,20 +2206,22 @@ long electricity_affecting_area(const struct Coord3d *pos, PlayerNumber immune_p
         {
             if (thing->owner != immune_plyr_idx)
             {
-              cctrl = creature_control_get_from_thing(thing);
-              if (!flag_is_set(cctrl->spell_flags, CSAfF_Armour))
-              {
-                  if (electricity_affecting_thing(INVALID_THING, thing, pos, range, max_damage, immune_plyr_idx))
-                      naffected++;
-              }
+                cctrl = creature_control_get_from_thing(thing);
+                if (!flag_is_set(cctrl->spell_flags, CSAfF_Armour))
+                {
+                    if (electricity_affecting_thing(INVALID_THING, thing, pos, range, max_damage, immune_plyr_idx))
+                    {
+                        naffected++;
+                    }
+                }
             }
         }
         // Per-thing code ends.
         k++;
         if (k > THINGS_COUNT)
         {
-          ERRORLOG("Infinite loop detected when sweeping things list");
-          break;
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break;
         }
     }
     return naffected;

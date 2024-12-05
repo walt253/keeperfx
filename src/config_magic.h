@@ -95,6 +95,7 @@ enum CreatureSpellAffectedFlags {
     CSAfF_Freeze       = 0x040000,
     CSAfF_Teleport     = 0x080000,
     CSAfF_Heal         = 0x100000,
+    CSAfF_Fear         = 0x200000, // TODO: Flag ready for Fear spell implementation, remove comment once done.
 };
 
 enum PowerKinds {
@@ -451,7 +452,7 @@ extern const struct NamedCommand magic_power_commands[];
 extern const Expand_Check_Func powermodel_expand_check_func_list[];
 /******************************************************************************/
 struct SpellConfig *get_spell_config(int mgc_idx);
-TbBool spell_config_is_invalid(const struct SpellConfig *mgcinfo);
+TbBool spell_config_is_invalid(struct SpellConfig *mgcinfo);
 TextStringId get_power_description_strindex(PowerKind pwkind);
 TextStringId get_power_name_strindex(PowerKind pwkind);
 TbBool power_is_instinctive(int pwkind);

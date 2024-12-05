@@ -170,7 +170,7 @@ TbResult script_use_spell_on_creature(PlayerNumber plyr_idx, ThingModel crmodel,
         return Lb_FAIL;
     }
     SpellKind spkind = (fmcl_bytes >> 8) & 255;
-    const struct SpellConfig* spconf = get_spell_config(spkind);
+    struct SpellConfig* spconf = get_spell_config(spkind);
 
     if (spconf->caster_affected ||
             (spkind == SplK_Freeze) || (spkind == SplK_Slow) || // These two should be also marked at configs somehow?

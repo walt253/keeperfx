@@ -453,7 +453,7 @@ void update_creature_graphic_anim(struct Thing *thing)
             struct InstanceInfo *inst_inf = creature_instance_info_get(cctrl->instance_id);
             update_creature_anim(thing, cctrl->instance_anim_step_turns, inst_inf->graphics_idx);
         }
-        else if ((cctrl->frozen_on_hit != 0) || creature_is_dying(thing) || creature_affected_by_spell(thing, CSAfF_Freeze))
+        else if ((cctrl->frozen_on_hit != 0) || creature_is_dying(thing) || flag_is_set(cctrl->spell_flags, CSAfF_Freeze))
         {
             update_creature_anim(thing, 256, CGI_GotHit);
         }
@@ -537,19 +537,20 @@ void update_creature_graphic_anim(struct Thing *thing)
 
 void update_creature_graphic_tint(struct Thing *thing)
 {
-    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    if (creature_affected_by_spell(thing, CSAfF_Freeze))
+    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
+    if (flag_is_set(cctrl->spell_flags, CSAfF_Freeze))
     {
         tint_thing(thing, colours[4][4][15], 1);
-    } else
-    if (((cctrl->combat_flags & CmbtF_Melee) == 0) && ((cctrl->combat_flags & CmbtF_Ranged) == 0))
+    }
+    else if (((cctrl->combat_flags & CmbtF_Melee) == 0) && ((cctrl->combat_flags & CmbtF_Ranged) == 0))
     {
         untint_thing(thing);
-    } else
-    if (((game.play_gameturn % 3) == 0) || is_hero_thing(thing))
+    }
+    else if (((game.play_gameturn % 3) == 0) || is_hero_thing(thing))
     {
         untint_thing(thing);
-    } else
+    }
+    else
     {
         tint_thing(thing, possession_hit_colours[get_player_color_idx(thing->owner)], 1);
     }

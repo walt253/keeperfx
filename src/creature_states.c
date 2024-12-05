@@ -1661,13 +1661,14 @@ short creature_casting_preparation(struct Thing *creatng)
 
 void set_creature_size_stuff(struct Thing *creatng)
 {
-    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    if (creature_affected_by_spell(creatng, SplK_Chicken))
+    struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
+    if (flag_is_set(cctrl->spell_flags, CSAfF_Chicken))
     {
-      creatng->sprite_size = game.conf.crtr_conf.sprite_size;
-    } else
+        creatng->sprite_size = game.conf.crtr_conf.sprite_size;
+    }
+    else
     {
-      creatng->sprite_size = game.conf.crtr_conf.sprite_size + (game.conf.crtr_conf.sprite_size * game.conf.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100;
+        creatng->sprite_size = game.conf.crtr_conf.sprite_size + (game.conf.crtr_conf.sprite_size * game.conf.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100;
     }
 }
 
@@ -4145,7 +4146,7 @@ TbBool process_creature_hunger(struct Thing *thing)
 {
     struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
     struct CreatureStats *crstat = creature_stats_get_from_thing(thing);
-    if ((crstat->hunger_rate == 0) || creature_affected_by_spell(thing, CSAfF_Freeze) || is_neutral_thing(thing))
+    if ((crstat->hunger_rate == 0) || flag_is_set(cctrl->stateblock_flags, CCSpl_Freeze) || is_neutral_thing(thing))
     {
         return false;
     }
@@ -4612,20 +4613,29 @@ short state_cleanup_unconscious(struct Thing *creatng)
 
 long process_work_speed_on_work_value(const struct Thing *thing, long base_val)
 {
+    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
     long val = base_val;
-    if (creature_affected_by_spell(thing, CSAfF_Speed))
+    if (flag_is_set(cctrl->spell_flags, CSAfF_Speed))
+    {
         val = 2 * val;
+    }
     if (creature_affected_by_slap(thing))
+    {
         val = 4 * val / 3;
+    }
     if (!is_neutral_thing(thing))
     {
-        struct Dungeon* dungeon = get_dungeon(thing->owner);
+        struct Dungeon *dungeon = get_dungeon(thing->owner);
         if (dungeon->tortured_creatures[thing->model] > 0)
+        {
             val = 4 * val / 3;
+        }
         if (player_uses_power_obey(thing->owner))
+        {
             val = 6 * val / 5;
+        }
     }
-    SYNCDBG(19,"Work value %d changed to %d for %s index %d",(int)base_val, (int)val, thing_model_name(thing), (int)thing->index);
+    SYNCDBG(19, "Work value %d changed to %d for %s index %d", (int)base_val, (int)val, thing_model_name(thing), (int)thing->index);
     return val;
 }
 

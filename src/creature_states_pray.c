@@ -386,12 +386,13 @@ void apply_spell_effect_to_players_creatures(PlayerNumber plyr_idx, ThingModel c
 
 TbBool kill_creature_if_under_chicken_spell(struct Thing *thing)
 {
-    if (creature_affected_by_spell(thing, CSAfF_Chicken) && !thing_is_picked_up(thing))
+    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
+    if (flag_is_set(cctrl->spell_flags, CSAfF_Chicken) && !thing_is_picked_up(thing))
     {
         thing->health = -1;
         return true;
     }
-    SYNCDBG(19,"Skipped %s index %d",thing_model_name(thing),(int)thing->index);
+    SYNCDBG(19, "Skipped %s index %d", thing_model_name(thing), (int)thing->index);
     return false;
 }
 

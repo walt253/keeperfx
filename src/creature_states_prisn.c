@@ -204,7 +204,7 @@ struct Thing *find_prisoner_for_thing(struct Thing *creatng)
         {
             // If the victim is frozen, select one which will unfreeze sooner.
             long durt = 0; // Initialize durt with a safe value.
-            const struct SpellConfig *spconf;
+            struct SpellConfig *spconf;
             for (int i = 0; i < CREATURE_MAX_SPELLS_CASTED_AT; i++)
             {
                 spconf = get_spell_config(cctrl->casted_spells[i].spkind);

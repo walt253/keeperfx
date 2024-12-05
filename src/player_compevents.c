@@ -778,35 +778,39 @@ long computer_event_save_tortured(struct Computer2* comp, struct ComputerEvent* 
 
 long computer_event_check_imps_in_danger(struct Computer2 *comp, struct ComputerEvent *cevent)
 {
-    struct Dungeon* dungeon = comp->dungeon;
-    if (dungeon->fights_num <= 0) {
+    struct Dungeon *dungeon = comp->dungeon;
+    if (dungeon->fights_num <= 0)
+    {
         return 4;
     }
-    // If we don't have the power to pick up creatures, fail now
-    if (!computer_able_to_use_power(comp, PwrK_HAND, 1, 1)) {
+    // If we don't have the power to pick up creatures, fail now.
+    if (!computer_able_to_use_power(comp, PwrK_HAND, 1, 1))
+    {
         return 4;
     }
     long result = 4;
-    // Search through special diggers
+    // Search through special diggers.
     unsigned long k = 0;
     int i = dungeon->digger_list_start;
     while (i != 0)
     {
-        struct Thing* creatng = thing_get(i);
-        struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+        struct Thing *creatng = thing_get(i);
+        struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
         if (thing_is_invalid(creatng) || creature_control_invalid(cctrl))
         {
             ERRORLOG("Jump to invalid creature detected");
             break;
         }
         i = cctrl->players_next_creature_idx;
-        // Thing list loop body
-        if ((cctrl->combat_flags & (CmbtF_Melee|CmbtF_Ranged)) != 0)
+        // Thing list loop body.
+        if ((cctrl->combat_flags & (CmbtF_Melee | CmbtF_Ranged)) != 0)
         {
-            if (!creature_is_being_unconscious(creatng) && !creature_affected_by_spell(creatng, SplK_Chicken))
+            if (!creature_is_being_unconscious(creatng) && !flag_is_set(cctrl->spell_flags, CSAfF_Chicken))
             {
                 // Small chance to casting invisibility,on imp in battle.
-                if((CREATURE_RANDOM(creatng, 150) == 1) && computer_able_to_use_power(comp, PwrK_CONCEAL, 8, 1) && !thing_affected_by_spell(creatng, PwrK_CONCEAL))
+                if ((CREATURE_RANDOM(creatng, 150) == 1)
+                && computer_able_to_use_power(comp, PwrK_CONCEAL, 8, 1)
+                && !flag_is_set(cctrl->spell_flags, CSAfF_Invisibility))
                 {
                     magic_use_available_power_on_thing(creatng->owner, PwrK_CONCEAL, 8, 0, 0, creatng, PwMod_Default);
                 }
@@ -816,18 +820,20 @@ long computer_event_check_imps_in_danger(struct Computer2 *comp, struct Computer
                     if (get_creature_health_permil(creatng) < 500)
                     {
                         needs_help = 1;
-                    } else
+                    }
+                    else
                     {
                         needs_help = creature_is_being_attacked_by_enemy_creature_not_digger(creatng);
                     }
                     if (needs_help)
                     {
-                        // Move creature to heart, unless it already is near the heart
-                        struct Thing* heartng = get_player_soul_container(dungeon->owner);
-                        if (get_2d_distance(&creatng->mappos, &heartng->mappos) > subtile_coord(16,0))
+                        // Move creature to heart, unless it already is near the heart.
+                        struct Thing *heartng = get_player_soul_container(dungeon->owner);
+                        if (get_2d_distance(&creatng->mappos, &heartng->mappos) > subtile_coord(16, 0))
                         {
                             if (!create_task_move_creature_to_subtile(comp, creatng,
-                                heartng->mappos.x.stl.num, heartng->mappos.y.stl.num, CrSt_ImpDoingNothing)) {
+                                heartng->mappos.x.stl.num, heartng->mappos.y.stl.num, CrSt_ImpDoingNothing))
+                            {
                                 break;
                             }
                             result = 1;
@@ -836,7 +842,7 @@ long computer_event_check_imps_in_danger(struct Computer2 *comp, struct Computer
                 }
             }
         }
-        // Thing list loop body ends
+        // Thing list loop body ends.
         k++;
         if (k > CREATURES_COUNT)
         {

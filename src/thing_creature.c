@@ -227,18 +227,20 @@ TbBool control_creature_as_controller(struct PlayerInfo *player, struct Thing *t
 {
     struct CreatureStats *crstat;
     struct Camera *cam;
-    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
     if (((thing->owner != player->id_number) && (player->work_state != PSt_FreeCtrlDirect))
-      || !thing_can_be_controlled_as_controller(thing))
+    || !thing_can_be_controlled_as_controller(thing))
     {
-      if (!control_creature_as_passenger(player, thing))
-        return false;
-      cam = player->acamera;
-      crstat = creature_stats_get(get_players_special_digger_model(player->id_number));
-      cam->mappos.z.val += get_creature_eye_height(thing);
-      return true;
+        if (!control_creature_as_passenger(player, thing))
+        {
+            return false;
+        }
+        cam = player->acamera;
+        crstat = creature_stats_get(get_players_special_digger_model(player->id_number));
+        cam->mappos.z.val += get_creature_eye_height(thing);
+        return true;
     }
-    TbBool chicken = (creature_affected_by_spell(thing, CSAfF_Chicken));
+    TbBool chicken = (flag_is_set(cctrl->spell_flags, CSAfF_Chicken));
     if (!chicken)
     {
         cctrl->moveto_pos.x.val = 0;
@@ -247,13 +249,15 @@ TbBool control_creature_as_controller(struct PlayerInfo *player, struct Thing *t
     }
     if (is_my_player(player))
     {
-      toggle_status_menu(0);
-      turn_off_roaming_menus();
+        toggle_status_menu(0);
+        turn_off_roaming_menus();
     }
     set_selected_creature(player, thing);
     cam = player->acamera;
     if (cam != NULL)
-      player->view_mode_restore = cam->view_mode;
+    {
+        player->view_mode_restore = cam->view_mode;
+    }
     thing->alloc_flags |= TAlF_IsControlled;
     thing->rendering_flags |= TRF_Invisible;
     if (!chicken)
@@ -269,12 +273,13 @@ TbBool control_creature_as_controller(struct PlayerInfo *player, struct Thing *t
     {
         cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
         check_for_first_person_barrack_party(thing);
-        if (creature_is_group_member(thing)) {
+        if (creature_is_group_member(thing))
+        {
             make_group_member_leader(thing);
         }
     }
     crstat = creature_stats_get(thing->model);
-    if ( (!crstat->illuminated) && (!creature_affected_by_spell(thing, CSAfF_Light)) )
+    if ((!crstat->illuminated) && (!flag_is_set(cctrl->spell_flags, CSAfF_Light)))
     {
         create_light_for_possession(thing);
     }
@@ -290,13 +295,12 @@ TbBool control_creature_as_passenger(struct PlayerInfo *player, struct Thing *th
 {
     if ((thing->owner != player->id_number) && (player->work_state != PSt_FreeCtrlPassngr))
     {
-        ERRORLOG("Player %d cannot control as passenger thing owned by player %d",(int)player->id_number,(int)thing->owner);
+        ERRORLOG("Player %d cannot control as passenger thing owned by player %d", (int)player->id_number, (int)thing->owner);
         return false;
     }
     if (!thing_can_be_controlled_as_passenger(thing))
     {
-        ERRORLOG("The %s can't be controlled as passenger",
-            thing_model_name(thing));
+        ERRORLOG("The %s can't be controlled as passenger", thing_model_name(thing));
         return false;
     }
     if (is_my_player(player))
@@ -305,9 +309,11 @@ TbBool control_creature_as_passenger(struct PlayerInfo *player, struct Thing *th
         turn_off_roaming_menus();
     }
     set_selected_thing(player, thing);
-    struct Camera* cam = player->acamera;
+    struct Camera *cam = player->acamera;
     if (cam != NULL)
-      player->view_mode_restore = cam->view_mode;
+    {
+        player->view_mode_restore = cam->view_mode;
+    }
     set_player_mode(player, PVT_CreaturePasngr);
     thing->rendering_flags |= TRF_Invisible;
     return true;
@@ -439,25 +445,30 @@ void draw_swipe_graphic(void)
 long creature_available_for_combat_this_turn(struct Thing *creatng)
 {
     TRACE_THING(creatng);
-    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    // Check once per 8 turns
+    struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
+    // Check once per 8 turns.
     if (((game.play_gameturn + creatng->index) & 7) != 0)
     {
-        // On first turn in a state, check anyway
-        if (game.play_gameturn - cctrl->tasks_check_turn > 1) {
+        // On first turn in a state, check anyway.
+        if (game.play_gameturn - cctrl->tasks_check_turn > 1)
+        {
             return false;
         }
     }
-    if (creature_is_fleeing_combat(creatng) || creature_affected_by_spell(creatng, SplK_Chicken)) {
+    if (creature_is_fleeing_combat(creatng) || flag_is_set(cctrl->spell_flags, CSAfF_Chicken))
+    {
         return false;
     }
-    if (creature_is_being_unconscious(creatng) || creature_is_dying(creatng)) {
+    if (creature_is_being_unconscious(creatng) || creature_is_dying(creatng))
+    {
         return false;
     }
-    if (thing_is_picked_up(creatng) || creature_is_being_dropped(creatng)) {
+    if (thing_is_picked_up(creatng) || creature_is_being_dropped(creatng))
+    {
         return false;
     }
-    if ((creatng->owner == game.neutral_player_num) || ((cctrl->flgfield_1 & CCFlg_NoCompControl) != 0)) {
+    if ((creatng->owner == game.neutral_player_num) || ((cctrl->flgfield_1 & CCFlg_NoCompControl) != 0))
+    {
         return false;
     }
     CrtrStateId i = get_creature_state_besides_interruptions(creatng);
@@ -702,12 +713,11 @@ GameTurnDelta get_spell_duration_left_on_thing_f(const struct Thing *thing, Spel
     return 0;
 }
 
-/**
+/*
  * Returns if given spell is within list of spells affected by a thing.
  * @param thing The thing which can have spells casted on.
  * @param spkind The spell kind to be checked.
- * @see get_spell_duration_left_on_thing() to get remaining time of the affection
- * @see creature_affected_by_spell() to get more reliable info for creatures
+ * @see get_spell_duration_left_on_thing() to get remaining time of the affection.
  */
 TbBool thing_affected_by_spell(const struct Thing *thing, SpellKind spkind)
 {
@@ -815,7 +825,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
         spell_lev = SPELL_MAX_LEVEL;
     }
     // This pointer may be invalid if spell_idx is incorrect. But we're using it only when correct.
-    const struct SpellConfig *spconf = get_spell_config(spell_idx);
+    struct SpellConfig *spconf = get_spell_config(spell_idx);
     const struct MagicStats *pwrdynst = get_power_dynamic_stats(spconf->linked_power);
     GameTurn duration;
     // If not linked to a keeper power, use the duration set on the spell, otherwise use the strength or duration of the linked power.
@@ -975,7 +985,7 @@ void reapply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, lon
     }
     struct CastedSpellData *cspell = &cctrl->casted_spells[idx];
     // This pointer may be invalid if spell_idx is incorrect. But we're using it only when correct.
-    const struct SpellConfig *spconf = get_spell_config(spell_idx);
+    struct SpellConfig *spconf = get_spell_config(spell_idx);
     const struct MagicStats *pwrdynst = get_power_dynamic_stats(spconf->linked_power);
     GameTurn duration;
     // If not linked to a keeper power, use the duration set on the spell, otherwise use the strength or duration of the linked power.
@@ -1060,7 +1070,7 @@ void terminate_thing_spell_effect(struct Thing *thing, SpellKind spell_idx)
     TRACE_THING(thing);
     struct CreatureStats *crstat = creature_stats_get(thing->model);
     struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
-    const struct SpellConfig *spconf = get_spell_config(spell_idx);
+    struct SpellConfig *spconf = get_spell_config(spell_idx);
     clear_flag(cctrl->spell_flags, spconf->spell_flags);
     if ((flag_is_set(spconf->spell_flags, CSAfF_Slow)) || (flag_is_set(spconf->spell_flags, CSAfF_Speed)))
     {
@@ -1154,7 +1164,7 @@ void terminate_thing_spell_effect(struct Thing *thing, SpellKind spell_idx)
 void process_thing_spell_teleport_effects(struct Thing *thing, struct CastedSpellData *cspell)
 {
     struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
-    const struct SpellConfig *spconf = get_spell_config(cspell->spkind);
+    struct SpellConfig *spconf = get_spell_config(cspell->spkind);
     struct Room *room = NULL;
     const struct Thing *desttng = NULL;
     long distance = LONG_MAX;
@@ -1374,7 +1384,7 @@ void process_thing_spell_effects(struct Thing *thing)
     for (int i = 0; i < CREATURE_MAX_SPELLS_CASTED_AT; i++)
     {
         struct CastedSpellData *cspell = &cctrl->casted_spells[i];
-        const struct SpellConfig *spconf = get_spell_config(cspell->spkind);
+        struct SpellConfig *spconf = get_spell_config(cspell->spkind);
         if (cspell->spkind == SplK_None)
         {
             continue;
@@ -1478,7 +1488,7 @@ void creature_cast_spell_at_thing(struct Thing *castng, struct Thing *targetng, 
         else
             hit_type = THit_CrtrsOnlyNotOwn;
     }
-    const struct SpellConfig* spconf = get_spell_config(spl_idx);
+    struct SpellConfig* spconf = get_spell_config(spl_idx);
     if (spell_config_is_invalid(spconf))
     {
         ERRORLOG("The %s owned by player %d tried to cast invalid spell %d",thing_model_name(castng),(int)castng->owner,(int)spl_idx);
@@ -1620,7 +1630,7 @@ void level_up_familiar(struct Thing *famlrtng)
     struct CreatureControl *summonercctrl = creature_control_get_from_thing(summonertng);
     short summonerxp = summonercctrl->explevel;
     // Get spell the summoner used to make this familiar.
-    const struct SpellConfig *spconf = get_spell_config(famlrcctrl->summon_spl_idx);
+    struct SpellConfig *spconf = get_spell_config(famlrcctrl->summon_spl_idx);
     char level = spconf->crtr_summon_level;
     // Calculate correct level for familiar.
     short sumxp = level - 1;
@@ -1689,7 +1699,7 @@ void remove_creature_from_summon_list(struct Dungeon *dungeon, ThingIndex famlrt
 void creature_cast_spell(struct Thing *castng, SpellKind spl_idx, long shot_lvl, MapSubtlCoord trg_x, MapSubtlCoord trg_y)
 {
     long i;
-    const struct SpellConfig *spconf = get_spell_config(spl_idx);
+    struct SpellConfig *spconf = get_spell_config(spl_idx);
     struct CreatureControl *cctrl = creature_control_get_from_thing(castng);
     if (creature_control_invalid(cctrl))
     {
@@ -1896,30 +1906,31 @@ TbBool creature_pick_up_interesting_object_laying_nearby(struct Thing *creatng)
 
 void creature_look_for_hidden_doors(struct Thing *creatng)
 {
-    const struct StructureList* slist = get_list_for_thing_class(TCls_Door);
+    struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
+    const struct StructureList *slist = get_list_for_thing_class(TCls_Door);
     long i = slist->index;
     while (i > 0)
     {
-        struct Thing* doortng = thing_get(i);
+        struct Thing *doortng = thing_get(i);
         if (thing_is_invalid(doortng))
-          break;
-
-        if (door_is_hidden_to_player(doortng,creatng->owner))
+        {
+            break;
+        }
+        if (door_is_hidden_to_player(doortng, creatng->owner))
         {
             MapSubtlCoord z = doortng->mappos.z.stl.num;
             doortng->mappos.z.stl.num = 2;
-            if(creature_affected_by_spell(creatng,SplK_Sight))
+            // TODO: We could add a creature property 'DETECT_MECHANISM' allowing them to see secret door but not invisible creatures.
+            if (flag_is_set(cctrl->spell_flags, CSAfF_Sight))
             {
-                if(creature_can_see_thing_ignoring_specific_door(creatng,doortng,doortng))
+                if (creature_can_see_thing_ignoring_specific_door(creatng, doortng, doortng))
                 {
-                    reveal_secret_door_to_player(doortng,creatng->owner);
+                    reveal_secret_door_to_player(doortng, creatng->owner);
                 }
             }
-            else
-            // when closed the door itself blocks sight to the doortng so this checks if open, and in sight
-            if(creature_can_see_thing(creatng,doortng))
-            {
-                reveal_secret_door_to_player(doortng,creatng->owner);
+            else if (creature_can_see_thing(creatng, doortng))
+            { // When closed the door itself blocks sight to the doortng so this checks if open, and in sight.
+                reveal_secret_door_to_player(doortng, creatng->owner);
             }
             doortng->mappos.z.stl.num = z;
         }
@@ -2333,7 +2344,7 @@ void creature_rebirth_at_lair(struct Thing *thing)
         set_creature_level(thing, cctrl->explevel - 1);
     }
     thing->health = cctrl->max_health;
-    if (creature_affected_by_spell(thing, CSAfF_Timebomb))
+    if (flag_is_set(cctrl->spell_flags, CSAfF_Timebomb))
     {
         clear_flag(cctrl->spell_flags, CSAfF_Timebomb);
         thing->veloc_push_add.x.val = 0;
@@ -2715,7 +2726,7 @@ void delete_effects_attached_to_creature(struct Thing *creatng)
     {
         return;
     }
-    if (creature_affected_by_spell(creatng, SplK_Armour))
+    if (flag_is_set(cctrl->spell_flags, CSAfF_Armour))
     {
         clear_flag(cctrl->spell_flags, CSAfF_Armour);
         for (int i = 0; i < 3; i++)
@@ -2729,7 +2740,7 @@ void delete_effects_attached_to_creature(struct Thing *creatng)
             }
         }
     }
-    if (creature_affected_by_spell(creatng, SplK_Disease))
+    if (flag_is_set(cctrl->spell_flags, CSAfF_Disease))
     {
         clear_flag(cctrl->spell_flags, CSAfF_Disease);
         for (int j = 0; j < 3; j++)
@@ -2767,7 +2778,7 @@ void delete_familiars_attached_to_creature(struct Thing* sumntng)
 void clean_spell_flags(struct Thing *creatng, unsigned long spell_flags)
 {
     struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
-    const struct SpellConfig *spconf;
+    struct SpellConfig *spconf;
     for (int i = 0; i < CREATURE_MAX_SPELLS_CASTED_AT; i++)
     {
         spconf = get_spell_config(cctrl->casted_spells[i].spkind)

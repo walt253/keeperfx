@@ -285,7 +285,7 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
     if (flag_is_set(cctrl->stateblock_flags, CCSpl_Teleport))
     {
         dturn = get_spell_duration_left_on_thing(thing, SplK_Teleport);
-        const struct SpellConfig *spconf = get_spell_config(SplK_Teleport);
+        struct SpellConfig *spconf = get_spell_config(SplK_Teleport);
         if (spconf->duration / 2 < dturn)
         {
             effeltng = create_effect_element(&thing->mappos, TngEffElm_FlashBall2, thing->owner);

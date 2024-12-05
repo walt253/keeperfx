@@ -2303,16 +2303,17 @@ long task_dig_to_attack(struct Computer2 *comp, struct ComputerTask *ctask)
 
 long count_creatures_at_call_to_arms(struct Computer2 *comp)
 {
-    struct Thing* i;
+    struct Thing *i;
     int num_creatures = 0;
     int k = 0;
-
     for (i = thing_get(comp->dungeon->creatr_list_start);
-         !thing_is_invalid(i);
-         i = thing_get(creature_control_get_from_thing(i)->players_next_creature_idx))
+	!thing_is_invalid(i);
+	i = thing_get(creature_control_get_from_thing(i)->players_next_creature_idx))
     {
         if (get_creature_state_besides_move(i) == CrSt_AlreadyAtCallToArms)
+        {
             num_creatures++;
+        }
         k++;
         if (k > CREATURES_COUNT)
         {
@@ -2330,39 +2331,49 @@ static struct Thing *find_creature_for_call_to_arms(struct Computer2 *comp, TbBo
     char state;
     thing = INVALID_THING;
     highest_score = INT_MAX;
-
-    for (struct Thing *i = thing_get(comp->dungeon->creatr_list_start); 
-        !thing_is_invalid(i); 
-        i = thing_get(creature_control_get_from_thing(i)->players_next_creature_idx))
+    for (struct Thing *i = thing_get(comp->dungeon->creatr_list_start);
+	!thing_is_invalid(i);
+	i = thing_get(creature_control_get_from_thing(i)->players_next_creature_idx))
     {
         struct CreatureControl *cctrl = creature_control_get_from_thing(i);
-
-        if ( flag_is_set(i->alloc_flags, TAlF_IsInLimbo) )
+        if (flag_is_set(i->alloc_flags, TAlF_IsInLimbo))
+        {
             continue;
-        if (flag_is_set(i->state_flags, TF1_InCtrldLimbo) )
+        }
+        if (flag_is_set(i->state_flags, TF1_InCtrldLimbo))
+        {
             continue;
-        if ( i->active_state == CrSt_CreatureUnconscious )
+        }
+        if (i->active_state == CrSt_CreatureUnconscious)
+        {
             continue;
-
-        if ( i->active_state == CrSt_MoveToPosition )
+        }
+        if (i->active_state == CrSt_MoveToPosition)
+        {
             state = i->continue_state;
+        }
         else
+        {
             state = i->active_state;
+        }
         struct StateInfo *stati = get_thing_state_info_num(state);
-
         if (flag_is_set(cctrl->spell_flags, CSAfF_CalledToArms))
         {
-            if ( !stati->react_to_cta )
+            if (!stati->react_to_cta)
+            {
                 continue;
+            }
         }
-
-        if ( !stati->react_to_cta || !can_change_from_state_to(i, i->active_state, CrSt_ArriveAtCallToArms) )
-            continue;
-
-        if ( prefer_high_scoring )
+        if (!stati->react_to_cta || !can_change_from_state_to(i, i->active_state, CrSt_ArriveAtCallToArms))
         {
-            if ( game.creature_scores[i->model].value[cctrl->explevel] < highest_score && !thing_is_invalid(thing) )
+            continue;
+        }
+        if (prefer_high_scoring)
+        {
+            if (game.creature_scores[i->model].value[cctrl->explevel] < highest_score && !thing_is_invalid(thing))
+            {
                 continue;
+            }
             highest_score = game.creature_scores[i->model].value[cctrl->explevel];
         }
         thing = i;

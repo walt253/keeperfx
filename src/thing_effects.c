@@ -190,7 +190,8 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
     MapCoordDelta shift_y;
     struct Coord3d pos;
     struct Thing *effeltng;
-    if ((cctrl->spell_flags & CSAfF_Rebound) != 0)
+    // Effect elements related to Rebound.
+    if (flag_is_set(cctrl->spell_flags, CSAfF_Rebound))
     {
         int diamtr = 4 * thing->clipbox_size_xy / 2;
         dturn = game.play_gameturn - thing->creation_turn;
@@ -219,11 +220,12 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
             cframe = (cframe + 1) % nframes;
         }
     }
-    if ((cctrl->spell_flags & CSAfF_Slow) != 0)
+    // Effect elements related to Slow.
+    if (flag_is_set(cctrl->spell_flags, CSAfF_Slow))
     {
         int diamtr = 4 * thing->clipbox_size_xy / 2;
         MapCoord cor_z_max = thing->clipbox_size_z + (thing->clipbox_size_z * game.conf.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 80; // Effect is 20% smaller than unit.
-        int i = cor_z_max / 64; // 64 is the vertical speed of the circle.
+        int i = cor_z_max / 64;                                                                                                                        // 64 is the vertical speed of the circle.
         if (i <= 1)
         {
             i = 1;
@@ -249,11 +251,13 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
             effeltng = create_thing(&pos, TCls_EffectElem, TngEffElm_RedFlash, thing->owner, -1);
         }
     }
-    if ((cctrl->spell_flags & CSAfF_Flying) != 0)
+    // Effect elements related to Fly.
+    if (flag_is_set(cctrl->spell_flags, CSAfF_Flying))
     {
         effeltng = create_thing(&thing->mappos, TCls_EffectElem, TngEffElm_CloudDisperse, thing->owner, -1);
     }
-    if ((cctrl->spell_flags & CSAfF_Speed) != 0)
+    // Effect elements related to Speed.
+    if (flag_is_set(cctrl->spell_flags, CSAfF_Speed))
     {
         effeltng = create_effect_element(&thing->mappos, TngEffElm_FlashBall2, thing->owner);
         if (!thing_is_invalid(effeltng))
@@ -277,7 +281,8 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
             effeltng->move_angle_xy = thing->move_angle_xy;
         }
     }
-    if ((cctrl->stateblock_flags & CCSpl_Teleport) != 0)
+    // Effect elements related to Teleport.
+    if (flag_is_set(cctrl->stateblock_flags, CCSpl_Teleport))
     {
         dturn = get_spell_duration_left_on_thing(thing, SplK_Teleport);
         const struct SpellConfig *spconf = get_spell_config(SplK_Teleport);
@@ -317,7 +322,8 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
             creature_turn_to_face_angle(thing, thing->move_angle_xy + crstat->max_turning_speed);
         }
     }
-    if ((cctrl->spell_flags & CSAfF_MagicFall) != 0)
+    // Effect elements related to Magic Fall.
+    if (flag_is_set(cctrl->spell_flags, CSAfF_MagicFall))
     {
         dturn = game.play_gameturn - thing->creation_turn;
         if ((dturn & 1) == 0)
@@ -1389,60 +1395,68 @@ long explosion_affecting_area(struct Thing *tngsrc, const struct Coord3d *pos, M
 }
 
 TbBool poison_cloud_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, const struct Coord3d *pos,
-    MapCoordDelta max_dist, HitPoints max_damage, long blow_strength, unsigned char area_affect_type, DamageType damage_type, PlayerNumber owner)
+MapCoordDelta max_dist, HitPoints max_damage, long blow_strength, unsigned char area_affect_type, DamageType damage_type, PlayerNumber owner)
 {
     TbBool affected = false;
-    SYNCDBG(17,"Starting for %s, max damage %d, max blow %d, owner %d",thing_model_name(tngdst),(int)max_damage,(int)blow_strength,(int)owner);
+    SYNCDBG(17, "Starting for %s, max damage %d, max blow %d, owner %d", thing_model_name(tngdst), (int)max_damage, (int)blow_strength, (int)owner);
     if (thing_is_creature(tngdst))
     {
-        const struct CreatureStats* crstat = creature_stats_get_from_thing(tngdst);
-        if (crstat->immune_to_gas) {
+        const struct CreatureStats *crstat = creature_stats_get_from_thing(tngdst);
+        if (crstat->immune_to_gas)
+        {
             return affected;
         }
-    } else {
+    }
+    else
+    {
         return affected;
     }
     if (line_of_sight_3d(pos, &tngdst->mappos))
     {
-        // Note that gas has no distinction over friendly and enemy fire
+        // Note that gas has no distinction over friendly and enemy fire.
         MapCoordDelta distance = get_2d_distance(pos, &tngdst->mappos);
         if (distance < max_dist)
         {
-            struct CreatureControl* cctrl = creature_control_get_from_thing(tngdst);
+            struct CreatureControl *cctrl = creature_control_get_from_thing(tngdst);
             set_flag(cctrl->spell_flags, CSAfF_PoisonCloud);
             switch (area_affect_type)
             {
             case AAffT_GasDamage:
-                if (max_damage > 0) {
+                if (max_damage > 0)
+                {
                     HitPoints damage;
-                    damage = get_radially_decaying_value(max_damage,max_dist/4, 3*max_dist/4,distance)+1;
-                    SYNCDBG(7,"Causing %d damage to %s at distance %d",(int)damage,thing_model_name(tngdst),(int)distance);
+                    damage = get_radially_decaying_value(max_damage, max_dist / 4, 3 * max_dist / 4, distance) + 1;
+                    SYNCDBG(7, "Causing %d damage to %s at distance %d", (int)damage, thing_model_name(tngdst), (int)distance);
                     apply_damage_to_thing_and_display_health(tngdst, damage, damage_type, tngsrc->owner);
                 }
                 break;
             case AAffT_GasSlow:
-                if (!creature_affected_by_spell(tngdst,SplK_Slow)) {
+                if (!creature_affected_by_spell(tngdst, SplK_Slow))
+                {
                     struct CreatureControl *srcctrl;
                     srcctrl = creature_control_get_from_thing(tngsrc);
                     apply_spell_effect_to_thing(tngdst, SplK_Slow, srcctrl->explevel);
                 }
                 break;
             case AAffT_GasSlowDamage:
-                if (max_damage > 0) {
+                if (max_damage > 0)
+                {
                     HitPoints damage;
                     damage = get_radially_decaying_value(max_damage, 3 * max_dist / 4, max_dist / 4, distance) + 1;
                     SYNCDBG(7, "Causing %d damage to %s at distance %d", (int)damage, thing_model_name(tngdst), (int)distance);
                     apply_damage_to_thing_and_display_health(tngdst, damage, damage_type, tngsrc->owner);
                 }
-                if (!creature_affected_by_spell(tngdst, SplK_Slow)) {
-                    struct CreatureControl* srcctrl;
+                if (!creature_affected_by_spell(tngdst, SplK_Slow))
+                {
+                    struct CreatureControl *srcctrl;
                     srcctrl = creature_control_get_from_thing(tngsrc);
                     apply_spell_effect_to_thing(tngdst, SplK_Slow, srcctrl->explevel);
                 }
                 break;
             case AAffT_GasDisease:
-                if (!creature_affected_by_spell(tngdst, SplK_Disease)) {
-                    struct CreatureControl* srcctrl;
+                if (!creature_affected_by_spell(tngdst, SplK_Disease))
+                {
+                    struct CreatureControl *srcctrl;
                     srcctrl = creature_control_get_from_thing(tngsrc);
                     apply_spell_effect_to_thing(tngdst, SplK_Disease, srcctrl->explevel);
                 }

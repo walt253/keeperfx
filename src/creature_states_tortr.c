@@ -220,15 +220,15 @@ long process_torture_visuals(struct Thing *creatng, struct Room *room, CreatureJ
             set_creature_instance(creatng, CrInst_TORTURED, 0, 0);
         }
         if (thing_exists(sectng))
-        {
-            sectng->rendering_flags |= TRF_Invisible;
+        { // Could it be the cause of the torture device disappearing for no reason?
+            set_flag(sectng->rendering_flags, TRF_Invisible);
         }
         else
         {
             ERRORLOG("No device for torture");
         }
         dturn = game.play_gameturn - cctrl->tortured.gameturn_A2x;
-        if ((dturn > 32) || ((cctrl->spell_flags & CSAfF_Speed) && (dturn > 16)))
+        if ((dturn > 32) || ((flag_is_set(cctrl->spell_flags, CSAfF_Speed)) && (dturn > 16)))
         {
             play_creature_sound(creatng, CrSnd_Torture, 2, 0);
             cctrl->tortured.gameturn_A2x = game.play_gameturn;

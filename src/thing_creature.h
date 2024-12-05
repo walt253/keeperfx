@@ -148,10 +148,9 @@ TbBool creature_has_lair_room(const struct Thing *creatng);
 struct Room *get_creature_lair_room(const struct Thing *creatng);
 TbBool remove_creature_lair(struct Thing *thing);
 
-TbBool creature_affected_by_spell(const struct Thing *thing, unsigned long spell_flags);
 TbBool creature_affected_by_slap(const struct Thing *thing);
 void apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, long spell_lev);
-void terminate_thing_spell_effect(struct Thing *thing, unsigned long spell_flags);
+void terminate_thing_spell_effect(struct Thing *thing, SpellKind spell_idx);
 void process_thing_spell_effects(struct Thing *thing);
 void process_thing_spell_effects_while_blocked(struct Thing *thing);
 void delete_effects_attached_to_creature(struct Thing *creatng);
@@ -187,7 +186,7 @@ void create_light_for_possession(struct Thing *creatng);
 void illuminate_creature(struct Thing *creatng);
 
 long get_spell_slot(const struct Thing *thing, SpellKind spkind);
-TbBool free_spell_slot(struct Thing *thing, long slot_idx);
+TbBool free_spell_slot(struct Thing *thing, int slot_idx);
 
 void controlled_creature_pick_thing_up(struct Thing *creatng, struct Thing *picktng, PlayerNumber plyr_idx);
 void controlled_creature_drop_thing(struct Thing *creatng, struct Thing *droptng, PlayerNumber plyr_idx);

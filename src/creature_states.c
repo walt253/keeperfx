@@ -763,8 +763,7 @@ TbBool creature_is_fleeing_combat(const struct Thing *thing)
     return false;
 }
 
-/*
- * Returns if creature is in general in CTA following state.
+/* Returns if creature is in general in CTA following state.
  * Following CTA may be interrupted by fights and other events.
  * If true, the creature should get back to following CTA when other activity (like battle) is finished.
  * @param thing
@@ -772,44 +771,44 @@ TbBool creature_is_fleeing_combat(const struct Thing *thing)
  */
 TbBool creature_affected_by_call_to_arms(const struct Thing *thing)
 {
-	struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
-	return ((cctrl->spell_flags & CSAfF_CalledToArms) != 0);
+    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
+    return (flag_is_set(cctrl->spell_flags, CSAfF_CalledToArms));
 }
 
-/*
- * Returns if creature is currently directly in CTA following state.
+/* Returns if creature is currently directly in CTA following state.
  * @param thing
  * @return
  */
 TbBool creature_is_called_to_arms(const struct Thing *thing)
 {
-	CrtrStateId i = get_creature_state_besides_interruptions(thing);
-	if ((i == CrSt_AlreadyAtCallToArms) || (i == CrSt_ArriveAtCallToArms))
-	{
-		return true;
-	}
-	return false;
+    CrtrStateId i = get_creature_state_besides_interruptions(thing);
+    if ((i == CrSt_AlreadyAtCallToArms) || (i == CrSt_ArriveAtCallToArms))
+    {
+        return true;
+    }
+    return false;
 }
 
 TbBool creature_is_taking_salary_activity(const struct Thing *thing)
 {
-	CrtrStateId crstate = get_creature_state_besides_move(thing);
-	if ((crstate == CrSt_CreatureWantsSalary) || (crstate == CrSt_CreatureTakeSalary))
-	{
-		return true;
-	}
-	return false;
+    CrtrStateId crstate = get_creature_state_besides_move(thing);
+    if ((crstate == CrSt_CreatureWantsSalary) || (crstate == CrSt_CreatureTakeSalary))
+    {
+        return true;
+    }
+    return false;
 }
 
 TbBool creature_is_arming_trap(const struct Thing *thing)
 {
     CrtrStateId crstate = get_creature_state_besides_move(thing);
     if (crstate == CrSt_CreaturePicksUpTrapObject)
-	{
+    {
         return true;
     }
     crstate = get_creature_state_besides_drag(thing);
-    if (crstate == CrSt_CreatureArmsTrap) {
+    if (crstate == CrSt_CreatureArmsTrap)
+    {
         return true;
     }
     return false;
@@ -1770,13 +1769,15 @@ short creature_try_going_to_healing_sleep(struct Thing *creatng)
 short creature_doing_nothing(struct Thing *creatng)
 {
     TRACE_THING(creatng);
-    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    // Wait for up to 2 turns (note that this is unsigned substraction)
-    if (game.play_gameturn - cctrl->idle.start_gameturn <= 1) {
+    struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
+    // Wait for up to 2 turns (note that this is unsigned substraction).
+    if (game.play_gameturn - cctrl->idle.start_gameturn <= 1)
+    {
         return 1;
     }
-    if ((cctrl->spell_flags & CSAfF_MadKilling) != 0) {
-        SYNCDBG(8,"The %s index %d goes mad killing",thing_model_name(creatng),creatng->index);
+    if (flag_is_set(cctrl->spell_flags, CSAfF_MadKilling))
+    {
+        SYNCDBG(8, "The %s index %d goes mad killing", thing_model_name(creatng), creatng->index);
         internal_set_thing_state(creatng, CrSt_MadKillingPsycho);
         return 1;
     }
@@ -1786,11 +1787,11 @@ short creature_doing_nothing(struct Thing *creatng)
         {
             int required_cap = get_required_room_capacity_for_object(RoRoF_LairStorage, 0, creatng->model);
             cctrl->tasks_check_turn = game.play_gameturn;
-            struct Room* room = find_nearest_room_of_role_for_thing_with_spare_capacity(creatng, creatng->owner, get_room_role_for_job(Job_TAKE_SLEEP), NavRtF_Default, required_cap);
+            struct Room *room = find_nearest_room_of_role_for_thing_with_spare_capacity(creatng, creatng->owner, get_room_role_for_job(Job_TAKE_SLEEP), NavRtF_Default, required_cap);
             if (!room_is_invalid(room))
             {
                 internal_set_thing_state(creatng, CrSt_CreatureWantsAHome);
-                SYNCDBG(8,"The %s index %d goes make lair",thing_model_name(creatng),creatng->index);
+                SYNCDBG(8, "The %s index %d goes make lair", thing_model_name(creatng), creatng->index);
                 return 1;
             }
             update_cannot_find_room_of_role_wth_spare_capacity_event(creatng->owner, creatng, get_room_role_for_job(Job_TAKE_SLEEP));
@@ -1798,32 +1799,32 @@ short creature_doing_nothing(struct Thing *creatng)
     }
     if (creature_affected_by_call_to_arms(creatng))
     {
-        struct Dungeon* dungeon = get_players_num_dungeon(creatng->owner);
+        struct Dungeon *dungeon = get_players_num_dungeon(creatng->owner);
         struct Coord3d cta_pos;
         cta_pos.x.val = subtile_coord_center(dungeon->cta_stl_x);
         cta_pos.y.val = subtile_coord_center(dungeon->cta_stl_y);
         cta_pos.z.val = get_floor_height_at(&cta_pos);
         if (update_creature_influenced_by_call_to_arms_at_pos(creatng, &cta_pos))
         {
-            SYNCDBG(8,"The %s index %d is called to arms",thing_model_name(creatng),creatng->index);
+            SYNCDBG(8, "The %s index %d is called to arms", thing_model_name(creatng), creatng->index);
             return 1;
         }
     }
     if ((cctrl->job_assigned != Job_NULL) && (game.play_gameturn - cctrl->job_assigned_check_turn > 128))
     {
-        if (attempt_job_preference(creatng, cctrl->job_assigned)) {
-            SYNCDBG(8,"The %s index %d will do assigned job with state %s",thing_model_name(creatng),
-                (int)creatng->index,creature_state_code_name(get_creature_state_besides_interruptions(creatng)));
+        if (attempt_job_preference(creatng, cctrl->job_assigned))
+        {
+            SYNCDBG(8, "The %s index %d will do assigned job with state %s", thing_model_name(creatng), (int)creatng->index, creature_state_code_name(get_creature_state_besides_interruptions(creatng)));
             return 1;
         }
         cctrl->job_assigned_check_turn = game.play_gameturn;
     }
-    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
+    struct CreatureStats *crstat = creature_stats_get_from_thing(creatng);
     if ((crstat->job_primary != Job_NULL) && (game.play_gameturn - cctrl->job_primary_check_turn > 128))
     {
-        if (attempt_job_preference(creatng, crstat->job_primary)) {
-            SYNCDBG(8,"The %s index %d will do primary job with state %s",thing_model_name(creatng),
-                (int)creatng->index,creature_state_code_name(get_creature_state_besides_interruptions(creatng)));
+        if (attempt_job_preference(creatng, crstat->job_primary))
+        {
+            SYNCDBG(8, "The %s index %d will do primary job with state %s", thing_model_name(creatng), (int)creatng->index, creature_state_code_name(get_creature_state_besides_interruptions(creatng)));
             return 1;
         }
         cctrl->job_primary_check_turn = game.play_gameturn;
@@ -1834,21 +1835,23 @@ short creature_doing_nothing(struct Thing *creatng)
         switch (n)
         {
         case 0:
-            if (creature_try_going_to_lazy_sleep(creatng)) {
-                SYNCDBG(8,"The %s index %d will do lazy sleep",thing_model_name(creatng),(int)creatng->index);
+            if (creature_try_going_to_lazy_sleep(creatng))
+            {
+                SYNCDBG(8, "The %s index %d will do lazy sleep", thing_model_name(creatng), (int)creatng->index);
                 return 1;
             }
             break;
         case 1:
-            if (creature_try_going_to_healing_sleep(creatng)) {
-                SYNCDBG(8,"The %s index %d will do healing sleep",thing_model_name(creatng),(int)creatng->index);
+            if (creature_try_going_to_healing_sleep(creatng))
+            {
+                SYNCDBG(8, "The %s index %d will do healing sleep", thing_model_name(creatng), (int)creatng->index);
                 return 1;
             }
             break;
         case 2:
-            if (creature_try_doing_secondary_job(creatng)) {
-                SYNCDBG(8,"The %s index %d will do secondary job with state %s",thing_model_name(creatng),
-                    (int)creatng->index,creature_state_code_name(get_creature_state_besides_interruptions(creatng)));
+            if (creature_try_doing_secondary_job(creatng))
+            {
+                SYNCDBG(8, "The %s index %d will do secondary job with state %s", thing_model_name(creatng), (int)creatng->index, creature_state_code_name(get_creature_state_besides_interruptions(creatng)));
                 return 1;
             }
             break;
@@ -2106,26 +2109,23 @@ short creature_exempt(struct Thing *creatng)
 short creature_follow_leader(struct Thing *creatng)
 {
     TRACE_THING(creatng);
-    struct Thing* leadtng = get_group_leader(creatng);
+    struct Thing *leadtng = get_group_leader(creatng);
     if (!thing_is_creature(leadtng))
     {
-        SYNCLOG("The %s index %d owned by player %d can no longer follow leader - it's invalid",
-            thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
+        SYNCLOG("The %s index %d owned by player %d can no longer follow leader - it's invalid", thing_model_name(creatng), (int)creatng->index, (int)creatng->owner);
         set_start_state(creatng);
         return 1;
     }
     if (leadtng->index == creatng->index)
     {
-        SYNCLOG("The %s index %d owned by player %d became party leader",
-            thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
+        SYNCLOG("The %s index %d owned by player %d became party leader", thing_model_name(creatng), (int)creatng->index, (int)creatng->owner);
         set_start_state(creatng);
         return 1;
     }
-    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    if ((cctrl->spell_flags & CSAfF_MadKilling) != 0)
+    struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
+    if (flag_is_set(cctrl->spell_flags, CSAfF_MadKilling))
     {
-        SYNCLOG("The %s index %d owned by player %d can no longer be in group - became mad",
-            thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
+        SYNCLOG("The %s index %d owned by player %d can no longer be in group - became mad", thing_model_name(creatng), (int)creatng->index, (int)creatng->owner);
         remove_creature_from_group(creatng);
         set_start_state(creatng);
         return 1;
@@ -2133,16 +2133,14 @@ short creature_follow_leader(struct Thing *creatng)
     struct Coord3d follwr_pos;
     if (!get_free_position_behind_leader(leadtng, &follwr_pos))
     {
-        SYNCLOG("The %s index %d owned by player %d can no longer follow %s - no place amongst followers",
-            thing_model_name(creatng),(int)creatng->index,(int)creatng->owner,thing_model_name(leadtng));
+        SYNCLOG("The %s index %d owned by player %d can no longer follow %s - no place amongst followers", thing_model_name(creatng), (int)creatng->index, (int)creatng->owner, thing_model_name(leadtng));
         set_start_state(creatng);
         return 1;
     }
     int fails_amount = cctrl->follow_leader_fails;
-    if (fails_amount > 12) //When set too low, group might disband before a white wall is breached
+    if (fails_amount > 12) // When set too low, group might disband before a white wall is breached.
     {
-        SYNCDBG(3,"Removing %s index %d owned by player %d from group due to fails to follow",
-            thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
+        SYNCDBG(3, "Removing %s index %d owned by player %d from group due to fails to follow", thing_model_name(creatng), (int)creatng->index, (int)creatng->owner);
         remove_creature_from_group(creatng);
         return 0;
     }
@@ -2154,47 +2152,36 @@ short creature_follow_leader(struct Thing *creatng)
     MapCoordDelta distance_to_follower_pos = get_chessboard_distance(&creatng->mappos, &follwr_pos);
     TbBool cannot_reach_leader = creature_cannot_move_directly_to(creatng, &leadtng->mappos);
     int speed = get_creature_speed(leadtng);
-    // If we're too far from the designated position, do a speed run
-    if (distance_to_follower_pos > subtile_coord(12,0))
-    {
+    if (distance_to_follower_pos > subtile_coord(12, 0))
+    { // If we're too far from the designated position, do a speed run.
         speed = 2 * speed;
         if (speed >= MAX_VELOCITY)
+        {
             speed = MAX_VELOCITY;
+        }
         if (creature_move_to(creatng, &follwr_pos, speed, 0, 0) == -1)
         {
-            if (cannot_reach_leader) // only count fails when we're not able to get to the leader, instead of getting a position in the trail it cannot reach.
+            if (cannot_reach_leader) // Only count fails when we're not able to get to the leader, instead of getting a position in the trail it cannot reach.
             {
                 cctrl->follow_leader_fails++;
             }
-          return 0;
+            return 0;
         }
-    } else
-    // If we're far from the designated position, move considerably faster
-    if (distance_to_follower_pos > subtile_coord(6,0))
-    {
-        if (speed > 4) {
+    }
+    else if (distance_to_follower_pos > subtile_coord(6, 0))
+    { // If we're far from the designated position, move considerably faster.
+        if (speed > 4)
+        {
             speed = 5 * speed / 4;
-        } else {
+        }
+        else
+        {
             speed = speed + 1;
         }
         if (speed >= MAX_VELOCITY)
+        {
             speed = MAX_VELOCITY;
-        if (creature_move_to(creatng, &follwr_pos, speed, 0, 0) == -1)
-        {
-            if (cannot_reach_leader)
-            {
-                cctrl->follow_leader_fails++;
-            }
-          return 0;
         }
-    } else
-    // If we're close, continue moving at normal speed
-    if (distance_to_follower_pos <= subtile_coord(2,0))
-    {
-        if (distance_to_follower_pos <= 0)
-        {
-            creature_turn_to_face(creatng, &leadtng->mappos);
-        } else
         if (creature_move_to(creatng, &follwr_pos, speed, 0, 0) == -1)
         {
             if (cannot_reach_leader)
@@ -2203,16 +2190,36 @@ short creature_follow_leader(struct Thing *creatng)
             }
             return 0;
         }
-    } else
-    // If we're in between, move just a bit faster than leader
+    }
+    else if (distance_to_follower_pos <= subtile_coord(2, 0))
+    { // If we're close, continue moving at normal speed.
+        if (distance_to_follower_pos <= 0)
+        {
+            creature_turn_to_face(creatng, &leadtng->mappos);
+        }
+        else if (creature_move_to(creatng, &follwr_pos, speed, 0, 0) == -1)
+        {
+            if (cannot_reach_leader)
+            {
+                cctrl->follow_leader_fails++;
+            }
+            return 0;
+        }
+    }
+    else // If we're in between, move just a bit faster than leader.
     {
-        if (speed > 8) {
+        if (speed > 8)
+        {
             speed = 9 * speed / 8;
-        } else {
+        }
+        else
+        {
             speed = speed + 1;
         }
         if (speed >= MAX_VELOCITY)
+        {
             speed = MAX_VELOCITY;
+        }
         if (creature_move_to(creatng, &follwr_pos, speed, 0, 0) == -1)
         {
             if (cannot_reach_leader)
@@ -4143,10 +4150,9 @@ TbBool process_creature_hunger(struct Thing *thing)
     return false;
 }
 
-/**
+/*
  * Checks if creatures can attack each other.
- * Note that this function does not include full check from players_are_enemies(),
- *  so both should be used when applicable.
+ * Note that this function does not include full check from players_are_enemies(), so both should be used when applicable.
  * @param tng1
  * @param tng2
  * @return
@@ -4154,60 +4160,67 @@ TbBool process_creature_hunger(struct Thing *thing)
  */
 TbBool creature_will_attack_creature(const struct Thing *fightng, const struct Thing *enmtng)
 {
-    if (creature_is_leaving_and_cannot_be_stopped(fightng) || creature_is_leaving_and_cannot_be_stopped(enmtng)) {
+    if (creature_is_leaving_and_cannot_be_stopped(fightng) || creature_is_leaving_and_cannot_be_stopped(enmtng))
+    {
         return false;
     }
-    if (creature_is_being_unconscious(fightng) || creature_is_being_unconscious(enmtng)) {
+    if (creature_is_being_unconscious(fightng) || creature_is_being_unconscious(enmtng))
+    {
         return false;
     }
-    if (thing_is_picked_up(fightng) || thing_is_picked_up(enmtng)) {
+    if (thing_is_picked_up(fightng) || thing_is_picked_up(enmtng))
+    {
         return false;
     }
-    struct CreatureControl* fighctrl = creature_control_get_from_thing(fightng);
-    struct CreatureControl* enmctrl = creature_control_get_from_thing(enmtng);
+    struct CreatureControl *fighctrl = creature_control_get_from_thing(fightng);
+    struct CreatureControl *enmctrl = creature_control_get_from_thing(enmtng);
     if (players_creatures_tolerate_each_other(fightng->owner, enmtng->owner))
     {
-        if  (((fighctrl->spell_flags & CSAfF_MadKilling) == 0)
-         && ((enmctrl->spell_flags  & CSAfF_MadKilling) == 0)) {
-            if (fighctrl->combat_flags == 0) {
+        if ((!flag_is_set(fighctrl->spell_flags, CSAfF_MadKilling))
+        && (!flag_is_set(enmctrl->spell_flags, CSAfF_MadKilling)))
+        {
+            if (fighctrl->combat_flags == 0)
+            {
                 return false;
             }
-            struct Thing* tmptng = thing_get(fighctrl->combat.battle_enemy_idx);
+            struct Thing *tmptng = thing_get(fighctrl->combat.battle_enemy_idx);
             TRACE_THING(tmptng);
-            if (tmptng->index != enmtng->index) {
+            if (tmptng->index != enmtng->index)
+            {
                 return false;
             }
         }
-        // No self fight
-        if (enmtng->index == fightng->index) {
+        // No self fight.
+        if (enmtng->index == fightng->index)
+        {
             return false;
         }
     }
-    // No fight when creature in custody
-    if (creature_is_kept_in_custody_by_player(fightng, enmtng->owner)
-     || creature_is_kept_in_custody_by_player(enmtng, fightng->owner)) {
+    // No fight when creature in custody.
+    if (creature_is_kept_in_custody_by_player(fightng, enmtng->owner) || creature_is_kept_in_custody_by_player(enmtng, fightng->owner))
+    {
         return false;
     }
-    // No fight while dropping
-    if (creature_is_being_dropped(fightng) || creature_is_being_dropped(enmtng)) {
+    // No fight while dropping.
+    if (creature_is_being_dropped(fightng) || creature_is_being_dropped(enmtng))
+    {
         return false;
     }
-    // Final check - if creature is in control and can see the enemy - fight
+    // Final check - if creature is in control and can see the enemy - fight.
     if ((creature_control_exists(enmctrl)) && ((enmctrl->flgfield_1 & CCFlg_NoCompControl) == 0))
     {
-        if (!creature_is_invisible(enmtng) || creature_can_see_invisible(fightng)) {
+        if (!creature_is_invisible(enmtng) || creature_can_see_invisible(fightng))
+        {
             return true;
         }
     }
     return false;
 }
 
-/**
+/*
  * Checks if creatures can attack each other.
- * This variant loosens conditions if first creature is fighting till death, besides
- * that it is identical to creature_will_attack_creature().
- * Note that this function does not include full check from players_are_enemies(),
- *  so both should be used when applicable.
+ * This variant loosens conditions if first creature is fighting till death, besides that it is identical to creature_will_attack_creature().
+ * Note that this function does not include full check from players_are_enemies(), so both should be used when applicable.
  * @param fightng
  * @param enmtng
  * @return
@@ -4216,47 +4229,54 @@ TbBool creature_will_attack_creature(const struct Thing *fightng, const struct T
  */
 TbBool creature_will_attack_creature_incl_til_death(const struct Thing *fightng, const struct Thing *enmtng)
 {
-    if (creature_is_being_unconscious(fightng) || creature_is_being_unconscious(enmtng)) {
+    if (creature_is_being_unconscious(fightng) || creature_is_being_unconscious(enmtng))
+    {
         return false;
     }
-    if (thing_is_picked_up(fightng) || thing_is_picked_up(enmtng)) {
+    if (thing_is_picked_up(fightng) || thing_is_picked_up(enmtng))
+    {
         return false;
     }
-    if (creature_is_leaving_and_cannot_be_stopped(fightng) || creature_is_leaving_and_cannot_be_stopped(enmtng)) {
+    if (creature_is_leaving_and_cannot_be_stopped(fightng) || creature_is_leaving_and_cannot_be_stopped(enmtng))
+    {
         return false;
     }
-    struct CreatureControl* fighctrl = creature_control_get_from_thing(fightng);
-    struct CreatureControl* enmctrl = creature_control_get_from_thing(enmtng);
-
+    struct CreatureControl *fighctrl = creature_control_get_from_thing(fightng);
+    struct CreatureControl *enmctrl = creature_control_get_from_thing(enmtng);
     if (players_creatures_tolerate_each_other(fightng->owner, enmtng->owner))
     {
-        if  ((fighctrl->fight_til_death == 0) // This differs in creature_will_attack_creature()
-         && ((fighctrl->spell_flags & CSAfF_MadKilling) == 0)
-         && ((enmctrl->spell_flags  & CSAfF_MadKilling) == 0)) {
-            struct Thing* tmptng = thing_get(fighctrl->combat.battle_enemy_idx);
+        if ((fighctrl->fight_til_death == 0)
+        && (!flag_is_set(fighctrl->spell_flags, CSAfF_MadKilling))
+        && (!flag_is_set(enmctrl->spell_flags, CSAfF_MadKilling)))
+        {
+            struct Thing *tmptng = thing_get(fighctrl->combat.battle_enemy_idx);
             TRACE_THING(tmptng);
-            if ((fighctrl->combat_flags == 0) || (tmptng->index != enmtng->index)) {
+            if ((fighctrl->combat_flags == 0) || (tmptng->index != enmtng->index))
+            {
                 return false;
             }
         }
-        // No self fight
-        if (enmtng->index == fightng->index) {
+        // No self fight.
+        if (enmtng->index == fightng->index)
+        {
             return false;
         }
     }
-    // No fight when creature in custody
-    if (creature_is_kept_in_custody_by_player(fightng, enmtng->owner)
-     || creature_is_kept_in_custody_by_player(enmtng, fightng->owner)) {
+    // No fight when creature in custody.
+    if (creature_is_kept_in_custody_by_player(fightng, enmtng->owner) || creature_is_kept_in_custody_by_player(enmtng, fightng->owner))
+    {
         return false;
     }
-    // No fight while dropping
-    if (creature_is_being_dropped(fightng) || creature_is_being_dropped(enmtng)) {
+    // No fight while dropping.
+    if (creature_is_being_dropped(fightng) || creature_is_being_dropped(enmtng))
+    {
         return false;
     }
-    // Final check - if creature is in control and can see the enemy - fight
+    // Final check - if creature is in control and can see the enemy - fight.
     if ((creature_control_exists(enmctrl)) && ((enmctrl->flgfield_1 & CCFlg_NoCompControl) == 0))
     {
-        if (!creature_is_invisible(enmtng) || creature_can_see_invisible(fightng)) {
+        if (!creature_is_invisible(enmtng) || creature_can_see_invisible(fightng))
+        {
             return true;
         }
     }
@@ -5054,31 +5074,35 @@ long process_creature_needs_to_eat(struct Thing *creatng, const struct CreatureS
 
 long anger_process_creature_anger(struct Thing *creatng, const struct CreatureStats *crstat)
 {
-    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    // Creatures with no annoyance level will never get angry
-    if (crstat->annoy_level == 0) {
+    struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
+    // Creatures with no annoyance level will never get angry.
+    if (crstat->annoy_level == 0)
+    {
         return 0;
     }
-    if (!creature_free_for_anger_job(creatng)) {
+    if (!creature_free_for_anger_job(creatng))
+    {
         return 0;
     }
-    if (!anger_is_creature_angry(creatng)) {
-        // If the creature is mad killing, don't allow it not to be angry
-        if ((cctrl->spell_flags & CSAfF_MadKilling) != 0) {
-            // Mad creature's mind is tortured, so apply torture anger
+    if (!anger_is_creature_angry(creatng))
+    {
+        // If the creature is mad killing, don't allow it not to be angry.
+        if (flag_is_set(cctrl->spell_flags, CSAfF_MadKilling))
+        {
+            // Mad creature's mind is tortured, so apply torture anger.
             anger_apply_anger_to_creature(creatng, crstat->annoy_in_torture, AngR_Other, 1);
         }
         return 0;
     }
     if (is_my_player_number(creatng->owner))
     {
-        struct Dungeon* dungeon;
+        struct Dungeon *dungeon;
         AnnoyMotive anger_motive = anger_get_creature_anger_type(creatng);
         switch (anger_motive)
         {
         case AngR_NotPaid:
             dungeon = get_players_num_dungeon(creatng->owner);
-            struct Room* room = find_nearest_room_of_role_for_thing(creatng, creatng->owner, RoRoF_GoldStorage, NavRtF_Default);
+            struct Room *room = find_nearest_room_of_role_for_thing(creatng, creatng->owner, RoRoF_GoldStorage, NavRtF_Default);
             if (cctrl->paydays_advanced < 0)
             {
                 if ((dungeon->total_money_owned >= dungeon->creatures_total_backpay) && !room_is_invalid(room))
@@ -5086,7 +5110,7 @@ long anger_process_creature_anger(struct Thing *creatng, const struct CreatureSt
                     cctrl->paydays_advanced++;
                     if (cctrl->paydays_owed < SCHAR_MAX)
                     {
-                        cctrl->paydays_owed++; // if there's enough money to pay, go to treasure room now, instead of complaining
+                        cctrl->paydays_owed++; // If there's enough money to pay, go to treasure room now, instead of complaining.
                     }
                 }
                 else
@@ -5121,48 +5145,58 @@ long anger_process_creature_anger(struct Thing *creatng, const struct CreatureSt
             break;
         default:
             output_message(SMsg_CreatrAngryAnyReason, MESSAGE_DELAY_CRTR_MOOD, 1);
-            ERRORLOG("The %s owned by player %d is angry but has no motive (%d).",thing_model_name(creatng),(int)creatng->owner,(int)anger_motive);
+            ERRORLOG("The %s owned by player %d is angry but has no motive (%d).", thing_model_name(creatng), (int)creatng->owner, (int)anger_motive);
             break;
         }
     }
-    if (creature_is_doing_anger_job(creatng)) {
+    if (creature_is_doing_anger_job(creatng))
+    {
         return 0;
     }
     if (anger_is_creature_livid(creatng) && (((game.play_gameturn + creatng->index) & 0x3F) == 0))
     {
         if (creature_find_and_perform_anger_job(creatng))
+        {
             return 1;
+        }
     }
     if ((crstat->annoy_in_temple < 0) && (game.play_gameturn - cctrl->temple_pray_check_turn > 128))
     {
         cctrl->temple_pray_check_turn = game.play_gameturn;
         if (creature_is_doing_temple_pray_activity(creatng))
-            return 1;
-        if (creature_can_do_job_for_player(creatng, creatng->owner, Job_TEMPLE_PRAY, JobChk_PlayMsgOnFail)
-            && can_change_from_state_to(creatng, creatng->active_state, CrSt_AtTemple))
         {
-            if (send_creature_to_job_for_player(creatng, creatng->owner, Job_TEMPLE_PRAY)) {
+            return 1;
+        }
+        if (creature_can_do_job_for_player(creatng, creatng->owner, Job_TEMPLE_PRAY, JobChk_PlayMsgOnFail) && can_change_from_state_to(creatng, creatng->active_state, CrSt_AtTemple))
+        {
+            if (send_creature_to_job_for_player(creatng, creatng->owner, Job_TEMPLE_PRAY))
+            {
                 return 1;
             }
-            ERRORLOG("Tried sending %s owner %d to job %s, could not do this",thing_model_name(creatng),(int)creatng->owner,creature_job_code_name(Job_TEMPLE_PRAY));
+            ERRORLOG("Tried sending %s owner %d to job %s, could not do this", thing_model_name(creatng), (int)creatng->owner, creature_job_code_name(Job_TEMPLE_PRAY));
         }
     }
     if (creature_has_lair_room(creatng) && creature_can_do_healing_sleep(creatng))
     {
-      if (game.play_gameturn - cctrl->sulking_sleep_check_turn > 128)
-      {
-          cctrl->sulking_sleep_check_turn = game.play_gameturn;
-          // If creature has lair, try to go to it
-          if (anger_get_creature_anger_type(creatng) == AngR_NoLair)
-          {
-              if (external_set_thing_state(creatng, CrSt_CreatureGoingHomeToSleep))
-                return 1;
-          } else
-          {
-              if (external_set_thing_state(creatng, CrSt_PersonSulkHeadForLair))
-                return 1;
-          }
-      }
+        if (game.play_gameturn - cctrl->sulking_sleep_check_turn > 128)
+        {
+            cctrl->sulking_sleep_check_turn = game.play_gameturn;
+            // If creature has lair, try to go to it.
+            if (anger_get_creature_anger_type(creatng) == AngR_NoLair)
+            {
+                if (external_set_thing_state(creatng, CrSt_CreatureGoingHomeToSleep))
+                {
+                    return 1;
+                }
+            }
+            else
+            {
+                if (external_set_thing_state(creatng, CrSt_PersonSulkHeadForLair))
+                {
+                    return 1;
+                }
+            }
+        }
     }
     return 0;
 }

@@ -390,7 +390,7 @@ void draw_god_lightning(struct Thing *shotng)
 
 TbBool player_uses_power_call_to_arms(PlayerNumber plyr_idx)
 {
-    struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
+    struct Dungeon *dungeon = get_players_num_dungeon(plyr_idx);
     return (dungeon->cta_start_turn != 0);
 }
 
@@ -419,14 +419,15 @@ TbBool reset_creature_if_affected_by_cta(struct Thing *thing)
 
 void turn_off_power_call_to_arms(PlayerNumber plyr_idx)
 {
-    if (!player_uses_power_call_to_arms(plyr_idx)) {
+    if (!player_uses_power_call_to_arms(plyr_idx))
+    {
         return;
     }
-    struct PlayerInfo* player = get_player(plyr_idx);
+    struct PlayerInfo *player = get_player(plyr_idx);
     {
-        struct Thing* objtng = thing_get(player->cta_flag_idx);
+        struct Thing *objtng = thing_get(player->cta_flag_idx);
         set_call_to_arms_as_dying(objtng);
-        struct Dungeon* dungeon = get_players_dungeon(player);
+        struct Dungeon *dungeon = get_players_dungeon(player);
         dungeon->cta_start_turn = 0;
     }
     reset_all_players_creatures_affected_by_cta(plyr_idx);

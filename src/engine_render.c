@@ -5158,8 +5158,7 @@ static unsigned short choose_health_sprite(struct Thing* thing)
     }
 }
 
-void fill_status_sprite_indexes(struct Thing *thing, struct CreatureControl *cctrl, short *health_spridx,
-                                short *state_spridx, short *anger_spridx)
+void fill_status_sprite_indexes(struct Thing *thing, struct CreatureControl *cctrl, short *health_spridx, short *state_spridx, short *anger_spridx)
 {
     (*health_spridx) = choose_health_sprite(thing);
     if (is_my_player_number(thing->owner))
@@ -5167,11 +5166,15 @@ void fill_status_sprite_indexes(struct Thing *thing, struct CreatureControl *cct
         lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
         if (game.play_gameturn - cctrl->thought_bubble_last_turn_drawn == 1)
         {
-            if (cctrl->thought_bubble_display_timer < 40) {
+            if (cctrl->thought_bubble_display_timer < 40)
+            {
                 cctrl->thought_bubble_display_timer++;
             }
-        } else {
-            if (game.play_gameturn - cctrl->thought_bubble_last_turn_drawn > 1) {
+        }
+        else
+        {
+            if (game.play_gameturn - cctrl->thought_bubble_last_turn_drawn > 1)
+            {
                 cctrl->thought_bubble_display_timer = 0;
             }
         }
@@ -5182,7 +5185,7 @@ void fill_status_sprite_indexes(struct Thing *thing, struct CreatureControl *cct
             stati = get_creature_state_with_task_completion(thing);
             if (!stati->blocks_all_state_changes)
             {
-                if ((cctrl->spell_flags & CSAfF_MadKilling) != 0)
+                if (flag_is_set(cctrl->spell_flags, CSAfF_MadKilling))
                 {
                     stati = &states[CrSt_MadKillingPsycho];
                 }

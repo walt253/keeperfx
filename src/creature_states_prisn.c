@@ -205,13 +205,13 @@ struct Thing *find_prisoner_for_thing(struct Thing *creatng)
             // If the victim is frozen, select one which will unfreeze sooner.
             long durt = 0; // Initialize durt with a safe value.
             struct SpellConfig *spconf;
-            for (int i = 0; i < CREATURE_MAX_SPELLS_CASTED_AT; i++)
+            for (int spell_idx = 0; spell_idx < CREATURE_MAX_SPELLS_CASTED_AT; spell_idx++)
             {
-                spconf = get_spell_config(cctrl->casted_spells[i].spkind);
+                spconf = get_spell_config(cctrl->casted_spells[spell_idx].spkind);
                 if (flag_is_set(spconf->spell_flags, CSAfF_Freeze))
                 {
                     // Get the duration if an active freeze spell is found.
-                    durt = get_spell_duration_left_on_thing(thing, cctrl->casted_spells[i].spkind);
+                    durt = get_spell_duration_left_on_thing(thing, cctrl->casted_spells[spell_idx].spkind);
                     break; // Once found an active freeze spell, no need to check further.
                 }
             }

@@ -3437,124 +3437,148 @@ HitTargetFlags hit_type_to_hit_targets(long hit_type)
  */
 TbBool thing_is_shootable(const struct Thing *thing, PlayerNumber shot_owner, HitTargetFlags hit_targets)
 {
-    if (thing_is_creature(thing))
-    {
-        // spectators are not shootable
-        if ((get_creature_model_flags(thing) & CMF_IsSpectator) != 0)
-            return false;
-        // Armour spell may prevent from hitting
-        if ((hit_targets & HitTF_ArmourAffctdCreatrs) == 0) {
-            if (creature_affected_by_spell(thing, CSAfF_Armour))
-                return false;
-        }
-        // Prevent Damage flag may be either respected or ignored
-        if ((hit_targets & HitTF_PreventDmgCreatrs) == 0) {
-            struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-            if ((cctrl->flgfield_1 & CCFlg_PreventDamage) != 0)
-                return false;
-        }
-        if (shot_owner == thing->owner) {
-            return ((hit_targets & HitTF_OwnedCreatures) != 0);
-        }
-        if ((shot_owner < 0) || players_are_enemies(shot_owner, thing->owner)) {
-            return ((hit_targets & HitTF_EnemyCreatures) != 0);
-        }
-        return ((hit_targets & HitTF_AlliedCreatures) != 0);
-    }
-    if (thing_is_shot(thing))
-    {
-        struct ShotConfigStats* shotst = get_shot_model_stats(thing->model);
-        if (shotst->model_flags & ShMF_CanCollide)
-        {
-            if (shot_owner == thing->owner) {
-                return ((hit_targets & HitTF_OwnedShotsCollide) != 0);
-            }
-            if ((shot_owner < 0) || players_are_enemies(shot_owner, thing->owner)) {
-                return ((hit_targets & HitTF_EnemyShotsCollide) != 0);
-            }
-            return ((hit_targets & HitTF_AlliedShotsCollide) != 0);
-        }
-        return false;
-    }
-    if (thing_is_object(thing))
-    {
-        if (thing_is_dungeon_heart(thing))
-        {
-            if (shot_owner == thing->owner) {
-                return ((hit_targets & HitTF_OwnedSoulContainer) != 0);
-            }
-            if ((shot_owner < 0) || players_are_enemies(shot_owner, thing->owner)) {
-                return ((hit_targets & HitTF_EnemySoulContainer) != 0);
-            }
-            return ((hit_targets & HitTF_AlliedSoulContainer) != 0);
-        }
-        if (object_is_growing_food(thing) ||
-           (object_is_mature_food(thing) && !is_thing_directly_controlled(thing) && !is_thing_passenger_controlled(thing)))
-        {
-            return ((hit_targets & HitTF_AnyFoodObjects) != 0);
-        }
-        if (thing_is_workshop_crate(thing))
-        {
-            return ((hit_targets & HitTF_AnyWorkshopBoxes) != 0);
-        }
-        if (thing_is_spellbook(thing))
-        {
-            return ((hit_targets & HitTF_AnySpellbooks) != 0);
-        }
-        if (thing_is_special_box(thing))
-        {
-            return ((hit_targets & HitTF_AnyDnSpecialBoxes) != 0);
-        }
-        if (thing_is_gold_hoard(thing))
-        {
-            return ((hit_targets & HitTF_AnyGoldHoards) != 0);
-        }
-        if (object_is_gold_pile(thing))
-        {
-            return ((hit_targets & HitTF_AnyGoldPiles) != 0);
-        }
-        //TODO implement hitting decorations flag
-        /*if (object_is_decoration(thing))
-        {
-            return ((hit_targets & HitTF_AnyDecorations) != 0);
-        }*/
-        return false;
-    }
-    if (thing_is_deployed_door(thing))
-    {
-        if (shot_owner == thing->owner) {
-            return ((hit_targets & HitTF_OwnedDeployedDoors) != 0);
-        }
-        if ((shot_owner < 0) || players_are_enemies(shot_owner, thing->owner)) {
-            return ((hit_targets & HitTF_EnemyDeployedDoors) != 0);
-        }
-        return ((hit_targets & HitTF_AlliedDeployedDoors) != 0);
-    }
-    if (thing_is_deployed_trap(thing))
-    {
-        if (thing_is_destructible_trap(thing) > 0)
-        {
-            if (shot_owner == thing->owner) {
-                return ((hit_targets & HitTF_OwnedDestructibleTraps) != 0);
-            }
-            if ((shot_owner < 0) || players_are_enemies(shot_owner, thing->owner)) {
-                return ((hit_targets & HitTF_EnemyDestructibleTraps) != 0);
-            }
-            return ((hit_targets & HitTF_AlliedDestructibleTraps) != 0);
-        }
-        if (shot_owner == thing->owner) {
-            return ((hit_targets & HitTF_OwnedDeployedTraps) != 0);
-        }
-        if ((shot_owner < 0) || players_are_enemies(shot_owner, thing->owner)) {
-            return ((hit_targets & HitTF_EnemyDeployedTraps) != 0);
-        }
-        return ((hit_targets & HitTF_AlliedDeployedTraps) != 0);
-    }
-    if (thing_is_dead_creature(thing))
-    {
-        return ((hit_targets & HitTF_CreatureDeadBodies) != 0);
-    }
-    return false;
+	if (thing_is_creature(thing))
+	{
+		struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
+		// Spectators are not shootable.
+		if ((get_creature_model_flags(thing) & CMF_IsSpectator) != 0)
+		{
+			return false;
+		}
+		// Armour spell may prevent from hitting. (?)
+		if ((hit_targets & HitTF_ArmourAffctdCreatrs) == 0)
+		{
+			if (flag_is_set(cctrl->spell_flags, CSAfF_Armour))
+			{
+				return false;
+			}
+		}
+		// PreventDamage flag may be either respected or ignored.
+		if ((hit_targets & HitTF_PreventDmgCreatrs) == 0)
+		{
+			struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
+			if ((cctrl->flgfield_1 & CCFlg_PreventDamage) != 0)
+			{
+				return false;
+			}
+		}
+		if (shot_owner == thing->owner)
+		{
+			return ((hit_targets & HitTF_OwnedCreatures) != 0);
+		}
+		if ((shot_owner < 0) || players_are_enemies(shot_owner, thing->owner))
+		{
+			return ((hit_targets & HitTF_EnemyCreatures) != 0);
+		}
+		return ((hit_targets & HitTF_AlliedCreatures) != 0);
+	}
+	if (thing_is_shot(thing))
+	{
+		struct ShotConfigStats *shotst = get_shot_model_stats(thing->model);
+		if (shotst->model_flags & ShMF_CanCollide)
+		{
+			if (shot_owner == thing->owner)
+			{
+				return ((hit_targets & HitTF_OwnedShotsCollide) != 0);
+			}
+			if ((shot_owner < 0) || players_are_enemies(shot_owner, thing->owner))
+			{
+				return ((hit_targets & HitTF_EnemyShotsCollide) != 0);
+			}
+			return ((hit_targets & HitTF_AlliedShotsCollide) != 0);
+		}
+		return false;
+	}
+	if (thing_is_object(thing))
+	{
+		if (thing_is_dungeon_heart(thing))
+		{
+			if (shot_owner == thing->owner)
+			{
+				return ((hit_targets & HitTF_OwnedSoulContainer) != 0);
+			}
+			if ((shot_owner < 0) || players_are_enemies(shot_owner, thing->owner))
+			{
+				return ((hit_targets & HitTF_EnemySoulContainer) != 0);
+			}
+			return ((hit_targets & HitTF_AlliedSoulContainer) != 0);
+		}
+		if (object_is_growing_food(thing)
+		|| (object_is_mature_food(thing)
+		&& !is_thing_directly_controlled(thing)
+		&& !is_thing_passenger_controlled(thing)))
+		{
+			return ((hit_targets & HitTF_AnyFoodObjects) != 0);
+		}
+		if (thing_is_workshop_crate(thing))
+		{
+			return ((hit_targets & HitTF_AnyWorkshopBoxes) != 0);
+		}
+		if (thing_is_spellbook(thing))
+		{
+			return ((hit_targets & HitTF_AnySpellbooks) != 0);
+		}
+		if (thing_is_special_box(thing))
+		{
+			return ((hit_targets & HitTF_AnyDnSpecialBoxes) != 0);
+		}
+		if (thing_is_gold_hoard(thing))
+		{
+			return ((hit_targets & HitTF_AnyGoldHoards) != 0);
+		}
+		if (object_is_gold_pile(thing))
+		{
+			return ((hit_targets & HitTF_AnyGoldPiles) != 0);
+		}
+		/* TODO: implement hitting decorations flag.
+		if (object_is_decoration(thing))
+		{
+			return ((hit_targets & HitTF_AnyDecorations) != 0);
+		}
+		*/
+		return false;
+	}
+	if (thing_is_deployed_door(thing))
+	{
+		if (shot_owner == thing->owner)
+		{
+			return ((hit_targets & HitTF_OwnedDeployedDoors) != 0);
+		}
+		if ((shot_owner < 0) || players_are_enemies(shot_owner, thing->owner))
+		{
+			return ((hit_targets & HitTF_EnemyDeployedDoors) != 0);
+		}
+		return ((hit_targets & HitTF_AlliedDeployedDoors) != 0);
+	}
+	if (thing_is_deployed_trap(thing))
+	{
+		if (thing_is_destructible_trap(thing) > 0)
+		{
+			if (shot_owner == thing->owner)
+			{
+				return ((hit_targets & HitTF_OwnedDestructibleTraps) != 0);
+			}
+			if ((shot_owner < 0) || players_are_enemies(shot_owner, thing->owner))
+			{
+				return ((hit_targets & HitTF_EnemyDestructibleTraps) != 0);
+			}
+			return ((hit_targets & HitTF_AlliedDestructibleTraps) != 0);
+		}
+		if (shot_owner == thing->owner)
+		{
+			return ((hit_targets & HitTF_OwnedDeployedTraps) != 0);
+		}
+		if ((shot_owner < 0) || players_are_enemies(shot_owner, thing->owner))
+		{
+			return ((hit_targets & HitTF_EnemyDeployedTraps) != 0);
+		}
+		return ((hit_targets & HitTF_AlliedDeployedTraps) != 0);
+	}
+	if (thing_is_dead_creature(thing))
+	{
+		return ((hit_targets & HitTF_CreatureDeadBodies) != 0);
+	}
+	return false;
 }
 
 /**

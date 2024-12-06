@@ -1206,9 +1206,10 @@ TbBool validate_source_basic
         return false;
     }
     // Return false if any check below is true.
-    if (flag_is_set(cctrl->stateblock_flags, CCSpl_Freeze) || flag_is_set(cctrl->spell_flags, CSAfF_Chicken)
-    || !creature_instance_is_available(source, inst_idx)|| !creature_instance_has_reset(source, inst_idx)
-    || creature_is_fleeing_combat(source) || creature_is_being_unconscious(source) || creature_is_dying(source)
+    if (!creature_instance_is_available(source, inst_idx) || !creature_instance_has_reset(source, inst_idx)
+    || (flag_is_set(cctrl->stateblock_flags, CCSpl_Freeze))
+    || creature_is_fleeing_combat(source) || flag_is_set(cctrl->spell_flags, CSAfF_Chicken)
+    || creature_is_being_unconscious(source) || creature_is_dying(source)
     || thing_is_picked_up(source) || creature_is_being_dropped(source)
     || creature_is_being_sacrificed(source) || creature_is_being_summoned(source))
     {
@@ -1334,7 +1335,7 @@ TbBool validate_target_generic
  * @param param2 Optional 2nd parameter.
  * @return TbBool True if the creature can be, false if otherwise.
  */
-TbBool validate_target_non_idle(struct Thing* source, struct Thing* target, CrInstance inst_idx, int32_t param1,int32_t param2)
+TbBool validate_target_non_idle(struct Thing *source, struct Thing *target, CrInstance inst_idx, int32_t param1, int32_t param2)
 {
     struct CreatureControl *cctrl = creature_control_get_from_thing(target);
     if (creature_control_invalid(cctrl))

@@ -66,29 +66,29 @@ const struct NamedCommand magic_spell_commands[] = {
 };
 
 const struct NamedCommand magic_spell_flags[] = {
-    {"SLOW",         CSAfF_Slow},
-    {"SPEED",        CSAfF_Speed},
-    {"ARMOUR",       CSAfF_Armour},
-    {"REBOUND",      CSAfF_Rebound},
-    {"FLYING",       CSAfF_Flying},
-    {"INVISIBILITY", CSAfF_Invisibility},
-    {"SIGHT",        CSAfF_Sight},
-    {"LIGHT",        CSAfF_Light},
-    {"DISEASE",      CSAfF_Disease},
-    {"CHICKEN",      CSAfF_Chicken},
-    {"POISON_CLOUD", CSAfF_PoisonCloud},
-    {"CALL_TO_ARMS", CSAfF_CalledToArms},
-    {"MAD_KILLING",  CSAfF_MadKilling},
-    {"MAGIC_FALL",   CSAfF_MagicFall},
-    {"EXP_LEVEL_UP", CSAfF_ExpLevelUp},
-    {"GROUNDED",     CSAfF_Grounded},
-    {"TIMEBOMB",     CSAfF_Timebomb},
-    {"WIND",         CSAfF_Wind},
-    {"FREEZE",       CSAfF_Freeze},
-    {"TELEPORT",     CSAfF_Teleport},
-    {"HEAL",         CSAfF_Heal},
-    {"FEAR",         CSAfF_Fear},
-    {NULL,           0},
+    {"SLOW",          1},
+    {"SPEED",         2},
+    {"ARMOUR",        3},
+    {"REBOUND",       4},
+    {"FLYING",        5},
+    {"INVISIBILITY",  6},
+    {"SIGHT",         7},
+    {"LIGHT",         8},
+    {"DISEASE",       9},
+    {"CHICKEN",      10},
+    {"POISON_CLOUD", 11},
+    {"CALL_TO_ARMS", 12},
+    {"MAD_KILLING",  13},
+    {"MAGIC_FALL",   14},
+    {"EXP_LEVEL_UP", 15},
+    {"GROUNDED",     16},
+    {"TIMEBOMB",     17},
+    {"WIND",         18},
+    {"FREEZE",       19},
+    {"TELEPORT",     20},
+    {"HEAL",         21},
+    {"FEAR",         22},
+    {NULL,            0},
 };
 
 const struct NamedCommand magic_shot_commands[] = {
@@ -672,22 +672,120 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
                   COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
-      case 10: // SPELLFLAGS
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              if (k >= 0)
-              {
-                  spconf->spell_flags = k;
-                  n++;
-              }
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-          }
-          break;
+        case 10: // SPELLFLAGS
+            spconf->spell_flags = 0;
+            while (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+            {
+                if (parameter_is_number(word_buf))
+                {
+                    k = atoi(word_buf);
+                    spconf->spell_flags = k;
+                    n++;
+                }
+                else
+                {
+                    k = get_id(magic_spell_flags, word_buf);
+                    switch (k)
+                    {
+                    case 1: // SLOW
+                        set_flag(spconf->spell_flags, CSAfF_Slow);
+                        n++;
+                        break;
+                    case 2: // SPEED
+                        set_flag(spconf->spell_flags, CSAfF_Speed);
+                        n++;
+                        break;
+                    case 3: // ARMOUR
+                        set_flag(spconf->spell_flags, CSAfF_Armour);
+                        n++;
+                        break;
+                    case 4: // REBOUND
+                        set_flag(spconf->spell_flags, CSAfF_Rebound);
+                        n++;
+                        break;
+                    case 5: // FLYING
+                        set_flag(spconf->spell_flags, CSAfF_Flying);
+                        n++;
+                        break;
+                    case 6: // INVISIBILITY
+                        set_flag(spconf->spell_flags, CSAfF_Invisibility);
+                        n++;
+                        break;
+                    case 7: // SIGHT
+                        set_flag(spconf->spell_flags, CSAfF_Sight);
+                        n++;
+                        break;
+                    case 8: // LIGHT
+                        set_flag(spconf->spell_flags, CSAfF_Light);
+                        n++;
+                        break;
+                    case 9: // DISEASE
+                        set_flag(spconf->spell_flags, CSAfF_Disease);
+                        n++;
+                        break;
+                    case 10: // CHICKEN
+                        set_flag(spconf->spell_flags, CSAfF_Chicken);
+                        n++;
+                        break;
+                    case 11: // POISON_CLOUD
+                        set_flag(spconf->spell_flags, CSAfF_PoisonCloud);
+                        n++;
+                        break;
+                    case 12: // CALL_TO_ARMS
+                        set_flag(spconf->spell_flags, CSAfF_CalledToArms);
+                        n++;
+                        break;
+                    case 13: // MAD_KILLING
+                        set_flag(spconf->spell_flags, CSAfF_MadKilling);
+                        n++;
+                        break;
+                    case 14: // MAGIC_FALL
+                        set_flag(spconf->spell_flags, CSAfF_MagicFall);
+                        n++;
+                        break;
+                    case 15: // EXP_LEVEL_UP
+                        set_flag(spconf->spell_flags, CSAfF_ExpLevelUp);
+                        n++;
+                        break;
+                    case 16: // GROUNDED
+                        set_flag(spconf->spell_flags, CSAfF_Grounded);
+                        n++;
+                        break;
+                    case 17: // TIMEBOMB
+                        set_flag(spconf->spell_flags, CSAfF_Timebomb);
+                        n++;
+                        break;
+                    case 18: // WIND
+                        set_flag(spconf->spell_flags, CSAfF_Wind);
+                        n++;
+                        break;
+                    case 19: // FREEZE
+                        set_flag(spconf->spell_flags, CSAfF_Freeze);
+                        n++;
+                        break;
+                    case 20: // TELEPORT
+                        set_flag(spconf->spell_flags, CSAfF_Teleport);
+                        n++;
+                        break;
+                    case 21: // HEAL
+                        set_flag(spconf->spell_flags, CSAfF_Heal);
+                        n++;
+                        break;
+                    case 22: // FEAR
+                        set_flag(spconf->spell_flags, CSAfF_Fear);
+                        n++;
+                        break;
+                    default:
+                        break;
+                    }
+                }
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+            }
+            break;
         case 11: // SUMMONCREATURE
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {

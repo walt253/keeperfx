@@ -328,7 +328,7 @@ struct SpellConfig *get_spell_config(int mgc_idx)
   return &game.conf.magic_conf.spell_config[mgc_idx];
 }
 
-TbBool spell_config_is_invalid(const struct SpellConfig *mgcinfo)
+TbBool spell_config_is_invalid(struct SpellConfig *mgcinfo)
 {
   if (mgcinfo <= &game.conf.magic_conf.spell_config[0])
     return true;

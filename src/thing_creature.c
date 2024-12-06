@@ -871,7 +871,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
     if (spell_lev > SPELL_MAX_LEVEL)
         spell_lev = SPELL_MAX_LEVEL;
     // This pointer may be invalid if spell_idx is incorrect. But we're using it only when correct.
-    const struct SpellConfig* spconf = get_spell_config(spell_idx);
+    struct SpellConfig* spconf = get_spell_config(spell_idx);
     const struct MagicStats* pwrdynst = get_power_dynamic_stats(spconf->linked_power);
     long n;
     short duration;
@@ -1568,7 +1568,7 @@ void creature_cast_spell_at_thing(struct Thing *castng, struct Thing *targetng, 
         else
             hit_type = THit_CrtrsOnlyNotOwn;
     }
-    const struct SpellConfig* spconf = get_spell_config(spl_idx);
+    struct SpellConfig* spconf = get_spell_config(spl_idx);
     if (spell_config_is_invalid(spconf))
     {
         ERRORLOG("The %s owned by player %d tried to cast invalid spell %d",thing_model_name(castng),(int)castng->owner,(int)spl_idx);
@@ -1710,7 +1710,7 @@ void level_up_familiar(struct Thing* famlrtng)
     struct CreatureControl *summonercctrl = creature_control_get_from_thing(summonertng);
     short summonerxp = summonercctrl->explevel;
     //get spell the summoner used to make this familiar
-    const struct SpellConfig* spconf = get_spell_config(famlrcctrl->summon_spl_idx);
+    struct SpellConfig* spconf = get_spell_config(famlrcctrl->summon_spl_idx);
     char level = spconf->crtr_summon_level;
     //calculate correct level for familiar
     short sumxp = level - 1;
@@ -1773,7 +1773,7 @@ void remove_creature_from_summon_list(struct Dungeon* dungeon, ThingIndex famlrt
 void creature_cast_spell(struct Thing *castng, SpellKind spl_idx, long shot_lvl, MapSubtlCoord trg_x, MapSubtlCoord trg_y)
 {
     long i;
-    const struct SpellConfig* spconf = get_spell_config(spl_idx);
+    struct SpellConfig* spconf = get_spell_config(spl_idx);
     struct CreatureControl* cctrl = creature_control_get_from_thing(castng);
     if (creature_control_invalid(cctrl))
     {

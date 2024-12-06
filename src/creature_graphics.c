@@ -458,7 +458,7 @@ void update_creature_graphic_anim(struct Thing *thing)
         {
             update_creature_anim(thing, 256, CGI_GotHit);
         } else
-        if ((cctrl->stateblock_flags & CCSpl_ChickenRel) != 0)
+        if (flag_is_set(cctrl->stateblock_flags, CCSpl_ChickenRel))
         {
             update_creature_anim(thing, 256, CGI_Stand);
         } else

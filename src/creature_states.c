@@ -1651,29 +1651,32 @@ void set_creature_size_stuff(struct Thing *creatng)
 short creature_change_from_chicken(struct Thing *creatng)
 {
     TRACE_THING(creatng);
-    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
     creature_set_speed(creatng, 0);
     if (cctrl->countdown > 0)
+    {
         cctrl->countdown--;
+    }
     if (cctrl->countdown > 0)
-    { // Changing under way - gradually modify size of the creature
-        creatng->rendering_flags |= TRF_Invisible;
-        creatng->size_change |= TSC_ChangeSize;
-        struct Thing* efftng = create_effect_element(&creatng->mappos, TngEffElm_Chicken, creatng->owner);
+    { // Changing under way - gradually modify size of the creature.
+        set_flag(creatng->rendering_flags, TRF_Invisible);
+        set_flag(creatng->size_change, TSC_ChangeSize);
+        struct Thing *efftng = create_effect_element(&creatng->mappos, TngEffElm_Chicken, creatng->owner);
         if (!thing_is_invalid(efftng))
         {
             long n = (10 - cctrl->countdown) * (game.conf.crtr_conf.sprite_size + (game.conf.crtr_conf.sprite_size * game.conf.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100) / 10;
             unsigned long k = get_creature_anim(creatng, 0);
             set_thing_draw(efftng, k, 256, n, -1, 0, ODC_Default);
-            efftng->rendering_flags &= ~TRF_Transpar_Flags;
-            efftng->rendering_flags |= TRF_Transpar_8;
+            clear_flag(efftng->rendering_flags, TRF_Transpar_Flags);
+            set_flag(efftng->rendering_flags, TRF_Transpar_8);
         }
         return 0;
-    } else
+    }
+    else
     {
-        creatng->rendering_flags &= ~TRF_Invisible;
-        cctrl->stateblock_flags &= ~CCSpl_ChickenRel;
-        cctrl->spell_flags &= ~CSAfF_Chicken;
+        clear_flag(creatng->rendering_flags, TRF_Invisible);
+        clear_flag(cctrl->stateblock_flags, CCSpl_ChickenRel);
+        clear_flag(cctrl->spell_flags, CSAfF_Chicken);
         set_creature_size_stuff(creatng);
         set_start_state(creatng);
         return 1;
@@ -1683,28 +1686,30 @@ short creature_change_from_chicken(struct Thing *creatng)
 short creature_change_to_chicken(struct Thing *creatng)
 {
     TRACE_THING(creatng);
-    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
     creature_set_speed(creatng, 0);
     if (cctrl->countdown > 0)
+    {
         cctrl->countdown--;
+    }
     if (cctrl->countdown > 0)
     {
-      creatng->size_change |= TSC_ChangeSize;
-      creatng->rendering_flags |= TRF_Invisible;
-      struct Thing* efftng = create_effect_element(&creatng->mappos, TngEffElm_Chicken, creatng->owner);
-      if (!thing_is_invalid(efftng))
-      {
-          unsigned long k = convert_td_iso(819);
-          set_thing_draw(efftng, k, 0, 1200 * cctrl->countdown / 10 + game.conf.crtr_conf.sprite_size, -1, 0, ODC_Default);
-          efftng->rendering_flags &= ~TRF_Transpar_Flags;
-          efftng->rendering_flags |= TRF_Transpar_8;
-      }
-      return 0;
+        set_flag(creatng->size_change, TSC_ChangeSize);
+        set_flag(creatng->rendering_flags, TRF_Invisible);
+        struct Thing *efftng = create_effect_element(&creatng->mappos, TngEffElm_Chicken, creatng->owner);
+        if (!thing_is_invalid(efftng))
+        {
+            unsigned long k = convert_td_iso(819);
+            set_thing_draw(efftng, k, 0, 1200 * cctrl->countdown / 10 + game.conf.crtr_conf.sprite_size, -1, 0, ODC_Default);
+            clear_flag(efftng->rendering_flags, TRF_Transpar_Flags);
+            set_flag(efftng->rendering_flags, TRF_Transpar_8);
+        }
+        return 0;
     }
-    cctrl->spell_flags |= CSAfF_Chicken;
-    creatng->rendering_flags &= ~TRF_Invisible;
+    set_flag(cctrl->spell_flags, CSAfF_Chicken);
+    clear_flag(creatng->rendering_flags, TRF_Invisible);
     set_creature_size_stuff(creatng);
-    creatng->state_flags &= ~TF1_Unkn10;
+    clear_flag(creatng->state_flags, TF1_Unkn10);
     creatng->active_state = CrSt_CreaturePretendChickenSetupMove;
     creatng->continue_state = CrSt_Unused;
     cctrl->stopped_for_hand_turns = 0;
@@ -2675,8 +2680,8 @@ short creature_present_to_dungeon_heart(struct Thing *creatng)
 short creature_pretend_chicken_move(struct Thing *creatng)
 {
     TRACE_THING(creatng);
-    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    if ((cctrl->stateblock_flags & CCSpl_ChickenRel) != 0)
+    struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
+    if (flag_is_set(cctrl->stateblock_flags, CCSpl_ChickenRel))
     {
         return 1;
     }
@@ -2685,8 +2690,8 @@ short creature_pretend_chicken_move(struct Thing *creatng)
     if (move_ret == 1)
     {
         internal_set_thing_state(creatng, CrSt_CreaturePretendChickenSetupMove);
-    } else
-    if (move_ret == -1)
+    }
+    else if (move_ret == -1)
     {
         internal_set_thing_state(creatng, CrSt_CreaturePretendChickenSetupMove);
     }
@@ -2697,37 +2702,31 @@ short creature_pretend_chicken_setup_move(struct Thing *creatng)
 {
     struct Room *room;
     struct Coord3d random_pos;
-
-    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-
-    if ((cctrl->stateblock_flags & CCSpl_ChickenRel) != 0)
+    struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
+    if (flag_is_set(cctrl->stateblock_flags, CCSpl_ChickenRel))
     {
         return 1;
     }
-
     long offsetted_gameturn = game.play_gameturn + creatng->index;
-
-    if ( (offsetted_gameturn % 16) == 0 )
+    if ((offsetted_gameturn % 16) == 0)
     {
         room = get_room_thing_is_on(creatng);
-
-        if (room_is_invalid(room) || !room_role_matches(room->kind,RoRoF_FoodStorage) || room->owner != creatng->owner )
+        if (room_is_invalid(room) || !room_role_matches(room->kind, RoRoF_FoodStorage) || room->owner != creatng->owner)
         {
             room = find_random_room_of_role_for_thing(creatng, creatng->owner, RoRoF_FoodStorage, 0);
         }
-
-        if ( !room_is_invalid(room) )
+        if (!room_is_invalid(room))
         {
-            if ( find_random_valid_position_for_thing_in_room(creatng, room, &random_pos) )
+            if (find_random_valid_position_for_thing_in_room(creatng, room, &random_pos))
             {
-                setup_person_move_close_to_position(creatng,random_pos.x.stl.num,random_pos.y.stl.num, 0);
+                setup_person_move_close_to_position(creatng, random_pos.x.stl.num, random_pos.y.stl.num, 0);
                 internal_set_thing_state(creatng, CrSt_CreaturePretendChickenMove);
                 return 1;
             }
         }
-        else if ( get_random_position_in_dungeon_for_creature(creatng->owner, CrWaS_WithinDungeon, creatng, &random_pos) )
+        else if (get_random_position_in_dungeon_for_creature(creatng->owner, CrWaS_WithinDungeon, creatng, &random_pos))
         {
-            setup_person_move_close_to_position(creatng,random_pos.x.stl.num,random_pos.y.stl.num, 0);
+            setup_person_move_close_to_position(creatng, random_pos.x.stl.num, random_pos.y.stl.num, 0);
             internal_set_thing_state(creatng, CrSt_CreaturePretendChickenMove);
         }
     }

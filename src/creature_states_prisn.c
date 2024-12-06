@@ -371,13 +371,12 @@ TbBool process_prisoner_skelification(struct Thing *thing, struct Room *room)
 
 void food_set_wait_to_be_eaten(struct Thing *thing)
 {
-
     TRACE_THING(thing);
-    if ( thing_is_creature(thing) )
+    if (thing_is_creature(thing))
     {
         struct CreatureControl *cctrl;
         cctrl = creature_control_get_from_thing(thing);
-        cctrl->stateblock_flags |= CCSpl_ChickenRel;
+        set_flag(cctrl->stateblock_flags, CCSpl_ChickenRel);
     }
     else
     {

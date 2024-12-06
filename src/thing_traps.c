@@ -536,9 +536,9 @@ struct Thing *activate_trap_spawn_creature(struct Thing *traptng, unsigned char 
         WARNLOG("Can't spawn creature %s due to map creature limit.", creature_code_name(model));
         return INVALID_THING;
     }
-    struct Thing* thing;
+    struct Thing *thing;
     struct TrapConfigStats *trapst = get_trap_model_stats(traptng->model);
-    struct CreatureControl* cctrl;
+    struct CreatureControl *cctrl;
     struct Coord3d shot_origin;
     shot_origin.x.val = traptng->mappos.x.val;
     shot_origin.y.val = traptng->mappos.y.val;
@@ -565,8 +565,8 @@ struct Thing *activate_trap_spawn_creature(struct Thing *traptng, unsigned char 
     thing->veloc_push_add.x.val += CREATURE_RANDOM(thing, 161) - 80;
     thing->veloc_push_add.y.val += CREATURE_RANDOM(thing, 161) - 80;
     thing->veloc_push_add.z.val += 0;
-    thing->state_flags |= TF1_PushAdd;
-    cctrl->spell_flags |= CSAfF_MagicFall;
+    set_flag(thing->state_flags, TF1_PushAdd);
+    set_flag(cctrl->spell_flags, CSAfF_MagicFall);
     thing->move_angle_xy = 0;
     return thing;
 }

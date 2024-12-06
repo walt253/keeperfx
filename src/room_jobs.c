@@ -89,22 +89,21 @@ TbBool creature_is_working_in_room(const struct Thing *creatng, const struct Roo
 TbBool add_creature_to_torture_room(struct Thing *creatng, const struct Room *room)
 {
     TRACE_THING(creatng);
-    if (creatng->light_id != 0) {
+    if (creatng->light_id != 0)
+    {
         light_delete_light(creatng->light_id);
         creatng->light_id = 0;
     }
-    if (creature_affected_by_spell(creatng, SplK_Speed))
-        terminate_thing_spell_effect(creatng, SplK_Speed);
-    if (creature_affected_by_spell(creatng, SplK_Invisibility))
-        terminate_thing_spell_effect(creatng, SplK_Invisibility);
+    clean_spell_flags(creatng, CSAfF_Speed);
+    clean_spell_flags(creatng, CSAfF_Invisibility);
     if (room->owner != game.neutral_player_num)
     {
-        struct Dungeon* dungeon = get_dungeon(room->owner);
+        struct Dungeon *dungeon = get_dungeon(room->owner);
         dungeon->lvstats.creatures_tortured++;
         if (dungeon->tortured_creatures[creatng->model] == 0)
         {
             dungeon->tortured_creatures[creatng->model]++;
-            // Torturing changes speed of creatures of that kind, so let's update
+            // Torturing changes speed of creatures of that kind, so let's update.
             update_speed_of_player_creatures_of_model(room->owner, creatng->model);
         }
         else

@@ -51,199 +51,224 @@ extern "C" {
 const char keeper_magic_file[]="magic.cfg";
 
 const struct NamedCommand magic_spell_commands[] = {
-  {"NAME",            1},
-  {"DURATION",        2},
-  {"SELFCASTED",      3},
-  {"CASTATTHING",     4},
-  {"SHOTMODEL",       5},
-  {"EFFECTMODEL",     6},
-  {"SYMBOLSPRITES",   7},
-  {"SPELLPOWER",      8},
-  {"AURAEFFECT",      9},
-  {"SPELLFLAGS",     10},
-  {"SUMMONCREATURE", 11},
-  {NULL,              0},
-  };
+    {"NAME",            1},
+    {"DURATION",        2},
+    {"SELFCASTED",      3},
+    {"CASTATTHING",     4},
+    {"SHOTMODEL",       5},
+    {"EFFECTMODEL",     6},
+    {"SYMBOLSPRITES",   7},
+    {"SPELLPOWER",      8},
+    {"AURAEFFECT",      9},
+    {"SPELLFLAGS",     10},
+    {"SUMMONCREATURE", 11},
+    {NULL,              0},
+};
+
+const struct NamedCommand magic_spell_flags[] = {
+    {"SLOW",          1},
+    {"SPEED",         2},
+    {"ARMOUR",        3},
+    {"REBOUND",       4},
+    {"FLYING",        5},
+    {"INVISIBILITY",  6},
+    {"SIGHT",         7},
+    {"LIGHT",         8},
+    {"DISEASE",       9},
+    {"CHICKEN",      10},
+    {"POISON_CLOUD", 11},
+    {"CALL_TO_ARMS", 12},
+    {"MAD_KILLING",  13},
+    {"MAGIC_FALL",   14},
+    {"EXP_LEVEL_UP", 15},
+    {"GROUNDED",     16},
+    {"TIMEBOMB",     17},
+    {"WIND",         18},
+    {"FREEZE",       19},
+    {"TELEPORT",     20},
+    {"HEAL",         21},
+    {"FEAR",         22},
+    {NULL,            0},
+};
 
 const struct NamedCommand magic_shot_commands[] = {
-  {"NAME",                   1},
-  {"HEALTH",                 2},
-  {"DAMAGE",                 3},
-  {"DAMAGETYPE",             4},
-  {"HITTYPE",                5},
-  {"AREADAMAGE",             6},
-  {"SPEED",                  7},
-  {"PROPERTIES",             8},
-  {"PUSHONHIT",              9},
-  {"FIRINGSOUND",           10},
-  {"SHOTSOUND",             11},
-  {"FIRINGSOUNDVARIANTS",   12},
-  {"MAXRANGE",              13},
-  {"ANIMATION",             14},
-  {"ANIMATIONSIZE",         15},
-  {"SPELLEFFECT",           16},
-  {"BOUNCEANGLE",           17},
-  {"SIZE_XY",               18},
-  {"SIZE_YZ",               19},
-  {"SIZE_Z",                19},
-  {"FALLACCELERATION",      20},
-  {"VISUALEFFECT",          21},
-  {"VISUALEFFECTAMOUNT",    22},
-  {"VISUALEFFECTSPREAD",    23},
-  {"VISUALEFFECTHEALTH",    24},
-  {"HITWALLEFFECT",         25},
-  {"HITWALLSOUND",          26},
-  {"HITCREATUREEFFECT",     27},
-  {"HITCREATURESOUND",      28},
-  {"HITDOOREFFECT",         29},
-  {"HITDOORSOUND",          30},
-  {"HITWATEREFFECT",        31},
-  {"HITWATERSOUND",         32},
-  {"HITLAVAEFFECT",         33},
-  {"HITLAVASOUND",          34},
-  {"DIGHITEFFECT",          35},
-  {"DIGHITSOUND",           36},
-  {"EXPLOSIONEFFECTS",      37},
-  {"WITHSTANDHITAGAINST",   38},
-  {"ANIMATIONTRANSPARENCY", 39},
-  {"DESTROYONHIT",          40},
-  {"BASEEXPERIENCEGAIN",    41},
-  {"TARGETHITSTOPTURNS",    42},
-  {"SHOTSOUNDPRIORITY",     43},
-  {"LIGHTING",              44},
-  {"INERTIA",               45},
-  {"UNSHADED",              46},
-  {"SOFTLANDING",           47},
-  {"EFFECTMODEL",           48},
-  {"FIRELOGIC",             49},
-  {"UPDATELOGIC",           50},
-  {"EFFECTSPACING",         51},
-  {"EFFECTAMOUNT",          52},
-  {"HITHEARTEFFECT",        53},
-  {"HITHEARTSOUND",         54},
-  {"BLEEDINGEFFECT",        55},
-  {"FROZENEFFECT",          56},
-  {"PERIODICAL",            57},
-  {"SPEEDDEVIATION",        58},
-  {"SPREAD_XY",             59},
-  {"SPREAD_Z",              60},
-  {NULL,                     0},
-  };
+    {"NAME",                   1},
+    {"HEALTH",                 2},
+    {"DAMAGE",                 3},
+    {"DAMAGETYPE",             4},
+    {"HITTYPE",                5},
+    {"AREADAMAGE",             6},
+    {"SPEED",                  7},
+    {"PROPERTIES",             8},
+    {"PUSHONHIT",              9},
+    {"FIRINGSOUND",           10},
+    {"SHOTSOUND",             11},
+    {"FIRINGSOUNDVARIANTS",   12},
+    {"MAXRANGE",              13},
+    {"ANIMATION",             14},
+    {"ANIMATIONSIZE",         15},
+    {"SPELLEFFECT",           16},
+    {"BOUNCEANGLE",           17},
+    {"SIZE_XY",               18},
+    {"SIZE_YZ",               19},
+    {"SIZE_Z",                19},
+    {"FALLACCELERATION",      20},
+    {"VISUALEFFECT",          21},
+    {"VISUALEFFECTAMOUNT",    22},
+    {"VISUALEFFECTSPREAD",    23},
+    {"VISUALEFFECTHEALTH",    24},
+    {"HITWALLEFFECT",         25},
+    {"HITWALLSOUND",          26},
+    {"HITCREATUREEFFECT",     27},
+    {"HITCREATURESOUND",      28},
+    {"HITDOOREFFECT",         29},
+    {"HITDOORSOUND",          30},
+    {"HITWATEREFFECT",        31},
+    {"HITWATERSOUND",         32},
+    {"HITLAVAEFFECT",         33},
+    {"HITLAVASOUND",          34},
+    {"DIGHITEFFECT",          35},
+    {"DIGHITSOUND",           36},
+    {"EXPLOSIONEFFECTS",      37},
+    {"WITHSTANDHITAGAINST",   38},
+    {"ANIMATIONTRANSPARENCY", 39},
+    {"DESTROYONHIT",          40},
+    {"BASEEXPERIENCEGAIN",    41},
+    {"TARGETHITSTOPTURNS",    42},
+    {"SHOTSOUNDPRIORITY",     43},
+    {"LIGHTING",              44},
+    {"INERTIA",               45},
+    {"UNSHADED",              46},
+    {"SOFTLANDING",           47},
+    {"EFFECTMODEL",           48},
+    {"FIRELOGIC",             49},
+    {"UPDATELOGIC",           50},
+    {"EFFECTSPACING",         51},
+    {"EFFECTAMOUNT",          52},
+    {"HITHEARTEFFECT",        53},
+    {"HITHEARTSOUND",         54},
+    {"BLEEDINGEFFECT",        55},
+    {"FROZENEFFECT",          56},
+    {"PERIODICAL",            57},
+    {"SPEEDDEVIATION",        58},
+    {"SPREAD_XY",             59},
+    {"SPREAD_Z",              60},
+    {NULL,                     0},
+};
 
 const struct NamedCommand magic_power_commands[] = {
-  {"NAME",            1},
-  {"POWER",           2},
-  {"COST",            3},
-  {"DURATION",        4},
-  {"CASTABILITY",     5},
-  {"ARTIFACT",        6},
-  {"NAMETEXTID",      7},
-  {"TOOLTIPTEXTID",   8},
-  {"SYMBOLSPRITES",  10},
-  {"POINTERSPRITES", 11},
-  {"PANELTABINDEX",  12},
-  {"SOUNDSAMPLES",   13},
-  {"PROPERTIES",     14},
-  {"CASTEXPANDFUNC", 15},
-  {"PLAYERSTATE",    16},
-  {"PARENTPOWER",    17},
-  {"SOUNDPLAYED",    18},
-  {"COOLDOWN",       19},
-  {"SPELL",          20},
-  {"EFFECT",         21},
-  {"USEFUNCTION",    22},
-  {"CREATURETYPE",   23},
-  {"COSTFORMULA",    24},
-  {NULL,              0},
-  };
+    {"NAME",            1},
+    {"POWER",           2},
+    {"COST",            3},
+    {"DURATION",        4},
+    {"CASTABILITY",     5},
+    {"ARTIFACT",        6},
+    {"NAMETEXTID",      7},
+    {"TOOLTIPTEXTID",   8},
+    {"SYMBOLSPRITES",  10},
+    {"POINTERSPRITES", 11},
+    {"PANELTABINDEX",  12},
+    {"SOUNDSAMPLES",   13},
+    {"PROPERTIES",     14},
+    {"CASTEXPANDFUNC", 15},
+    {"PLAYERSTATE",    16},
+    {"PARENTPOWER",    17},
+    {"SOUNDPLAYED",    18},
+    {"COOLDOWN",       19},
+    {"SPELL",          20},
+    {"EFFECT",         21},
+    {"USEFUNCTION",    22},
+    {"CREATURETYPE",   23},
+    {"COSTFORMULA",    24},
+    {NULL,              0},
+};
 
 const struct NamedCommand magic_special_commands[] = {
-  {"NAME",             1},
-  {"ARTIFACT",         2},
-  {"TOOLTIPTEXTID",    3},
-  {"SPEECHPLAYED",     4},
-  {"ACTIVATIONEFFECT", 5},
-  {"VALUE",            6},
-  {NULL,               0},
-  };
-
+    {"NAME",             1},
+    {"ARTIFACT",         2},
+    {"TOOLTIPTEXTID",    3},
+    {"SPEECHPLAYED",     4},
+    {"ACTIVATIONEFFECT", 5},
+    {"VALUE",            6},
+    {NULL,               0},
+};
 
 const struct NamedCommand shotmodel_withstand_types[] = {
-  {"CREATURE",      1},
-  {"WALL",          2},
-  {"DOOR",          3},
-  {"WATER",         4},
-  {"LAVA",          5},
-  {"DIG",           6},
-  {NULL,            0},
+    {"CREATURE",      1},
+    {"WALL",          2},
+    {"DOOR",          3},
+    {"WATER",         4},
+    {"LAVA",          5},
+    {"DIG",           6},
+    {NULL,            0},
 };
 
 const struct NamedCommand shotmodel_properties_commands[] = {
-  {"SLAPPABLE",            1},
-  {"NAVIGABLE",            2},
-  {"BOULDER",              3},
-  {"REBOUND_IMMUNE",       4},
-  {"DIGGING",              5},
-  {"LIFE_DRAIN",           6},
-  {"GROUP_UP",             7},
-  {"NO_STUN",              8},
-  {"NO_HIT",               9},
-  {"STRENGTH_BASED",      10},
-  {"ALARMS_UNITS",        11},
-  {"CAN_COLLIDE",         12},
-  {"EXPLODE_FLESH",       13},
-  {"NO_AIR_DAMAGE",       14},
-  {"WIND_IMMUNE",         15},
-  {"FIXED_DAMAGE",        16},
-  {"HIDDEN_PROJECTILE",   17},
-  {"DISARMING",           18},
-  {"BLOCKS_REBIRTH",      19},
-  {"PENETRATING",         20},
-  {"NEVER_BLOCK",         21},
-  {NULL,                   0},
-  };
+    {"SLAPPABLE",            1},
+    {"NAVIGABLE",            2},
+    {"BOULDER",              3},
+    {"REBOUND_IMMUNE",       4},
+    {"DIGGING",              5},
+    {"LIFE_DRAIN",           6},
+    {"GROUP_UP",             7},
+    {"NO_STUN",              8},
+    {"NO_HIT",               9},
+    {"STRENGTH_BASED",      10},
+    {"ALARMS_UNITS",        11},
+    {"CAN_COLLIDE",         12},
+    {"EXPLODE_FLESH",       13},
+    {"NO_AIR_DAMAGE",       14},
+    {"WIND_IMMUNE",         15},
+    {"FIXED_DAMAGE",        16},
+    {"HIDDEN_PROJECTILE",   17},
+    {"DISARMING",           18},
+    {"BLOCKS_REBIRTH",      19},
+    {"PENETRATING",         20},
+    {"NEVER_BLOCK",         21},
+    {NULL,                   0},
+};
 
 const struct LongNamedCommand powermodel_castability_commands[] = {
-  {"CUSTODY_CRTRS",    PwCast_CustodyCrtrs},
-  {"OWNED_CRTRS",      PwCast_OwnedCrtrs},
-  {"ALLIED_CRTRS",     PwCast_AlliedCrtrs},
-  {"ENEMY_CRTRS",      PwCast_EnemyCrtrs},
-  {"UNCONSC_CRTRS",    PwCast_NConscCrtrs},
-  {"BOUND_CRTRS",      PwCast_BoundCrtrs},
-  {"UNCLMD_GROUND",    PwCast_UnclmdGround},
-  {"NEUTRL_GROUND",    PwCast_NeutrlGround},
-  {"OWNED_GROUND",     PwCast_OwnedGround},
-  {"ALLIED_GROUND",    PwCast_AlliedGround},
-  {"ENEMY_GROUND",     PwCast_EnemyGround},
-  {"NEUTRL_TALL",      PwCast_NeutrlTall},
-  {"OWNED_TALL",       PwCast_OwnedTall},
-  {"ALLIED_TALL",      PwCast_AlliedTall},
-  {"ENEMY_TALL",       PwCast_EnemyTall},
-  {"OWNED_FOOD",       PwCast_OwnedFood},
-  {"NEUTRL_FOOD",      PwCast_NeutrlFood},
-  {"ENEMY_FOOD",       PwCast_EnemyFood},
-  {"OWNED_GOLD",       PwCast_OwnedGold},
-  {"NEUTRL_GOLD",      PwCast_NeutrlGold},
-  {"ENEMY_GOLD",       PwCast_EnemyGold},
-  {"OWNED_SPELL",      PwCast_OwnedSpell},
-  {"OWNED_BOULDERS",   PwCast_OwnedBoulders},
-  {"NEEDS_DELAY",      PwCast_NeedsDelay},
-  {"CLAIMABLE",        PwCast_Claimable},
-  {"UNREVEALED",       PwCast_Unrevealed},
-  {"REVEALED_TEMP",    PwCast_RevealedTemp},
-  {"THING_OR_MAP",     PwCast_ThingOrMap},
-  {"ONLY_DIGGERS",     PwCast_DiggersOnly},
-  {"NO_DIGGERS",       PwCast_DiggersNot},
-  {"ANYWHERE",         PwCast_Anywhere},
-  {"ALL_CRTRS",        PwCast_AllCrtrs},
-  {"ALL_FOOD",         PwCast_AllFood},
-  {"ALL_GOLD",         PwCast_AllGold},
-  {"ALL_THINGS",       PwCast_AllThings},
-  {"ALL_GROUND",       PwCast_AllGround},
-  {"NOT_ENEMY_GROUND", PwCast_NotEnemyGround},
-  {"ALL_TALL",         PwCast_AllTall},
-  {NULL,                0},
-  };
+    {"CUSTODY_CRTRS",    PwCast_CustodyCrtrs},
+    {"OWNED_CRTRS",      PwCast_OwnedCrtrs},
+    {"ALLIED_CRTRS",     PwCast_AlliedCrtrs},
+    {"ENEMY_CRTRS",      PwCast_EnemyCrtrs},
+    {"UNCONSC_CRTRS",    PwCast_NConscCrtrs},
+    {"BOUND_CRTRS",      PwCast_BoundCrtrs},
+    {"UNCLMD_GROUND",    PwCast_UnclmdGround},
+    {"NEUTRL_GROUND",    PwCast_NeutrlGround},
+    {"OWNED_GROUND",     PwCast_OwnedGround},
+    {"ALLIED_GROUND",    PwCast_AlliedGround},
+    {"ENEMY_GROUND",     PwCast_EnemyGround},
+    {"NEUTRL_TALL",      PwCast_NeutrlTall},
+    {"OWNED_TALL",       PwCast_OwnedTall},
+    {"ALLIED_TALL",      PwCast_AlliedTall},
+    {"ENEMY_TALL",       PwCast_EnemyTall},
+    {"OWNED_FOOD",       PwCast_OwnedFood},
+    {"NEUTRL_FOOD",      PwCast_NeutrlFood},
+    {"ENEMY_FOOD",       PwCast_EnemyFood},
+    {"OWNED_GOLD",       PwCast_OwnedGold},
+    {"NEUTRL_GOLD",      PwCast_NeutrlGold},
+    {"ENEMY_GOLD",       PwCast_EnemyGold},
+    {"OWNED_SPELL",      PwCast_OwnedSpell},
+    {"OWNED_BOULDERS",   PwCast_OwnedBoulders},
+    {"NEEDS_DELAY",      PwCast_NeedsDelay},
+    {"CLAIMABLE",        PwCast_Claimable},
+    {"UNREVEALED",       PwCast_Unrevealed},
+    {"REVEALED_TEMP",    PwCast_RevealedTemp},
+    {"THING_OR_MAP",     PwCast_ThingOrMap},
+    {"ONLY_DIGGERS",     PwCast_DiggersOnly},
+    {"NO_DIGGERS",       PwCast_DiggersNot},
+    {"ANYWHERE",         PwCast_Anywhere},
+    {"ALL_CRTRS",        PwCast_AllCrtrs},
+    {"ALL_FOOD",         PwCast_AllFood},
+    {"ALL_GOLD",         PwCast_AllGold},
+    {"ALL_THINGS",       PwCast_AllThings},
+    {"ALL_GROUND",       PwCast_AllGround},
+    {"NOT_ENEMY_GROUND", PwCast_NotEnemyGround},
+    {"ALL_TALL",         PwCast_AllTall},
+    {NULL,               0},
+};
 
 const struct NamedCommand powermodel_properties_commands[] = {
     {"INSTINCTIVE",       PwCF_Instinctive},
@@ -252,63 +277,63 @@ const struct NamedCommand powermodel_properties_commands[] = {
 };
 
 const struct NamedCommand shotmodel_damagetype_commands[] = {
-  {"NONE",        DmgT_None},
-  {"PHYSICAL",    DmgT_Physical},
-  {"ELECTRIC",    DmgT_Electric},
-  {"COMBUSTION",  DmgT_Combustion},
-  {"FROSTBITE",   DmgT_Frostbite},
-  {"HEATBURN",    DmgT_Heatburn},
-  {"BIOLOGICAL",  DmgT_Biological},
-  {"MAGICAL",     DmgT_Magical},
-  {"RESPIRATORY", DmgT_Respiratory},
-  {"RESTORATION", DmgT_Restoration},
-  {NULL,          DmgT_None},
-  };
+    {"NONE",        DmgT_None},
+    {"PHYSICAL",    DmgT_Physical},
+    {"ELECTRIC",    DmgT_Electric},
+    {"COMBUSTION",  DmgT_Combustion},
+    {"FROSTBITE",   DmgT_Frostbite},
+    {"HEATBURN",    DmgT_Heatburn},
+    {"BIOLOGICAL",  DmgT_Biological},
+    {"MAGICAL",     DmgT_Magical},
+    {"RESPIRATORY", DmgT_Respiratory},
+    {"RESTORATION", DmgT_Restoration},
+    {NULL,          DmgT_None},
+};
 
 const struct NamedCommand powermodel_expand_check_func_type[] = {
-  {"general_expand",           OcC_General_expand},
-  {"sight_of_evil_expand",     OcC_SightOfEvil_expand},
-  {"call_to_arms_expand",      OcC_CallToArms_expand},
-  {"do_not_expand",            OcC_do_not_expand},
-  {NULL,                       OcC_Null},
+    {"general_expand",           OcC_General_expand},
+    {"sight_of_evil_expand",     OcC_SightOfEvil_expand},
+    {"call_to_arms_expand",      OcC_CallToArms_expand},
+    {"do_not_expand",            OcC_do_not_expand},
+    {NULL,                       OcC_Null},
 };
 
 const struct NamedCommand magic_cost_formula_commands[] = {
-  {"none",       Cost_Default},
-  {"digger",     Cost_Digger},
-  {"dwarf",      Cost_Dwarf},
+    {"none",       Cost_Default},
+    {"digger",     Cost_Digger},
+    {"dwarf",      Cost_Dwarf},
 };
 
 const struct NamedCommand magic_use_func_commands[] = {
-  {"none",                          0},
-  {"magic_use_power_hand",          1},
-  {"magic_use_power_heal",          2},
-  {"magic_use_power_apply_spell",   3},
-  {"magic_use_power_disease",       4},
-  {"magic_use_power_chicken",       5},
-  {"magic_use_power_slap_thing",    6},
-  {"magic_use_power_possess_thing", 7},
-  {"magic_use_power_call_to_arms",  8},
-  {"magic_use_power_lightning",     9},
-  {"magic_use_power_time_bomb",    10},
-  {"magic_use_power_imp",          11},
-  {"magic_use_power_sight",        12},
-  {"magic_use_power_cave_in",      13},
-  {"magic_use_power_destroy_walls",14},
-  {"magic_use_power_obey",         15},
-  {"magic_use_power_hold_audience",16},
-  {"magic_use_power_armageddon",   17},
-  {"magic_use_power_tunneller",    18},
-  {NULL,                  0},
-  };
+    {"none",                           0},
+    {"magic_use_power_hand",           1},
+    {"magic_use_power_heal",           2},
+    {"magic_use_power_apply_spell",    3},
+    {"magic_use_power_disease",        4},
+    {"magic_use_power_chicken",        5},
+    {"magic_use_power_slap_thing",     6},
+    {"magic_use_power_possess_thing",  7},
+    {"magic_use_power_call_to_arms",   8},
+    {"magic_use_power_lightning",      9},
+    {"magic_use_power_time_bomb",     10},
+    {"magic_use_power_imp",           11},
+    {"magic_use_power_sight",         12},
+    {"magic_use_power_cave_in",       13},
+    {"magic_use_power_destroy_walls", 14},
+    {"magic_use_power_obey",          15},
+    {"magic_use_power_hold_audience", 16},
+    {"magic_use_power_armageddon",    17},
+    {"magic_use_power_tunneller",     18},
+    {NULL,                             0},
+};
 
 const Expand_Check_Func powermodel_expand_check_func_list[] = {
-  NULL,
-  general_expand_check,
-  sight_of_evil_expand_check,
-  call_to_arms_expand_check,
-  NULL,
-  NULL,
+    NULL,
+    general_expand_check,
+    sight_of_evil_expand_check,
+    call_to_arms_expand_check,
+    NULL,
+    NULL,
 };
 
 /******************************************************************************/
@@ -328,7 +353,7 @@ struct SpellConfig *get_spell_config(int mgc_idx)
   return &game.conf.magic_conf.spell_config[mgc_idx];
 }
 
-TbBool spell_config_is_invalid(const struct SpellConfig *mgcinfo)
+TbBool spell_config_is_invalid(struct SpellConfig *mgcinfo)
 {
   if (mgcinfo <= &game.conf.magic_conf.spell_config[0])
     return true;
@@ -647,22 +672,120 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
                   COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
-      case 10: // SPELLFLAGS
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              if (k >= 0)
-              {
-                  spconf->spell_flags = k;
-                  n++;
-              }
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-          }
-          break;
+        case 10: // SPELLFLAGS
+            spconf->spell_flags = 0;
+            while (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+            {
+                if (parameter_is_number(word_buf))
+                {
+                    k = atoi(word_buf);
+                    spconf->spell_flags = k;
+                    n++;
+                }
+                else
+                {
+                    k = get_id(magic_spell_flags, word_buf);
+                    switch (k)
+                    {
+                    case 1: // SLOW
+                        set_flag(spconf->spell_flags, CSAfF_Slow);
+                        n++;
+                        break;
+                    case 2: // SPEED
+                        set_flag(spconf->spell_flags, CSAfF_Speed);
+                        n++;
+                        break;
+                    case 3: // ARMOUR
+                        set_flag(spconf->spell_flags, CSAfF_Armour);
+                        n++;
+                        break;
+                    case 4: // REBOUND
+                        set_flag(spconf->spell_flags, CSAfF_Rebound);
+                        n++;
+                        break;
+                    case 5: // FLYING
+                        set_flag(spconf->spell_flags, CSAfF_Flying);
+                        n++;
+                        break;
+                    case 6: // INVISIBILITY
+                        set_flag(spconf->spell_flags, CSAfF_Invisibility);
+                        n++;
+                        break;
+                    case 7: // SIGHT
+                        set_flag(spconf->spell_flags, CSAfF_Sight);
+                        n++;
+                        break;
+                    case 8: // LIGHT
+                        set_flag(spconf->spell_flags, CSAfF_Light);
+                        n++;
+                        break;
+                    case 9: // DISEASE
+                        set_flag(spconf->spell_flags, CSAfF_Disease);
+                        n++;
+                        break;
+                    case 10: // CHICKEN
+                        set_flag(spconf->spell_flags, CSAfF_Chicken);
+                        n++;
+                        break;
+                    case 11: // POISON_CLOUD
+                        set_flag(spconf->spell_flags, CSAfF_PoisonCloud);
+                        n++;
+                        break;
+                    case 12: // CALL_TO_ARMS
+                        set_flag(spconf->spell_flags, CSAfF_CalledToArms);
+                        n++;
+                        break;
+                    case 13: // MAD_KILLING
+                        set_flag(spconf->spell_flags, CSAfF_MadKilling);
+                        n++;
+                        break;
+                    case 14: // MAGIC_FALL
+                        set_flag(spconf->spell_flags, CSAfF_MagicFall);
+                        n++;
+                        break;
+                    case 15: // EXP_LEVEL_UP
+                        set_flag(spconf->spell_flags, CSAfF_ExpLevelUp);
+                        n++;
+                        break;
+                    case 16: // GROUNDED
+                        set_flag(spconf->spell_flags, CSAfF_Grounded);
+                        n++;
+                        break;
+                    case 17: // TIMEBOMB
+                        set_flag(spconf->spell_flags, CSAfF_Timebomb);
+                        n++;
+                        break;
+                    case 18: // WIND
+                        set_flag(spconf->spell_flags, CSAfF_Wind);
+                        n++;
+                        break;
+                    case 19: // FREEZE
+                        set_flag(spconf->spell_flags, CSAfF_Freeze);
+                        n++;
+                        break;
+                    case 20: // TELEPORT
+                        set_flag(spconf->spell_flags, CSAfF_Teleport);
+                        n++;
+                        break;
+                    case 21: // HEAL
+                        set_flag(spconf->spell_flags, CSAfF_Heal);
+                        n++;
+                        break;
+                    case 22: // FEAR
+                        set_flag(spconf->spell_flags, CSAfF_Fear);
+                        n++;
+                        break;
+                    default:
+                        break;
+                    }
+                }
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+            }
+            break;
         case 11: // SUMMONCREATURE
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {

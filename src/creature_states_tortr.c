@@ -186,16 +186,19 @@ long process_torture_visuals(struct Thing *creatng, struct Room *room, CreatureJ
     switch (cctrl->tortured.vis_state)
     {
     case CTVS_TortureRandMove:
-        if (game.play_gameturn - cctrl->tortured.gameturn_9Ex > 100) {
+        if (game.play_gameturn - cctrl->tortured.gameturn_9Ex > 100)
+        {
             cctrl->tortured.vis_state = CTVS_TortureGoToDevice;
         }
-        if (!creature_setup_adjacent_move_for_job_within_room(creatng, room, jobpref)) {
+        if (!creature_setup_adjacent_move_for_job_within_room(creatng, room, jobpref))
+        {
             return CrStRet_Unchanged;
         }
         creatng->continue_state = get_continue_state_for_job(jobpref);
         return 1;
     case CTVS_TortureGoToDevice:
-        if (!setup_torture_move_to_device(creatng, room, jobpref)) {
+        if (!setup_torture_move_to_device(creatng, room, jobpref))
+        {
             cctrl->tortured.vis_state = CTVS_TortureRandMove;
             cctrl->tortured.gameturn_9Ex = game.play_gameturn;
             return CrStRet_Unchanged;
@@ -205,22 +208,27 @@ long process_torture_visuals(struct Thing *creatng, struct Room *room, CreatureJ
         return 1;
     case CTVS_TortureInDevice:
         sectng = thing_get(cctrl->tortured.assigned_torturer);
-        if (creature_turn_to_face_angle(creatng, sectng->move_angle_xy) >= LbFPMath_PI/12) {
+        if (creature_turn_to_face_angle(creatng, sectng->move_angle_xy) >= LbFPMath_PI / 12)
+        {
             return CrStRet_Unchanged;
         }
-        creatng->movement_flags &= ~TMvF_Flying;
-        cctrl->spell_flags &= ~CSAfF_Flying;
+        clear_flag(creatng->movement_flags, TMvF_Flying);
+        clear_flag(cctrl->spell_flags, CSAfF_Flying);
         creatng->mappos.z.val = get_thing_height_at(creatng, &creatng->mappos);
-        if (cctrl->instance_id == CrInst_NULL) {
+        if (cctrl->instance_id == CrInst_NULL)
+        {
             set_creature_instance(creatng, CrInst_TORTURED, 0, 0);
         }
-        if (thing_exists(sectng)) {
-            sectng->rendering_flags |= TRF_Invisible;
-        } else {
+        if (thing_exists(sectng))
+        { // Could it be the cause of the torture device disappearing for no reason?
+            set_flag(sectng->rendering_flags, TRF_Invisible);
+        }
+        else
+        {
             ERRORLOG("No device for torture");
         }
         dturn = game.play_gameturn - cctrl->tortured.gameturn_A2x;
-        if ((dturn > 32) || ((cctrl->spell_flags & CSAfF_Speed) && (dturn > 16)))
+        if ((dturn > 32) || ((flag_is_set(cctrl->spell_flags, CSAfF_Speed)) && (dturn > 16)))
         {
             play_creature_sound(creatng, CrSnd_Torture, 2, 0);
             cctrl->tortured.gameturn_A2x = game.play_gameturn;
@@ -473,12 +481,16 @@ long reveal_players_map_to_player(struct Thing *thing, PlayerNumber benefit_plyr
  */
 long compute_torture_convert_time(const struct Thing *thing, const struct Room *room)
 {
-    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
     long i = ((long)game.play_gameturn - cctrl->tortured.start_gameturn) * room->efficiency / ROOM_EFFICIENCY_MAX;
-    if (creature_affected_by_spell(thing, SplK_Speed))
-      i = (4 * i) / 3;
+    if (flag_is_set(cctrl->spell_flags, CSAfF_Speed))
+    {
+        i = (4 * i) / 3;
+    }
     if (creature_affected_by_slap(thing))
-      i = (5 * i) / 4;
+    {
+        i = (5 * i) / 4;
+    }
     return i;
 }
 

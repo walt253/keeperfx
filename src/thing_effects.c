@@ -183,21 +183,21 @@ struct Thing *create_effect_element(const struct Coord3d *pos, ThingModel eelmod
 
 void process_spells_affected_by_effect_elements(struct Thing *thing)
 {
-    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
     GameTurnDelta dturn;
     long angle;
     MapCoordDelta shift_x;
     MapCoordDelta shift_y;
     struct Coord3d pos;
     struct Thing *effeltng;
-
-    if ((cctrl->spell_flags & CSAfF_Rebound) != 0)
+    struct SpellConfig *spconf;
+    // Effect elements related to Rebound.
+    if (flag_is_set(cctrl->spell_flags, CSAfF_Rebound))
     {
         int diamtr = 4 * thing->clipbox_size_xy / 2;
         dturn = game.play_gameturn - thing->creation_turn;
-        MapCoord cor_z_max = thing->clipbox_size_z + (thing->clipbox_size_z * game.conf.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 80; //effect is 25% larger than unit
-
-        struct EffectElementConfigStats* eestat = get_effect_element_model_stats(TngEffElm_FlashBall1);
+        MapCoord cor_z_max = thing->clipbox_size_z + (thing->clipbox_size_z * game.conf.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 80; // Effect is 25% larger than unit.
+        struct EffectElementConfigStats *eestat = get_effect_element_model_stats(TngEffElm_FlashBall1);
         unsigned short nframes = keepersprite_frames(eestat->sprite_idx);
         GameTurnDelta dtadd = 0;
         unsigned short cframe = game.play_gameturn % nframes;
@@ -206,56 +206,64 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
         while (pos.z.val < cor_z_max + thing->mappos.z.val)
         {
             angle = (abs(dturn + dtadd) & 7) << 8;
-            shift_x =  (radius * LbSinL(angle) >> 8) >> 8;
+            shift_x = (radius * LbSinL(angle) >> 8) >> 8;
             shift_y = -(radius * LbCosL(angle) >> 8) >> 8;
             pos.x.val = thing->mappos.x.val + shift_x;
             pos.y.val = thing->mappos.y.val + shift_y;
             effeltng = create_thing(&pos, TCls_EffectElem, TngEffElm_FlashBall1, thing->owner, -1);
             if (thing_is_invalid(effeltng))
+            {
                 break;
+            }
             set_thing_draw(effeltng, eestat->sprite_idx, 256, eestat->sprite_size_min, 0, cframe, ODC_Default);
             dtadd++;
             pos.z.val += 64;
             cframe = (cframe + 1) % nframes;
         }
     }
-
-    if ((cctrl->spell_flags & CSAfF_Slow) != 0)
+    // Effect elements related to Slow.
+    if (flag_is_set(cctrl->spell_flags, CSAfF_Slow))
     {
         int diamtr = 4 * thing->clipbox_size_xy / 2;
-        MapCoord cor_z_max = thing->clipbox_size_z + (thing->clipbox_size_z * game.conf.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 80; //effect is 20% smaller than unit
-        int i = cor_z_max / 64; //64 is the vertical speed of the circle.
+        MapCoord cor_z_max = thing->clipbox_size_z + (thing->clipbox_size_z * game.conf.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 80; // Effect is 20% smaller than unit.
+        int i = cor_z_max / 64; // 64 is the vertical speed of the circle.
         if (i <= 1)
-          i = 1;
+        {
+            i = 1;
+        }
         dturn = game.play_gameturn - thing->creation_turn;
         int vrange = i;
         if (dturn % (2 * i) < vrange)
+        {
             pos.z.val = thing->mappos.z.val + cor_z_max / vrange * (dturn % vrange);
+        }
         else
+        {
             pos.z.val = thing->mappos.z.val + cor_z_max / vrange * (vrange - (dturn % vrange));
+        }
         int radius = diamtr / 2;
-        for (i=0; i < 16; i++)
+        for (i = 0; i < 16; i++)
         {
             angle = (abs(i) & 0xF) << 7;
-            shift_x =  (radius * LbSinL(angle) >> 8) >> 8;
+            shift_x = (radius * LbSinL(angle) >> 8) >> 8;
             shift_y = -(radius * LbCosL(angle) >> 8) >> 8;
             pos.x.val = thing->mappos.x.val + shift_x;
             pos.y.val = thing->mappos.y.val + shift_y;
             effeltng = create_thing(&pos, TCls_EffectElem, TngEffElm_RedFlash, thing->owner, -1);
         }
     }
-
-    if ((cctrl->spell_flags & CSAfF_Flying) != 0)
+    // Effect elements related to Fly.
+    if (flag_is_set(cctrl->spell_flags, CSAfF_Flying))
     {
         effeltng = create_thing(&thing->mappos, TCls_EffectElem, TngEffElm_CloudDisperse, thing->owner, -1);
     }
-
-    if ((cctrl->spell_flags & CSAfF_Speed) != 0)
+    // Effect elements related to Speed.
+    if (flag_is_set(cctrl->spell_flags, CSAfF_Speed))
     {
         effeltng = create_effect_element(&thing->mappos, TngEffElm_FlashBall2, thing->owner);
         if (!thing_is_invalid(effeltng))
         {
-            //make an afterimage of the speeding unit
+            // Make an afterimage of the speeding unit.
             effeltng->anim_time = thing->anim_time;
             effeltng->anim_sprite = thing->anim_sprite;
             effeltng->sprite_size = thing->sprite_size;
@@ -274,17 +282,27 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
             effeltng->move_angle_xy = thing->move_angle_xy;
         }
     }
-
-    if ((cctrl->stateblock_flags & CCSpl_Teleport) != 0)
+    // Effect elements related to Teleport.
+    if (flag_is_set(cctrl->stateblock_flags, CCSpl_Teleport))
     {
-        dturn = get_spell_duration_left_on_thing(thing, SplK_Teleport);
-        const struct SpellConfig* spconf = get_spell_config(SplK_Teleport);
+        // Get the max duration of the spell and the duration left.
+        for (int spell_idx = 0; spell_idx < CREATURE_MAX_SPELLS_CASTED_AT; spell_idx++)
+        {
+            spconf = get_spell_config(cctrl->casted_spells[spell_idx].spkind);
+            if (flag_is_set(spconf->spell_flags, CSAfF_Teleport))
+            {
+                // Get the duration of the first active teleport spell found.
+                dturn = cctrl->casted_spells[spell_idx].duration;
+                break; // Once found an active teleport spell, no need to check further.
+            }
+            dturn = 0; // Failsafe, skip the afterimage if that happens.
+        }
         if (spconf->duration / 2 < dturn)
         {
             effeltng = create_effect_element(&thing->mappos, TngEffElm_FlashBall2, thing->owner);
             if (!thing_is_invalid(effeltng))
             {
-                //make an afterimage of the teleporting unit
+                // Make an afterimage of the teleporting unit.
                 effeltng->anim_speed = 0;
                 effeltng->anim_time = thing->anim_time;
                 effeltng->anim_sprite = thing->anim_sprite;
@@ -304,27 +322,30 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
                 effeltng->rendering_flags |= TRF_Transpar_4;
                 effeltng->move_angle_xy = thing->move_angle_xy;
             }
-        } else
-        if (spconf->duration / 2 > dturn)
+        }
+        else if (spconf->duration / 2 > dturn)
         {
-            struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-            if ((dturn % 2) == 0) {
+            struct CreatureStats *crstat = creature_stats_get_from_thing(thing);
+            if ((dturn % 2) == 0)
+            {
                 effeltng = create_effect_element(&thing->mappos, birth_effect_element[get_player_color_idx(thing->owner)], thing->owner);
             }
             creature_turn_to_face_angle(thing, thing->move_angle_xy + crstat->max_turning_speed);
         }
     }
-
-    if ((cctrl->spell_flags & CSAfF_MagicFall) != 0)
+    // Effect elements related to Magic Fall.
+    if (flag_is_set(cctrl->spell_flags, CSAfF_MagicFall))
     {
         dturn = game.play_gameturn - thing->creation_turn;
-        if ((dturn & 1) == 0) {
+        if ((dturn & 1) == 0)
+        {
             effeltng = create_effect_element(&thing->mappos, birth_effect_element[get_player_color_idx(thing->owner)], thing->owner);
         }
-        struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+        struct CreatureStats *crstat = creature_stats_get_from_thing(thing);
         creature_turn_to_face_angle(thing, thing->move_angle_xy + crstat->max_turning_speed);
-        if ((dturn > 32) || thing_touching_floor(thing)) {
-            cctrl->spell_flags &= ~CSAfF_MagicFall;
+        if ((dturn > 32) || thing_touching_floor(thing))
+        {
+            clear_flag(cctrl->spell_flags, CSAfF_MagicFall);
         }
     }
 }
@@ -1385,60 +1406,68 @@ long explosion_affecting_area(struct Thing *tngsrc, const struct Coord3d *pos, M
 }
 
 TbBool poison_cloud_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, const struct Coord3d *pos,
-    MapCoordDelta max_dist, HitPoints max_damage, long blow_strength, unsigned char area_affect_type, DamageType damage_type, PlayerNumber owner)
+MapCoordDelta max_dist, HitPoints max_damage, long blow_strength, unsigned char area_affect_type, DamageType damage_type, PlayerNumber owner)
 {
     TbBool affected = false;
-    SYNCDBG(17,"Starting for %s, max damage %d, max blow %d, owner %d",thing_model_name(tngdst),(int)max_damage,(int)blow_strength,(int)owner);
+    SYNCDBG(17, "Starting for %s, max damage %d, max blow %d, owner %d", thing_model_name(tngdst), (int)max_damage, (int)blow_strength, (int)owner);
     if (thing_is_creature(tngdst))
     {
-        const struct CreatureStats* crstat = creature_stats_get_from_thing(tngdst);
-        if (crstat->immune_to_gas) {
+        const struct CreatureStats *crstat = creature_stats_get_from_thing(tngdst);
+        if (crstat->immune_to_gas)
+        {
             return affected;
         }
-    } else {
+    }
+    else
+    {
         return affected;
     }
     if (line_of_sight_3d(pos, &tngdst->mappos))
     {
-        // Note that gas has no distinction over friendly and enemy fire
+        // Note that gas has no distinction over friendly and enemy fire.
         MapCoordDelta distance = get_2d_distance(pos, &tngdst->mappos);
         if (distance < max_dist)
         {
-            struct CreatureControl* cctrl = creature_control_get_from_thing(tngdst);
-            cctrl->spell_flags |= CSAfF_PoisonCloud;
+            struct CreatureControl *cctrl = creature_control_get_from_thing(tngdst);
+            set_flag(cctrl->spell_flags, CSAfF_PoisonCloud);
             switch (area_affect_type)
             {
             case AAffT_GasDamage:
-                if (max_damage > 0) {
+                if (max_damage > 0)
+                {
                     HitPoints damage;
-                    damage = get_radially_decaying_value(max_damage,max_dist/4, 3*max_dist/4,distance)+1;
-                    SYNCDBG(7,"Causing %d damage to %s at distance %d",(int)damage,thing_model_name(tngdst),(int)distance);
+                    damage = get_radially_decaying_value(max_damage, max_dist / 4, 3 * max_dist / 4, distance) + 1;
+                    SYNCDBG(7, "Causing %d damage to %s at distance %d", (int)damage, thing_model_name(tngdst), (int)distance);
                     apply_damage_to_thing_and_display_health(tngdst, damage, damage_type, tngsrc->owner);
                 }
                 break;
             case AAffT_GasSlow:
-                if (!creature_affected_by_spell(tngdst,SplK_Slow)) {
+                if (!flag_is_set(cctrl->spell_flags, CSAfF_Slow))
+                {
                     struct CreatureControl *srcctrl;
                     srcctrl = creature_control_get_from_thing(tngsrc);
                     apply_spell_effect_to_thing(tngdst, SplK_Slow, srcctrl->explevel);
                 }
                 break;
             case AAffT_GasSlowDamage:
-                if (max_damage > 0) {
+                if (max_damage > 0)
+                {
                     HitPoints damage;
                     damage = get_radially_decaying_value(max_damage, 3 * max_dist / 4, max_dist / 4, distance) + 1;
                     SYNCDBG(7, "Causing %d damage to %s at distance %d", (int)damage, thing_model_name(tngdst), (int)distance);
                     apply_damage_to_thing_and_display_health(tngdst, damage, damage_type, tngsrc->owner);
                 }
-                if (!creature_affected_by_spell(tngdst, SplK_Slow)) {
-                    struct CreatureControl* srcctrl;
+                if (!flag_is_set(cctrl->spell_flags, CSAfF_Slow))
+                {
+                    struct CreatureControl *srcctrl;
                     srcctrl = creature_control_get_from_thing(tngsrc);
                     apply_spell_effect_to_thing(tngdst, SplK_Slow, srcctrl->explevel);
                 }
                 break;
             case AAffT_GasDisease:
-                if (!creature_affected_by_spell(tngdst, SplK_Disease)) {
-                    struct CreatureControl* srcctrl;
+                if (!flag_is_set(cctrl->spell_flags, CSAfF_Disease))
+                {
+                    struct CreatureControl *srcctrl;
                     srcctrl = creature_control_get_from_thing(tngsrc);
                     apply_spell_effect_to_thing(tngdst, SplK_Disease, srcctrl->explevel);
                 }

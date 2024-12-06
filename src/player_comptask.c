@@ -2303,16 +2303,17 @@ long task_dig_to_attack(struct Computer2 *comp, struct ComputerTask *ctask)
 
 long count_creatures_at_call_to_arms(struct Computer2 *comp)
 {
-    struct Thing* i;
+    struct Thing *i;
     int num_creatures = 0;
     int k = 0;
-
     for (i = thing_get(comp->dungeon->creatr_list_start);
-         !thing_is_invalid(i);
-         i = thing_get(creature_control_get_from_thing(i)->players_next_creature_idx))
+    !thing_is_invalid(i);
+    i = thing_get(creature_control_get_from_thing(i)->players_next_creature_idx))
     {
         if (get_creature_state_besides_move(i) == CrSt_AlreadyAtCallToArms)
+        {
             num_creatures++;
+        }
         k++;
         if (k > CREATURES_COUNT)
         {
@@ -2330,39 +2331,49 @@ static struct Thing *find_creature_for_call_to_arms(struct Computer2 *comp, TbBo
     char state;
     thing = INVALID_THING;
     highest_score = INT_MAX;
-
-    for (struct Thing *i = thing_get(comp->dungeon->creatr_list_start); 
-        !thing_is_invalid(i); 
-        i = thing_get(creature_control_get_from_thing(i)->players_next_creature_idx))
+    for (struct Thing *i = thing_get(comp->dungeon->creatr_list_start);
+    !thing_is_invalid(i);
+    i = thing_get(creature_control_get_from_thing(i)->players_next_creature_idx))
     {
         struct CreatureControl *cctrl = creature_control_get_from_thing(i);
-
-        if ( flag_is_set(i->alloc_flags, TAlF_IsInLimbo) )
+        if (flag_is_set(i->alloc_flags, TAlF_IsInLimbo))
+        {
             continue;
-        if (flag_is_set(i->state_flags, TF1_InCtrldLimbo) )
+        }
+        if (flag_is_set(i->state_flags, TF1_InCtrldLimbo))
+        {
             continue;
-        if ( i->active_state == CrSt_CreatureUnconscious )
+        }
+        if (i->active_state == CrSt_CreatureUnconscious)
+        {
             continue;
-
-        if ( i->active_state == CrSt_MoveToPosition )
+        }
+        if (i->active_state == CrSt_MoveToPosition)
+        {
             state = i->continue_state;
+        }
         else
+        {
             state = i->active_state;
+        }
         struct StateInfo *stati = get_thing_state_info_num(state);
-
         if (flag_is_set(cctrl->spell_flags, CSAfF_CalledToArms))
         {
-            if ( !stati->react_to_cta )
+            if (!stati->react_to_cta)
+            {
                 continue;
+            }
         }
-
-        if ( !stati->react_to_cta || !can_change_from_state_to(i, i->active_state, CrSt_ArriveAtCallToArms) )
-            continue;
-
-        if ( prefer_high_scoring )
+        if (!stati->react_to_cta || !can_change_from_state_to(i, i->active_state, CrSt_ArriveAtCallToArms))
         {
-            if ( game.creature_scores[i->model].value[cctrl->explevel] < highest_score && !thing_is_invalid(thing) )
+            continue;
+        }
+        if (prefer_high_scoring)
+        {
+            if (game.creature_scores[i->model].value[cctrl->explevel] < highest_score && !thing_is_invalid(thing))
+            {
                 continue;
+            }
             highest_score = game.creature_scores[i->model].value[cctrl->explevel];
         }
         thing = i;
@@ -2824,20 +2835,20 @@ struct Thing *find_creature_for_defend_pickup(struct Computer2 *comp)
         }
         cctrl = creature_control_get_from_thing(thing);
         i = cctrl->players_next_creature_idx;
-        // Per creature code
+        // Per creature code.
         if (can_thing_be_picked_up_by_player(thing, dungeon->owner))
         {
             if (cctrl->combat_flags == 0)
             {
                 if (!creature_is_fleeing_combat(thing) && !creature_is_at_alarm(thing))
                 {
-                    if (!creature_is_being_unconscious(thing) && !creature_affected_by_spell(thing, SplK_Chicken))
+                    if (!creature_is_being_unconscious(thing) && !flag_is_set(cctrl->spell_flags, CSAfF_Chicken))
                     {
                         if (!creature_is_doing_lair_activity(thing) && !creature_is_being_dropped(thing))
                         {
                             if (cctrl->dropped_turn < (COMPUTER_REDROP_DELAY + game.play_gameturn))
                             {
-                                struct PerExpLevelValues* expvalues;
+                                struct PerExpLevelValues *expvalues;
                                 expvalues = &game.creature_scores[thing->model];
                                 long expval;
                                 long healthprm;
@@ -2856,7 +2867,7 @@ struct Thing *find_creature_for_defend_pickup(struct Computer2 *comp)
                 }
             }
         }
-        // Per creature code ends
+        // Per creature code ends.
         k++;
         if (k > THINGS_COUNT)
         {
@@ -3100,7 +3111,7 @@ long task_magic_speed_up(struct Computer2 *comp, struct ComputerTask *ctask)
     struct Dungeon *dungeon;
     struct Thing *creatng;
     int k = 0;
-    SYNCDBG(9,"Starting");
+    SYNCDBG(9, "Starting");
     dungeon = comp->dungeon;
     creatng = thing_get(ctask->attack_magic.target_thing_idx);
     if (thing_is_invalid(creatng))
@@ -3113,35 +3124,36 @@ long task_magic_speed_up(struct Computer2 *comp, struct ComputerTask *ctask)
         remove_task(comp, ctask);
         return CTaskRet_Unk4;
     }
-    if (computer_able_to_use_power(comp, PwrK_SPEEDCRTR, ctask->attack_magic.splevel, 1) && !thing_affected_by_spell(creatng, PwrK_SPEEDCRTR))
+    struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
+    if (computer_able_to_use_power(comp, PwrK_SPEEDCRTR, ctask->attack_magic.splevel, 1) && !flag_is_set(cctrl->spell_flags, CSAfF_Speed))
     {
         if (try_game_action(comp, dungeon->owner, GA_UsePwrSpeedUp, ctask->attack_magic.splevel, 0, 0, ctask->attack_magic.target_thing_idx, 0) > Lb_OK)
         {
             k = 1;
         }
     }
-    else if (computer_able_to_use_power(comp, PwrK_PROTECT, ctask->attack_magic.splevel, 1) && !thing_affected_by_spell(creatng, PwrK_PROTECT))
+    else if (computer_able_to_use_power(comp, PwrK_PROTECT, ctask->attack_magic.splevel, 1) && !flag_is_set(cctrl->spell_flags, CSAfF_Armour))
     {
         if (try_game_action(comp, dungeon->owner, GA_UsePwrArmour, ctask->attack_magic.splevel, 0, 0, ctask->attack_magic.target_thing_idx, 0) > Lb_OK)
         {
             k = 1;
         }
     }
-    else if (computer_able_to_use_power(comp, PwrK_REBOUND, ctask->attack_magic.splevel, 1) && !thing_affected_by_spell(creatng, PwrK_REBOUND))
+    else if (computer_able_to_use_power(comp, PwrK_REBOUND, ctask->attack_magic.splevel, 1) && !flag_is_set(cctrl->spell_flags, CSAfF_Rebound))
     {
         if (try_game_action(comp, dungeon->owner, GA_UsePwrRebound, ctask->attack_magic.splevel, 0, 0, ctask->attack_magic.target_thing_idx, 0) > Lb_OK)
         {
             k = 1;
         }
     }
-    if (computer_able_to_use_power(comp, PwrK_FLIGHT, ctask->attack_magic.splevel, 1) && !thing_affected_by_spell(creatng, PwrK_FLIGHT))
+    if (computer_able_to_use_power(comp, PwrK_FLIGHT, ctask->attack_magic.splevel, 1) && !flag_is_set(cctrl->spell_flags, CSAfF_Flying))
     {
         if (try_game_action(comp, dungeon->owner, GA_UsePwrFlight, ctask->attack_magic.splevel, 0, 0, ctask->attack_magic.target_thing_idx, 0) > Lb_OK)
         {
             k = 1;
         }
     }
-    if (computer_able_to_use_power(comp, PwrK_VISION, ctask->attack_magic.splevel, 1) && !thing_affected_by_spell(creatng, PwrK_VISION))
+    if (computer_able_to_use_power(comp, PwrK_VISION, ctask->attack_magic.splevel, 1) && !flag_is_set(cctrl->spell_flags, CSAfF_Sight))
     {
         if (try_game_action(comp, dungeon->owner, GA_UsePwrVision, ctask->attack_magic.splevel, 0, 0, ctask->attack_magic.target_thing_idx, 0) > Lb_OK)
         {

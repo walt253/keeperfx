@@ -1065,46 +1065,44 @@ long computer_check_for_money(struct Computer2 *comp, struct ComputerCheck * che
 
 long count_creatures_for_defend_pickup(struct Computer2 *comp)
 {
-  struct Thing *i;
-  struct Dungeon *dungeon = comp->dungeon;
-  int count = 0;
-  int k = 0;
-
-  for ( i = thing_get(dungeon->creatr_list_start);
-        !thing_is_invalid(i);
-        i = thing_get(creature_control_get_from_thing(i)->players_next_creature_idx) )
+    struct Thing *i;
+    struct Dungeon *dungeon = comp->dungeon;
+    int count = 0;
+    int k = 0;
+    for (i = thing_get(dungeon->creatr_list_start);
+    !thing_is_invalid(i);
+    i = thing_get(creature_control_get_from_thing(i)->players_next_creature_idx))
     {
-        if ( can_thing_be_picked_up_by_player(i, dungeon->owner) )
-        {   
-            struct CreatureControl* cctrl = creature_control_get_from_thing(i);
-            if ( !cctrl->combat_flags )
+        if (can_thing_be_picked_up_by_player(i, dungeon->owner))
+        {
+            struct CreatureControl *cctrl = creature_control_get_from_thing(i);
+            if (!cctrl->combat_flags)
             {
                 int crtr_state = get_creature_state_besides_move(i);
-                if (( crtr_state != CrSt_CreatureCombatFlee ) &&
-                    ( crtr_state != CrSt_ArriveAtAlarm ) &&
-                    ((cctrl->spell_flags & CSAfF_CalledToArms) == 0 ) &&
-                    ( crtr_state != CrSt_CreatureGoingHomeToSleep ) &&
-                    ( crtr_state != CrSt_CreatureSleep ) &&
-                    ( crtr_state != CrSt_AtLairToSleep ) &&
-                    ( crtr_state != CrSt_CreatureChooseRoomForLairSite ) &&
-                    ( crtr_state != CrSt_CreatureAtNewLair ) &&
-                    ( crtr_state != CrSt_CreatureWantsAHome ) &&
-                    ( crtr_state != CrSt_CreatureChangeLair ) &&
-                    ( crtr_state != CrSt_CreatureAtChangedLair ) &&
-                    ( crtr_state != CrSt_CreatureBeingDropped ))
+                if ((!flag_is_set(cctrl->spell_flags, CSAfF_CalledToArms))
+                && (crtr_state != CrSt_CreatureCombatFlee)
+                && (crtr_state != CrSt_ArriveAtAlarm)
+                && (crtr_state != CrSt_CreatureGoingHomeToSleep)
+                && (crtr_state != CrSt_CreatureSleep)
+                && (crtr_state != CrSt_AtLairToSleep)
+                && (crtr_state != CrSt_CreatureChooseRoomForLairSite)
+                && (crtr_state != CrSt_CreatureAtNewLair)
+                && (crtr_state != CrSt_CreatureWantsAHome)
+                && (crtr_state != CrSt_CreatureChangeLair)
+                && (crtr_state != CrSt_CreatureAtChangedLair)
+                && (crtr_state != CrSt_CreatureBeingDropped))
                 {
-                    struct CreatureStats* crstat = creature_stats_get_from_thing(i);
+                    struct CreatureStats *crstat = creature_stats_get_from_thing(i);
                     if (crstat->health > 0)
                     {
                         if (100 * i->health / (game.conf.crtr_conf.exp.health_increase_on_exp * crstat->health * cctrl->explevel / 100 + crstat->health) > 20)
                         {
-                            ++count;
+                            count++;
                         }
                     }
                 }
             }
         }
-
         k++;
         if (k > CREATURES_COUNT)
         {

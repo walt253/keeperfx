@@ -240,7 +240,7 @@ TbBool control_creature_as_controller(struct PlayerInfo *player, struct Thing *t
         cam->mappos.z.val += get_creature_eye_height(thing);
         return true;
     }
-    TbBool chicken = (flag_is_set(cctrl->spell_flags, CSAfF_Chicken));
+    TbBool chicken = (creature_affected_with_spell_flags(thing, CSAfF_Chicken));
     if (!chicken)
     {
         cctrl->moveto_pos.x.val = 0;
@@ -279,7 +279,7 @@ TbBool control_creature_as_controller(struct PlayerInfo *player, struct Thing *t
         }
     }
     crstat = creature_stats_get(thing->model);
-    if ((!crstat->illuminated) && (!flag_is_set(cctrl->spell_flags, CSAfF_Light)))
+    if ((!crstat->illuminated) && (!creature_affected_with_spell_flags(thing, CSAfF_Light)))
     {
         create_light_for_possession(thing);
     }
@@ -455,7 +455,7 @@ long creature_available_for_combat_this_turn(struct Thing *creatng)
             return false;
         }
     }
-    if (creature_is_fleeing_combat(creatng) || flag_is_set(cctrl->spell_flags, CSAfF_Chicken))
+    if (creature_is_fleeing_combat(creatng) || creature_affected_with_spell_flags(creatng, CSAfF_Chicken))
     {
         return false;
     }
@@ -684,11 +684,52 @@ TbBool creature_affected_by_slap(const struct Thing *thing)
     return (cctrl->slap_turns != 0);
 }
 
-/**
- * Returns remaining duration of a spell casted on a thing.
- * @param thing The thing which can have spells casted on.
- * @param spkind The spell kind to be checked.
- */
+/* Returns if a spell flags is currently enabled on a thing.
+ * @param thing The thing which can have spell flags on.
+ * @param spell_flags The spell flags to be checked. */
+TbBool creature_affected_with_spell_flags_f(const struct Thing *thing, unsigned long spell_flags, const char *func_name)
+{
+    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
+    if (creature_control_invalid(cctrl))
+    {
+        ERRORLOG("%s: Invalid creature control for thing %d", func_name, (int)thing->index);
+        return false;
+    }
+    return flag_is_set(cctrl->spell_flags, spell_flags);
+}
+
+/* Clear spell flags on a thing.
+ * It loops the current active spells and call 'terminate_thing_spell_effect' to clear the associated flags.
+ * Used to terminate a spell effect before its duration end, like Temple cures.
+ * @param thing The thing which can have spell flags on.
+ * @param spell_flags The spell flags to be cleaned. */
+void clean_spell_flags_f(const struct Thing *thing, unsigned long spell_flags, const char *func_name)
+{
+    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
+    struct SpellConfig *spconf;
+    if (creature_control_invalid(cctrl))
+    {
+        ERRORLOG("%s: Invalid creature control for thing %d", func_name, (int)thing->index);
+        return;
+    }
+    for (int i = 0; i < CREATURE_MAX_SPELLS_CASTED_AT; i++)
+    {
+        spconf = get_spell_config(cctrl->casted_spells[i].spkind)
+        if ((creature_affected_with_spell_flags(thing, spell_flags))
+        && (flag_is_set(spconf->spell_flags, spell_flags)))
+        {
+            terminate_thing_spell_effect(thing, cctrl->casted_spells[i].spkind);
+            return;
+        }
+    }
+    // Shouldn't happen but if it does then log which function failed and with what spell flags.
+    ERRORLOG("%s: No SpellFlags %d is found to clean on %s index %d", func_name, spell_flags, thing_model_name(thing), (int)thing->index);
+    return;
+}
+
+ /* Returns remaining duration of a spell casted on a thing.
+ * @param thing The thing which can have spell flags on.
+ * @param spell_flags The spell flags to be checked. */
 GameTurnDelta get_spell_duration_left_on_thing_f(const struct Thing *thing, unsigned long spell_flags, const char *func_name)
 {
     struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
@@ -706,7 +747,8 @@ GameTurnDelta get_spell_duration_left_on_thing_f(const struct Thing *thing, unsi
             return cctrl->casted_spells[spell_idx].duration;
         }
     }
-    ERRORLOG("%s: No SpellFlags %d is found to get duration left on %s index %d", func_name, spell_flags, thing_model_name(thing), (int)thing->index);
+    // Shouldn't happen but if it does then log which function failed and with what spell flags.
+    ERRORLOG("%s: No SpellFlags %d is found to get spell duration left on %s index %d", func_name, spell_flags, thing_model_name(thing), (int)thing->index);
     return 0;
 }
 
@@ -1130,7 +1172,7 @@ void terminate_thing_spell_effect(struct Thing *thing, SpellKind spell_idx)
     if (flag_is_set(spconf->spell_flags, CSAfF_Freeze))
     {
         clear_flag(cctrl->stateblock_flags, CCSpl_Freeze);
-        if (flag_is_set(cctrl->spell_flags, CSAfF_Grounded))
+        if (creature_affected_with_spell_flags(thing, CSAfF_Grounded))
         {
             set_flag(thing->movement_flags, TMvF_Flying);
             clear_flag(cctrl->spell_flags, CSAfF_Grounded);
@@ -1839,9 +1881,11 @@ struct Thing *find_interesting_object_laying_around_thing(struct Thing *creatng)
 
 TbBool thing_can_be_eaten(struct Thing *thing)
 {
-    if (thing_is_mature_food(thing) || (thing_is_creature(thing) && creature_affected_by_spell(thing, CSAfF_Chicken)))
+    if (thing_is_mature_food(thing)
+    || (thing_is_creature(thing) && creature_affected_with_spell_flags(thing, CSAfF_Chicken)))
     {
-        if (is_thing_directly_controlled(thing) || is_thing_passenger_controlled(thing) || thing_is_picked_up(thing)) {
+        if (is_thing_directly_controlled(thing) || is_thing_passenger_controlled(thing) || thing_is_picked_up(thing))
+        {
             return false;
         }
         return true;
@@ -1892,7 +1936,6 @@ TbBool creature_pick_up_interesting_object_laying_nearby(struct Thing *creatng)
 
 void creature_look_for_hidden_doors(struct Thing *creatng)
 {
-    struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
     const struct StructureList *slist = get_list_for_thing_class(TCls_Door);
     long i = slist->index;
     while (i > 0)
@@ -1907,7 +1950,7 @@ void creature_look_for_hidden_doors(struct Thing *creatng)
             MapSubtlCoord z = doortng->mappos.z.stl.num;
             doortng->mappos.z.stl.num = 2;
             // TODO: We could add a creature property 'DETECT_MECHANISM' allowing them to see secret door but not invisible creatures.
-            if (flag_is_set(cctrl->spell_flags, CSAfF_Sight))
+            if (creature_affected_with_spell_flags(creatng, CSAfF_Sight))
             {
                 if (creature_can_see_thing_ignoring_specific_door(creatng, doortng, doortng))
                 {
@@ -2330,7 +2373,7 @@ void creature_rebirth_at_lair(struct Thing *thing)
         set_creature_level(thing, cctrl->explevel - 1);
     }
     thing->health = cctrl->max_health;
-    if (flag_is_set(cctrl->spell_flags, CSAfF_Timebomb))
+    if (creature_affected_with_spell_flags(thing, CSAfF_Timebomb))
     {
         clear_flag(cctrl->spell_flags, CSAfF_Timebomb);
         thing->veloc_push_add.x.val = 0;
@@ -2725,7 +2768,7 @@ void delete_effects_attached_to_creature(struct Thing *creatng)
     {
         return;
     }
-    if (flag_is_set(cctrl->spell_flags, CSAfF_Armour))
+    if (creature_affected_with_spell_flags(creatng, CSAfF_Armour))
     {
         clear_flag(cctrl->spell_flags, CSAfF_Armour);
         for (int i = 0; i < 3; i++)
@@ -2739,7 +2782,7 @@ void delete_effects_attached_to_creature(struct Thing *creatng)
             }
         }
     }
-    if (flag_is_set(cctrl->spell_flags, CSAfF_Disease))
+    if (creature_affected_with_spell_flags(creatng, CSAfF_Disease))
     {
         clear_flag(cctrl->spell_flags, CSAfF_Disease);
         for (int j = 0; j < 3; j++)
@@ -2772,29 +2815,6 @@ void delete_familiars_attached_to_creature(struct Thing* sumntng)
             fcctrl->unsummon_turn = game.play_gameturn;
         }
     }
-}
-
-void clean_spell_flags_f(struct Thing *creatng, unsigned long spell_flags, const char *func_name)
-{
-    struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
-    struct SpellConfig *spconf;
-    if (creature_control_invalid(cctrl))
-    {
-        ERRORLOG("%s: Invalid creature control for thing %d", func_name, (int)creatng->index);
-        return;
-    }
-    for (int i = 0; i < CREATURE_MAX_SPELLS_CASTED_AT; i++)
-    {
-        spconf = get_spell_config(cctrl->casted_spells[i].spkind)
-        if ((flag_is_set(cctrl->spell_flags, spell_flags))
-        && (flag_is_set(spconf->spell_flags, spell_flags)))
-        {
-            terminate_thing_spell_effect(creatng, cctrl->casted_spells[i].spkind);
-            return;
-        }
-    }
-    ERRORLOG("%s: No SpellFlags %d is found to clean on %s index %d", func_name, spell_flags, thing_model_name(thing), (int)thing->index);
-    return;
 }
 
 struct Thing *kill_creature(struct Thing *creatng, struct Thing *killertng, PlayerNumber killer_plyr_idx, CrDeathFlags flags)
@@ -3383,17 +3403,16 @@ long get_creature_speed(const struct Thing *thing)
 short get_creature_eye_height(const struct Thing *creatng)
 {
     int base_height;
-    if (creature_affected_by_spell(creatng, SplK_Chicken))
+    if (creature_affected_with_spell_flags(creatng, CSAfF_Chicken))
     {
         base_height = 100;
     }
     else
     {
-        struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
+        struct CreatureStats *crstat = creature_stats_get_from_thing(creatng);
         base_height = crstat->base_eye_height;
     }
-
-    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
     return (base_height + (base_height * game.conf.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100);
 }
 
@@ -3591,32 +3610,33 @@ void get_creature_instance_times(const struct Thing *thing, long inst_idx, long 
 {
     long itime;
     long aitime;
-    struct InstanceInfo* inst_inf = creature_instance_info_get(inst_idx);
+    struct InstanceInfo *inst_inf = creature_instance_info_get(inst_idx);
     if ((thing->alloc_flags & TAlF_IsControlled) != 0)
     {
         itime = inst_inf->fp_time;
         aitime = inst_inf->fp_action_time;
-    } else
+    }
+    else
     {
         itime = inst_inf->time;
         aitime = inst_inf->action_time;
     }
-    if (creature_affected_by_spell(thing, CSAfF_Slow))
+    if (creature_affected_with_spell_flags(thing, CSAfF_Slow))
     {
         aitime *= 2;
         itime *= 2;
     }
-    if (creature_affected_by_spell(thing, CSAfF_Speed))
+    if (creature_affected_with_spell_flags(thing, CSAfF_Speed))
     {
         aitime /= 2;
         itime /= 2;
-    } else
-    if (creature_affected_by_slap(thing))
+    }
+    else if (creature_affected_by_slap(thing))
     {
         aitime = 3 * aitime / 4;
         itime = 3 * itime / 4;
-    } else
-    if (!is_neutral_thing(thing))
+    }
+    else if (!is_neutral_thing(thing))
     {
         if (player_uses_power_obey(thing->owner))
         {
@@ -3625,9 +3645,13 @@ void get_creature_instance_times(const struct Thing *thing, long inst_idx, long 
         }
     }
     if (aitime <= 1)
+    {
         aitime = 1;
+    }
     if (itime <= 1)
+    {
         itime = 1;
+    }
     *ritime = itime;
     *raitime = aitime;
 }
@@ -4548,7 +4572,7 @@ long player_list_creature_filter_in_fight_and_not_affected_by_spell(const struct
         {
             return -1;
         }
-        if ((spconf->spell_flags == 0) || flag_is_set(cctrl->spell_flags, spconf->spell_flags))
+        if ((spconf->spell_flags == 0) || creature_affected_with_spell_flags(thing, spconf->spell_flags))
         {
             return -1;
         }
@@ -5172,86 +5196,86 @@ TbBool creature_is_doing_job_in_room_role(const struct Thing *creatng, RoomRole 
 
 long player_list_creature_filter_needs_to_be_placed_in_room_for_job(const struct Thing *thing, MaxTngFilterParam param, long maximizer)
 {
-    SYNCDBG(19,"Starting for %s index %d owner %d",thing_model_name(thing),(int)thing->index,(int)thing->owner);
-    struct Computer2* comp = (struct Computer2*)(param->ptr1);
-    struct Dungeon* dungeon = comp->dungeon;
-    if (!can_thing_be_picked_up_by_player(thing, dungeon->owner)) {
+    SYNCDBG(19, "Starting for %s index %d owner %d", thing_model_name(thing), (int)thing->index, (int)thing->owner);
+    struct Computer2 *comp = (struct Computer2 *)(param->ptr1);
+    struct Dungeon *dungeon = comp->dungeon;
+    if (!can_thing_be_picked_up_by_player(thing, dungeon->owner))
+    {
         return -1;
     }
-    if (creature_is_being_dropped(thing)) {
+    if (creature_is_being_dropped(thing))
+    {
         return -1;
     }
-    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-
-    // If the creature is too angry to help it
+    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
+    struct CreatureStats *crstat = creature_stats_get_from_thing(thing);
+    // If the creature is too angry to help it.
     if (creature_is_doing_anger_job(thing) || anger_is_creature_livid(thing))
     {
-        // If the creature is not running free, then leave it where it is
-        if (creature_is_kept_in_prison(thing) ||
-            creature_is_being_tortured(thing) ||
-            creature_is_being_sacrificed(thing)) {
+        // If the creature is not running free, then leave it where it is.
+        if (creature_is_kept_in_prison(thing) || creature_is_being_tortured(thing) || creature_is_being_sacrificed(thing))
+        {
             return -1;
         }
-        // Try torturing it
+        // Try torturing it.
         if (player_has_room_of_role(dungeon->owner, get_room_role_for_job(Job_PAINFUL_TORTURE)))
         {
             param->num2 = Job_PAINFUL_TORTURE;
             return LONG_MAX;
         }
-        // Or putting in prison
+        // Or putting in prison.
         if (player_has_room_of_role(dungeon->owner, get_room_role_for_job(Job_CAPTIVITY)))
         {
             param->num2 = Job_CAPTIVITY;
             return LONG_MAX;
         }
-        // If we can't, then just let it leave the dungeon
+        // If we can't, then just let it leave the dungeon.
         if (player_has_room_of_role(dungeon->owner, get_room_role_for_job(Job_EXEMPT)))
         {
             param->num2 = Job_EXEMPT;
             return LONG_MAX;
         }
     }
-
     int health_permil = get_creature_health_permil(thing);
-    // If it's angry but not furious, or has lost health due to disease,
-    // then should be placed in temple
-    if ((anger_is_creature_angry(thing) ||
-     (creature_affected_by_spell(thing, CSAfF_Disease) && (health_permil <= (game.conf.rules.computer.disease_to_temple_pct*10))))
-     && creature_can_do_job_for_player(thing, dungeon->owner, Job_TEMPLE_PRAY, JobChk_None))
+    // If it's angry but not furious, or has lost health due to disease, then should be placed in temple.
+    if ((anger_is_creature_angry(thing)
+    || (creature_affected_with_spell_flags(thing, CSAfF_Disease) && (health_permil <= (game.conf.rules.computer.disease_to_temple_pct * 10))))
+    && creature_can_do_job_for_player(thing, dungeon->owner, Job_TEMPLE_PRAY, JobChk_None))
     {
-        // If already at temple, then don't do anything
+        // If already at temple, then don't do anything.
         if (creature_is_doing_temple_pray_activity(thing))
+        {
             return -1;
+        }
         if (player_has_room_of_role(dungeon->owner, get_room_role_for_job(Job_TEMPLE_PRAY)))
         {
             param->num2 = Job_TEMPLE_PRAY;
             return LONG_MAX;
         }
     }
-
     // If the creature require healing, then drop it to lair. When in combat, try to cast heal first.
     if (cctrl->combat_flags)
     {
-        // Simplified algorithm when creature is in combat
+        // Simplified algorithm when creature is in combat.
         if (creature_requires_healing(thing))
         {
-            // If already at lair, then don't do anything
+            // If already at lair, then don't do anything.
             if (!creature_is_doing_lair_activity(thing))
             {
-                // cast heal if we can, don't always use max level to appear lifelike
+                // Cast heal if we can, don't always use max level to appear lifelike.
                 int splevel = PLAYER_RANDOM(dungeon->owner, 4) + 5;
                 if (computer_able_to_use_power(comp, PwrK_HEALCRTR, splevel, 1))
                 {
                     if (try_game_action(comp, dungeon->owner, GA_UsePwrHealCrtr, splevel, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing->index, 1) > Lb_OK)
                     {
                         return LONG_MAX;
-                    } else
+                    }
+                    else
                     {
                         return -1;
                     }
-                } else
-                // otherwise, put it into room we want
+                }
+                else // Otherwise, put it into room we want.
                 {
                     if (creature_can_do_healing_sleep(thing))
                     {
@@ -5265,20 +5289,25 @@ long player_list_creature_filter_needs_to_be_placed_in_room_for_job(const struct
             }
         }
         return -1;
-    } else
+    }
+    else
     {
         if (creature_can_do_healing_sleep(thing))
         {
-            // Be more careful when not in combat
-            if ((health_permil < 1000*crstat->heal_threshold/256) || !creature_has_lair_room(thing))
+            // Be more careful when not in combat.
+            if ((health_permil < 1000 * crstat->heal_threshold / 256) || !creature_has_lair_room(thing))
             {
-                // If already at lair, then don't do anything
+                // If already at lair, then don't do anything.
                 if (creature_is_doing_lair_activity(thing))
+                {
                     return -1;
-                // don't force it to lair if it wants to eat or take salary
+                }
+                // Don't force it to lair if it wants to eat or take salary.
                 if (creature_is_doing_garden_activity(thing) || creature_is_taking_salary_activity(thing))
+                {
                     return -1;
-                // otherwise, put it into room we want
+                }
+                // Otherwise, put it into room we want.
                 if (player_has_room_of_role(dungeon->owner, get_room_role_for_job(Job_TAKE_SLEEP)))
                 {
                     param->num2 = Job_TAKE_SLEEP;
@@ -5287,50 +5316,52 @@ long player_list_creature_filter_needs_to_be_placed_in_room_for_job(const struct
             }
         }
     }
-
-    // If creature is hungry, place it at garden
+    // If creature is hungry, place it at garden.
     if (hunger_is_creature_hungry(thing))
     {
-        // If already at garden, then don't do anything
+        // If already at garden, then don't do anything.
         if (creature_is_doing_garden_activity(thing))
+        {
             return -1;
-        // don't force it if it wants to take salary
+        }
+        // Don't force it if it wants to take salary.
         if (creature_is_taking_salary_activity(thing))
+        {
             return -1;
-        // otherwise, put it into room we want
+        }
+        // Otherwise, put it into room we want.
         if (player_has_room_of_role(dungeon->owner, get_room_role_for_job(Job_TAKE_FEED)))
         {
             param->num2 = Job_TAKE_FEED;
             return LONG_MAX;
         }
     }
-
-    // If creature wants salary, let it go get the gold
-    if ( cctrl->paydays_owed )
+    // If creature wants salary, let it go get the gold.
+    if (cctrl->paydays_owed)
     {
-        // If already taking salary, then don't do anything
+        // If already taking salary, then don't do anything.
         if (creature_is_taking_salary_activity(thing))
+        {
             return -1;
+        }
         if (player_has_room_of_role(dungeon->owner, get_room_role_for_job(Job_TAKE_SALARY)))
         {
             param->num2 = Job_TAKE_SALARY;
             return LONG_MAX;
         }
     }
-
     TbBool force_state_reset = false;
-    // Creatures may have primary jobs other than training, or selected when there was no possibility to train
-    // Make sure they are re-assigned sometimes
+    // Creatures may have primary jobs other than training, or selected when there was no possibility to train.
+    // Make sure they are re-assigned sometimes.
     if (creature_could_be_placed_in_better_room(comp, thing))
     {
         force_state_reset = true;
     }
-
-    // Get other rooms the creature may work in
+    // Get other rooms the creature may work in.
     if (creature_state_is_unset(thing) || force_state_reset)
     {
         CreatureJob new_job = get_job_to_place_creature_in_room(comp, thing);
-        // Make sure the place we've selected is not the same as the one creature works in now
+        // Make sure the place we've selected is not the same as the one creature works in now.
         if (!creature_is_doing_job_in_room_role(thing, get_room_role_for_job(new_job)))
         {
             param->num2 = new_job;
@@ -5777,11 +5808,11 @@ void transfer_creature_data_and_gold(struct Thing *oldtng, struct Thing *newtng)
 long update_creature_levels(struct Thing *thing)
 {
     SYNCDBG(18, "Starting");
-    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
-    if (!flag_is_set(cctrl->spell_flags, CSAfF_ExpLevelUp))
+    if (!creature_affected_with_spell_flags(thing, CSAfF_ExpLevelUp))
     {
         return 0;
     }
+    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
     clear_flag(cctrl->spell_flags, CSAfF_ExpLevelUp);
     // If a creature is not on highest level, just update the level.
     if (cctrl->explevel + 1 < CREATURE_MAX_LEVEL)
@@ -6103,14 +6134,14 @@ TbBool creature_is_slappable(const struct Thing *thing, PlayerNumber plyr_idx)
 
 TbBool creature_is_invisible(const struct Thing *thing)
 {
-    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    return creature_affected_by_spell(thing, CSAfF_Invisibility) && (cctrl->force_visible <= 0);
+    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
+    return creature_affected_with_spell_flags(thing, CSAfF_Invisibility) && (cctrl->force_visible <= 0);
 }
 
 TbBool creature_can_see_invisible(const struct Thing *thing)
 {
-    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-    return (crstat->can_see_invisible) || creature_affected_by_spell(thing, CSAfF_Sight);
+    struct CreatureStats *crstat = creature_stats_get_from_thing(thing);
+    return creature_affected_with_spell_flags(thing, CSAfF_Sight) || (crstat->can_see_invisible);
 }
 
 int claim_neutral_creatures_in_sight(struct Thing *creatng, struct Coord3d *pos, int can_see_slabs)

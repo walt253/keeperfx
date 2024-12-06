@@ -442,7 +442,7 @@ void update_creature_graphic_anim(struct Thing *thing)
     {
         thing->rendering_flags |= TRF_Invisible;
     } // Last check if the creature is not affected by Chicken.
-    else if (!flag_is_set(cctrl->spell_flags, CSAfF_Chicken))
+    else if (!creature_affected_with_spell_flags(thing, CSAfF_Chicken))
     {
         if (cctrl->instance_id != CrInst_NULL)
         {

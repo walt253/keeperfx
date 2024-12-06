@@ -985,7 +985,7 @@ void leave_creature_as_controller(struct PlayerInfo *player, struct Thing *thing
             disband_creatures_group(thing);
         }
     }
-    if ((thing->light_id != 0) && (!crstat->illuminated) && (!flag_is_set(cctrl->spell_flags, CSAfF_Light)))
+    if ((thing->light_id != 0) && (!crstat->illuminated) && (!creature_affected_with_spell_flags(thing, CSAfF_Light)))
     {
         light_delete_light(thing->light_id);
         thing->light_id = 0;

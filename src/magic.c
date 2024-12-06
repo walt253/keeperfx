@@ -427,7 +427,7 @@ TbBool can_cast_power_on_thing(PlayerNumber plyr_idx, const struct Thing *thing,
                 SYNCDBG(8, "Player %d cannot cast %s on %s index %d while teleporting", (int)plyr_idx, power_code_name(pwkind), thing_model_name(thing), (int)thing->index);
                 return false;
             }
-            if (flag_is_set(cctrl->spell_flags, CSAfF_Timebomb))
+            if (creature_affected_with_spell_flags(thing, CSAfF_Timebomb))
             {
                 SYNCDBG(8, "Player %d cannot cast %s on %s index %d because TimeBomb blocks it", (int)plyr_idx, power_code_name(pwkind), thing_model_name(thing), (int)thing->index);
                 return false;
@@ -964,6 +964,7 @@ TbBool find_power_cast_place(PlayerNumber plyr_idx, PowerKind pwkind, struct Coo
 static TbResult magic_use_power_armageddon(PowerKind power_kind, PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel, unsigned long mod_flags)
 {
     SYNCDBG(6, "Starting");
+    struct CreatureControl *cctrl;
     unsigned long your_time_gap;
     unsigned long enemy_time_gap;
     your_time_gap = game.armageddon.count_down + game.play_gameturn;
@@ -1007,13 +1008,12 @@ static TbResult magic_use_power_armageddon(PowerKind power_kind, PlayerNumber pl
         }
         i = thing->next_of_class;
         // Per-thing code.
-        struct CreatureControl *cctrl;
         cctrl = creature_control_get_from_thing(thing);
         if (is_neutral_thing(thing) && !game.conf.rules.magic.armageddon_teleport_neutrals) // Creatures unaffected by Armageddon.
         {
             cctrl->armageddon_teleport_turn = 0;
         }
-        else if (flag_is_set(cctrl->spell_flags, CSAfF_Chicken)) // Creatures killed by Armageddon.
+        else if (creature_affected_with_spell_flags(thing, CSAfF_Chicken)) // Creatures killed by Armageddon.
         {
             kill_creature(thing, heartng, plyr_idx, CrDed_DiedInBattle);
         }
@@ -1178,9 +1178,8 @@ static TbResult magic_use_power_chicken(PowerKind power_kind, PlayerNumber plyr_
 {
     struct PowerConfigStats *powerst = get_power_model_stats(power_kind);
     struct SpellConfig *spconf = get_spell_config(powerst->spell_idx);
-    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
     // If this spell is already casted at that creature, do nothing.
-    if (flag_is_set(cctrl->spell_flags, spconf->spell_flags))
+    if (creature_affected_with_spell_flags(thing, spconf->spell_flags))
     {
         return Lb_OK;
     }
@@ -1219,9 +1218,8 @@ static TbResult magic_use_power_disease(PowerKind power_kind, PlayerNumber plyr_
 {
     struct PowerConfigStats *powerst = get_power_model_stats(power_kind);
     struct SpellConfig *spconf = get_spell_config(powerst->spell_idx);
-    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
     // If this spell is already casted at that creature, do nothing.
-    if (flag_is_set(cctrl->spell_flags, spconf->spell_flags))
+    if (creature_affected_with_spell_flags(thing, spconf->spell_flags))
     {
         return Lb_OK;
     }
@@ -1243,6 +1241,7 @@ static TbResult magic_use_power_disease(PowerKind power_kind, PlayerNumber plyr_
     apply_spell_effect_to_thing(thing, powerst->spell_idx, splevel);
     if (flag_is_set(spconf->spell_flags, CSAfF_Disease))
     {
+        struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
         cctrl->disease_caster_plyridx = plyr_idx;
     }
     thing_play_sample(thing, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 3, FULL_LOUDNESS);
@@ -1317,9 +1316,8 @@ static TbResult magic_use_power_time_bomb(PowerKind power_kind, PlayerNumber ply
 {
     struct PowerConfigStats *powerst = get_power_model_stats(power_kind);
     struct SpellConfig *spconf = get_spell_config(powerst->spell_idx);
-    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
     // If this spell is already casted at that creature, do nothing.
-    if (flag_is_set(cctrl->spell_flags, spconf->spell_flags))
+    if (creature_affected_with_spell_flags(thing, spconf->spell_flags))
     {
         return Lb_OK;
     }
@@ -1466,9 +1464,8 @@ static TbResult magic_use_power_apply_spell(PowerKind power_kind, PlayerNumber p
 {
     struct PowerConfigStats *powerst = get_power_model_stats(power_kind);
     struct SpellConfig *spconf = get_spell_config(powerst->spell_idx);
-    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
     // If this spell is already casted at that creature, do nothing.
-    if (flag_is_set(cctrl->spell_flags, spconf->spell_flags))
+    if (creature_affected_with_spell_flags(thing, spconf->spell_flags))
     {
         return Lb_OK;
     }

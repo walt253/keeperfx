@@ -82,10 +82,6 @@ extern unsigned long creature_create_errors;
 struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumber owner);
 TbBool creature_count_below_map_limit(TbBool temp_creature);
 long move_creature(struct Thing *thing);
-
-void clean_spell_flags_f(struct Thing *creatng, unsigned long spell_flags, const char *func_name);
-#define clean_spell_flags(creatng, spell_flags) clean_spell_flags_f(creatng, spell_flags, __func__)
-
 struct Thing* kill_creature(struct Thing *creatng, struct Thing *killertng, PlayerNumber killer_plyr_idx, CrDeathFlags flags);
 void update_creature_count(struct Thing *thing);
 TngUpdateRet process_creature_state(struct Thing *thing);
@@ -151,14 +147,19 @@ TbBool creature_has_lair_room(const struct Thing *creatng);
 struct Room *get_creature_lair_room(const struct Thing *creatng);
 TbBool remove_creature_lair(struct Thing *thing);
 
-TbBool creature_affected_by_slap(const struct Thing *thing);
-
 void apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, long spell_lev);
 void terminate_thing_spell_effect(struct Thing *thing, SpellKind spell_idx);
 void process_thing_spell_effects(struct Thing *thing);
 void process_thing_spell_effects_while_blocked(struct Thing *thing);
 void delete_effects_attached_to_creature(struct Thing *creatng);
 void delete_familiars_attached_to_creature(struct Thing* sumntng);
+
+TbBool creature_affected_by_slap(const struct Thing *thing);
+TbBool creature_affected_with_spell_flags_f(const struct Thing *thing, unsigned long spell_flags, const char *func_name);
+#define creature_affected_with_spell_flags(thing, spell_flags) creature_affected_with_spell_flags_f(thing, spell_flags, __func__)
+
+void clean_spell_flags_f(const struct Thing *thing, unsigned long spell_flags, const char *func_name);
+#define clean_spell_flags(thing, spell_flags) clean_spell_flags_f(thing, spell_flags, __func__)
 
 GameTurnDelta get_spell_duration_left_on_thing_f(const struct Thing *thing, unsigned long spell_flags, const char *func_name);
 #define get_spell_duration_left_on_thing(thing, spell_flags) get_spell_duration_left_on_thing_f(thing, spell_flags, __func__)

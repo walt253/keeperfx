@@ -104,7 +104,7 @@ static void draw_creature_view_icons(struct Thing *creatng)
     for (int spell_idx = 0; spell_idx < CREATURE_MAX_SPELLS_CASTED_AT; spell_idx++)
     {
         spconf = get_spell_config(cctrl->casted_spells[spell_idx].spkind);
-        if (flag_is_set(cctrl->spell_flags, spconf->spell_flags))
+        if (creature_affected_with_spell_flags(creatng, spconf->spell_flags))
         {
             long spridx = spconf->medsym_sprite_idx;
             if (flag_is_set(spconf->spell_flags, CSAfF_Invisibility))

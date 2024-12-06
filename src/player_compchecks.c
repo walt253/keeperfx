@@ -411,32 +411,47 @@ static int count_faces_of_indestructible_valuables_marked_for_dig(struct Dungeon
  */
 long player_list_creature_filter_best_for_sacrifice(const struct Thing *thing, MaxTngFilterParam param, long maximizer)
 {
-    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-
-    if ((cctrl->combat_flags == 0) && (param->num2 || thing->creature.gold_carried == 0)) //no gold carried if no gem access
+    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
+    if ((cctrl->combat_flags == 0) && (param->num2 || thing->creature.gold_carried == 0)) // No gold carried if no gem access.
     {
-        if (creature_is_being_unconscious(thing) || creature_affected_by_spell(thing, CSAfF_Chicken))
+        if (creature_is_being_unconscious(thing) || creature_affected_with_spell_flags(thing, CSAfF_Chicken))
+        {
             return -1;
+        }
         if (creature_is_being_dropped(thing) || !can_thing_be_picked_up_by_player(thing, param->plyr_idx))
+        {
             return -1;
+        }
         if ((param->plyr_idx >= 0) && (thing->owner != param->plyr_idx))
+        {
             return -1;
+        }
         if (!thing_matches_model(thing, param->model_id))
+        {
             return -1;
+        }
         if ((param->class_id > 0) && (thing->class_id != param->class_id))
+        {
             return -1;
-        struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-        // Let us estimate value of the creature in gold
-        long priority = thing->creature.gold_carried;             // base value
-        priority += param->num1 * thing->health / crstat->health; // full health valued at this many gold
-        priority += 10000 * cctrl->explevel; // experience earned by the creature has a big value
+        }
+        struct CreatureStats *crstat = creature_stats_get_from_thing(thing);
+        // Let us estimate value of the creature in gold.
+        long priority = thing->creature.gold_carried; // Base value.
+        priority += param->num1 * thing->health / crstat->health; // Full health valued at this many gold.
+        priority += 10000 * cctrl->explevel; // Experience earned by the creature has a big value.
         if (get_creature_state_type(thing) == CrStTyp_Work)
-            priority += 500; // aborted work valued at this many gold
+        {
+            priority += 500; // Aborted work valued at this many gold.
+        }
         if (anger_is_creature_angry(thing))
-            priority /= 2; // angry creatures have lower value
+        {
+            priority /= 2; // Angry creatures have lower value.
+        }
         if (anger_is_creature_livid(thing))
-            priority /= 3; // livid creatures have minimal value
-         // Return maximizer based on our evaluated gold value
+        {
+            priority /= 3; // Livid creatures have minimal value.
+        }
+        // Return maximizer based on our evaluated gold value.
         return LONG_MAX - priority;
     }
     // If conditions are not met, return -1 to be sure thing will not be returned.
@@ -606,7 +621,7 @@ struct Thing *find_imp_for_pickup(struct Computer2 *comp, MapSubtlCoord stl_x, M
         // Thing list loop body.
         if (cctrl->combat_flags == 0)
         {
-            if (!creature_is_being_unconscious(thing) && !flag_is_set(cctrl->spell_flags, CSAfF_Chicken))
+            if (!creature_is_being_unconscious(thing) && !creature_affected_with_spell_flags(thing, CSAfF_Chicken))
             {
                 if (!creature_is_being_dropped(thing) && can_thing_be_picked_up_by_player(thing, dungeon->owner))
                 {
@@ -787,7 +802,7 @@ struct Thing *computer_check_creatures_in_room_for_accelerate(struct Computer2 *
         }
         i = cctrl->next_in_room;
         // Per creature code.
-        if (!flag_is_set(cctrl->spell_flags, CSAfF_Speed))
+        if (!creature_affected_with_spell_flags(thing, CSAfF_Speed))
         {
             long n = get_creature_state_besides_move(thing);
             struct StateInfo *stati = get_thing_state_info_num(n);
@@ -826,7 +841,7 @@ struct Thing *computer_check_creatures_in_room_for_flight(struct Computer2 *comp
         }
         i = cctrl->next_in_room;
         // Per creature code.
-        if (!flag_is_set(cctrl->spell_flags, CSAfF_Flying))
+        if (!creature_affected_with_spell_flags(thing, CSAfF_Flying))
         {
             long n = get_creature_state_besides_move(thing);
             struct StateInfo *stati = get_thing_state_info_num(n);
@@ -865,7 +880,7 @@ struct Thing *computer_check_creatures_in_room_for_vision(struct Computer2 *comp
         }
         i = cctrl->next_in_room;
         // Per creature code.
-        if (!flag_is_set(cctrl->spell_flags, CSAfF_Sight))
+        if (!creature_affected_with_spell_flags(thing, CSAfF_Sight))
         {
             long n = get_creature_state_besides_move(thing);
             struct StateInfo *stati = get_thing_state_info_num(n);

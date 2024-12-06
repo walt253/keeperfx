@@ -192,7 +192,7 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
     struct Thing *effeltng;
     struct SpellConfig *spconf;
     // Effect elements related to Rebound.
-    if (flag_is_set(cctrl->spell_flags, CSAfF_Rebound))
+    if (creature_affected_with_spell_flags(thing, CSAfF_Rebound))
     {
         int diamtr = 4 * thing->clipbox_size_xy / 2;
         dturn = game.play_gameturn - thing->creation_turn;
@@ -222,7 +222,7 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
         }
     }
     // Effect elements related to Slow.
-    if (flag_is_set(cctrl->spell_flags, CSAfF_Slow))
+    if (creature_affected_with_spell_flags(thing, CSAfF_Slow))
     {
         int diamtr = 4 * thing->clipbox_size_xy / 2;
         MapCoord cor_z_max = thing->clipbox_size_z + (thing->clipbox_size_z * game.conf.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 80; // Effect is 20% smaller than unit.
@@ -253,12 +253,12 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
         }
     }
     // Effect elements related to Fly.
-    if (flag_is_set(cctrl->spell_flags, CSAfF_Flying))
+    if (creature_affected_with_spell_flags(thing, CSAfF_Flying))
     {
         effeltng = create_thing(&thing->mappos, TCls_EffectElem, TngEffElm_CloudDisperse, thing->owner, -1);
     }
     // Effect elements related to Speed.
-    if (flag_is_set(cctrl->spell_flags, CSAfF_Speed))
+    if (creature_affected_with_spell_flags(thing, CSAfF_Speed))
     {
         effeltng = create_effect_element(&thing->mappos, TngEffElm_FlashBall2, thing->owner);
         if (!thing_is_invalid(effeltng))
@@ -334,7 +334,7 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
         }
     }
     // Effect elements related to Magic Fall.
-    if (flag_is_set(cctrl->spell_flags, CSAfF_MagicFall))
+    if (creature_affected_with_spell_flags(thing, CSAfF_MagicFall))
     {
         dturn = game.play_gameturn - thing->creation_turn;
         if ((dturn & 1) == 0)
@@ -1442,7 +1442,7 @@ MapCoordDelta max_dist, HitPoints max_damage, long blow_strength, unsigned char 
                 }
                 break;
             case AAffT_GasSlow:
-                if (!flag_is_set(cctrl->spell_flags, CSAfF_Slow))
+                if (!creature_affected_with_spell_flags(tngdst, CSAfF_Slow))
                 {
                     struct CreatureControl *srcctrl;
                     srcctrl = creature_control_get_from_thing(tngsrc);
@@ -1457,7 +1457,7 @@ MapCoordDelta max_dist, HitPoints max_damage, long blow_strength, unsigned char 
                     SYNCDBG(7, "Causing %d damage to %s at distance %d", (int)damage, thing_model_name(tngdst), (int)distance);
                     apply_damage_to_thing_and_display_health(tngdst, damage, damage_type, tngsrc->owner);
                 }
-                if (!flag_is_set(cctrl->spell_flags, CSAfF_Slow))
+                if (!creature_affected_with_spell_flags(tngdst, CSAfF_Slow))
                 {
                     struct CreatureControl *srcctrl;
                     srcctrl = creature_control_get_from_thing(tngsrc);
@@ -1465,7 +1465,7 @@ MapCoordDelta max_dist, HitPoints max_damage, long blow_strength, unsigned char 
                 }
                 break;
             case AAffT_GasDisease:
-                if (!flag_is_set(cctrl->spell_flags, CSAfF_Disease))
+                if (!creature_affected_with_spell_flags(tngdst, CSAfF_Disease))
                 {
                     struct CreatureControl *srcctrl;
                     srcctrl = creature_control_get_from_thing(tngsrc);

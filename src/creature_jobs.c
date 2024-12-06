@@ -202,10 +202,9 @@ TbBool creature_has_job(const struct Thing *thing, CreatureJob job_kind)
 
 TbBool creature_free_for_anger_job(struct Thing *creatng)
 {
-    struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
     return !creature_affected_by_call_to_arms(creatng)
     && !player_uses_power_obey(creatng->owner)
-    && !flag_is_set(cctrl->spell_flags, CSAfF_Chicken)
+    && !creature_affected_with_spell_flags(creatng, CSAfF_Chicken)
     && !thing_is_picked_up(creatng) && !is_thing_directly_controlled(creatng);
 }
 
@@ -689,7 +688,7 @@ TbBool creature_can_do_job_for_player(const struct Thing *creatng, PlayerNumber 
         return false;
     }
     // Don't allow creatures changed to chickens to have any job assigned, besides those specifically marked.
-    if (flag_is_set(cctrl->spell_flags, CSAfF_Chicken) && ((get_flags_for_job(new_job) & JoKF_AllowChickenized) == 0))
+    if (creature_affected_with_spell_flags(creatng, CSAfF_Chicken) && ((get_flags_for_job(new_job) & JoKF_AllowChickenized) == 0))
     {
         SYNCDBG(13, "Cannot assign %s for %s index %d owner %d; under chicken spell", creature_job_code_name(new_job), thing_model_name(creatng), (int)creatng->index, (int)creatng->owner);
         return false;
@@ -856,9 +855,9 @@ TbBool creature_can_take_sleep_near_pos(const struct Thing *creatng, MapSubtlCoo
  */
 TbBool creature_can_do_job_near_position(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, CreatureJob new_job, unsigned long flags)
 {
-    struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
     SYNCDBG(6, "Starting for %s index %d owner %d and job %s", thing_model_name(creatng), (int)creatng->index, (int)creatng->owner, creature_job_code_name(new_job));
     struct CreatureStats *crstat = creature_stats_get_from_thing(creatng);
+    struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
     if (creature_will_reject_job(creatng, new_job))
     {
         SYNCDBG(3, "Cannot assign %s at (%d,%d) for %s index %d owner %d; in not-do-jobs list", creature_job_code_name(new_job), (int)stl_x, (int)stl_y, thing_model_name(creatng), (int)creatng->index, (int)creatng->owner);
@@ -871,7 +870,7 @@ TbBool creature_can_do_job_near_position(struct Thing *creatng, MapSubtlCoord st
         return false;
     }
     // Don't allow creatures changed to chickens to have any job assigned, besides those specifically marked.
-    if (flag_is_set(cctrl->spell_flags, CSAfF_Chicken) && ((get_flags_for_job(new_job) & JoKF_AllowChickenized) == 0))
+    if (creature_affected_with_spell_flags(creatng, CSAfF_Chicken) && ((get_flags_for_job(new_job) & JoKF_AllowChickenized) == 0))
     {
         SYNCDBG(3, "Cannot assign %s at (%d,%d) for %s index %d owner %d; under chicken spell", creature_job_code_name(new_job), (int)stl_x, (int)stl_y, thing_model_name(creatng), (int)creatng->index, (int)creatng->owner);
         return false;

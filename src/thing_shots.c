@@ -1007,31 +1007,36 @@ long project_damage_of_melee_shot(long shot_dexterity, long shot_damage, const s
 
 void create_relevant_effect_for_shot_hitting_thing(struct Thing *shotng, struct Thing *target)
 {
-    struct ShotConfigStats* shotst = get_shot_model_stats(shotng->model);
+    struct ShotConfigStats *shotst = get_shot_model_stats(shotng->model);
     if (target->class_id == TCls_Creature)
     {
         thing_play_sample(target, shotst->hit_creature.sndsample_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
-        if (shotst->hit_creature.effect_model != 0) {
+        if (shotst->hit_creature.effect_model != 0)
+        {
             create_used_effect_or_element(&shotng->mappos, shotst->hit_creature.effect_model, shotng->owner);
         }
-        if (creature_affected_by_spell(target, SplK_Freeze))
+        struct CreatureControl *cctrl = creature_control_get_from_thing(target);
+        if (flag_is_set(cctrl->stateblock_flags, CCSpl_Freeze))
         {
-            if (shotst->effect_frozen != 0) {
+            if (shotst->effect_frozen != 0)
+            {
                 create_used_effect_or_element(&shotng->mappos, shotst->effect_frozen, shotng->owner);
             }
-        } else
-        if (creature_model_bleeds(target->model))
+        }
+        else if (creature_model_bleeds(target->model))
         {
-            if (shotst->effect_bleeding != 0) {
+            if (shotst->effect_bleeding != 0)
+            {
                 create_used_effect_or_element(&shotng->mappos, shotst->effect_bleeding, shotng->owner);
             }
         }
     }
     if (target->class_id == TCls_Trap)
     {
-        // TODO for a later PR: introduces trap/object hit, for now it uses the on hit creature sound and effect.
+        // TODO: introduces trap/object hit, for now it uses the on hit creature sound and effect.
         thing_play_sample(target, shotst->hit_creature.sndsample_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
-        if (shotst->hit_creature.effect_model != 0) {
+        if (shotst->hit_creature.effect_model != 0)
+        {
             create_used_effect_or_element(&shotng->mappos, shotst->hit_creature.effect_model, shotng->owner);
         }
     }
@@ -1267,7 +1272,7 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
     if (((shotst->model_flags & ShMF_NoHit) != 0) || (trgtng->health < 0)) {
         return 0;
     }
-    if (creature_affected_by_spell(trgtng, SplK_Rebound) && !(shotst->model_flags & ShMF_ReboundImmune))
+    if (creature_affected_with_spell_flags(trgtng, CSAfF_Rebound) && !(shotst->model_flags & ShMF_ReboundImmune))
     {
         struct Thing* killertng = INVALID_THING;
         if (shotng->index != shotng->parent_idx) {

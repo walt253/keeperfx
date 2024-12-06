@@ -188,7 +188,7 @@ void process_disease(struct Thing *creatng)
     SYNCDBG(18, "Starting");
     struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
     struct CreatureControl *tngcctrl;
-    if (!flag_is_set(cctrl->spell_flags, CSAfF_Disease))
+    if (!creature_affected_with_spell_flags(creatng, CSAfF_Disease))
     {
         return;
     }
@@ -681,7 +681,7 @@ void process_timebomb(struct Thing *creatng)
 {
     SYNCDBG(18, "Starting");
     struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
-    if (!flag_is_set(cctrl->spell_flags, CSAfF_Timebomb))
+    if (!creature_affected_with_spell_flags(creatng, CSAfF_Timebomb))
     {
         return;
     }

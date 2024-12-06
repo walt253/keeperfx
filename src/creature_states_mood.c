@@ -215,9 +215,8 @@ TbBool anger_free_for_anger_increase(struct Thing *creatng)
 
 TbBool anger_free_for_anger_decrease(struct Thing *creatng)
 {
-    struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
     // If the creature is mad killing, don't allow it not to be angry.
-    if (flag_is_set(cctrl->spell_flags, CSAfF_MadKilling))
+    if (creature_affected_with_spell_flags(creatng, CSAfF_MadKilling))
     {
         return false;
     }

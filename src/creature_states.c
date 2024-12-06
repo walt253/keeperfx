@@ -771,8 +771,7 @@ TbBool creature_is_fleeing_combat(const struct Thing *thing)
  */
 TbBool creature_affected_by_call_to_arms(const struct Thing *thing)
 {
-    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
-    return (flag_is_set(cctrl->spell_flags, CSAfF_CalledToArms));
+    return (creature_affected_with_spell_flags(thing, CSAfF_CalledToArms));
 }
 
 /* Returns if creature is currently directly in CTA following state.
@@ -948,7 +947,7 @@ TbBool restore_creature_flight_flag(struct Thing *creatng)
     struct CreatureStats *crstat = creature_stats_get_from_thing(creatng);
     struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
     // Creature can fly either by spell or naturally.
-    if ((crstat->flying) || flag_is_set(cctrl->spell_flags, CSAfF_Flying))
+    if ((crstat->flying) || creature_affected_with_spell_flags(creatng, CSAfF_Flying))
     {
         // Even flying creature is grounded while frozen.
         if (!flag_is_set(cctrl->stateblock_flags, CCSpl_Freeze))
@@ -1469,7 +1468,7 @@ short creature_being_dropped(struct Thing *creatng)
         new_job = get_job_for_subtile(creatng, stl_x, stl_y, JoKF_AssignHumanDrop);
     }
     // Most tasks are disabled while creature is a chicken.
-    if (!flag_is_set(cctrl->spell_flags, CSAfF_Chicken))
+    if (!creature_affected_with_spell_flags(creatng, CSAfF_Chicken))
     {
         // For creatures with trembling and not changed to chickens, tremble the camera.
         if ((get_creature_model_flags(creatng) & CMF_Trembling) != 0)
@@ -1518,7 +1517,7 @@ short creature_being_dropped(struct Thing *creatng)
         }
     }
     // TODO CREATURE_JOBS it would be great if these jobs were also returned by get_job_for_subtile()
-    if (!flag_is_set(cctrl->spell_flags, CSAfF_Chicken))
+    if (!creature_affected_with_spell_flags(creatng, CSAfF_Chicken))
     {
         // Special tasks for diggers.
         if ((get_creature_model_flags(creatng) & CMF_IsSpecDigger) != 0)
@@ -1661,8 +1660,7 @@ short creature_casting_preparation(struct Thing *creatng)
 
 void set_creature_size_stuff(struct Thing *creatng)
 {
-    struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
-    if (flag_is_set(cctrl->spell_flags, CSAfF_Chicken))
+    if (creature_affected_with_spell_flags(creatng, CSAfF_Chicken))
     {
         creatng->sprite_size = game.conf.crtr_conf.sprite_size;
     }
@@ -1795,7 +1793,7 @@ short creature_doing_nothing(struct Thing *creatng)
     {
         return 1;
     }
-    if (flag_is_set(cctrl->spell_flags, CSAfF_MadKilling))
+    if (creature_affected_with_spell_flags(creatng, CSAfF_MadKilling))
     {
         SYNCDBG(8, "The %s index %d goes mad killing", thing_model_name(creatng), creatng->index);
         internal_set_thing_state(creatng, CrSt_MadKillingPsycho);
@@ -2142,8 +2140,7 @@ short creature_follow_leader(struct Thing *creatng)
         set_start_state(creatng);
         return 1;
     }
-    struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
-    if (flag_is_set(cctrl->spell_flags, CSAfF_MadKilling))
+    if (creature_affected_with_spell_flags(creatng, CSAfF_MadKilling))
     {
         SYNCLOG("The %s index %d owned by player %d can no longer be in group - became mad", thing_model_name(creatng), (int)creatng->index, (int)creatng->owner);
         remove_creature_from_group(creatng);
@@ -2157,6 +2154,7 @@ short creature_follow_leader(struct Thing *creatng)
         set_start_state(creatng);
         return 1;
     }
+    struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
     int fails_amount = cctrl->follow_leader_fails;
     if (fails_amount > 12) // When set too low, group might disband before a white wall is breached.
     {
@@ -4607,9 +4605,8 @@ short state_cleanup_unconscious(struct Thing *creatng)
 
 long process_work_speed_on_work_value(const struct Thing *thing, long base_val)
 {
-    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
     long val = base_val;
-    if (flag_is_set(cctrl->spell_flags, CSAfF_Speed))
+    if (creature_affected_with_spell_flags(thing, CSAfF_Speed))
     {
         val = 2 * val;
     }
@@ -4781,25 +4778,25 @@ TbBool can_change_from_state_to(const struct Thing *thing, CrtrStateId curr_stat
     return false;
 }
 
-short set_start_state_f(struct Thing *thing,const char *func_name)
+short set_start_state_f(struct Thing *thing, const char *func_name)
 {
     long i;
-    struct CreatureStats* crstat;
-    SYNCDBG(8,"%s: Starting for %s index %d, owner %d, last state %s, stacked %s",func_name,thing_model_name(thing),
-        (int)thing->index,(int)thing->owner,creature_state_code_name(thing->active_state),creature_state_code_name(thing->continue_state));
+    struct CreatureStats *crstat;
+    SYNCDBG(8, "%s: Starting for %s index %d, owner %d, last state %s, stacked %s", func_name, thing_model_name(thing),
+        (int)thing->index, (int)thing->owner, creature_state_code_name(thing->active_state), creature_state_code_name(thing->continue_state));
     if ((thing->alloc_flags & TAlF_IsControlled) != 0)
     {
         cleanup_current_thing_state(thing);
         initialise_thing_state(thing, CrSt_ManualControl);
         return thing->active_state;
     }
-    if (creature_affected_by_spell(thing, CSAfF_Chicken))
+    if (creature_affected_with_spell_flags(thing, CSAfF_Chicken))
     {
         cleanup_current_thing_state(thing);
         initialise_thing_state(thing, CrSt_CreaturePretendChickenSetupMove);
         return thing->active_state;
     }
-    if (creature_affected_by_spell(thing, CSAfF_Timebomb))
+    if (creature_affected_with_spell_flags(thing, CSAfF_Timebomb))
     {
         cleanup_current_thing_state(thing);
         initialise_thing_state(thing, CrSt_Timebomb);
@@ -4819,8 +4816,8 @@ short set_start_state_f(struct Thing *thing,const char *func_name)
         initialise_thing_state(thing, i);
         return thing->active_state;
     }
-    struct PlayerInfo* player = get_player(thing->owner);
-    // For creatures which do not have corresponding player
+    struct PlayerInfo *player = get_player(thing->owner);
+    // For creatures which do not have corresponding player.
     if (!player_exists(player))
     {
         cleanup_current_thing_state(thing);
@@ -4829,7 +4826,7 @@ short set_start_state_f(struct Thing *thing,const char *func_name)
     }
     if (player->victory_state == VicS_LostLevel)
     {
-        // TODO: Correctly deal with possession of creatures not owned by the player
+        // TODO: Correctly deal with possession of creatures not owned by the player.
         if (thing->model != get_players_special_digger_model(player->id_number))
         {
             cleanup_current_thing_state(thing);
@@ -5012,10 +5009,9 @@ long process_creature_needs_a_wage(struct Thing *creatng, const struct CreatureS
 
 char creature_free_for_lunchtime(struct Thing *creatng)
 {
-    struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
     return !creature_affected_by_slap(creatng)
     && !creature_is_called_to_arms(creatng)
-    && !flag_is_set(cctrl->spell_flags, CSAfF_Chicken)
+    && !creature_affected_with_spell_flags(creatng, CSAfF_Chicken)
     && can_change_from_state_to(creatng, creatng->active_state, CrSt_CreatureToGarden);
 }
 
@@ -5111,7 +5107,7 @@ long anger_process_creature_anger(struct Thing *creatng, const struct CreatureSt
     if (!anger_is_creature_angry(creatng))
     {
         // If the creature is mad killing, don't allow it not to be angry.
-        if (flag_is_set(cctrl->spell_flags, CSAfF_MadKilling))
+        if (creature_affected_with_spell_flags(creatng, CSAfF_MadKilling))
         {
             // Mad creature's mind is tortured, so apply torture anger.
             anger_apply_anger_to_creature(creatng, crstat->annoy_in_torture, AngR_Other, 1);

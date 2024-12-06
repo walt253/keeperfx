@@ -177,7 +177,7 @@ TbBool creature_will_do_combat(const struct Thing *thing)
         return false;
     }
     // Creature turned to chicken is defenseless.
-    if (flag_is_set(cctrl->spell_flags, CSAfF_Chicken))
+    if (creature_affected_with_spell_flags(thing, CSAfF_Chicken))
     {
         return false;
     }
@@ -246,7 +246,7 @@ TbBool creature_is_actually_scared(const struct Thing *creatng, const struct Thi
         return false;
     }
     // Possible Fear spell implementation.
-    if (flag_is_set(cctrl->spell_flags, CSAfF_Fear))
+    if (creature_affected_with_spell_flags(creatng, CSAfF_Fear))
     {
         return true;
     }

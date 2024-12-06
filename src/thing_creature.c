@@ -700,7 +700,7 @@ GameTurnDelta get_spell_duration_left_on_thing_f(const struct Thing *thing, unsi
     }
     for (int spell_idx = 0; spell_idx < CREATURE_MAX_SPELLS_CASTED_AT; spell_idx++)
     {
-        spconf = get_spell_config(cctrl->casted_spells[spell_idx].spkind)
+        spconf = get_spell_config(cctrl->casted_spells[spell_idx].spkind);
         if (flag_is_set(spconf->spell_flags, spell_flags))
         {
             return cctrl->casted_spells[spell_idx].duration;

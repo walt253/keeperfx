@@ -409,30 +409,36 @@ long computer_event_check_fighters(struct Computer2 *comp, struct ComputerEvent 
 
 PowerKind computer_choose_attack_spell(struct Computer2 *comp, struct ComputerEvent *cevent, struct Thing *creatng)
 {
-    struct Dungeon* dungeon = comp->dungeon;
+    struct Dungeon *dungeon = comp->dungeon;
+    struct PowerConfigStats *powerst;
+    struct SpellConfig *spconf;
+    struct CreatureControl *cctrl;
     int i = (cevent->param3 + 1) % (sizeof(computer_attack_spells) / sizeof(computer_attack_spells[0]));
-    // Do the loop if we've reached starting value
+    // Do the loop if we've reached starting value.
     while (i != cevent->param3)
     {
-        struct ComputerSpells* caspl = &computer_attack_spells[i];
-        // If we've reached end of array, loop it
-        if (caspl->pwkind == PwrK_None) {
+        struct ComputerSpells *caspl = &computer_attack_spells[i];
+        // If we've reached end of array, loop it.
+        if (caspl->pwkind == PwrK_None)
+        {
             i = 0;
             continue;
         }
-
-        // Only cast lightning on imps, don't waste expensive chicken or disease spells
+        // Only cast lightning on imps, don't waste expensive chicken or disease spells.
         if ((thing_is_creature_special_digger(creatng)) && (caspl->pwkind != PwrK_LIGHTNING))
         {
             i++;
             continue;
         }
-
         if (can_cast_spell(dungeon->owner, caspl->pwkind, creatng->mappos.x.stl.num, creatng->mappos.y.stl.num, creatng, CastChk_Default))
         {
-            if (!thing_affected_by_spell(creatng, caspl->pwkind))
+            powerst = get_power_model_stats(caspl->pwkind);
+            spconf = get_spell_config(powerst->spell_idx);
+            cctrl = creature_control_get_from_thing(creatng);
+            if (!flag_is_set(cctrl->spell_flags, spconf->spell_flags))
             {
-                if (computer_able_to_use_power(comp, caspl->pwkind, cevent->param1, caspl->amount_able)) {
+                if (computer_able_to_use_power(comp, caspl->pwkind, cevent->param1, caspl->amount_able))
+                {
                     cevent->param3 = i;
                     return caspl->pwkind;
                 }
@@ -778,35 +784,39 @@ long computer_event_save_tortured(struct Computer2* comp, struct ComputerEvent* 
 
 long computer_event_check_imps_in_danger(struct Computer2 *comp, struct ComputerEvent *cevent)
 {
-    struct Dungeon* dungeon = comp->dungeon;
-    if (dungeon->fights_num <= 0) {
+    struct Dungeon *dungeon = comp->dungeon;
+    if (dungeon->fights_num <= 0)
+    {
         return 4;
     }
-    // If we don't have the power to pick up creatures, fail now
-    if (!computer_able_to_use_power(comp, PwrK_HAND, 1, 1)) {
+    // If we don't have the power to pick up creatures, fail now.
+    if (!computer_able_to_use_power(comp, PwrK_HAND, 1, 1))
+    {
         return 4;
     }
     long result = 4;
-    // Search through special diggers
+    // Search through special diggers.
     unsigned long k = 0;
     int i = dungeon->digger_list_start;
     while (i != 0)
     {
-        struct Thing* creatng = thing_get(i);
-        struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+        struct Thing *creatng = thing_get(i);
+        struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
         if (thing_is_invalid(creatng) || creature_control_invalid(cctrl))
         {
             ERRORLOG("Jump to invalid creature detected");
             break;
         }
         i = cctrl->players_next_creature_idx;
-        // Thing list loop body
-        if ((cctrl->combat_flags & (CmbtF_Melee|CmbtF_Ranged)) != 0)
+        // Thing list loop body.
+        if ((cctrl->combat_flags & (CmbtF_Melee | CmbtF_Ranged)) != 0)
         {
-            if (!creature_is_being_unconscious(creatng) && !creature_affected_by_spell(creatng, SplK_Chicken))
+            if (!creature_is_being_unconscious(creatng) && !flag_is_set(cctrl->spell_flags, CSAfF_Chicken))
             {
                 // Small chance to casting invisibility,on imp in battle.
-                if((CREATURE_RANDOM(creatng, 150) == 1) && computer_able_to_use_power(comp, PwrK_CONCEAL, 8, 1) && !thing_affected_by_spell(creatng, PwrK_CONCEAL))
+                if ((CREATURE_RANDOM(creatng, 150) == 1)
+                && computer_able_to_use_power(comp, PwrK_CONCEAL, 8, 1)
+                && !flag_is_set(cctrl->spell_flags, CSAfF_Invisibility))
                 {
                     magic_use_available_power_on_thing(creatng->owner, PwrK_CONCEAL, 8, 0, 0, creatng, PwMod_Default);
                 }
@@ -816,18 +826,20 @@ long computer_event_check_imps_in_danger(struct Computer2 *comp, struct Computer
                     if (get_creature_health_permil(creatng) < 500)
                     {
                         needs_help = 1;
-                    } else
+                    }
+                    else
                     {
                         needs_help = creature_is_being_attacked_by_enemy_creature_not_digger(creatng);
                     }
                     if (needs_help)
                     {
-                        // Move creature to heart, unless it already is near the heart
-                        struct Thing* heartng = get_player_soul_container(dungeon->owner);
-                        if (get_2d_distance(&creatng->mappos, &heartng->mappos) > subtile_coord(16,0))
+                        // Move creature to heart, unless it already is near the heart.
+                        struct Thing *heartng = get_player_soul_container(dungeon->owner);
+                        if (get_2d_distance(&creatng->mappos, &heartng->mappos) > subtile_coord(16, 0))
                         {
                             if (!create_task_move_creature_to_subtile(comp, creatng,
-                                heartng->mappos.x.stl.num, heartng->mappos.y.stl.num, CrSt_ImpDoingNothing)) {
+                                heartng->mappos.x.stl.num, heartng->mappos.y.stl.num, CrSt_ImpDoingNothing))
+                            {
                                 break;
                             }
                             result = 1;
@@ -836,7 +848,7 @@ long computer_event_check_imps_in_danger(struct Computer2 *comp, struct Computer
                 }
             }
         }
-        // Thing list loop body ends
+        // Thing list loop body ends.
         k++;
         if (k > CREATURES_COUNT)
         {

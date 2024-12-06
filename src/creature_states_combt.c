@@ -165,18 +165,27 @@ TbBool creature_can_see_combat_path(const struct Thing *creatng, const struct Th
 
 TbBool creature_will_do_combat(const struct Thing *thing)
 {
-    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    // Creature turned to chicken is defenseless
-    if (creature_affected_by_spell(thing, SplK_Chicken))
-        return false;
-    // Neutral creatures won't fight
+    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
+    // Neutral creatures won't fight.
     if (is_neutral_thing(thing))
+    {
         return false;
-    if ((cctrl->flgfield_1 & CCFlg_NoCompControl) != 0)
+    }
+    // Frozen creature cannot attack.
+    if (flag_is_set(cctrl->stateblock_flags, CCSpl_Freeze))
+    {
         return false;
-    // Frozen creature cannot attack
-    if (creature_affected_by_spell(thing, SplK_Freeze))
+    }
+    // Creature turned to chicken is defenseless.
+    if (flag_is_set(cctrl->spell_flags, CSAfF_Chicken))
+    {
         return false;
+    }
+    // Check related (?) to "zombie player" (turned off).
+    if (flag_is_set(cctrl->flgfield_1, CCFlg_NoCompControl))
+    {
+        return false;
+    }
     return can_change_from_state_to(thing, thing->active_state, CrSt_CreatureInCombat);
 }
 
@@ -227,39 +236,52 @@ TbBool creature_has_other_attackers(const struct Thing *fightng, ThingModel enmo
 
 TbBool creature_is_actually_scared(const struct Thing *creatng, const struct Thing *enmtng)
 {
-    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
-    struct CreatureStats* enmstat = creature_stats_get_from_thing(enmtng);
-    // Neutral creatures are not easily scared, as they shouldn't have enemies
+    struct CreatureStats *crstat = creature_stats_get_from_thing(creatng);
+    struct CreatureStats *enmstat = creature_stats_get_from_thing(enmtng);
+    struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
+    struct CreatureControl *enmctrl = creature_control_get_from_thing(enmtng);
+    // Neutral creatures are not easily scared, as they shouldn't have enemies.
     if (is_neutral_thing(creatng))
+    {
         return false;
-    if (creature_affected_by_spell(enmtng, SplK_TimeBomb))
+    }
+    // Possible Fear spell implementation.
+    if (flag_is_set(cctrl->spell_flags, CSAfF_Fear))
+    {
+        return true;
+    }
+    if (flag_is_set(enmctrl->spell_flags, CSAfF_Timebomb))
     {
         if (creature_has_ranged_weapon(creatng) == false)
         {
             return true;
         }
     }
-    // Creature with fear 101 are scared of everything other that their own model
+    // Creature with fear 101 are scared of everything other that their own model.
     if (crstat->fear_wounded >= 101)
     {
         if (enmtng->model != creatng->model)
+        {
             return true;
+        }
         if (creature_has_other_attackers(creatng, creatng->model))
+        {
             return true;
-        // But if faced only creatures of same model, they will fight with no fear
+        }
+        // But if faced only creatures of same model, they will fight with no fear.
         return false;
     }
-    // Creatures are scared if their health drops lower than
-    // fear_wounded percent of base health
+    // Creatures are scared if their health drops lower than 'fear_wounded' percent of base health.
     long fear;
-    if (player_creature_tends_to(creatng->owner,CrTend_Flee)) {
-        // In flee mode, use full fear value
+    if (player_creature_tends_to(creatng->owner, CrTend_Flee))
+    {
+        // In flee mode, use full fear value.
         fear = crstat->fear_wounded * 10;
-    } else {
+    }
+    else
+    {
         fear = 0;
     }
-    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    struct CreatureControl* enmctrl = creature_control_get_from_thing(enmtng);
     HitPoints crmaxhealth = cctrl->max_health;
     HitPoints enmaxhealth = enmctrl->max_health;
     if (enmaxhealth > 15000)
@@ -268,28 +290,28 @@ TbBool creature_is_actually_scared(const struct Thing *creatng, const struct Thi
     }
     if (creatng->health < (fear * (long long)crmaxhealth) / 1000)
     {
-        SYNCDBG(8,"The %s index %d is scared due to low health (%ld/%ld)",thing_model_name(creatng),(int)creatng->index,(long)creatng->health,crmaxhealth);
+        SYNCDBG(8, "The %s index %d is scared due to low health (%ld/%ld)", thing_model_name(creatng), (int)creatng->index, (long)creatng->health, crmaxhealth);
         return true;
     }
-    // Units dropped will fight stronger units for a bit
+    // Units dropped will fight stronger units for a bit.
     if ((cctrl->dropped_turn + FIGHT_FEAR_DELAY) > game.play_gameturn)
     {
         return false;
     }
-    // If the enemy is way stronger, a creature may be scared anyway
+    // If the enemy is way stronger, a creature may be scared anyway.
     fear = crstat->fear_stronger;
     long long enmstrength = LbSqrL(project_melee_damage(enmtng)) * (enmstat->fearsome_factor) / 100 * ((long long)enmaxhealth + (long long)enmtng->health) / 2;
     long long ownstrength = LbSqrL(project_melee_damage(creatng)) * (crstat->fearsome_factor) / 100 * ((long long)crmaxhealth + (long long)creatng->health) / 2;
     if (enmstrength >= (fear * ownstrength) / 100)
     {
-        // check if there are allied creatures nearby enemy; assume that such creatures are multiplying strength of the creature we're checking
+        // Check if there are allied creatures nearby enemy; assume that such creatures are multiplying strength of the creature we're checking.
         long support_count = count_creatures_near_and_owned_by_or_allied_with(enmtng->mappos.x.val, enmtng->mappos.y.val, 12, creatng->owner);
-        if (support_count <= 3) // Never flee when in groups of 4 or bigger
+        if (support_count <= 3) // Never flee when in groups of 4 or bigger.
         {
             ownstrength *= support_count;
             if (enmstrength >= (fear * ownstrength) / 100)
             {
-                SYNCDBG(8,"The %s index %d is scared due to enemy %s strength (%d vs. %d)",thing_model_name(creatng),(int)creatng->index,thing_model_name(enmtng),(int)ownstrength,(int)enmstrength);
+                SYNCDBG(8, "The %s index %d is scared due to enemy %s strength (%d vs. %d)", thing_model_name(creatng), (int)creatng->index, thing_model_name(enmtng), (int)ownstrength, (int)enmstrength);
                 return true;
             }
         }

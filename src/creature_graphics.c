@@ -430,101 +430,103 @@ void update_creature_rendering_flags(struct Thing *thing)
 void update_creature_graphic_anim(struct Thing *thing)
 {
     long i;
-
     TRACE_THING(thing);
-    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-
+    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
+    struct CreatureStats *crstat = creature_stats_get_from_thing(thing);
+    // First check if the size is changing.
     if ((thing->size_change & TSC_ChangeSize) != 0)
     {
-      thing->size_change &= ~TSC_ChangeSize;
-    } else
-    if ((thing->active_state == CrSt_CreatureHeroEntering) && (cctrl->countdown >= 0))
+        thing->size_change &= ~TSC_ChangeSize;
+    } // If size is not changing check if it's a hero entering the map.
+    else if ((thing->active_state == CrSt_CreatureHeroEntering) && (cctrl->countdown >= 0))
     {
-      thing->rendering_flags |= TRF_Invisible;
-    } else
-    if (!creature_affected_by_spell(thing, SplK_Chicken))
+        thing->rendering_flags |= TRF_Invisible;
+    } // Last check if the creature is not affected by Chicken.
+    else if (!flag_is_set(cctrl->spell_flags, CSAfF_Chicken))
     {
         if (cctrl->instance_id != CrInst_NULL)
         {
-          if (cctrl->instance_id == CrInst_TORTURED)
-          {
-              thing->rendering_flags &= ~(TRF_Transpar_Flags);
-          }
-          struct InstanceInfo* inst_inf = creature_instance_info_get(cctrl->instance_id);
-          update_creature_anim(thing, cctrl->instance_anim_step_turns, inst_inf->graphics_idx);
-        } else
-        if ((cctrl->frozen_on_hit != 0) || creature_is_dying(thing) || creature_affected_by_spell(thing, SplK_Freeze))
+            if (cctrl->instance_id == CrInst_TORTURED)
+            {
+                thing->rendering_flags &= ~(TRF_Transpar_Flags);
+            }
+            struct InstanceInfo *inst_inf = creature_instance_info_get(cctrl->instance_id);
+            update_creature_anim(thing, cctrl->instance_anim_step_turns, inst_inf->graphics_idx);
+        }
+        else if ((cctrl->frozen_on_hit != 0) || creature_is_dying(thing) || flag_is_set(cctrl->stateblock_flags, CCSpl_Freeze))
         {
             update_creature_anim(thing, 256, CGI_GotHit);
-        } else
-        if (flag_is_set(cctrl->stateblock_flags, CCSpl_ChickenRel))
+        }
+        else if (flag_is_set(cctrl->stateblock_flags, CCSpl_ChickenRel))
         {
             update_creature_anim(thing, 256, CGI_Stand);
-        } else
-        if (thing->active_state == CrSt_CreatureSlapCowers)
+        }
+        else if (thing->active_state == CrSt_CreatureSlapCowers)
         {
             update_creature_anim(thing, 256, CGI_GotSlapped);
-        } else
-        if (thing->active_state == CrSt_CreatureRoar)
+        }
+        else if (thing->active_state == CrSt_CreatureRoar)
         {
             update_creature_anim(thing, 128, CGI_Roar);
-        } else
-        if (thing->active_state == CrSt_CreaturePiss)
+        }
+        else if (thing->active_state == CrSt_CreaturePiss)
         {
             update_creature_anim(thing, 128, CGI_Piss);
-        } else
-        if (thing->active_state == CrSt_CreatureUnconscious)
+        }
+        else if (thing->active_state == CrSt_CreatureUnconscious)
         {
             update_creature_anim(thing, 64, CGI_DropDead);
             thing->rendering_flags |= TRF_AnimateOnce;
-        } else
-        if (thing->active_state == CrSt_CreatureSleep)
+        }
+        else if (thing->active_state == CrSt_CreatureSleep)
         {
             thing->rendering_flags &= ~(TRF_Transpar_Flags);
             update_creature_anim(thing, 128, CGI_Sleep);
-        } else
-        if (cctrl->distance_to_destination == 0)
+        }
+        else if (cctrl->distance_to_destination == 0)
         {
             update_creature_anim(thing, 256, CGI_Stand);
-        } else
-        if (thing->floor_height < thing->mappos.z.val)
+        }
+        else if (thing->floor_height < thing->mappos.z.val)
         {
             update_creature_anim(thing, 256, CGI_Stand);
-        } else
-        if ((cctrl->dragtng_idx != 0) && (thing_get(cctrl->dragtng_idx)->state_flags & TF1_IsDragged1))
+        }
+        else if ((cctrl->dragtng_idx != 0) && (thing_get(cctrl->dragtng_idx)->state_flags & TF1_IsDragged1))
         {
-            i = (((long)cctrl->distance_to_destination) << 8) / (crstat->walking_anim_speed+1);
+            i = (((long)cctrl->distance_to_destination) << 8) / (crstat->walking_anim_speed + 1);
             update_creature_anim(thing, i, CGI_Drag);
-        } else
-        if (crstat->fixed_anim_speed)
+        }
+        else if (crstat->fixed_anim_speed)
         {
             update_creature_anim(thing, 256, CGI_Ambulate);
-        } else
+        }
+        else
         {
-            i = (((long)cctrl->distance_to_destination) << 8) / (crstat->walking_anim_speed+1);
+            i = (((long)cctrl->distance_to_destination) << 8) / (crstat->walking_anim_speed + 1);
             if (!update_creature_anim(thing, i, CGI_Ambulate))
             {
                 thing->anim_speed = i;
             }
         }
-    } else
+    }
+    else // If the creature is affected by Chicken.
     {
         thing->rendering_flags &= ~(TRF_Transpar_Flags);
         if (cctrl->distance_to_destination == 0)
         {
             update_creature_anim_td(thing, 256, 820);
-        } else
-        if (thing->floor_height < thing->mappos.z.val)
+        }
+        else if (thing->floor_height < thing->mappos.z.val)
         {
             update_creature_anim_td(thing, 256, 820);
-        } else
-        if (crstat->fixed_anim_speed)
+        }
+        else if (crstat->fixed_anim_speed)
         {
             update_creature_anim_td(thing, 256, 819);
-        } else
+        }
+        else
         {
-            i = (((long)cctrl->distance_to_destination) << 8) / (crstat->walking_anim_speed+1);
+            i = (((long)cctrl->distance_to_destination) << 8) / (crstat->walking_anim_speed + 1);
             if (!update_creature_anim_td(thing, i, 819))
             {
                 thing->anim_speed = i;
@@ -533,22 +535,22 @@ void update_creature_graphic_anim(struct Thing *thing)
     }
 }
 
-
 void update_creature_graphic_tint(struct Thing *thing)
 {
-    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    if (creature_affected_by_spell(thing, SplK_Freeze))
+    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
+    if (flag_is_set(cctrl->stateblock_flags, CCSpl_Freeze))
     {
         tint_thing(thing, colours[4][4][15], 1);
-    } else
-    if (((cctrl->combat_flags & CmbtF_Melee) == 0) && ((cctrl->combat_flags & CmbtF_Ranged) == 0))
+    }
+    else if (((cctrl->combat_flags & CmbtF_Melee) == 0) && ((cctrl->combat_flags & CmbtF_Ranged) == 0))
     {
         untint_thing(thing);
-    } else
-    if (((game.play_gameturn % 3) == 0) || is_hero_thing(thing))
+    }
+    else if (((game.play_gameturn % 3) == 0) || is_hero_thing(thing))
     {
         untint_thing(thing);
-    } else
+    }
+    else
     {
         tint_thing(thing, possession_hit_colours[get_player_color_idx(thing->owner)], 1);
     }

@@ -1208,7 +1208,7 @@ TbBool validate_source_basic
     // Return false if any check below is true.
     if (!creature_instance_is_available(source, inst_idx) || !creature_instance_has_reset(source, inst_idx)
     || (flag_is_set(cctrl->stateblock_flags, CCSpl_Freeze))
-    || creature_is_fleeing_combat(source) || creature_affected_by_spell(source, SplK_Chicken)
+    || creature_is_fleeing_combat(source) || flag_is_set(cctrl->spell_flags, CSAfF_Chicken)
     || creature_is_being_unconscious(source) || creature_is_dying(source)
     || thing_is_picked_up(source) || creature_is_being_dropped(source)
     || creature_is_being_sacrificed(source) || creature_is_being_summoned(source))

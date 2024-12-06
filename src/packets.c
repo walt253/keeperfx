@@ -1173,64 +1173,77 @@ void process_players_creature_control_packet_control(long idx)
 {
     struct InstanceInfo *inst_inf;
     long i;
-
-    SYNCDBG(6,"Starting");
-    struct PlayerInfo* player = get_player(idx);
-    struct Packet* pckt = get_packet_direct(player->packet_num);
-    struct Thing* cctng = thing_get(player->controlled_thing_idx);
+    SYNCDBG(6, "Starting");
+    struct PlayerInfo *player = get_player(idx);
+    struct Packet *pckt = get_packet_direct(player->packet_num);
+    struct Thing *cctng = thing_get(player->controlled_thing_idx);
     if (cctng->class_id != TCls_Creature)
+    {
         return;
-    struct CreatureControl* ccctrl = creature_control_get_from_thing(cctng);
+    }
+    struct CreatureControl *ccctrl = creature_control_get_from_thing(cctng);
     if (creature_is_dying(cctng))
+    {
         return;
+    }
     if ((ccctrl->stateblock_flags != 0) || (cctng->active_state == CrSt_CreatureUnconscious))
+    {
         return;
+    }
     long speed_limit = get_creature_speed(cctng);
+    // Moving up.
     if ((pckt->control_flags & PCtr_MoveUp) != 0)
     {
         if (!creature_control_invalid(ccctrl))
         {
             ccctrl->move_speed = compute_controlled_speed_increase(ccctrl->move_speed, speed_limit);
             ccctrl->flgfield_1 |= CCFlg_Unknown40;
-        } else
+        }
+        else
         {
             ERRORLOG("No creature to increase speed");
         }
     }
+    // Moving down.
     if ((pckt->control_flags & PCtr_MoveDown) != 0)
     {
         if (!creature_control_invalid(ccctrl))
         {
             ccctrl->move_speed = compute_controlled_speed_decrease(ccctrl->move_speed, speed_limit);
             ccctrl->flgfield_1 |= CCFlg_Unknown40;
-        } else
+        }
+        else
         {
             ERRORLOG("No creature to decrease speed");
         }
     }
+    // Moving left.
     if ((pckt->control_flags & PCtr_MoveLeft) != 0)
     {
         if (!creature_control_invalid(ccctrl))
         {
             ccctrl->orthogn_speed = compute_controlled_speed_increase(ccctrl->orthogn_speed, speed_limit);
             ccctrl->flgfield_1 |= CCFlg_Unknown80;
-        } else
+        }
+        else
         {
             ERRORLOG("No creature to increase speed");
         }
     }
+    // Moving right.
     if ((pckt->control_flags & PCtr_MoveRight) != 0)
     {
         if (!creature_control_invalid(ccctrl))
         {
             ccctrl->orthogn_speed = compute_controlled_speed_decrease(ccctrl->orthogn_speed, speed_limit);
             ccctrl->flgfield_1 |= CCFlg_Unknown80;
-        } else
+        }
+        else
         {
             ERRORLOG("No creature to decrease speed");
         }
     }
-
+    // Clicking.
     if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
     {
         i = ccctrl->active_instance_id;
@@ -1240,7 +1253,7 @@ void process_players_creature_control_packet_control(long idx)
             {
                 if (creature_instance_has_reset(cctng, i))
                 {
-                    if (!creature_affected_by_spell(cctng, SplK_Chicken))
+                    if (!flag_is_set(ccctrl->spell_flags, CSAfF_Chicken))
                     {
                         inst_inf = creature_instance_info_get(i);
                         process_player_use_instance(cctng, i, pckt);
@@ -1254,9 +1267,10 @@ void process_players_creature_control_packet_control(long idx)
             }
         }
     }
+    // Holding.
     if ((pckt->control_flags & PCtr_LBtnHeld) != 0)
     {
-        // Button is held down - check whether the instance has auto-repeat
+        // Button is held down - check whether the instance has auto-repeat.
         i = ccctrl->active_instance_id;
         inst_inf = creature_instance_info_get(i);
         if ((inst_inf->instance_property_flags & InstPF_RepeatTrigger) != 0)
@@ -1273,47 +1287,53 @@ void process_players_creature_control_packet_control(long idx)
             }
         }
     }
-    
     // First person looking speed and limits are adjusted here. (pckt contains the base mouse movement inputs)
-    struct CreatureStats* crstat = creature_stats_get_from_thing(cctng);
+    struct CreatureStats *crstat = creature_stats_get_from_thing(cctng);
     long maxTurnSpeed = crstat->max_turning_speed;
-    if (maxTurnSpeed < 1) {
+    if (maxTurnSpeed < 1)
+    {
         maxTurnSpeed = 1;
     }
-
-    // Horizontal look
+    // Horizontal look.
     long horizontalTurnSpeed = pckt->pos_x;
-    if (horizontalTurnSpeed < -maxTurnSpeed) {
+    if (horizontalTurnSpeed < -maxTurnSpeed)
+    {
         horizontalTurnSpeed = -maxTurnSpeed;
-    } else if (horizontalTurnSpeed > maxTurnSpeed) {
+    }
+    else if (horizontalTurnSpeed > maxTurnSpeed)
+    {
         horizontalTurnSpeed = maxTurnSpeed;
     }
-    
-    // Vertical look
+    // Vertical look.
     long verticalTurnSpeed = pckt->pos_y;
-    if (verticalTurnSpeed < -maxTurnSpeed) {
+    if (verticalTurnSpeed < -maxTurnSpeed)
+    {
         verticalTurnSpeed = -maxTurnSpeed;
-    } else if (verticalTurnSpeed > maxTurnSpeed) {
+    }
+    else if (verticalTurnSpeed > maxTurnSpeed)
+    {
         verticalTurnSpeed = maxTurnSpeed;
     }
-
     // Limits the vertical view.
     // 227 is default. To support anything above this we need to adjust the terrain culling. (when you look at the ceiling for example)
     // 512 allows for looking straight up and down. 360+ is about where sprite glitches become more obvious.
     long viewable_angle = 227;
     long verticalPos = (cctng->move_angle_z + verticalTurnSpeed) & LbFPMath_AngleMask;
-
     long lowerLimit = LbFPMath_AngleMask - viewable_angle;
     long upperLimit = viewable_angle;
-    if (verticalPos > upperLimit && verticalPos < lowerLimit) {
-        if (abs(verticalPos - upperLimit) < abs(verticalPos - lowerLimit)) {
+    if (verticalPos > upperLimit && verticalPos < lowerLimit)
+    {
+        if (abs(verticalPos - upperLimit) < abs(verticalPos - lowerLimit))
+        {
             verticalPos = upperLimit;
-        } else {
+        }
+        else
+        {
             verticalPos = lowerLimit;
         }
     }
-    cctng->move_angle_z = verticalPos; // Sets the vertical look
-    cctng->move_angle_xy = (cctng->move_angle_xy + horizontalTurnSpeed) & LbFPMath_AngleMask; // Sets the horizontal look
+    cctng->move_angle_z = verticalPos; // Sets the vertical look.
+    cctng->move_angle_xy = (cctng->move_angle_xy + horizontalTurnSpeed) & LbFPMath_AngleMask; // Sets the horizontal look.
     ccctrl->roll = 170 * horizontalTurnSpeed / maxTurnSpeed;
 }
 

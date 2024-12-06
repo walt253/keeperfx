@@ -1641,10 +1641,10 @@ void gui_area_experience_button(struct GuiButton *gbtn)
 
 void gui_area_instance_button(struct GuiButton *gbtn)
 {
-    struct PlayerInfo* player = get_my_player();
+    struct PlayerInfo *player = get_my_player();
     int units_per_px = (gbtn->width * 16 + 60 / 2) / 60;
     int ps_units_per_px = simple_gui_panel_sprite_width_units_per_px(gbtn, GPS_rpanel_bar_with_pic_full_blue_down, 100);
-    struct Thing* ctrltng = thing_get(player->controlled_thing_idx);
+    struct Thing *ctrltng = thing_get(player->controlled_thing_idx);
     TRACE_THING(ctrltng);
     if (!thing_is_creature(ctrltng))
     {
@@ -1660,49 +1660,57 @@ void gui_area_instance_button(struct GuiButton *gbtn)
         gui_area_progress_bar_short(gbtn, units_per_px, 0, 32);
         return;
     }
-    struct CreatureControl* cctrl = creature_control_get_from_thing(ctrltng);
+    struct CreatureControl *cctrl = creature_control_get_from_thing(ctrltng);
     int spr_idx;
-    if (cctrl->active_instance_id == curbtn_inst_id) {
-      spr_idx = GPS_rpanel_bar_with_pic_full_blue_up;
-    } else {
-      spr_idx = GPS_rpanel_bar_with_pic_full_blue_down;
+    if (cctrl->active_instance_id == curbtn_inst_id)
+    {
+        spr_idx = GPS_rpanel_bar_with_pic_full_blue_up;
+    }
+    else
+    {
+        spr_idx = GPS_rpanel_bar_with_pic_full_blue_down;
     }
     draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, spr_idx);
-    struct InstanceInfo* inst_inf = creature_instance_info_get(curbtn_inst_id);
+    struct InstanceInfo *inst_inf = creature_instance_info_get(curbtn_inst_id);
     if (cctrl->instance_id == curbtn_inst_id)
     {
         gui_area_progress_bar_short(gbtn, units_per_px, 0, 32);
-    } else
-    if (!creature_instance_has_reset(ctrltng, curbtn_inst_id))
+    }
+    else if (!creature_instance_has_reset(ctrltng, curbtn_inst_id))
     {
         long turns_progress;
         long turns_required;
-        if ((ctrltng->alloc_flags & TAlF_IsControlled) != 0) {
+        if ((ctrltng->alloc_flags & TAlF_IsControlled) != 0)
+        {
             turns_required = inst_inf->fp_reset_time;
-        } else {
+        }
+        else
+        {
             turns_required = inst_inf->reset_time;
         }
         turns_progress = (long)game.play_gameturn - (long)cctrl->instance_use_turn[curbtn_inst_id] + cctrl->inst_action_turns - cctrl->inst_total_turns;
         gui_area_progress_bar_short(gbtn, units_per_px, turns_progress, turns_required);
-    } else
+    }
+    else
     {
         gui_area_progress_bar_short(gbtn, units_per_px, 32, 32);
     }
-
     // Calculating text size.
-    int tx_units_per_px = ( (MyScreenHeight < 400) && (dbc_language > 0) ) ? scale_ui_value(32) : (gbtn->height * 11 / 12) * 16 / LbTextLineHeight();
-    const char* text = buf_sprintf("%d", (curbtn_avail_pos + 1) % 10);
-    LbTextDrawResized(gbtn->scr_pos_x + 52*units_per_px/16, gbtn->scr_pos_y + 9*units_per_px/16, tx_units_per_px, text);
+    int tx_units_per_px = ((MyScreenHeight < 400) && (dbc_language > 0)) ? scale_ui_value(32) : (gbtn->height * 11 / 12) * 16 / LbTextLineHeight();
+    const char *text = buf_sprintf("%d", (curbtn_avail_pos + 1) % 10);
+    LbTextDrawResized(gbtn->scr_pos_x + 52 * units_per_px / 16, gbtn->scr_pos_y + 9 * units_per_px / 16, tx_units_per_px, text);
     spr_idx = gbtn->sprite_idx;
-
-    if ( (!creature_instance_has_reset(ctrltng, curbtn_inst_id)) || ( (thing_affected_by_spell(ctrltng, SplK_Freeze)) && (!inst_inf->instant ) ) )
-      spr_idx++;
+    // Show disabled icon if instance is on cooldown or creature is frozen.
+    if ((!creature_instance_has_reset(ctrltng, curbtn_inst_id)) || ((flag_is_set(cctrl->stateblock_flags, CCSpl_Freeze)) && (!inst_inf->instant)))
+    {
+        spr_idx++;
+    }
     if (MyScreenHeight < 400)
     {
-        const struct TbSprite* spr = get_panel_sprite(GPS_plyrsym_symbol_player_red_std_b);
+        const struct TbSprite *spr = get_panel_sprite(GPS_plyrsym_symbol_player_red_std_b);
         ps_units_per_px = (22 * units_per_pixel) / spr->SHeight;
     }
-    draw_gui_panel_sprite_left(gbtn->scr_pos_x - 4*units_per_px/16, gbtn->scr_pos_y - 8*units_per_px/16, ps_units_per_px, spr_idx);
+    draw_gui_panel_sprite_left(gbtn->scr_pos_x - 4 * units_per_px / 16, gbtn->scr_pos_y - 8 * units_per_px / 16, ps_units_per_px, spr_idx);
 }
 
 /** Callback function of maintaining creature skill button. */

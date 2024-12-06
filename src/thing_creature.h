@@ -82,9 +82,11 @@ extern unsigned long creature_create_errors;
 struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumber owner);
 TbBool creature_count_below_map_limit(TbBool temp_creature);
 long move_creature(struct Thing *thing);
-void clean_spell_flags(struct Thing *creatng, unsigned long spell_flags);
-struct Thing* kill_creature(struct Thing *creatng, struct Thing *killertng,
-    PlayerNumber killer_plyr_idx, CrDeathFlags flags);
+
+void clean_spell_flags_f(struct Thing *creatng, unsigned long spell_flags, const char *func_name);
+#define clean_spell_flags(creatng, spell_flags) clean_spell_flags_f(creatng, spell_flags, __func__)
+
+struct Thing* kill_creature(struct Thing *creatng, struct Thing *killertng, PlayerNumber killer_plyr_idx, CrDeathFlags flags);
 void update_creature_count(struct Thing *thing);
 TngUpdateRet process_creature_state(struct Thing *thing);
 
@@ -150,6 +152,7 @@ struct Room *get_creature_lair_room(const struct Thing *creatng);
 TbBool remove_creature_lair(struct Thing *thing);
 
 TbBool creature_affected_by_slap(const struct Thing *thing);
+
 void apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, long spell_lev);
 void terminate_thing_spell_effect(struct Thing *thing, SpellKind spell_idx);
 void process_thing_spell_effects(struct Thing *thing);

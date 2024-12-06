@@ -706,7 +706,7 @@ GameTurnDelta get_spell_duration_left_on_thing_f(const struct Thing *thing, unsi
             return cctrl->casted_spells[spell_idx].duration;
         }
     }
-    ERRORLOG("%s: No spell of type %d on %s index %d", func_name, (int)spkind, thing_model_name(thing), (int)thing->index);
+    ERRORLOG("%s: No SpellFlags %d is found to get duration left on %s index %d", func_name, spell_flags, thing_model_name(thing), (int)thing->index);
     return 0;
 }
 
@@ -2774,10 +2774,15 @@ void delete_familiars_attached_to_creature(struct Thing* sumntng)
     }
 }
 
-void clean_spell_flags(struct Thing *creatng, unsigned long spell_flags)
+void clean_spell_flags_f(struct Thing *creatng, unsigned long spell_flags, const char *func_name)
 {
     struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
     struct SpellConfig *spconf;
+    if (creature_control_invalid(cctrl))
+    {
+        ERRORLOG("%s: Invalid creature control for thing %d", func_name, (int)creatng->index);
+        return;
+    }
     for (int i = 0; i < CREATURE_MAX_SPELLS_CASTED_AT; i++)
     {
         spconf = get_spell_config(cctrl->casted_spells[i].spkind)
@@ -2785,8 +2790,11 @@ void clean_spell_flags(struct Thing *creatng, unsigned long spell_flags)
         && (flag_is_set(spconf->spell_flags, spell_flags)))
         {
             terminate_thing_spell_effect(creatng, cctrl->casted_spells[i].spkind);
+            return;
         }
     }
+    ERRORLOG("%s: No SpellFlags %d is found to clean on %s index %d", func_name, spell_flags, thing_model_name(thing), (int)thing->index);
+    return;
 }
 
 struct Thing *kill_creature(struct Thing *creatng, struct Thing *killertng, PlayerNumber killer_plyr_idx, CrDeathFlags flags)
@@ -4524,17 +4532,26 @@ struct Thing *create_owned_special_digger(MapCoord x, MapCoord y, PlayerNumber o
  */
 long player_list_creature_filter_in_fight_and_not_affected_by_spell(const struct Thing *thing, MaxTngFilterParam param, long maximizer)
 {
-    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
+    struct SpellConfig *spconf = get_spell_config(param->num1);
     if ((cctrl->combat_flags != 0) && !creature_is_being_unconscious(thing))
     {
         if ((param->plyr_idx >= 0) && (thing->owner != param->plyr_idx))
+        {
             return -1;
+        }
         if (!thing_matches_model(thing, param->model_id))
+        {
             return -1;
+        }
         if ((param->class_id > 0) && (thing->class_id != param->class_id))
+        {
             return -1;
-        if ((param->num1 != PwrK_None) && thing_affected_by_spell(thing, param->num1))
+        }
+        if ((spconf->spell_flags == 0) || flag_is_set(cctrl->spell_flags, spconf->spell_flags))
+        {
             return -1;
+        }
         return get_creature_thing_score(thing);
     }
     // If conditions are not met, return -1 to be sure thing will not be returned.

@@ -1660,6 +1660,7 @@ short creature_casting_preparation(struct Thing *creatng)
 
 void set_creature_size_stuff(struct Thing *creatng)
 {
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     if (creature_affected_with_spell_flags(creatng, CSAfF_Chicken))
     {
         creatng->sprite_size = game.conf.crtr_conf.sprite_size;

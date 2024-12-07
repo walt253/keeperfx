@@ -128,7 +128,10 @@ void process_dungeon_destroy(struct Thing* heartng)
             }
             else if (dungeon->heart_destroy_turn == 20)
             {
-                apply_spell_effect_to_thing(soultng, SplK_Invisibility, 1);
+                // Strange case, not sure why it's required.
+                struct CreatureControl *sctrl = creature_control_get_from_thing(soultng);
+                set_flag(sctrl->spell_flags, CSAfF_Invisibility, 1);
+                sctrl->force_visible = 0;
             }
             else if (dungeon->heart_destroy_turn == 25)
             {

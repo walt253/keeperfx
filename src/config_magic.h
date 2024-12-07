@@ -36,41 +36,6 @@ extern "C" {
 #define MAGIC_OVERCHARGE_LEVELS (POWER_MAX_LEVEL+1)
 #define POWER_TYPES_MAX         2000
 
-enum SpellKinds {
-    SplK_None = 0,
-    SplK_Fireball,
-    SplK_FireBomb,
-    SplK_Freeze,
-    SplK_Armour,
-    SplK_Lightning, // 5
-    SplK_Rebound,
-    SplK_Heal,
-    SplK_PoisonCloud,
-    SplK_Invisibility,
-    SplK_Teleport, // 10
-    SplK_Speed,
-    SplK_Slow,
-    SplK_Drain,
-    SplK_Fear,
-    SplK_Missile, // 15
-    SplK_NavigMissile,
-    SplK_FlameBreath,
-    SplK_Wind,
-    SplK_Light,
-    SplK_Fly, // 20
-    SplK_Sight,
-    SplK_Grenade,
-    SplK_Hailstorm,
-    SplK_WordOfPower,
-    SplK_CrazyGas, // 25
-    SplK_Disease,
-    SplK_Chicken,
-    SplK_TimeBomb,
-    SplK_Lizard,
-    Splk_SummonFamiliar, // 30
-    Splk_SummonCreature,
-};
-
 enum CreatureSpellAffectedFlags {
     CSAfF_Slow         = 0x000001,
     CSAfF_Speed        = 0x000002,

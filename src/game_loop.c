@@ -130,7 +130,7 @@ void process_dungeon_destroy(struct Thing* heartng)
             {
                 // Strange case, not sure why it's required.
                 struct CreatureControl *sctrl = creature_control_get_from_thing(soultng);
-                set_flag(sctrl->spell_flags, CSAfF_Invisibility, 1);
+                set_flag(sctrl->spell_flags, CSAfF_Invisibility);
                 sctrl->force_visible = 0;
             }
             else if (dungeon->heart_destroy_turn == 25)

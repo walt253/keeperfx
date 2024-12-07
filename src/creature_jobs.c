@@ -676,7 +676,6 @@ TbBool get_drop_position_for_creature_job_in_dungeon(struct Coord3d *pos, const 
 TbBool creature_can_do_job_for_player(const struct Thing *creatng, PlayerNumber plyr_idx, CreatureJob new_job, unsigned long flags)
 {
     SYNCDBG(16, "Starting for %s index %d owner %d and job %s", thing_model_name(creatng), (int)creatng->index, (int)creatng->owner, creature_job_code_name(new_job));
-    struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
     if (creature_will_reject_job(creatng, new_job))
     {
         SYNCDBG(13, "Cannot assign %s for %s index %d owner %d; in not do jobs list", creature_job_code_name(new_job), thing_model_name(creatng), (int)creatng->index, (int)creatng->owner);

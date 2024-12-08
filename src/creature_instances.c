@@ -1579,8 +1579,8 @@ TbBool validate_target_benefits_from_wind
     int32_t param2
     )
 {
-    // Note that we don't need to call validate_target_generic or validate_target_basic because
-    // Wind isn't SELF_BUFF. It doesn't require a target, the target parameter is just the source.
+    // Note that we don't need to call validate_target_generic or validate_target_basic because Wind isn't SELF_BUFF.
+    // It doesn't require a target, the target parameter is just the source.
     struct CreatureControl *cctrl = creature_control_get_from_thing(target);
     if (creature_control_invalid(cctrl))
     {
@@ -1612,8 +1612,8 @@ TbBool validate_target_benefits_from_wind
  */
 TbBool validate_target_takes_gas_damage(struct Thing* source, struct Thing* target, CrInstance inst_idx, int32_t param1, int32_t param2)
 {
-    // Note that we don't need to call validate_target_generic or validate_target_basic because
-    // Wind isn't SELF_BUFF. It doesn't require a target, the target parameter is just the source.
+    // Note that we don't need to call validate_target_generic or validate_target_basic because Wind isn't SELF_BUFF.
+    // It doesn't require a target, the target parameter is just the source.
     if (creature_affected_with_spell_flags(target, CSAfF_PoisonCloud))
     {
         return true;

@@ -878,12 +878,14 @@ TbBool update_relative_creature_health(struct Thing* creatng)
     return true;
 }
 
-TbBool set_creature_health_to_max_with_heal_effect(struct Thing* thing)
-{
-    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    if (cctrl->max_health > thing->health)
+TbBool set_creature_health_to_max_with_heal_effect(struct Thing *thing)
+{ // Hardcoded function for 'SpcKind_HealAll'. TODO: Refactor when specials are made more configurable.
+    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
+    if (cctrl->max_health > thing->health) // The special bypasses immunity.
     {
-        apply_spell_effect_to_thing(thing, SplK_Heal, 1);
+        // apply_spell_effect_to_thing(thing, 7, 1); 7 was 'SplK_Heal' in the enum.
+        cctrl->spell_aura = TngEffElm_Heal;
+        cctrl->spell_aura_duration = 100;
         thing->health = cctrl->max_health;
     }
     return true;

@@ -40,8 +40,7 @@ extern const struct NamedCommand effect_generator_commands[];
 
 struct EffectConfigStats {
     char code_name[COMMAND_WORD_LEN];
-    /** Health; decreases by 1 on every turn, so it works also as lifespan. */
-    HitPoints start_health;
+    HitPoints start_health; // Health decreases by 1 on every turn, so it works also as lifespan.
     unsigned char generation_type;
     short accel_xy_min;
     short accel_xy_max;
@@ -56,6 +55,7 @@ struct EffectConfigStats {
     struct InitLight ilght;
     unsigned char affected_by_wind;
     ThingHitType effect_hit_type;
+    SpellKind spell_effect;
 };
 
 struct EffectGeneratorConfigStats {

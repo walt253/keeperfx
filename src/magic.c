@@ -2068,7 +2068,7 @@ void process_dungeon_power_magic(void)
  * Unified function for using powers which are castable on things.
  *
  * @param plyr_idx The casting player.
- * @param spl_idx Power kind to be casted.
+ * @param spell_idx Power kind to be casted.
  * @param splevel Power overcharge level.
  * @param thing The target thing.
  * @param stl_x The casting subtile, X coord.
@@ -2117,7 +2117,7 @@ TbResult magic_use_power_direct(PlayerNumber plyr_idx, PowerKind pwkind,
  * Unified function for using powers which are castable on things. Without checks for availiability
  *
  * @param plyr_idx The casting player.
- * @param spl_idx Power kind to be casted.
+ * @param spell_idx Power kind to be casted.
  * @param splevel Power overcharge level.
  * @param thing The target thing.
  * @param stl_x The casting subtile, X coord.
@@ -2237,19 +2237,19 @@ TbResult magic_use_power_on_subtile(PlayerNumber plyr_idx, PowerKind pwkind,
  * Unified function for using powers which are castable without any particular target.
  *
  * @param plyr_idx The casting player.
- * @param spl_idx Power kind to be casted.
+ * @param spell_idx Power kind to be casted.
  * @param splevel Power overcharge level.
  * @return
  */
-TbResult magic_use_available_power_on_level(PlayerNumber plyr_idx, PowerKind spl_idx,
+TbResult magic_use_available_power_on_level(PlayerNumber plyr_idx, PowerKind spell_idx,
     unsigned short splevel, unsigned long mod_flags)
 {
-    if (!is_power_available(plyr_idx, spl_idx)) {
+    if (!is_power_available(plyr_idx, spell_idx)) {
         // It shouldn't be possible to select unavailable spell
-        WARNLOG("Player %d tried to cast unavailable spell %d",(int)plyr_idx,(int)spl_idx);
+        WARNLOG("Player %d tried to cast unavailable spell %d",(int)plyr_idx,(int)spell_idx);
         return Lb_FAIL;
     }
-    return magic_use_power_on_level(plyr_idx, spl_idx, splevel, mod_flags);
+    return magic_use_power_on_level(plyr_idx, spell_idx, splevel, mod_flags);
 }
 
 TbResult magic_use_power_on_level(PlayerNumber plyr_idx, PowerKind pwkind,

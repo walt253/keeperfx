@@ -547,12 +547,12 @@ long instf_creature_cast_spell(struct Thing *creatng, long *param)
 {
     TRACE_THING(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    long spl_idx = param[0];
-    struct SpellConfig* spconf = get_spell_config(spl_idx);
+    long spell_idx = param[0];
+    struct SpellConfig* spconf = get_spell_config(spell_idx);
     struct Thing* target = NULL;
 
     SYNCDBG(8,"The %s(%d) casts %s at %d", thing_model_name(creatng), (int)creatng->index,
-        spell_code_name(spl_idx), cctrl->targtng_idx);
+        spell_code_name(spell_idx), cctrl->targtng_idx);
 
     if (spconf->cast_at_thing && cctrl->targtng_idx != creatng->index)
     {
@@ -564,11 +564,11 @@ long instf_creature_cast_spell(struct Thing *creatng, long *param)
 
     if (target != NULL)
     {
-        creature_cast_spell_at_thing(creatng, target, spl_idx, cctrl->explevel);
+        creature_cast_spell_at_thing(creatng, target, spell_idx, cctrl->explevel);
     }
     else
     {
-        creature_cast_spell(creatng, spl_idx, cctrl->explevel, cctrl->targtstl_x, cctrl->targtstl_y);
+        creature_cast_spell(creatng, spell_idx, cctrl->explevel, cctrl->targtstl_x, cctrl->targtstl_y);
     }
 
     // Start cooldown after spell effect activates
@@ -1344,7 +1344,9 @@ TbBool validate_target_non_idle(struct Thing *source, struct Thing *target, CrIn
     struct InstanceInfo *inst_inf = creature_instance_info_get(inst_idx);
     struct SpellConfig *spconf = get_spell_config(inst_inf->func_params[0]);
     long state_type = get_creature_state_type(target);
-    if ((state_type != CrStTyp_Idle) && !creature_affected_with_spell_flags(target, spconf->spell_flags))
+    if ((state_type != CrStTyp_Idle)
+    && !creature_affected_with_spell_flags(target, spconf->spell_flags)
+    && !creature_is_immune_to_spell_flags(target, spconf->spell_flags))
     {
         return true;
     }
@@ -1378,7 +1380,9 @@ TbBool validate_target_even_in_prison
     }
     struct InstanceInfo *inst_inf = creature_instance_info_get(inst_idx);
     struct SpellConfig *spconf = get_spell_config(inst_inf->func_params[0]);
-    if (spell_config_is_invalid(spconf) || creature_affected_with_spell_flags(target, spconf->spell_flags))
+    if (spell_config_is_invalid(spconf)
+    || creature_affected_with_spell_flags(target, spconf->spell_flags)
+    || creature_is_immune_to_spell_flags(target, spconf->spell_flags))
     {
         // If this instance has wrong spell, or the target has been affected by this spell, return false.
         SYNCDBG(12, "%s(%d) is not a valid target for %s because it has been affected by the spell.",

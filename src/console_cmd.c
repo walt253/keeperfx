@@ -1652,33 +1652,39 @@ TbBool cmd_creature_level(PlayerNumber plyr_idx, char * args)
     return true;
 }
 
-TbBool cmd_freeze_creature(PlayerNumber plyr_idx, char * args)
+TbBool cmd_freeze_creature(PlayerNumber plyr_idx, char *args)
 {
-    if ((game.flags_font & FFlg_AlexCheat) == 0) {
+    if ((game.flags_font & FFlg_AlexCheat) == 0)
+    {
         return false;
     }
-    struct PlayerInfo * player = get_player(plyr_idx);
-    struct Thing * thing = thing_get(player->influenced_thing_idx);
-    if (!thing_is_creature(thing)) {
+    struct PlayerInfo *player = get_player(plyr_idx);
+    struct Thing *thing = thing_get(player->influenced_thing_idx);
+    if (!thing_is_creature(thing))
+    {
         return false;
     }
     thing_play_sample(thing, 50, NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
-    apply_spell_effect_to_thing(thing, SplK_Freeze, 8);
+    // Not sure how to handle this yet, for now simply hardcode the intended spell kind with a number.
+    apply_spell_effect_to_thing(thing, 3, 8); // 3 was 'SplK_Freeze' in the enum.
     return true;
 }
 
-TbBool cmd_slow_creature(PlayerNumber plyr_idx, char * args)
+TbBool cmd_slow_creature(PlayerNumber plyr_idx, char *args)
 {
-    if ((game.flags_font & FFlg_AlexCheat) == 0) {
+    if ((game.flags_font & FFlg_AlexCheat) == 0)
+    {
         return false;
     }
-    struct PlayerInfo * player = get_player(plyr_idx);
-    struct Thing * thing = thing_get(player->influenced_thing_idx);
-    if (!thing_is_creature(thing)) {
+    struct PlayerInfo *player = get_player(plyr_idx);
+    struct Thing *thing = thing_get(player->influenced_thing_idx);
+    if (!thing_is_creature(thing))
+    {
         return false;
     }
     thing_play_sample(thing, 50, NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
-    apply_spell_effect_to_thing(thing, SplK_Slow, 8);
+    // Not sure how to handle this yet, for now simply hardcode the intended spell kind with a number.
+    apply_spell_effect_to_thing(thing, 12, 8); // 12 was 'SplK_Slow' in the enum.
     return true;
 }
 

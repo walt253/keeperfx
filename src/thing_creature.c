@@ -753,33 +753,18 @@ TbBool creature_affected_with_spell_flags_f(const struct Thing *thing, unsigned 
     return flag_is_set(cctrl->spell_flags, spell_flags);
 }
 
-/* Clear spell flags on a thing.
- * It loops the current active spells and call 'terminate_thing_spell_effect' to clear the associated flags.
- * Used to terminate a spell effect before its duration end, like Temple cures.
- * @param thing The thing which can have spell flags on.
- * @param spell_flags The spell flags to be cleaned. */
-void clean_spell_flags_f(const struct Thing *thing, unsigned long spell_flags, const char *func_name)
+/* Returns if the creature is immune to a spell flags.
+ * @param thing The thing to be checked.
+ * @param spell_flags The spell flags to be checked. */
+TbBool creature_is_immune_to_spell_flags_f(const struct Thing *thing, unsigned long spell_flags, const char *func_name)
 {
     struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
-    struct SpellConfig *spconf;
     if (creature_control_invalid(cctrl))
     {
         ERRORLOG("%s: Invalid creature control for thing %d", func_name, (int)thing->index);
-        return;
+        return false;
     }
-    for (int i = 0; i < CREATURE_MAX_SPELLS_CASTED_AT; i++)
-    {
-        spconf = get_spell_config(cctrl->casted_spells[i].spkind)
-        if ((creature_affected_with_spell_flags(thing, spell_flags))
-        && (flag_is_set(spconf->spell_flags, spell_flags)))
-        {
-            terminate_thing_spell_effect(thing, cctrl->casted_spells[i].spkind);
-            return;
-        }
-    }
-    // Shouldn't happen but if it does then log which function failed and with what spell flags.
-    ERRORLOG("%s: No SpellFlags %d is found to clean on %s index %d", func_name, spell_flags, thing_model_name(thing), (int)thing->index);
-    return;
+    return flag_is_set(cctrl->immunity_flags, spell_flags);
 }
 
  /* Returns remaining duration of a spell casted on a thing.
@@ -811,15 +796,15 @@ long get_free_spell_slot(struct Thing *creatng)
 {
     TRACE_THING(creatng);
     struct CastedSpellData *cspell;
-    int i;
     struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
     long cval = LONG_MAX;
     long ci = -1;
+    int i;
     for (i = 0; i < CREATURE_MAX_SPELLS_CASTED_AT; i++)
     {
         cspell = &cctrl->casted_spells[i];
         // If there's unused slot, return it immediately.
-        if (cspell->spkind == SplK_None)
+        if (cspell->spkind == SPLK_NONE)
         {
             return i;
         }
@@ -837,7 +822,7 @@ long get_free_spell_slot(struct Thing *creatng)
     for (i = 0; i < CREATURE_MAX_SPELLS_CASTED_AT; i++)
     {
         cspell = &cctrl->casted_spells[i];
-        if (cspell->spkind == SplK_None)
+        if (cspell->spkind == SPLK_NONE)
         {
             return i;
         }
@@ -891,7 +876,7 @@ TbBool free_spell_slot(struct Thing *thing, int slot_idx)
         return false;
     }
     struct CastedSpellData *cspell = &cctrl->casted_spells[slot_idx];
-    cspell->spkind = SplK_None;
+    cspell->spkind = SPLK_NONE;
     cspell->duration = 0;
     return true;
 }
@@ -927,14 +912,25 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
     long i = get_free_spell_slot(thing);
     if (i != -1)
     {
-        fill_spell_slot(thing, i, spell_idx, duration);
-        set_flag(cctrl->spell_flags, spconf->spell_flags);
-        if ((flag_is_set(spconf->spell_flags, CSAfF_Slow)) || (flag_is_set(spconf->spell_flags, CSAfF_Speed)))
+        TbBool affected = false; // Only fill the spell slot if the creature has at least one spell flags set.
+        if (flag_is_set(spconf->spell_flags, CSAfF_Slow)
+        && (!creature_is_immune_to_spell_flags(thing, CSAfF_Slow)))
         {
+            set_flag(cctrl->spell_flags, CSAfF_Slow);
             cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
+            affected = true;
         }
-        if (flag_is_set(spconf->spell_flags, CSAfF_Armour))
+        if (flag_is_set(spconf->spell_flags, CSAfF_Speed)
+        && (!creature_is_immune_to_spell_flags(thing, CSAfF_Speed)))
         {
+            set_flag(cctrl->spell_flags, CSAfF_Speed);
+            cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
+            affected = true;
+        }
+        if (flag_is_set(spconf->spell_flags, CSAfF_Armour)
+        && (!creature_is_immune_to_spell_flags(thing, CSAfF_Armour)))
+        {
+            set_flag(cctrl->spell_flags, CSAfF_Armour);
             long num_protect = 0;
             for (int k = 0; k < 2; k++)
             {
@@ -956,24 +952,48 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
                 }
                 num_protect += 2 * LbFPMath_PI / 3;
             }
+            affected = true;
         }
-        if (flag_is_set(spconf->spell_flags, CSAfF_Flying))
+        if (flag_is_set(spconf->spell_flags, CSAfF_Rebound)
+        && (!creature_is_immune_to_spell_flags(thing, CSAfF_Rebound)))
         {
+            set_flag(cctrl->spell_flags, CSAfF_Rebound);
+            affected = true;
+        }
+        if (flag_is_set(spconf->spell_flags, CSAfF_Flying)
+        && (!creature_is_immune_to_spell_flags(thing, CSAfF_Flying)))
+        {
+            set_flag(cctrl->spell_flags, CSAfF_Flying);
             thing->movement_flags |= TMvF_Flying;
+            affected = true;
         }
-        if (flag_is_set(spconf->spell_flags, CSAfF_Invisibility))
+        if (flag_is_set(spconf->spell_flags, CSAfF_Invisibility)
+        && (!creature_is_immune_to_spell_flags(thing, CSAfF_Invisibility)))
         {
+            set_flag(cctrl->spell_flags, CSAfF_Invisibility);
             cctrl->force_visible = 0;
+            affected = true;
         }
-        if (flag_is_set(spconf->spell_flags, CSAfF_Light))
+        if (flag_is_set(spconf->spell_flags, CSAfF_Sight)
+        && (!creature_is_immune_to_spell_flags(thing, CSAfF_Sight)))
+        {
+            set_flag(cctrl->spell_flags, CSAfF_Sight);
+            affected = true;
+        }
+        if (flag_is_set(spconf->spell_flags, CSAfF_Light)
+        && (!creature_is_immune_to_spell_flags(thing, CSAfF_Light)))
         {
             if (!crstat->illuminated)
             {
+                set_flag(cctrl->spell_flags, CSAfF_Light);
                 illuminate_creature(thing);
+                affected = true;
             }
         }
-        if ((flag_is_set(spconf->spell_flags, CSAfF_Disease)) && (!flag_is_set(game.conf.crtr_conf.model[thing->model].model_flags, CMF_NeverSick)))
+        if (flag_is_set(spconf->spell_flags, CSAfF_Disease)
+        && (!creature_is_immune_to_spell_flags(thing, CSAfF_Disease)))
         {
+            set_flag(cctrl->spell_flags, CSAfF_Disease);
             if (cctrl->disease_caster_plyridx == thing->owner)
             {
                 cctrl->disease_caster_plyridx = game.neutral_player_num;
@@ -1005,18 +1025,41 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
                 }
                 num_disease += 2 * LbFPMath_PI / 3;
             }
+            cctrl->active_disease_spell = spell_idx; // Remember the spell_idx for a later use.
+            affected = true;
         }
-        if ((flag_is_set(spconf->spell_flags, CSAfF_Chicken)) && (!flag_is_set(game.conf.crtr_conf.model[thing->model].model_flags, CMF_NeverChickens)))
+        if (flag_is_set(spconf->spell_flags, CSAfF_Chicken)
+        && (!creature_is_immune_to_spell_flags(thing, CSAfF_Chicken)))
         {
+            set_flag(cctrl->spell_flags, CSAfF_Chicken);
             external_set_thing_state(thing, CrSt_CreatureChangeToChicken);
             cctrl->countdown = duration;
+            affected = true;
         }
-        if (flag_is_set(spconf->spell_flags, CSAfF_Timebomb))
+        if (flag_is_set(spconf->spell_flags, CSAfF_MadKilling)
+        && (!creature_is_immune_to_spell_flags(thing, CSAfF_MadKilling)))
         {
+            set_flag(cctrl->spell_flags, CSAfF_MadKilling);
+            affected = true;
+        }
+        if (flag_is_set(spconf->spell_flags, CSAfF_ExpLevelUp)
+        && (!creature_is_immune_to_spell_flags(thing, CSAfF_ExpLevelUp)))
+        {
+            set_flag(cctrl->spell_flags, CSAfF_ExpLevelUp);
+            affected = true;
+        }
+        if (flag_is_set(spconf->spell_flags, CSAfF_Timebomb)
+        && (!creature_is_immune_to_spell_flags(thing, CSAfF_Timebomb)))
+        {
+            set_flag(cctrl->spell_flags, CSAfF_Timebomb);
             cctrl->timebomb_countdown = duration;
+            cctrl->active_timebomb_spell = spell_idx; // Remember the spell_idx for a later use.
+            affected = true;
         }
-        if (flag_is_set(spconf->spell_flags, CSAfF_Freeze))
+        if (flag_is_set(spconf->spell_flags, CSAfF_Freeze)
+        && (!creature_is_immune_to_spell_flags(thing, CSAfF_Freeze)))
         {
+            set_flag(cctrl->spell_flags, CSAfF_Freeze);
             set_flag(cctrl->stateblock_flags, CCSpl_Freeze);
             if ((thing->movement_flags & TMvF_Flying) != 0)
             {
@@ -1024,38 +1067,86 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
                 clear_flag(thing->movement_flags, TMvF_Flying);
             }
             creature_set_speed(thing, 0);
+            affected = true;
         }
-        if (flag_is_set(spconf->spell_flags, CSAfF_Teleport))
+        if (flag_is_set(spconf->spell_flags, CSAfF_Teleport)
+        && (!creature_is_immune_to_spell_flags(thing, CSAfF_Teleport)))
         {
+            set_flag(cctrl->spell_flags, CSAfF_Teleport);
             set_flag(cctrl->stateblock_flags, CCSpl_Teleport);
             cctrl->active_teleport_spell = spell_idx; // Remember the spell_idx for a later use.
+            affected = true;
         }
-        if (flag_is_set(spconf->spell_flags, CSAfF_Heal))
+        if (flag_is_set(spconf->spell_flags, CSAfF_Heal)
+        && (!creature_is_immune_to_spell_flags(thing, CSAfF_Heal)))
         {
-            HitPoints heal_amount;
+            set_flag(cctrl->spell_flags, CSAfF_Heal);
+            HitPoints healing_recovery;
             // TODO: make a new field for unlinked heal spell.
             if (spconf->linked_power == 0)
             {
-                heal_amount = 0;
+                healing_recovery = thing->health;
             }
             else
             {
-                heal_amount = saturate_set_signed(thing->health + pwrdynst->strength[spell_lev], 16);
+                healing_recovery = saturate_set_signed(thing->health + pwrdynst->strength[spell_lev], 16);
             }
-            if (heal_amount < 0)
+            if (healing_recovery < 0)
             {
                 thing->health = 0;
             }
             else
             {
-                thing->health = min(heal_amount, cctrl->max_health);
+                thing->health = min(healing_recovery, cctrl->max_health);
             }
-            // clear_flag(cctrl->spell_flags, CSAfF_Heal);
+            affected = true;
         }
-        if (spconf->aura_effect != 0)
+        if (flag_is_set(spconf->spell_flags, CSAfF_Fear)
+        && (!creature_is_immune_to_spell_flags(thing, CSAfF_Fear)))
         {
-            cctrl->spell_aura = spconf->aura_effect;
-            cctrl->spell_aura_duration = spconf->duration;
+            set_flag(cctrl->spell_flags, CSAfF_Fear);
+            affected = true;
+        }
+        // Special cases: Handle cases where a modder tries to assign a spell with only these flags set.
+        // These cases are treated differently from normal spells.
+        if ((spconf->spell_flags == CSAfF_PoisonCloud)
+        || (spconf->spell_flags == CSAfF_CalledToArms)
+        || (spconf->spell_flags == CSAfF_MagicFall)
+        || (spconf->spell_flags == CSAfF_Grounded)
+        || (spconf->spell_flags == CSAfF_Wind))
+        {
+            affected = false;
+        }
+        // If CSAflag_ExpLevelUp is set alone, don't fill the spell slot, but still apply the aura effect.
+        if ((spconf->spell_flags == CSAfF_ExpLevelUp)
+        && (!creature_is_immune_to_spell_flags(thing, CSAfF_ExpLevelUp)))
+        {
+            set_flag(cctrl->spell_flags, CSAfF_ExpLevelUp);
+            if (spconf->aura_effect != 0)
+            {
+                cctrl->spell_aura = spconf->aura_effect;
+                cctrl->spell_aura_duration = spconf->duration;
+            }
+            affected = false;
+        }
+        // Spells with no flags can apply the aura effect.
+        if (spconf->spell_flags == 0)
+        {
+            if (spconf->aura_effect != 0)
+            {
+                cctrl->spell_aura = spconf->aura_effect;
+                cctrl->spell_aura_duration = spconf->duration;
+            }
+            affected = false;
+        }
+        if (affected)
+        {
+            fill_spell_slot(thing, i, spell_idx, duration);
+            if (spconf->aura_effect != 0)
+            {
+                cctrl->spell_aura = spconf->aura_effect;
+                cctrl->spell_aura_duration = spconf->duration;
+            }
         }
     }
 }
@@ -1085,6 +1176,7 @@ void reapply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, lon
     {
         duration = pwrdynst->duration;
     }
+    // TODO: Add immunity check to account for map script changes affecting creatures during gameplay.
     cspell->duration = duration;
     if (flag_is_set(spconf->spell_flags, CSAfF_Chicken))
     {
@@ -1097,25 +1189,24 @@ void reapply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, lon
     }
     if (flag_is_set(spconf->spell_flags, CSAfF_Heal))
     {
-        HitPoints heal_amount;
+        HitPoints healing_recovery;
         // TODO: make a new field for unlinked heal spell.
         if (spconf->linked_power == 0)
         {
-            heal_amount = 0;
+            healing_recovery = thing->health;
         }
         else
         {
-            heal_amount = saturate_set_signed(thing->health + pwrdynst->strength[spell_lev], 16);
+            healing_recovery = saturate_set_signed(thing->health + pwrdynst->strength[spell_lev], 16);
         }
-        if (heal_amount < 0)
+        if (healing_recovery < 0)
         {
             thing->health = 0;
         }
         else
         {
-            thing->health = min(heal_amount, cctrl->max_health);
+            thing->health = min(healing_recovery, cctrl->max_health);
         }
-        // clear_flag(cctrl->spell_flags, CSAfF_Heal);
     }
     if (spconf->aura_effect != 0)
     {
@@ -1155,13 +1246,22 @@ void terminate_thing_spell_effect(struct Thing *thing, SpellKind spell_idx)
     struct CreatureStats *crstat = creature_stats_get(thing->model);
     struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
     struct SpellConfig *spconf = get_spell_config(spell_idx);
-    clear_flag(cctrl->spell_flags, spconf->spell_flags);
-    if ((flag_is_set(spconf->spell_flags, CSAfF_Slow)) || (flag_is_set(spconf->spell_flags, CSAfF_Speed)))
+    if (flag_is_set(spconf->spell_flags, CSAfF_Slow)
+    && (creature_affected_with_spell_flags(thing, CSAfF_Slow)))
     {
+        clear_flag(cctrl->spell_flags, CSAfF_Slow);
         cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
     }
-    if (flag_is_set(spconf->spell_flags, CSAfF_Armour))
+    if (flag_is_set(spconf->spell_flags, CSAfF_Speed)
+    && (creature_affected_with_spell_flags(thing, CSAfF_Speed)))
     {
+        clear_flag(cctrl->spell_flags, CSAfF_Speed);
+        cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
+    }
+    if (flag_is_set(spconf->spell_flags, CSAfF_Armour)
+    && (creature_affected_with_spell_flags(thing, CSAfF_Armour)))
+    {
+        clear_flag(cctrl->spell_flags, CSAfF_Armour);
         for (int i = 0; i < 3; i++)
         {
             ThingIndex eff_idx = cctrl->spell_tngidx_armour[i];
@@ -1174,22 +1274,38 @@ void terminate_thing_spell_effect(struct Thing *thing, SpellKind spell_idx)
             }
         }
     }
-    if (flag_is_set(spconf->spell_flags, CSAfF_Flying))
+    if (flag_is_set(spconf->spell_flags, CSAfF_Rebound)
+    && (creature_affected_with_spell_flags(thing, CSAfF_Rebound)))
     {
+        clear_flag(cctrl->spell_flags, CSAfF_Rebound);
+    }
+    if (flag_is_set(spconf->spell_flags, CSAfF_Flying)
+    && (creature_affected_with_spell_flags(thing, CSAfF_Flying)))
+    {
+        clear_flag(cctrl->spell_flags, CSAfF_Flying);
         // TODO: Strange condition regarding the fly, check why it's here?
         if (!flag_is_set(game.conf.crtr_conf.model[thing->model].model_flags, CMF_IsDiptera))
         {
             clear_flag(thing->movement_flags, TMvF_Flying);
         }
     }
-    if (flag_is_set(spconf->spell_flags, CSAfF_Invisibility))
+    if (flag_is_set(spconf->spell_flags, CSAfF_Invisibility)
+    && (creature_affected_with_spell_flags(thing, CSAfF_Invisibility)))
     {
+        clear_flag(cctrl->spell_flags, CSAfF_Invisibility);
         cctrl->force_visible = 0;
     }
-    if (flag_is_set(spconf->spell_flags, CSAfF_Light))
+    if (flag_is_set(spconf->spell_flags, CSAfF_Sight)
+    && (creature_affected_with_spell_flags(thing, CSAfF_Sight)))
+    {
+        clear_flag(cctrl->spell_flags, CSAfF_Sight);
+    }
+    if (flag_is_set(spconf->spell_flags, CSAfF_Light)
+    && (creature_affected_with_spell_flags(thing, CSAfF_Light)))
     {
         if (!crstat->illuminated)
         {
+            clear_flag(cctrl->spell_flags, CSAfF_Light);
             if (thing->light_id != 0)
             {
                 if (flag_is_set(thing->rendering_flags, TRF_Invisible))
@@ -1206,8 +1322,10 @@ void terminate_thing_spell_effect(struct Thing *thing, SpellKind spell_idx)
             }
         }
     }
-    if (flag_is_set(spconf->spell_flags, CSAfF_Disease))
+    if (flag_is_set(spconf->spell_flags, CSAfF_Disease)
+    && (creature_affected_with_spell_flags(thing, CSAfF_Disease)))
     {
+        clear_flag(cctrl->spell_flags, CSAfF_Disease);
         for (int j = 0; j < 3; j++)
         {
             ThingIndex eff_idx = cctrl->spell_tngidx_disease[j];
@@ -1219,14 +1337,35 @@ void terminate_thing_spell_effect(struct Thing *thing, SpellKind spell_idx)
                 cctrl->spell_tngidx_disease[j] = 0;
             }
         }
+        cctrl->active_disease_spell = 0;
     }
-    if (flag_is_set(spconf->spell_flags, CSAfF_Chicken))
+    if (flag_is_set(spconf->spell_flags, CSAfF_Chicken)
+    && (creature_affected_with_spell_flags(thing, CSAfF_Chicken)))
     {
+        clear_flag(cctrl->spell_flags, CSAfF_Chicken);
         external_set_thing_state(thing, CrSt_CreatureChangeFromChicken);
         cctrl->countdown = 10;
     }
-    if (flag_is_set(spconf->spell_flags, CSAfF_Freeze))
+    if (flag_is_set(spconf->spell_flags, CSAfF_MadKilling)
+    && (creature_affected_with_spell_flags(thing, CSAfF_MadKilling)))
     {
+        clear_flag(cctrl->spell_flags, CSAfF_MadKilling);
+    }
+    if (flag_is_set(spconf->spell_flags, CSAfF_Timebomb)
+    && (creature_affected_with_spell_flags(thing, CSAfF_Timebomb)))
+    {
+        clear_flag(cctrl->spell_flags, CSAfF_Timebomb);
+        thing->veloc_push_add.x.val = 0;
+        thing->veloc_push_add.y.val = 0;
+        clear_flag(thing->state_flags, TF1_PushAdd);
+        cleanup_current_thing_state(thing);
+        set_start_state(thing);
+        cctrl->active_timebomb_spell = 0;
+    }
+    if (flag_is_set(spconf->spell_flags, CSAfF_Freeze)
+    && (creature_affected_with_spell_flags(thing, CSAfF_Freeze)))
+    {
+        clear_flag(cctrl->spell_flags, CSAfF_Freeze);
         clear_flag(cctrl->stateblock_flags, CCSpl_Freeze);
         if (creature_affected_with_spell_flags(thing, CSAfF_Grounded))
         {
@@ -1234,16 +1373,205 @@ void terminate_thing_spell_effect(struct Thing *thing, SpellKind spell_idx)
             clear_flag(cctrl->spell_flags, CSAfF_Grounded);
         }
     }
-    if (flag_is_set(spconf->spell_flags, CSAfF_Teleport))
+    if (flag_is_set(spconf->spell_flags, CSAfF_Teleport)
+    && (creature_affected_with_spell_flags(thing, CSAfF_Teleport)))
     {
+        clear_flag(cctrl->spell_flags, CSAfF_Teleport);
         clear_flag(cctrl->stateblock_flags, CCSpl_Teleport);
         cctrl->active_teleport_spell = 0;
     }
+    if (flag_is_set(spconf->spell_flags, CSAfF_Heal)
+    && (creature_affected_with_spell_flags(thing, CSAfF_Heal)))
+    {
+        clear_flag(cctrl->spell_flags, CSAfF_Heal);
+    }
+    if (flag_is_set(spconf->spell_flags, CSAfF_Fear)
+    && (creature_affected_with_spell_flags(thing, CSAfF_Fear)))
+    {
+        clear_flag(cctrl->spell_flags, CSAfF_Fear);
+    }
+    // Other cases are ignored as they are either short-lived or cleaned up with other spell flags, e.g., CSAfF_Grounded.
     int slot_idx = get_spell_slot(thing, spell_idx);
     if (slot_idx >= 0)
     {
         free_spell_slot(thing, slot_idx);
     }
+}
+
+/* Clears spell flags on a object. 
+ * It first checks for an active spell match and terminates the associated spell.
+ * If no exact match is found, it clears only the flag without affecting others.
+ * This ensures that spells with multiple flags remain intact.
+ * This is used to stop a spell effect before its duration ends, like Temple cures.
+ * @param thing The thing which can have spell flags on.
+ * @param spell_flags The spell flags to be cleaned. */
+void clean_spell_flags_f(const struct Thing *thing, unsigned long spell_flags, const char *func_name)
+{
+    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
+    if (creature_control_invalid(cctrl))
+    {
+        ERRORLOG("%s: Invalid creature control for thing %d", func_name, (int)thing->index);
+        return;
+    }
+    struct CastedSpellData *cspell;
+    struct SpellConfig *spconf;
+    // First checks for an exact match with the active spells.
+    for (int i = 0; i < CREATURE_MAX_SPELLS_CASTED_AT; i++)
+    {
+        cspell = &cctrl->casted_spells[i];
+        spconf = get_spell_config(cspell->spkind)
+        if (spconf->spell_flags == spell_flags)
+        {
+            terminate_thing_spell_effect(thing, cspell->spkind);
+            return;
+        }
+    }
+    // If no exact match is found, then check for each spell flags separately without terminating a spell.
+    if (flag_is_set(spell_flags, CSAfF_Slow)
+    && (creature_affected_with_spell_flags(thing, CSAfF_Slow)))
+    {
+        clear_flag(cctrl->spell_flags, CSAfF_Slow);
+        cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
+    }
+    if (flag_is_set(spell_flags, CSAfF_Speed)
+    && (creature_affected_with_spell_flags(thing, CSAfF_Speed)))
+    {
+        clear_flag(cctrl->spell_flags, CSAfF_Speed);
+        cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
+    }
+    if (flag_is_set(spell_flags, CSAfF_Armour)
+    && (creature_affected_with_spell_flags(thing, CSAfF_Armour)))
+    {
+        clear_flag(cctrl->spell_flags, CSAfF_Armour);
+        for (int i = 0; i < 3; i++)
+        {
+            ThingIndex eff_idx = cctrl->spell_tngidx_armour[i];
+            if (eff_idx > 0)
+            {
+                struct Thing *efftng;
+                efftng = thing_get(eff_idx);
+                delete_thing_structure(efftng, 0);
+                cctrl->spell_tngidx_armour[i] = 0;
+            }
+        }
+    }
+    if (flag_is_set(spell_flags, CSAfF_Rebound)
+    && (creature_affected_with_spell_flags(thing, CSAfF_Rebound)))
+    {
+        clear_flag(cctrl->spell_flags, CSAfF_Rebound);
+    }
+    if (flag_is_set(spell_flags, CSAfF_Flying)
+    && (creature_affected_with_spell_flags(thing, CSAfF_Flying)))
+    {
+        clear_flag(cctrl->spell_flags, CSAfF_Flying);
+        if (!flag_is_set(game.conf.crtr_conf.model[thing->model].model_flags, CMF_IsDiptera))
+        {
+            clear_flag(thing->movement_flags, TMvF_Flying);
+        }
+    }
+    if (flag_is_set(spell_flags, CSAfF_Invisibility)
+    && (creature_affected_with_spell_flags(thing, CSAfF_Invisibility)))
+    {
+        clear_flag(cctrl->spell_flags, CSAfF_Invisibility);
+        cctrl->force_visible = 0;
+    }
+    if ((flag_is_set(spell_flags, CSAfF_Sight)
+    && (creature_affected_with_spell_flags(thing, CSAfF_Sight)))
+    {
+        clear_flag(cctrl->spell_flags, CSAfF_Sight);
+    }
+    if (flag_is_set(spell_flags, CSAfF_Light)
+    && (creature_affected_with_spell_flags(thing, CSAfF_Light)))
+    {
+        if (!crstat->illuminated)
+        {
+            clear_flag(cctrl->spell_flags, CSAfF_Light);
+            if (thing->light_id != 0)
+            {
+                if (flag_is_set(thing->rendering_flags, TRF_Invisible))
+                {
+                    light_set_light_intensity(thing->light_id, (light_get_light_intensity(thing->light_id) - 20));
+                    struct Light *lgt = &game.lish.lights[thing->light_id];
+                    lgt->radius = 2560;
+                }
+                else
+                {
+                    light_delete_light(thing->light_id);
+                    thing->light_id = 0;
+                }
+            }
+        }
+    }
+    if (flag_is_set(spell_flags, CSAfF_Disease)
+    && (creature_affected_with_spell_flags(thing, CSAfF_Disease)))
+    {
+        clear_flag(cctrl->spell_flags, CSAfF_Disease);
+        for (int j = 0; j < 3; j++)
+        {
+            ThingIndex eff_idx = cctrl->spell_tngidx_disease[j];
+            if (eff_idx > 0)
+            {
+                struct Thing *efftng;
+                efftng = thing_get(eff_idx);
+                delete_thing_structure(efftng, 0);
+                cctrl->spell_tngidx_disease[j] = 0;
+            }
+        }
+        cctrl->active_disease_spell = 0;
+    }
+    if (flag_is_set(spell_flags, CSAfF_Chicken))
+    && (creature_affected_with_spell_flags(thing, CSAfF_Chicken)))
+    {
+        clear_flag(cctrl->spell_flags, CSAfF_Chicken);
+        external_set_thing_state(thing, CrSt_CreatureChangeFromChicken);
+        cctrl->countdown = 10;
+    }
+    if (flag_is_set(spell_flags, CSAfF_MadKilling)
+    && (creature_affected_with_spell_flags(thing, CSAfF_MadKilling)))
+    {
+        clear_flag(cctrl->spell_flags, CSAfF_MadKilling);
+    }
+    if (flag_is_set(spell_flags, CSAfF_Timebomb)
+    && (creature_affected_with_spell_flags(thing, CSAfF_Timebomb)))
+    {
+        clear_flag(cctrl->spell_flags, CSAfF_Timebomb);
+        thing->veloc_push_add.x.val = 0;
+        thing->veloc_push_add.y.val = 0;
+        clear_flag(thing->state_flags, TF1_PushAdd);
+        cleanup_current_thing_state(thing);
+        set_start_state(thing);
+        cctrl->active_timebomb_spell = 0;
+    }
+    if (flag_is_set(spell_flags, CSAfF_Freeze)
+    && (creature_affected_with_spell_flags(thing, CSAfF_Freeze)))
+    {
+        clear_flag(cctrl->spell_flags, CSAfF_Freeze);
+        clear_flag(cctrl->stateblock_flags, CCSpl_Freeze);
+        if (creature_affected_with_spell_flags(thing, CSAfF_Grounded))
+        {
+            set_flag(thing->movement_flags, TMvF_Flying);
+            clear_flag(cctrl->spell_flags, CSAfF_Grounded);
+        }
+    }
+    if (flag_is_set(spell_flags, CSAfF_Teleport)
+    && (creature_affected_with_spell_flags(thing, CSAfF_Teleport)))
+    {
+        clear_flag(cctrl->spell_flags, CSAfF_Teleport);
+        clear_flag(cctrl->stateblock_flags, CCSpl_Teleport);
+        cctrl->active_teleport_spell = 0;
+    }
+    if (flag_is_set(spell_flags, CSAfF_Heal)
+    && (creature_affected_with_spell_flags(thing, CSAfF_Heal)))
+    {
+        clear_flag(cctrl->spell_flags, CSAfF_Heal);
+    }
+    if (flag_is_set(spell_flags, CSAfF_Fear)
+    && (creature_affected_with_spell_flags(thing, CSAfF_Fear)))
+    {
+        clear_flag(cctrl->spell_flags, CSAfF_Fear);
+    }
+    // Other cases are ignored as they are either short-lived or cleaned up with other spell flags, e.g., CSAfF_Grounded.
+    return;
 }
 
 void process_thing_spell_teleport_effects(struct Thing *thing, struct CastedSpellData *cspell)
@@ -1469,7 +1797,7 @@ void process_thing_spell_effects(struct Thing *thing)
     for (int i = 0; i < CREATURE_MAX_SPELLS_CASTED_AT; i++)
     {
         struct CastedSpellData *cspell = &cctrl->casted_spells[i];
-        if (cspell->spkind == 0)
+        if (cspell->spkind == SPLK_NONE)
         {
             continue;
         }
@@ -1500,7 +1828,7 @@ void process_thing_spell_effects_while_blocked(struct Thing *thing)
     for (int i = 0; i < CREATURE_MAX_SPELLS_CASTED_AT; i++)
     {
         struct CastedSpellData *cspell = &cctrl->casted_spells[i];
-        if (cspell->spkind == SplK_None)
+        if (cspell->spkind == SPLK_NONE)
         {
             continue;
         }
@@ -1550,10 +1878,10 @@ short creature_take_wage_from_gold_pile(struct Thing *creatng,struct Thing *gold
  * Casts a spell by caster creature targeted at given thing, most likely using shot to transfer the spell.
  * @param castng The caster creature.
  * @param targetng The target thing.
- * @param spl_idx Spell index to be casted.
+ * @param spell_idx Spell index to be casted.
  * @param shot_lvl Spell level to be casted.
  */
-void creature_cast_spell_at_thing(struct Thing *castng, struct Thing *targetng, SpellKind spl_idx, long shot_lvl)
+void creature_cast_spell_at_thing(struct Thing *castng, struct Thing *targetng, SpellKind spell_idx, long shot_lvl)
 {
     unsigned char hit_type;
     if ((castng->alloc_flags & TAlF_IsControlled) != 0)
@@ -1572,10 +1900,10 @@ void creature_cast_spell_at_thing(struct Thing *castng, struct Thing *targetng, 
         else
             hit_type = THit_CrtrsOnlyNotOwn;
     }
-    struct SpellConfig* spconf = get_spell_config(spl_idx);
+    struct SpellConfig* spconf = get_spell_config(spell_idx);
     if (spell_config_is_invalid(spconf))
     {
-        ERRORLOG("The %s owned by player %d tried to cast invalid spell %d",thing_model_name(castng),(int)castng->owner,(int)spl_idx);
+        ERRORLOG("The %s owned by player %d tried to cast invalid spell %d",thing_model_name(castng),(int)castng->owner,(int)spell_idx);
         return;
     }
 
@@ -1591,7 +1919,7 @@ void creature_cast_spell_at_thing(struct Thing *castng, struct Thing *targetng, 
  * @param count How many creatures are created.
  * @param duration How many gameturns the creatures will live. Set to 0 for infinite.
  */
-void thing_summon_temporary_creature(struct Thing *creatng, ThingModel model, char level, char count, GameTurn duration, long spl_idx)
+void thing_summon_temporary_creature(struct Thing *creatng, ThingModel model, char level, char count, GameTurn duration, long spell_idx)
 {
     struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
     struct Thing *famlrtng;
@@ -1632,7 +1960,7 @@ void thing_summon_temporary_creature(struct Thing *creatng, ThingModel model, ch
                     // Remember your Summoner.
                     famcctrl->summoner_idx = creatng->index;
                     // Remember the spell that created you.
-                    famcctrl->summon_spl_idx = spl_idx;
+                    famcctrl->summon_spl_idx = spell_idx;
                     creature_change_multiple_levels(famlrtng, sumxp);
                     remove_first_creature(famlrtng); // Temporary units are not real creatures.
                     famcctrl->unsummon_turn = game.play_gameturn + duration;
@@ -1775,19 +2103,19 @@ void remove_creature_from_summon_list(struct Dungeon *dungeon, ThingIndex famlrt
  * @brief Casts a spell by caster creature targeted at given coordinates, most likely using shot to transfer the spell.
  *
  * @param castng The caster creature.
- * @param spl_idx Spell index to be casted.
+ * @param spell_idx Spell kind to be casted.
  * @param shot_lvl Spell level to be casted.
  * @param trg_x
  * @param trg_y
  */
-void creature_cast_spell(struct Thing *castng, SpellKind spl_idx, long shot_lvl, MapSubtlCoord trg_x, MapSubtlCoord trg_y)
+void creature_cast_spell(struct Thing *castng, SpellKind spell_idx, long shot_lvl, MapSubtlCoord trg_x, MapSubtlCoord trg_y)
 {
     long i;
-    struct SpellConfig *spconf = get_spell_config(spl_idx);
+    struct SpellConfig *spconf = get_spell_config(spell_idx);
     struct CreatureControl *cctrl = creature_control_get_from_thing(castng);
     if (creature_control_invalid(cctrl))
     {
-        ERRORLOG("Invalid creature tried to cast spell %d", (int)spl_idx);
+        ERRORLOG("Invalid creature tried to cast spell %d", (int)spell_idx);
         return;
     }
     if (flag_is_set(spconf->spell_flags, CSAfF_Teleport))
@@ -1801,7 +2129,7 @@ void creature_cast_spell(struct Thing *castng, SpellKind spl_idx, long shot_lvl,
         {
             thing_play_sample(castng, spconf->caster_affect_sound, NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
         }
-        apply_spell_effect_to_thing(castng, spl_idx, cctrl->explevel);
+        apply_spell_effect_to_thing(castng, spell_idx, cctrl->explevel);
     }
     else if (spconf->shot_model > 0)
     {
@@ -1827,7 +2155,7 @@ void creature_cast_spell(struct Thing *castng, SpellKind spl_idx, long shot_lvl,
     // Check if it's a summoning spell.
     if (spconf->crtr_summon_model > 0)
     {
-        thing_summon_temporary_creature(castng, spconf->crtr_summon_model, spconf->crtr_summon_level, spconf->crtr_summon_amount, spconf->duration, spl_idx);
+        thing_summon_temporary_creature(castng, spconf->crtr_summon_model, spconf->crtr_summon_level, spconf->crtr_summon_amount, spconf->duration, spell_idx);
     }
     // Check if the spell has an effect associated.
     if (spconf->cast_effect_model != 0)
@@ -2437,6 +2765,7 @@ void creature_rebirth_at_lair(struct Thing *thing)
         clear_flag(thing->state_flags, TF1_PushAdd);
         cleanup_current_thing_state(thing);
         set_start_state(thing);
+        cctrl->active_timebomb_spell = 0;
     }
     if (thing_is_invalid(lairtng))
     {
@@ -2895,17 +3224,11 @@ struct Thing *kill_creature(struct Thing *creatng, struct Thing *killertng, Play
         return INVALID_THING;
     }
     struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
-    // Dying creatures must be visible and no chicken.
-    clean_spell_flags(creatng, CSAfF_Invisibility);
-    clean_spell_flags(creatng, CSAfF_Chicken);
-    clean_spell_flags(creatng, CSAfF_Rebound);
-    /*
-    * But maybe it should simply terminate all the active spell effects:
-    * for (int i = 0; i < CREATURE_MAX_SPELLS_CASTED_AT; i++)
-    * { 
-    *     terminate_thing_spell_effect(creatng, cctrl->casted_spells[i].spkind);
-    * }
-    */
+    // Terminate all the spell effects on dying creatures.
+    for (int i = 0; i < CREATURE_MAX_SPELLS_CASTED_AT; i++)
+    {
+        terminate_thing_spell_effect(creatng, cctrl->casted_spells[i].spkind);
+    }
     if ((cctrl->unsummon_turn > 0) && (cctrl->unsummon_turn > game.play_gameturn))
     {
         create_effect_around_thing(creatng, ball_puff_effects[creatng->owner]);

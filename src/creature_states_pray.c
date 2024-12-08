@@ -137,33 +137,40 @@ CrStateRet praying_in_temple(struct Thing *thing)
 long process_temple_cure(struct Thing *creatng)
 {
     TRACE_THING(creatng);
-    clean_spell_flags(creatng, CSAfF_Disease);
-    clean_spell_flags(creatng, CSAfF_Chicken);
-    // TODO: Should Temple also cure Slow and Freeze?
+    if (creature_affected_with_spell_flags(creatng, CSAfF_Disease))
+    {
+        clean_spell_flags(creatng, CSAfF_Disease);
+    }
+    if (creature_affected_with_spell_flags(creatng, CSAfF_Chicken))
+    {
+        clean_spell_flags(creatng, CSAfF_Chicken);
+    }
+    // TODO: Should Temple also cure Slow and Freeze? Maybe we should consider making it configurable by room type.
     struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
     cctrl->temple_cure_gameturn = game.play_gameturn;
     return 1;
 }
 
-// This is state-movecheck function of a creature
+// This is state-movecheck function of a creature.
 CrCheckRet process_temple_function(struct Thing *thing)
 {
-    struct Room* room = get_room_thing_is_on(thing);
+    struct Room *room = get_room_thing_is_on(thing);
     if (!room_still_valid_as_type_for_thing(room, get_room_role_for_job(Job_TEMPLE_PRAY), thing))
     {
         remove_creature_from_work_room(thing);
         set_start_state(thing);
         return CrCkRet_Continue;
     }
-    { // Modify anger
-        struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    // Modify anger.
+    {
+        struct CreatureStats *crstat = creature_stats_get_from_thing(thing);
         long anger_change = process_work_speed_on_work_value(thing, crstat->annoy_in_temple);
         anger_apply_anger_to_creature(thing, anger_change, AngR_Other, 1);
     }
-    // Terminate spells
+    // Terminate spells.
     process_temple_cure(thing);
     {
-        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+        struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
         cctrl->turns_at_job++;
     }
     return CrCkRet_Available;
@@ -339,14 +346,13 @@ long force_complete_current_manufacturing(long plyr_idx)
     return 0;
 }
 
-void apply_spell_effect_to_players_creatures(PlayerNumber plyr_idx, ThingModel crmodel, long spl_idx, long overchrg)
+void apply_spell_effect_to_players_creatures(PlayerNumber plyr_idx, ThingModel crmodel, long spell_idx, long overchrg)
 {
-    SYNCDBG(8,"Starting");
-    struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
+    SYNCDBG(8, "Starting");
+    struct Dungeon *dungeon = get_players_num_dungeon(plyr_idx);
     unsigned long k = 0;
-
     TbBool need_spec_digger = (crmodel > 0) && creature_kind_is_for_dungeon_diggers_list(plyr_idx, crmodel);
-    struct Thing* thing = INVALID_THING;
+    struct Thing *thing = INVALID_THING;
     int i;
     if ((!need_spec_digger) || (crmodel == CREATURE_ANY) || (crmodel == CREATURE_NOT_A_DIGGER))
     {
@@ -356,24 +362,23 @@ void apply_spell_effect_to_players_creatures(PlayerNumber plyr_idx, ThingModel c
     {
         i = dungeon->digger_list_start;
     }
-
     while (i != 0)
     {
         thing = thing_get(i);
         TRACE_THING(thing);
-        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+        struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
         if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
         {
             ERRORLOG("Jump to invalid creature detected");
             break;
         }
         i = cctrl->players_next_creature_idx;
-        // Thing list loop body
-        if (creature_matches_model(thing,crmodel))
-        {      
-            apply_spell_effect_to_thing(thing, spl_idx, overchrg);
+        // Thing list loop body.
+        if (creature_matches_model(thing, crmodel))
+        {
+            apply_spell_effect_to_thing(thing, spell_idx, overchrg);
         }
-        // Thing list loop body ends
+        // Thing list loop body ends.
         k++;
         if (k > CREATURES_COUNT)
         {
@@ -381,7 +386,7 @@ void apply_spell_effect_to_players_creatures(PlayerNumber plyr_idx, ThingModel c
             break;
         }
     }
-    SYNCDBG(19,"Finished");
+    SYNCDBG(19, "Finished");
 }
 
 TbBool kill_creature_if_under_chicken_spell(struct Thing *thing)

@@ -3059,7 +3059,7 @@ void kill_room_contents_at_subtile(struct Room *room, PlayerNumber plyr_idx, Map
             // Per thing code start
             if (thing_is_spellbook(thing) && ((thing->alloc_flags & TAlF_IsDragged) == 0))
             {
-                PowerKind spl_idx = book_thing_to_power_kind(thing);
+                PowerKind spell_idx = book_thing_to_power_kind(thing);
                 dungeon = get_dungeon(plyr_idx);
                 if (thing->owner == room->owner)
                 {
@@ -3072,7 +3072,7 @@ void kill_room_contents_at_subtile(struct Room *room, PlayerNumber plyr_idx, Map
                         create_effect(&pos, TngEff_RoomSparkeLarge, thing->owner);
                     } else
                     // Try to move spellbook to another library, if it's the only copy
-                    if ((dungeon->magic_level[spl_idx] < 2) && (find_random_valid_position_for_item_in_different_room_avoiding_object(thing, room, &pos)))
+                    if ((dungeon->magic_level[spell_idx] < 2) && (find_random_valid_position_for_item_in_different_room_avoiding_object(thing, room, &pos)))
                     {
                         move_thing_to_different_room(thing, &pos);
                     } else
@@ -3080,16 +3080,16 @@ void kill_room_contents_at_subtile(struct Room *room, PlayerNumber plyr_idx, Map
                     {
                         if (!is_neutral_thing(thing)) 
                         {
-                            if (dungeon->magic_level[spl_idx] >= 2)
+                            if (dungeon->magic_level[spell_idx] >= 2)
                             {
                                 SYNCLOG("Deleting duplicate object %s from %s of player %d ", object_code_name(thing->model), room_code_name(room->kind), (int)thing->owner);
                             }
                             else
                             {
                                 SYNCLOG("Found no new location for object %s in %s for player %d, deleting object", object_code_name(thing->model), room_code_name(room->kind), (int)thing->owner);
-                                dungeon->magic_resrchable[spl_idx] = 1;
+                                dungeon->magic_resrchable[spell_idx] = 1;
                             }
-                            remove_power_from_player(spl_idx, thing->owner);
+                            remove_power_from_player(spell_idx, thing->owner);
                         }
                         delete_thing_structure(thing, 0);
                     }

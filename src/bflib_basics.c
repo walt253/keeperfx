@@ -90,12 +90,12 @@ unsigned long lword (unsigned char *p)
  */
 long saturate_set_signed(long long val,unsigned short nbits)
 {
-  long long max = (1 << (nbits-1)) - 1;
-  if (val >= max)
-    return max;
-  if (val <= -max)
-    return -max;
-  return val;
+    long long max = (1 << (nbits-1)) - 1;
+    if (val >= max)
+        return max;
+    if (val <= -max)
+        return -max;
+    return val;
 }
 
 /**
@@ -129,47 +129,44 @@ char *buf_sprintf(const char *format, ...)
 
 void error(const char *codefile,const int ecode,const char *message)
 {
-  LbErrorLog("In source %s:\n %5d - %s\n",codefile,ecode,message);
+    LbErrorLog("In source %s:\n %5d - %s\n",codefile,ecode,message);
 }
 
 short warning_dialog(const char *codefile,const int ecode,const char *message)
 {
-  LbWarnLog("In source %s:\n %5d - %s\n",codefile,ecode,message);
-
-  const SDL_MessageBoxButtonData buttons[] = {
-		{ .flags = SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT, .buttonid = 1, .text = "Ignore" },
-    { .flags = SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT, .buttonid = 0, .text = "Abort" },
-	};
-
-	const SDL_MessageBoxData messageboxdata = {
-		.flags = SDL_MESSAGEBOX_WARNING,
-		.window = NULL,
-		.title = PROGRAM_FULL_NAME,
-		.message = message,
-		.numbuttons = SDL_arraysize(buttons),
-		.buttons = buttons,
-		.colorScheme = NULL //colorScheme not supported on windows
-	};
-
-  int button = 0;
-  SDL_ShowMessageBox(&messageboxdata, &button);
-  return button;
+    LbWarnLog("In source %s:\n %5d - %s\n",codefile,ecode,message);
+    const SDL_MessageBoxButtonData buttons[] = {
+        { .flags = SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT, .buttonid = 1, .text = "Ignore" },
+        { .flags = SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT, .buttonid = 0, .text = "Abort" },
+    };
+    const SDL_MessageBoxData messageboxdata = {
+        .flags = SDL_MESSAGEBOX_WARNING,
+        .window = NULL,
+        .title = PROGRAM_FULL_NAME,
+        .message = message,
+        .numbuttons = SDL_arraysize(buttons),
+        .buttons = buttons,
+        .colorScheme = NULL // colorScheme not supported on Windows.
+    };
+    int button = 0;
+    SDL_ShowMessageBox(&messageboxdata, &button);
+    return button;
 }
 
 short error_dialog(const char *codefile,const int ecode,const char *message)
 {
-  LbErrorLog("In source %s:\n %5d - %s\n",codefile,ecode,message);
-  SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, PROGRAM_FULL_NAME, message, NULL);
-  return 0;
+    LbErrorLog("In source %s:\n %5d - %s\n",codefile,ecode,message);
+    SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, PROGRAM_FULL_NAME, message, NULL);
+    return 0;
 }
 
 short error_dialog_fatal(const char *codefile,const int ecode,const char *message)
 {
-  LbErrorLog("In source %s:\n %5d - %s\n",codefile,ecode,message);
-  static char msg_text[2048];
-  sprintf(msg_text, "%s This error in '%s' makes the program unable to continue. See '%s' for details.", message, codefile, log_file_name);
-  SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, PROGRAM_FULL_NAME, msg_text, NULL);
-  return 0;
+    LbErrorLog("In source %s:\n %5d - %s\n",codefile,ecode,message);
+    static char msg_text[2048];
+    sprintf(msg_text, "%s This error in '%s' makes the program unable to continue. See '%s' for details.", message, codefile, log_file_name);
+    SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, PROGRAM_FULL_NAME, msg_text, NULL);
+    return 0;
 }
 
 /******************************************************************************/

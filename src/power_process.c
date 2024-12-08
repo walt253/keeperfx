@@ -217,8 +217,8 @@ void process_disease(struct Thing *creatng)
                 && (thing->owner != cctrl->disease_caster_plyridx)
                 && !creature_affected_with_spell_flags(thing, CSAfF_Disease)
                 && (cctrl->disease_caster_plyridx != game.neutral_player_num))
-                {
-                    apply_spell_effect_to_thing(thing, SplK_Disease, cctrl->explevel);
+                { // Apply the spell kind stored in 'active_disease_spell'.
+                    apply_spell_effect_to_thing(thing, cctrl->active_disease_spell, cctrl->explevel);
                     tngcctrl->disease_caster_plyridx = cctrl->disease_caster_plyridx;
                 }
                 // Per thing code ends.
@@ -680,7 +680,6 @@ void remove_explored_flags_for_power_sight(struct PlayerInfo *player)
 void process_timebomb(struct Thing *creatng)
 {
     SYNCDBG(18, "Starting");
-    struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
     if (!creature_affected_with_spell_flags(creatng, CSAfF_Timebomb))
     {
         return;
@@ -690,6 +689,7 @@ void process_timebomb(struct Thing *creatng)
         return;
     }
     update_creature_speed(creatng);
+    struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
     struct Thing *timetng = thing_get(cctrl->timebomb_countdown_id);
     if (thing_is_invalid(timetng))
     {
@@ -741,15 +741,16 @@ void process_timebomb(struct Thing *creatng)
 
 void timebomb_explode(struct Thing *creatng)
 {
-    struct SpellConfig* spconf = get_spell_config(SplK_TimeBomb);
-    struct ShotConfigStats* shotst = get_shot_model_stats(spconf->shot_model);
-    SYNCDBG(8, "Explode Timebomb")
-    //struct Thing* castng = creatng; //todo cleanup
+    struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
+    struct SpellConfig *spconf = get_spell_config(cctrl->active_timebomb_spell);
+    struct ShotConfigStats *shotst = get_shot_model_stats(spconf->shot_model);
+    SYNCDBG(8, "Explode Timebomb");
     long weight = compute_creature_weight(creatng);
-    #define weight_divisor 64
-    if (shotst->area_range != 0) {
-        struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
-        struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    unsigned char weight_divisor = 64; // Not sure why it was #define.
+    if (shotst->area_range != 0)
+    {
+        struct CreatureStats *crstat = creature_stats_get_from_thing(creatng);
+        struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
         long dist = (compute_creature_attack_range(shotst->area_range * COORD_PER_STL, crstat->luck, cctrl->explevel) * weight) / weight_divisor;
         long damage = (compute_creature_attack_spell_damage(shotst->area_damage, crstat->luck, cctrl->explevel, creatng) * weight) / weight_divisor;
         HitTargetFlags hit_targets = hit_type_to_hit_targets(shotst->area_hit_type);
@@ -773,7 +774,6 @@ void timebomb_explode(struct Thing *creatng)
             create_effect_around_thing(creatng, TngEff_Blood5);
         }
         HitTargetFlags hit_targets = hit_type_to_hit_targets(shotst->area_hit_type);
-        struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
         cctrl->timebomb_death = ((shotst->model_flags & ShMF_Exploding) != 0);
         MapCoord max_dist = (shotst->area_range * weight) / weight_divisor;
         HitPoints max_damage = (shotst->area_damage * weight) / weight_divisor;

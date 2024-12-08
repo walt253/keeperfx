@@ -1036,7 +1036,8 @@ TbBool explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, con
                     else {
                         spell_level = 0;
                     }
-                    if (shotst->cast_spell_kind == SplK_Disease)
+                    struct SpellConfig *spconf = get_spell_config(shotst->cast_spell_kind);
+                    if (flag_is_set(spconf->spell_flags, CSAfF_Disease))
                     {
                         cctrl->disease_caster_plyridx = tngsrc->owner;
                     }
@@ -1397,7 +1398,7 @@ long explosion_affecting_area(struct Thing *tngsrc, const struct Coord3d *pos, M
 }
 
 TbBool poison_cloud_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, const struct Coord3d *pos,
-MapCoordDelta max_dist, HitPoints max_damage, long blow_strength, unsigned char area_affect_type, DamageType damage_type, PlayerNumber owner)
+    MapCoordDelta max_dist, HitPoints max_damage, long blow_strength, unsigned char area_affect_type, DamageType damage_type, PlayerNumber owner, SpellKind spell_idx)
 {
     TbBool affected = false;
     SYNCDBG(17, "Starting for %s, max damage %d, max blow %d, owner %d", thing_model_name(tngdst), (int)max_damage, (int)blow_strength, (int)owner);
@@ -1420,48 +1421,47 @@ MapCoordDelta max_dist, HitPoints max_damage, long blow_strength, unsigned char 
         if (distance < max_dist)
         {
             struct CreatureControl *cctrl = creature_control_get_from_thing(tngdst);
+            struct SpellConfig* spconf;
+            // At this point, immunity has already been checked, no need to check it again.
             set_flag(cctrl->spell_flags, CSAfF_PoisonCloud);
             switch (area_affect_type)
             {
-            case AAffT_GasDamage:
-                if (max_damage > 0)
-                {
-                    HitPoints damage;
-                    damage = get_radially_decaying_value(max_damage, max_dist / 4, 3 * max_dist / 4, distance) + 1;
-                    SYNCDBG(7, "Causing %d damage to %s at distance %d", (int)damage, thing_model_name(tngdst), (int)distance);
-                    apply_damage_to_thing_and_display_health(tngdst, damage, damage_type, tngsrc->owner);
-                }
-                break;
-            case AAffT_GasSlow:
-                if (!creature_affected_with_spell_flags(tngdst, CSAfF_Slow))
-                {
-                    struct CreatureControl *srcctrl;
-                    srcctrl = creature_control_get_from_thing(tngsrc);
-                    apply_spell_effect_to_thing(tngdst, SplK_Slow, srcctrl->explevel);
-                }
-                break;
-            case AAffT_GasSlowDamage:
-                if (max_damage > 0)
-                {
-                    HitPoints damage;
-                    damage = get_radially_decaying_value(max_damage, 3 * max_dist / 4, max_dist / 4, distance) + 1;
-                    SYNCDBG(7, "Causing %d damage to %s at distance %d", (int)damage, thing_model_name(tngdst), (int)distance);
-                    apply_damage_to_thing_and_display_health(tngdst, damage, damage_type, tngsrc->owner);
-                }
-                if (!creature_affected_with_spell_flags(tngdst, CSAfF_Slow))
-                {
-                    struct CreatureControl *srcctrl;
-                    srcctrl = creature_control_get_from_thing(tngsrc);
-                    apply_spell_effect_to_thing(tngdst, SplK_Slow, srcctrl->explevel);
-                }
-                break;
-            case AAffT_GasDisease:
-                if (!creature_affected_with_spell_flags(tngdst, CSAfF_Disease))
-                {
-                    struct CreatureControl *srcctrl;
-                    srcctrl = creature_control_get_from_thing(tngsrc);
-                    apply_spell_effect_to_thing(tngdst, SplK_Disease, srcctrl->explevel);
-                }
+                case AAffT_GasDamage:
+                    if (max_damage > 0)
+                    {
+                        HitPoints damage;
+                        damage = get_radially_decaying_value(max_damage, max_dist / 4, 3 * max_dist / 4, distance) + 1;
+                        SYNCDBG(7, "Causing %d damage to %s at distance %d", (int)damage, thing_model_name(tngdst), (int)distance);
+                        apply_damage_to_thing_and_display_health(tngdst, damage, damage_type, tngsrc->owner);
+                    }
+                    break;
+                case AAffT_GasDamageEffect:
+                    if (max_damage > 0)
+                    {
+                        HitPoints damage;
+                        damage = get_radially_decaying_value(max_damage, 3 * max_dist / 4, max_dist / 4, distance) + 1;
+                        SYNCDBG(7, "Causing %d damage to %s at distance %d", (int)damage, thing_model_name(tngdst), (int)distance);
+                        apply_damage_to_thing_and_display_health(tngdst, damage, damage_type, tngsrc->owner);
+                    }
+                    spconf = get_spell_config(spell_idx);
+                    if ((!creature_affected_with_spell_flags(tngdst, spconf->spell_flags)) && (!creature_is_immune_to_spell_flags(tngdst, spconf->spell_flags)))
+                    {
+                        struct CreatureControl *srcctrl;
+                        srcctrl = creature_control_get_from_thing(tngsrc);
+                        apply_spell_effect_to_thing(tngdst, spell_idx, srcctrl->explevel);
+                    }
+                    break;
+                case AAffT_GasEffect:
+                    spconf = get_spell_config(spell_idx);
+                    if ((!creature_affected_with_spell_flags(tngdst, spconf->spell_flags)) && (!creature_is_immune_to_spell_flags(tngdst, spconf->spell_flags)))
+                    {
+                        struct CreatureControl *srcctrl;
+                        srcctrl = creature_control_get_from_thing(tngsrc);
+                        apply_spell_effect_to_thing(tngdst, spell_idx, srcctrl->explevel);
+                    }
+                    break;
+                default:
+                    break:
             }
             affected = true;
         }
@@ -1470,19 +1470,23 @@ MapCoordDelta max_dist, HitPoints max_damage, long blow_strength, unsigned char 
 }
 
 long poison_cloud_affecting_map_block(struct Thing *tngsrc, const struct Map *mapblk, const struct Coord3d *pos,
-    MapCoord max_dist, HitPoints max_damage, long blow_strength, HitTargetFlags hit_targets, unsigned char area_affect_type, DamageType damage_type)
+    MapCoord max_dist, HitPoints max_damage, long blow_strength, HitTargetFlags hit_targets, unsigned char area_affect_type, DamageType damage_type, SpellKind spell_idx)
 {
     PlayerNumber owner;
     if (!thing_is_invalid(tngsrc))
+    {
         owner = tngsrc->owner;
+    }
     else
+    {
         owner = -1;
+    }
     long num_affected = 0;
     unsigned long k = 0;
     long i = get_mapwho_thing_index(mapblk);
     while (i != 0)
     {
-        struct Thing* thing = thing_get(i);
+        struct Thing *thing = thing_get(i);
         TRACE_THING(thing);
         if (thing_is_invalid(thing))
         {
@@ -1490,19 +1494,21 @@ long poison_cloud_affecting_map_block(struct Thing *tngsrc, const struct Map *ma
             break;
         }
         i = thing->next_on_mapblk;
-        // Should never happen - only existing thing shall be in list
+        // Should never happen - only existing thing shall be in list.
         if (!thing_exists(thing))
         {
             WARNLOG("Jump to non-existing thing");
             break;
         }
-        // Per thing processing block
+        // Per thing processing block.
         if (area_effect_can_affect_thing(thing, hit_targets, owner))
         {
-            if (poison_cloud_affecting_thing(tngsrc, thing, pos, max_dist, max_damage, blow_strength, area_affect_type, damage_type, owner))
+            if (poison_cloud_affecting_thing(tngsrc, thing, pos, max_dist, max_damage, blow_strength, area_affect_type, damage_type, owner, spell_idx))
+            {
                 num_affected++;
+            }
         }
-        // Per thing processing block ends
+        // Per thing processing block ends.
         k++;
         if (k > THINGS_COUNT)
         {
@@ -1514,39 +1520,48 @@ long poison_cloud_affecting_map_block(struct Thing *tngsrc, const struct Map *ma
     return num_affected;
 }
 
-long poison_cloud_affecting_area(struct Thing *tngsrc, struct Coord3d *pos, long max_dist, long max_damage, unsigned char area_affect_type)
+long poison_cloud_affecting_area(struct Thing *tngsrc, struct Coord3d *pos, long max_dist, long max_damage, unsigned char area_affect_type, SpellKind spell_idx)
 {
     int dmg_divider = 10;
-    if (thing_is_effect(tngsrc)) {
-        const struct EffectConfigStats* effcst = get_effect_model_stats(tngsrc->model);
-        dmg_divider = max(effcst->start_health,1);
+    if (thing_is_effect(tngsrc))
+    {
+        const struct EffectConfigStats *effcst = get_effect_model_stats(tngsrc->model);
+        dmg_divider = max(effcst->start_health, 1);
     }
     MapSubtlCoord start_x = coord_subtile(pos->x.val - max_dist);
     MapSubtlCoord start_y = coord_subtile(pos->y.val - max_dist);
     MapSubtlCoord end_x = coord_subtile(pos->x.val + max_dist) + 1;
     MapSubtlCoord end_y = coord_subtile(pos->y.val + max_dist) + 1;
-    if (start_x < 0) {
+    if (start_x < 0)
+    {
         start_x = 0;
-    } else
-    if (start_x > gameadd.map_subtiles_x) {
+    }
+    else if (start_x > gameadd.map_subtiles_x)
+    {
         start_x = gameadd.map_subtiles_x;
     }
-    if (start_y < 0) {
+    if (start_y < 0)
+    {
         start_y = 0;
-    } else
-    if (start_y > gameadd.map_subtiles_y) {
+    }
+    else if (start_y > gameadd.map_subtiles_y)
+    {
         start_y = gameadd.map_subtiles_y;
     }
-    if (end_x < 0) {
+    if (end_x < 0)
+    {
         end_x = 0;
-    } else
-    if (end_x > gameadd.map_subtiles_x) {
+    }
+    else if (end_x > gameadd.map_subtiles_x)
+    {
         end_x = gameadd.map_subtiles_x;
     }
-    if (end_y < 0) {
+    if (end_y < 0)
+    {
         end_y = 0;
-    } else
-    if (end_y > gameadd.map_subtiles_y) {
+    }
+    else if (end_y > gameadd.map_subtiles_y)
+    {
         end_y = gameadd.map_subtiles_y;
     }
     long num_affected = 0;
@@ -1555,8 +1570,8 @@ long poison_cloud_affecting_area(struct Thing *tngsrc, struct Coord3d *pos, long
         for (MapSubtlCoord stl_x = start_x; stl_x <= end_x; stl_x++)
         {
             HitTargetFlags hit_targets = hit_type_to_hit_targets(tngsrc->shot_effect.hit_type);
-            struct Map* mapblk = get_map_block_at(stl_x, stl_y);
-            num_affected += poison_cloud_affecting_map_block(tngsrc, mapblk, pos, max_dist, max_damage/dmg_divider, 0, hit_targets, area_affect_type, DmgT_Respiratory);
+            struct Map *mapblk = get_map_block_at(stl_x, stl_y);
+            num_affected += poison_cloud_affecting_map_block(tngsrc, mapblk, pos, max_dist, max_damage / dmg_divider, 0, hit_targets, area_affect_type, DmgT_Respiratory, spell_idx);
         }
     }
     return num_affected;
@@ -1564,36 +1579,39 @@ long poison_cloud_affecting_area(struct Thing *tngsrc, struct Coord3d *pos, long
 
 TngUpdateRet update_effect(struct Thing *efftng)
 {
-    SYNCDBG(18,"Starting for %s",thing_model_name(efftng));
+    SYNCDBG(18, "Starting for %s", thing_model_name(efftng));
     TRACE_THING(efftng);
-    struct Thing* subtng = NULL;
-    const struct EffectConfigStats* effcst = get_effect_model_stats(efftng->model);
-    if (efftng->parent_idx > 0) {
+    struct Thing *subtng = NULL;
+    const struct EffectConfigStats *effcst = get_effect_model_stats(efftng->model);
+    if (efftng->parent_idx > 0)
+    {
         subtng = thing_get(efftng->parent_idx);
         TRACE_THING(subtng);
     }
-    if (efftng->health <= 0) {
+    if (efftng->health <= 0)
+    {
         destroy_effect_thing(efftng);
         return TUFRet_Deleted;
     }
     update_effect_light_intensity(efftng);
-    // Effect generators can be used to generate effect elements
-    if ( (effcst->always_generate) || any_player_close_enough_to_see(&efftng->mappos) )
+    // Effect generators can be used to generate effect elements.
+    if ((effcst->always_generate) || any_player_close_enough_to_see(&efftng->mappos))
     {
         effect_generate_effect_elements(efftng);
     }
-    // Let the effect affect area
+    // Let the effect affect area.
     switch (effcst->area_affect_type)
     {
-    case AAffT_GasDamage:
-    case AAffT_GasSlow:
-    case AAffT_GasSlowDamage:
-    case AAffT_GasDisease:
-        poison_cloud_affecting_area(efftng, &efftng->mappos, 5*COORD_PER_STL, 120, effcst->area_affect_type);
-        break;
-    case AAffT_WOPDamage:
-        word_of_power_affecting_area(efftng, subtng, &efftng->mappos);
-        break;
+        case AAffT_GasDamage:
+        case AAffT_GasDamageEffect:
+        case AAffT_GasEffect:
+            poison_cloud_affecting_area(efftng, &efftng->mappos, 5 * COORD_PER_STL, 120, effcst->area_affect_type, effcst->spell_effect);
+            break;
+        case AAffT_WOPDamage:
+            word_of_power_affecting_area(efftng, subtng, &efftng->mappos);
+            break;
+        default:
+            break;
     }
     efftng->health--;
     return move_effect(efftng);

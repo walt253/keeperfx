@@ -61,24 +61,24 @@ long find_spell_age_percentage(PlayerNumber plyr_idx, PowerKind pwkind);
 TbBool find_power_cast_place(PlayerNumber plyr_idx, PowerKind pwkind, struct Coord3d *pos);
 TbBool pay_for_spell(PlayerNumber plyr_idx, PowerKind pwkind, long pwlevel);
 int get_power_overcharge_level(struct PlayerInfo *player);
-TbBool update_power_overcharge(struct PlayerInfo *player, int spl_idx);
+TbBool update_power_overcharge(struct PlayerInfo *player, int spell_idx);
 void process_dungeon_power_magic(void);
 
 TbResult magic_use_power_direct(PlayerNumber plyr_idx, PowerKind pwkind,
     unsigned short splevel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct Thing *thing, unsigned long allow_flags);
 
-TbResult magic_use_available_power_on_thing(PlayerNumber plyr_idx, PowerKind spl_idx,
+TbResult magic_use_available_power_on_thing(PlayerNumber plyr_idx, PowerKind spell_idx,
     unsigned short splevel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct Thing *thing, unsigned long mod_flags);
-TbResult magic_use_available_power_on_subtile(PlayerNumber plyr_idx, PowerKind spl_idx,
+TbResult magic_use_available_power_on_subtile(PlayerNumber plyr_idx, PowerKind spell_idx,
     unsigned short splevel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned long allow_flags, unsigned long mod_flags);
-TbResult magic_use_available_power_on_level(PlayerNumber plyr_idx, PowerKind spl_idx, unsigned short splevel, unsigned long allow_flags);
-void directly_cast_spell_on_thing(PlayerNumber plyr_idx, PowerKind spl_idx, ThingIndex thing_idx, long splevel);
+TbResult magic_use_available_power_on_level(PlayerNumber plyr_idx, PowerKind spell_idx, unsigned short splevel, unsigned long allow_flags);
+void directly_cast_spell_on_thing(PlayerNumber plyr_idx, PowerKind spell_idx, ThingIndex thing_idx, long splevel);
 
-TbResult magic_use_power_on_thing(PlayerNumber plyr_idx, PowerKind spl_idx,
+TbResult magic_use_power_on_thing(PlayerNumber plyr_idx, PowerKind spell_idx,
     unsigned short splevel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct Thing *thing, unsigned long allow_flags);
-TbResult magic_use_power_on_subtile(PlayerNumber plyr_idx, PowerKind spl_idx,
+TbResult magic_use_power_on_subtile(PlayerNumber plyr_idx, PowerKind spell_idx,
     unsigned short splevel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned long allow_flags, unsigned long mod_flags);
-TbResult magic_use_power_on_level(PlayerNumber plyr_idx, PowerKind spl_idx, unsigned short splevel, unsigned long mod_flags);
+TbResult magic_use_power_on_level(PlayerNumber plyr_idx, PowerKind spell_idx, unsigned short splevel, unsigned long mod_flags);
 
 void slap_creature(struct PlayerInfo *player, struct Thing *thing);
 void update_power_sight_explored(struct PlayerInfo *player);

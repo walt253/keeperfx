@@ -107,14 +107,14 @@ static void draw_creature_view_icons(struct Thing *creatng)
         if ((spconf->spell_flags > 0) && (creature_affected_with_spell_flags(creatng, spconf->spell_flags)))
         {
             long spridx = spconf->medsym_sprite_idx;
-            if (flag_is_set(spconf->spell_flags, CSAfF_Invisibility))
-            {
+            if (spconf->spell_flags == CSAfF_Invisibility)
+            { // Spells with multiples flags shouldn't be affected to not confuse players.
                 if (cctrl->force_visible & 2)
                 {
                     spridx++;
                 }
             }
-            if (flag_is_set(spconf->spell_flags, CSAfF_Timebomb))
+            else if (flag_is_set(spconf->spell_flags, CSAfF_Timebomb))
             {
                 int tx_units_per_px = (dbc_language > 0) ? scale_ui_value_lofi(16) : (22 * units_per_pixel) / LbTextLineHeight();
                 int h = LbTextLineHeight() * tx_units_per_px / 16;

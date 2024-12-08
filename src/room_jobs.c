@@ -94,8 +94,14 @@ TbBool add_creature_to_torture_room(struct Thing *creatng, const struct Room *ro
         light_delete_light(creatng->light_id);
         creatng->light_id = 0;
     }
-    clean_spell_flags(creatng, CSAfF_Speed);
-    clean_spell_flags(creatng, CSAfF_Invisibility);
+    if (creature_affected_with_spell_flags(creatng, CSAfF_Speed))
+    [
+        clean_spell_flags(creatng, CSAfF_Speed);
+    ]
+    if (creature_affected_with_spell_flags(creatng, CSAfF_Invisibility))
+    {
+        clean_spell_flags(creatng, CSAfF_Invisibility);
+    }
     if (room->owner != game.neutral_player_num)
     {
         struct Dungeon *dungeon = get_dungeon(room->owner);

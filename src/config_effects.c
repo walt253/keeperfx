@@ -84,23 +84,22 @@ static void load_effects(VALUE *value, unsigned short flags)
         if (value_type(section) == VALUE_DICT)
         {
             struct EffectConfigStats *effcst = &game.conf.effects_conf.effect_cfgstats[id];
-
-            SET_NAME(section,effect_desc,effcst->code_name);
-
-            CONDITIONAL_ASSIGN_ARR2_INT(section,"GenerationAccelXYRange",effcst->accel_xy_min,effcst->accel_xy_max);
-            CONDITIONAL_ASSIGN_ARR2_INT(section,"GenerationAccelZRange", effcst->accel_z_min, effcst->accel_z_max);
-            CONDITIONAL_ASSIGN_ARR2_INT(section,"GenerationKindRange",   effcst->kind_min,    effcst->kind_max);
-            CONDITIONAL_ASSIGN_INT(section,"Health",        effcst->start_health);
-            CONDITIONAL_ASSIGN_INT(section,"GenerationType",effcst->generation_type);
-            CONDITIONAL_ASSIGN_INT(section,"AreaAffectType",effcst->area_affect_type);
-            CONDITIONAL_ASSIGN_INT(section,"Sound"         ,effcst->effect_sound    );
-            CONDITIONAL_ASSIGN_INT(section,"AffectedByWind",effcst->affected_by_wind);
-            CONDITIONAL_ASSIGN_INT_SCALED(section,"LightRadius"   ,effcst->ilght.radius, COORD_PER_STL);
-            CONDITIONAL_ASSIGN_INT(section,"LightIntensity",effcst->ilght.intensity );
-            CONDITIONAL_ASSIGN_INT(section,"LightFlags"    ,effcst->ilght.flags   );
-            CONDITIONAL_ASSIGN_INT(section,"ElementsCount" ,effcst->elements_count  );
-            CONDITIONAL_ASSIGN_INT(section,"AlwaysGenerate",effcst->always_generate );
-            CONDITIONAL_ASSIGN_INT(section,"HitType",effcst->effect_hit_type);
+            SET_NAME(section, effect_desc, effcst->code_name);
+            CONDITIONAL_ASSIGN_ARR2_INT(section,   "GenerationAccelXYRange", effcst->accel_xy_min, effcst->accel_xy_max);
+            CONDITIONAL_ASSIGN_ARR2_INT(section,   "GenerationAccelZRange",  effcst->accel_z_min, effcst->accel_z_max);
+            CONDITIONAL_ASSIGN_ARR2_INT(section,   "GenerationKindRange",    effcst->kind_min, effcst->kind_max);
+            CONDITIONAL_ASSIGN_INT(section,        "Health",                 effcst->start_health);
+            CONDITIONAL_ASSIGN_INT(section,        "GenerationType",         effcst->generation_type);
+            CONDITIONAL_ASSIGN_INT(section,        "AreaAffectType",         effcst->area_affect_type);
+            CONDITIONAL_ASSIGN_INT(section,        "Sound",                  effcst->effect_sound);
+            CONDITIONAL_ASSIGN_INT(section,        "AffectedByWind",         effcst->affected_by_wind);
+            CONDITIONAL_ASSIGN_INT_SCALED(section, "LightRadius",            effcst->ilght.radius, COORD_PER_STL);
+            CONDITIONAL_ASSIGN_INT(section,        "LightIntensity",         effcst->ilght.intensity);
+            CONDITIONAL_ASSIGN_INT(section,        "LightFlags",             effcst->ilght.flags);
+            CONDITIONAL_ASSIGN_INT(section,        "ElementsCount",          effcst->elements_count);
+            CONDITIONAL_ASSIGN_INT(section,        "AlwaysGenerate",         effcst->always_generate);
+            CONDITIONAL_ASSIGN_INT(section,        "HitType",                effcst->effect_hit_type);
+            CONDITIONAL_ASSIGN_SPELL(section,      "SpellEffect",            effcst->spell_effect);
         }
     }
 }

@@ -35,6 +35,7 @@ extern "C" {
 #define POWER_MAX_LEVEL         8
 #define MAGIC_OVERCHARGE_LEVELS (POWER_MAX_LEVEL+1)
 #define POWER_TYPES_MAX         2000
+#define SPLK_NONE               0
 
 enum CreatureSpellAffectedFlags {
     CSAfF_Slow         = 0x000001,
@@ -50,16 +51,14 @@ enum CreatureSpellAffectedFlags {
     CSAfF_PoisonCloud  = 0x000400,
     CSAfF_CalledToArms = 0x000800,
     CSAfF_MadKilling   = 0x001000,
-    /* The creature does a free fall with magical effect, ie. it was just created with some initial velocity. */
-    CSAfF_MagicFall    = 0x002000,
+    CSAfF_MagicFall    = 0x002000, // The creature does a free fall with magical effect, ie. it was just created with some initial velocity.
     CSAfF_ExpLevelUp   = 0x004000,
-    /* For creature which are normally flying, this informs that its grounded due to spells or its condition. */
-    CSAfF_Grounded     = 0x008000,
+    CSAfF_Grounded     = 0x008000, // For creature which are normally flying, this informs that its grounded due to spells or its condition.
     CSAfF_Timebomb     = 0x010000,
     CSAfF_Wind         = 0x020000,
     CSAfF_Freeze       = 0x040000,
-    CSAfF_Teleport     = 0x080000,
-    CSAfF_Heal         = 0x100000,
+    CSAfF_Teleport     = 0x080000, // Creature will teleport when using the spell.
+    CSAfF_Heal         = 0x100000, // Creature will heal when using the spell.
     CSAfF_Fear         = 0x200000, // TODO: Flag ready for Fear spell implementation, remove comment once done.
 };
 
@@ -101,11 +100,9 @@ enum CostFormulas {
     Cost_Dwarf,
 };
 
-/** Contains properties of a shot model, to be stored in ShotConfigStats.
- */
+/* Contains properties of a shot model, to be stored in ShotConfigStats. */
 enum ShotModelFlags {
-    /** Set if the shot can be slapped with hand of evil of owning player. */
-    ShMF_Slappable      = 0x0001,
+    ShMF_Slappable      = 0x0001, // Set if the shot can be slapped with hand of evil of owning player.
     ShMF_Navigable      = 0x0002,
     ShMF_Boulder        = 0x0004,
     ShMF_ReboundImmune  = 0x0008,
@@ -437,11 +434,11 @@ int power_model_id(const char * code_name);
 TbBool load_magic_config(const char *conf_fname,unsigned short flags);
 TbBool make_all_powers_cost_free(void);
 TbBool make_all_powers_researchable(PlayerNumber plyr_idx);
-TbBool set_power_available(PlayerNumber plyr_idx, PowerKind spl_idx, long resrch, long avail);
-TbBool is_power_available(PlayerNumber plyr_idx, PowerKind spl_idx);
+TbBool set_power_available(PlayerNumber plyr_idx, PowerKind spell_idx, long resrch, long avail);
+TbBool is_power_available(PlayerNumber plyr_idx, PowerKind spell_idx);
 TbBool is_power_obtainable(PlayerNumber plyr_idx, PowerKind pwkind);
-TbBool add_power_to_player(PowerKind spl_idx, PlayerNumber plyr_idx);
-void remove_power_from_player(PowerKind spl_idx, PlayerNumber plyr_idx);
+TbBool add_power_to_player(PowerKind spell_idx, PlayerNumber plyr_idx);
+void remove_power_from_player(PowerKind spell_idx, PlayerNumber plyr_idx);
 TbBool make_available_all_researchable_powers(PlayerNumber plyr_idx);
 /******************************************************************************/
 #ifdef __cplusplus

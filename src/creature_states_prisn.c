@@ -118,8 +118,14 @@ short creature_arrived_at_prison(struct Thing *creatng)
     cctrl->imprison.last_mood_sound_turn = game.play_gameturn;
     cctrl->flgfield_1 |= CCFlg_NoCompControl;
     internal_set_thing_state(creatng, get_continue_state_for_job(Job_CAPTIVITY));
-    clean_spell_flags(creatng, CSAfF_Speed);
-    clean_spell_flags(creatng, CSAfF_Invisibility);
+    if (creature_affected_with_spell_flags(creatng, CSAfF_Speed))
+    [
+        clean_spell_flags(creatng, CSAfF_Speed);
+    ]
+    if (creature_affected_with_spell_flags(creatng, CSAfF_Invisibility))
+    {
+        clean_spell_flags(creatng, CSAfF_Invisibility);
+    }
     if (creatng->light_id != 0)
     {
         light_delete_light(creatng->light_id);

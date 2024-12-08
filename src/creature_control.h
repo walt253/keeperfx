@@ -323,6 +323,7 @@ unsigned char sound_flag;
     TbBool field_AA;
     unsigned char stateblock_flags;
     unsigned long spell_flags;
+    unsigned long immunity_flags;
     short force_visible;
     unsigned char frozen_on_hit;
     long last_piss_turn;
@@ -414,7 +415,9 @@ unsigned char sound_flag;
     ThingIndex summoner_idx;
     long summon_spl_idx;
     ThingIndex familiar_idx[FAMILIAR_MAX];
+    SpellKind active_disease_spell;
     SpellKind active_teleport_spell;
+    SpellKind active_timebomb_spell;
 };
 
 struct CreatureStats { // These stats are not compatible with original DK - they have more fields

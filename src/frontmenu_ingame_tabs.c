@@ -1043,15 +1043,15 @@ void gui_area_big_trap_button(struct GuiButton *gbtn)
 
 void maintain_big_spell(struct GuiButton *gbtn)
 {
-    long spl_idx = game.chosen_spell_type;
-    if ((spl_idx < 0) || (spl_idx >= game.conf.magic_conf.power_types_count)) {
+    long spell_idx = game.chosen_spell_type;
+    if ((spell_idx < 0) || (spell_idx >= game.conf.magic_conf.power_types_count)) {
         return;
     }
-    gbtn->content.lval = spl_idx;
+    gbtn->content.lval = spell_idx;
     gbtn->sprite_idx = game.chosen_spell_spridx;
     gbtn->tooltip_stridx = game.chosen_spell_tooltip;
     struct Dungeon* dungeon = get_players_num_dungeon(my_player_number);
-    if (dungeon->magic_level[spl_idx] > 0) {
+    if (dungeon->magic_level[spell_idx] > 0) {
         gbtn->btype_value &= LbBFeF_IntValueMask;
         gbtn->flags |= LbBtnF_Enabled;
     } else {

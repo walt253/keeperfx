@@ -113,10 +113,10 @@ TbBool set_creature_object_combat(struct Thing *crthing, struct Thing *obthing);
 TbBool set_creature_object_snipe(struct Thing* crthing, struct Thing* obthing);
 TbBool set_creature_door_combat(struct Thing *crthing, struct Thing *obthing);
 void thing_fire_shot(struct Thing *firing,struct  Thing *target, ThingModel shot_model, char shot_lvl, unsigned char hit_type);
-void creature_cast_spell_at_thing(struct Thing *caster, struct Thing *target, SpellKind spl_idx, long shot_lvl);
-void creature_cast_spell(struct Thing *caster, SpellKind spl_idx, long shot_lvl, MapSubtlCoord trg_x, MapSubtlCoord trg_y);
+void creature_cast_spell_at_thing(struct Thing *caster, struct Thing *target, SpellKind spell_idx, long shot_lvl);
+void creature_cast_spell(struct Thing *caster, SpellKind spell_idx, long shot_lvl, MapSubtlCoord trg_x, MapSubtlCoord trg_y);
 
-void thing_summon_temporary_creature(struct Thing* creatng, ThingModel model, char level, char count, GameTurn duration, long spl_idx);
+void thing_summon_temporary_creature(struct Thing* creatng, ThingModel model, char level, char count, GameTurn duration, long spell_idx);
 void level_up_familiar(struct Thing* famlrtng);
 void add_creature_to_summon_list(struct Dungeon* dungeon, ThingIndex famlrtng);
 void remove_creature_from_summon_list(struct Dungeon* dungeon, ThingIndex famlrtng);
@@ -160,6 +160,8 @@ SpellKind get_spell_kind_from_instance(CrInstance inst_idx);
 TbBool creature_affected_by_slap(const struct Thing *thing);
 TbBool creature_affected_with_spell_flags_f(const struct Thing *thing, unsigned long spell_flags, const char *func_name);
 #define creature_affected_with_spell_flags(thing, spell_flags) creature_affected_with_spell_flags_f(thing, spell_flags, __func__)
+TbBool creature_is_immune_to_spell_flags_f(const struct Thing *thing, unsigned long spell_flags, const char *func_name);
+#define creature_is_immune_to_spell_flags(thing, spell_flags) creature_is_immune_to_spell_flags_f(thing, spell_flags, __func__)
 
 void clean_spell_flags_f(const struct Thing *thing, unsigned long spell_flags, const char *func_name);
 #define clean_spell_flags(thing, spell_flags) clean_spell_flags_f(thing, spell_flags, __func__)

@@ -158,7 +158,7 @@ short creature_drop_body_in_prison(struct Thing *thing)
 
 }
 
-struct Thing *find_prisoner_for_thing(struct Thing *creatng)
+struct Thing *find_prisoner_for_thing(struct Thing *creatng, SpellKind spell_idx)
 {
     long i;
     TRACE_THING(creatng);
@@ -203,7 +203,7 @@ struct Thing *find_prisoner_for_thing(struct Thing *creatng)
         else if (flag_is_set(cctrl->stateblock_flags, CCSpl_Freeze))
         {
             // If the victim is frozen, select one which will unfreeze sooner.
-            long durt = get_spell_duration_left_on_thing(thing, CSAfF_Freeze);
+            long durt = get_spell_duration_left_on_thing(thing, spell_idx);
             if (durt > 0 && out_delay > durt)
             {
                 out_creatng = thing;
@@ -229,30 +229,43 @@ struct Thing *find_prisoner_for_thing(struct Thing *creatng)
 
 short creature_freeze_prisoners(struct Thing *creatng)
 {
-    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    if (cctrl->instance_id != CrInst_NULL) {
+    struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
+    if (cctrl->instance_id != CrInst_NULL)
+    {
         return 1;
     }
-    if (!creature_instance_has_reset(creatng, CrInst_FREEZE))
+    // Look for an available instance that can freeze.
+    CrInstance inst_idx = get_available_instance_with_spell_flags(creatng, CSAfF_Freeze);
+    if (inst_idx == CrInst_NULL)
     {
-        if (creature_choose_random_destination_on_valid_adjacent_slab(creatng)) {
+        set_start_state(creatng);
+        return 0;
+    }
+    if (!creature_instance_has_reset(creatng, inst_idx))
+    {
+        if (creature_choose_random_destination_on_valid_adjacent_slab(creatng))
+        {
             creatng->continue_state = CrSt_CreatureFreezePrisoners;
         }
         return 1;
     }
-    struct Thing* victng = find_prisoner_for_thing(creatng);
-    if (thing_is_invalid(victng)) {
+    SpellKind spell_idx = get_spell_kind_from_instance_with_spell_flags(inst_idx);
+    struct Thing *victng = find_prisoner_for_thing(creatng, spell_idx);
+    if (thing_is_invalid(victng))
+    {
         set_start_state(creatng);
         return 0;
     }
     long dist = get_combat_distance(creatng, victng);
-    if (dist < 156) {
-        creature_retreat_from_combat(creatng, victng, CrSt_CreatureFreezePrisoners, 0);
-    } else
-    if ((dist <= 2048) && (creature_can_see_combat_path(creatng, victng, dist)))
+    if (dist < 156)
     {
-        set_creature_instance(creatng, CrInst_FREEZE, victng->index, 0);
-    } else
+        creature_retreat_from_combat(creatng, victng, CrSt_CreatureFreezePrisoners, 0);
+    }
+    else if ((dist <= 2048) && (creature_can_see_combat_path(creatng, victng, dist)))
+    {
+        set_creature_instance(creatng, inst_idx, victng->index, 0);
+    }
+    else
     {
         creature_move_to(creatng, &victng->mappos, cctrl->max_speed, 0, 0);
     }

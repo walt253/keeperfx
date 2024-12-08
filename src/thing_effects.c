@@ -285,18 +285,9 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
     // Effect elements related to Teleport.
     if (flag_is_set(cctrl->stateblock_flags, CCSpl_Teleport))
     {
-        // Get the max duration of the spell and the duration left.
-        for (int spell_idx = 0; spell_idx < CREATURE_MAX_SPELLS_CASTED_AT; spell_idx++)
-        {
-            spconf = get_spell_config(cctrl->casted_spells[spell_idx].spkind);
-            if (flag_is_set(spconf->spell_flags, CSAfF_Teleport))
-            {
-                // Get the duration of the first active teleport spell found.
-                dturn = cctrl->casted_spells[spell_idx].duration;
-                break; // Once found an active teleport spell, no need to check further.
-            }
-            dturn = 0; // Failsafe, skip the afterimage if that happens.
-        }
+        // Get the duration of the active teleport spell and its duration left.
+        spconf = get_spell_config(cctrl->active_teleport_spell);
+        dturn = get_spell_duration_left_on_thing(cctrl->active_teleport_spell);
         if (spconf->duration / 2 < dturn)
         {
             effeltng = create_effect_element(&thing->mappos, TngEffElm_FlashBall2, thing->owner);

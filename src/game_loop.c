@@ -78,14 +78,17 @@ void initialise_devastate_dungeon_from_heart(PlayerNumber plyr_idx)
     }
 }
 
-void process_dungeon_destroy(struct Thing* heartng)
+void process_dungeon_destroy(struct Thing *heartng)
 {
     if (heartng->owner == game.neutral_player_num)
+    {
         return;
+    }
     long plyr_idx = heartng->owner;
-    struct Dungeon* dungeon = get_dungeon(plyr_idx);
-    struct Thing* soultng = thing_get(dungeon->free_soul_idx);
-    struct ObjectConfigStats* objst = get_object_model_stats(heartng->model);
+    struct Dungeon *dungeon = get_dungeon(plyr_idx);
+    struct Thing *soultng = thing_get(dungeon->free_soul_idx);
+    struct ObjectConfigStats *objst = get_object_model_stats(heartng->model);
+    struct CreatureControl *sctrl; // For 'soultng' special case.
     if (dungeon->heart_destroy_state == 0)
     {
         return;
@@ -96,7 +99,7 @@ void process_dungeon_destroy(struct Thing* heartng)
     }
     TbBool no_backup = !(dungeon->backup_heart_idx > 0);
     powerful_magic_breaking_sparks(heartng);
-    struct Coord3d* central_pos = &heartng->mappos;
+    struct Coord3d *central_pos = &heartng->mappos;
     switch (dungeon->heart_destroy_state)
     {
     case 1:
@@ -129,13 +132,13 @@ void process_dungeon_destroy(struct Thing* heartng)
             else if (dungeon->heart_destroy_turn == 20)
             {
                 // Strange case, not sure why it's required.
-                struct CreatureControl *sctrl = creature_control_get_from_thing(soultng);
+                sctrl = creature_control_get_from_thing(soultng);
                 set_flag(sctrl->spell_flags, CSAfF_Invisibility);
                 sctrl->force_visible = 0;
             }
             else if (dungeon->heart_destroy_turn == 25)
             {
-                struct Thing* bheartng = thing_get(dungeon->backup_heart_idx);
+                struct Thing *bheartng = thing_get(dungeon->backup_heart_idx);
                 if (thing_is_creature_spectator(soultng))
                 {
                     struct Coord3d movepos = bheartng->mappos;
@@ -145,23 +148,27 @@ void process_dungeon_destroy(struct Thing* heartng)
             }
             else if (dungeon->heart_destroy_turn == 28)
             {
-                clean_spell_flags(soultng, CSAfF_Invisibility);
+                // Strange case, not sure why it's required.
+                sctrl = creature_control_get_from_thing(soultng);
+                clear_flag(sctrl->spell_flags, CSAfF_Invisibility);
+                sctrl->force_visible = 0;
             }
             else if (dungeon->heart_destroy_turn == 30)
-            {
-                dungeon->free_soul_idx = 0; 
+            { // 'soultng' is deleted shortly after so why even bother making it invisible?
+                dungeon->free_soul_idx = 0;
                 delete_thing_structure(soultng, 0);
             }
         }
         dungeon->heart_destroy_turn++;
         if (dungeon->heart_destroy_turn < 32)
         {
-            if (GAME_RANDOM(96) < (dungeon->heart_destroy_turn << 6) / 32 + 32) {
+            if (GAME_RANDOM(96) < (dungeon->heart_destroy_turn << 6) / 32 + 32)
+            {
                 create_used_effect_or_element(central_pos, objst->effect.particle, plyr_idx);
             }
         }
         else
-        { // Got to next phase
+        { // Got to next phase.
             dungeon->heart_destroy_state = 2;
             dungeon->heart_destroy_turn = 0;
         }
@@ -173,68 +180,75 @@ void process_dungeon_destroy(struct Thing* heartng)
             create_used_effect_or_element(central_pos, objst->effect.particle, plyr_idx);
         }
         else
-        { // Got to next phase
+        { // Got to next phase.
             dungeon->heart_destroy_state = 3;
             dungeon->heart_destroy_turn = 0;
         }
         break;
     case 3:
-        // Drop all held things, by keeper
+        // Drop all held things, by keeper.
         if ((dungeon->num_things_in_hand > 0) && ((game.conf.rules.game.classic_bugs_flags & ClscBug_NoHandPurgeOnDefeat) == 0))
         {
             if (no_backup)
+            {
                 dump_all_held_things_on_map(plyr_idx, central_pos->x.stl.num, central_pos->y.stl.num);
+            }
         }
-        // Drop all held things, by computer player
-        struct Computer2* comp;
+        // Drop all held things, by computer player.
+        struct Computer2 *comp;
         comp = get_computer_player(plyr_idx);
         if (no_backup)
+        {
             computer_force_dump_held_things_on_map(comp, central_pos);
-        // Now if players things are still in hand - they must be kept by enemies
-        // Got to next phase
+        }
+        // Now if players things are still in hand - they must be kept by enemies.
+        // Got to next phase.
         dungeon->heart_destroy_state = 4;
         dungeon->heart_destroy_turn = 0;
         break;
     case 4:
-        // Final phase - destroy the heart, both pedestal room and container thing
-    {
-        struct Thing* efftng;
-        efftng = create_used_effect_or_element(central_pos, objst->effect.explosion1, plyr_idx);
-        if (!thing_is_invalid(efftng))
-            efftng->shot_effect.hit_type = THit_HeartOnlyNotOwn;
-        efftng = create_used_effect_or_element(central_pos, objst->effect.explosion2, plyr_idx);
-        if (!thing_is_invalid(efftng))
-            efftng->shot_effect.hit_type = THit_HeartOnlyNotOwn;
-        destroy_dungeon_heart_room(plyr_idx, heartng);
-        delete_thing_structure(heartng, 0);
-    }
-    { // If there is another heart owned by this player, set it to "working" heart
-        struct PlayerInfo* player;
-        player = get_player(plyr_idx);
-        init_player_start(player, true);
-        if (player_has_heart(plyr_idx) && (dungeon->heart_destroy_turn <= 0))
-        {
-            // If another heart was found, stop the process
-            dungeon->devastation_turn = 0;
-        }
-        else
-        {
-            if (gameadd.heart_lost_display_message)
+        { // Final phase - destroy the heart, both pedestal room and container thing.
+            struct Thing *efftng;
+            efftng = create_used_effect_or_element(central_pos, objst->effect.explosion1, plyr_idx);
+            if (!thing_is_invalid(efftng))
             {
-                if (is_my_player_number(dungeon->owner))
-                {
-                    const char* objective = (gameadd.heart_lost_quick_message) ? gameadd.quick_messages[gameadd.heart_lost_message_id] : get_string(gameadd.heart_lost_message_id);
-                    process_objective(objective, gameadd.heart_lost_message_target, 0, 0);
-                }
+                efftng->shot_effect.hit_type = THit_HeartOnlyNotOwn;
             }
-            // If this is the last heart the player had, finish him
-            setup_all_player_creatures_and_diggers_leave_or_die(plyr_idx);
-            player->allied_players = to_flag(player->id_number);
+            efftng = create_used_effect_or_element(central_pos, objst->effect.explosion2, plyr_idx);
+            if (!thing_is_invalid(efftng))
+            {
+                efftng->shot_effect.hit_type = THit_HeartOnlyNotOwn;
+            }
+            destroy_dungeon_heart_room(plyr_idx, heartng);
+            delete_thing_structure(heartng, 0);
         }
-    }
-    dungeon->heart_destroy_state = 0;
-    dungeon->heart_destroy_turn = 0;
-    break;
+        { // If there is another heart owned by this player, set it to "working" heart.
+            struct PlayerInfo *player;
+            player = get_player(plyr_idx);
+            init_player_start(player, true);
+            if (player_has_heart(plyr_idx) && (dungeon->heart_destroy_turn <= 0))
+            {
+                // If another heart was found, stop the process.
+                dungeon->devastation_turn = 0;
+            }
+            else
+            {
+                if (gameadd.heart_lost_display_message)
+                {
+                    if (is_my_player_number(dungeon->owner))
+                    {
+                        const char *objective = (gameadd.heart_lost_quick_message) ? gameadd.quick_messages[gameadd.heart_lost_message_id] : get_string(gameadd.heart_lost_message_id);
+                        process_objective(objective, gameadd.heart_lost_message_target, 0, 0);
+                    }
+                }
+                // If this is the last heart the player had, finish him.
+                setup_all_player_creatures_and_diggers_leave_or_die(plyr_idx);
+                player->allied_players = to_flag(player->id_number);
+            }
+        }
+        dungeon->heart_destroy_state = 0;
+        dungeon->heart_destroy_turn = 0;
+        break;
     }
 }
 

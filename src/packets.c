@@ -1253,7 +1253,7 @@ void process_players_creature_control_packet_control(long idx)
             {
                 if (creature_instance_has_reset(cctng, i))
                 {
-                    if (!flag_is_set(ccctrl->spell_flags, CSAfF_Chicken))
+                    if (!creature_affected_with_spell_flags(cctng, CSAfF_Chicken))
                     {
                         inst_inf = creature_instance_info_get(i);
                         process_player_use_instance(cctng, i, pckt);

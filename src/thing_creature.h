@@ -154,6 +154,9 @@ void process_thing_spell_effects_while_blocked(struct Thing *thing);
 void delete_effects_attached_to_creature(struct Thing *creatng);
 void delete_familiars_attached_to_creature(struct Thing* sumntng);
 
+CrInstance get_available_instance_with_spell_flags(struct Thing *thing, unsigned long spell_flags);
+SpellKind get_spell_kind_from_instance(CrInstance inst_idx);
+
 TbBool creature_affected_by_slap(const struct Thing *thing);
 TbBool creature_affected_with_spell_flags_f(const struct Thing *thing, unsigned long spell_flags, const char *func_name);
 #define creature_affected_with_spell_flags(thing, spell_flags) creature_affected_with_spell_flags_f(thing, spell_flags, __func__)

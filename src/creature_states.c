@@ -4173,6 +4173,8 @@ TbBool process_creature_hunger(struct Thing *thing)
  */
 TbBool creature_will_attack_creature(const struct Thing *fightng, const struct Thing *enmtng)
 {
+    struct CreatureControl *fighctrl = creature_control_get_from_thing(fightng);
+    struct CreatureControl *enmctrl = creature_control_get_from_thing(enmtng);
     if (creature_is_leaving_and_cannot_be_stopped(fightng) || creature_is_leaving_and_cannot_be_stopped(enmtng))
     {
         return false;
@@ -4185,12 +4187,10 @@ TbBool creature_will_attack_creature(const struct Thing *fightng, const struct T
     {
         return false;
     }
-    struct CreatureControl *fighctrl = creature_control_get_from_thing(fightng);
-    struct CreatureControl *enmctrl = creature_control_get_from_thing(enmtng);
     if (players_creatures_tolerate_each_other(fightng->owner, enmtng->owner))
     {
-        if ((!flag_is_set(fighctrl->spell_flags, CSAfF_MadKilling))
-        && (!flag_is_set(enmctrl->spell_flags, CSAfF_MadKilling)))
+        if ((!creature_affected_with_spell_flags(fightng, CSAfF_MadKilling))
+        && (!creature_affected_with_spell_flags(enmtng, CSAfF_MadKilling)))
         {
             if (fighctrl->combat_flags == 0)
             {
@@ -4242,6 +4242,8 @@ TbBool creature_will_attack_creature(const struct Thing *fightng, const struct T
  */
 TbBool creature_will_attack_creature_incl_til_death(const struct Thing *fightng, const struct Thing *enmtng)
 {
+    struct CreatureControl *fighctrl = creature_control_get_from_thing(fightng);
+    struct CreatureControl *enmctrl = creature_control_get_from_thing(enmtng);
     if (creature_is_being_unconscious(fightng) || creature_is_being_unconscious(enmtng))
     {
         return false;
@@ -4254,13 +4256,11 @@ TbBool creature_will_attack_creature_incl_til_death(const struct Thing *fightng,
     {
         return false;
     }
-    struct CreatureControl *fighctrl = creature_control_get_from_thing(fightng);
-    struct CreatureControl *enmctrl = creature_control_get_from_thing(enmtng);
     if (players_creatures_tolerate_each_other(fightng->owner, enmtng->owner))
     {
         if ((fighctrl->fight_til_death == 0)
-        && (!flag_is_set(fighctrl->spell_flags, CSAfF_MadKilling))
-        && (!flag_is_set(enmctrl->spell_flags, CSAfF_MadKilling)))
+        && (!creature_affected_with_spell_flags(fightng, CSAfF_MadKilling))
+        && (!creature_affected_with_spell_flags(enmtng, CSAfF_MadKilling)))
         {
             struct Thing *tmptng = thing_get(fighctrl->combat.battle_enemy_idx);
             TRACE_THING(tmptng);

@@ -215,7 +215,7 @@ void process_disease(struct Thing *creatng)
                 && ((get_creature_model_flags(thing) & CMF_IsSpecDigger) == 0)
                 && ((get_creature_model_flags(thing) & CMF_NeverSick) == 0)
                 && (thing->owner != cctrl->disease_caster_plyridx)
-                && !flag_is_set(tngcctrl->spell_flags, CSAfF_Disease)
+                && !creature_affected_with_spell_flags(thing, CSAfF_Disease)
                 && (cctrl->disease_caster_plyridx != game.neutral_player_num))
                 {
                     apply_spell_effect_to_thing(thing, SplK_Disease, cctrl->explevel);

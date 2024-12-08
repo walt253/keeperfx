@@ -414,6 +414,7 @@ unsigned char sound_flag;
     ThingIndex summoner_idx;
     long summon_spl_idx;
     ThingIndex familiar_idx[FAMILIAR_MAX];
+    SpellKind active_teleport_spell;
 };
 
 struct CreatureStats { // These stats are not compatible with original DK - they have more fields

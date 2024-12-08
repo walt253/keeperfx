@@ -250,7 +250,7 @@ TbBool creature_is_actually_scared(const struct Thing *creatng, const struct Thi
     {
         return true;
     }
-    if (flag_is_set(enmctrl->spell_flags, CSAfF_Timebomb))
+    if (creature_affected_with_spell_flags(enmtng, CSAfF_Timebomb))
     {
         if (creature_has_ranged_weapon(creatng) == false)
         {

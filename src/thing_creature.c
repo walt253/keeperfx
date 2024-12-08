@@ -678,6 +678,61 @@ void anger_apply_anger_to_creature_f(struct Thing *creatng, long anger, AnnoyMot
     }
 }
 
+/* Returns an available instance associated to a spell kind that can set a spell flags.
+ * @param thing The thing that can use the instance.
+ * @param spell_flags The spell flags to be checked. */
+CrInstance get_available_instance_with_spell_flags(struct Thing *thing, unsigned long spell_flags)
+{
+    struct InstanceInfo *inst_inf;
+    struct ShotConfigStats* shotst;
+    struct SpellConfig *spconf;
+    SpellKind spell_idx;
+    for (CrInstance i = 0; i < game.conf.crtr_conf.instances_count; i++)
+    {
+        if (creature_instance_is_available(thing, i))
+        {
+            inst_inf = creature_instance_info_get(i);
+            if (inst_inf->func_idx == 2)
+            { // Check if the instance is a spell.
+                spell_idx = inst_inf->func_params[0];
+            }
+            else if (inst_inf->func_idx == 3)
+            { // Or a shot.
+                shotst = get_shot_model_stats(inst_inf->func_params[0]);
+                spell_idx = shotst->cast_spell_kind;
+            }
+            else
+            { // If neither, continue checking.
+                continue;
+            }
+            // Check if the associated spell kind can set the spell flags.
+            spconf = get_spell_config(spell_idx);
+            if (flag_is_set(spconf->spell_flags, spell_flags))
+            {
+                return i;
+            }
+        }
+    }
+    return CrInst_NULL; // If there is no available instance to find.
+}
+
+/* Returns a spell kind that is associated to an instance.
+ * @param inst_idx The instance to be checked. */
+SpellKind get_spell_kind_from_instance(CrInstance inst_idx)
+{
+    struct InstanceInfo *inst_inf = creature_instance_info_get(inst_idx);
+    if (inst_inf->func_idx == 2)
+    { // Check if the instance is a spell.
+        return inst_inf->func_params[0];
+    }
+    else if (inst_inf->func_idx == 3)
+    { // Or a shot.
+        struct ShotConfigStats* shotst = get_shot_model_stats(inst_inf->func_params[0]);
+        return shotst->cast_spell_kind;
+    }
+    return 0; // If there is no spell kind to find.
+}
+
 TbBool creature_affected_by_slap(const struct Thing *thing)
 {
     struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
@@ -729,26 +784,26 @@ void clean_spell_flags_f(const struct Thing *thing, unsigned long spell_flags, c
 
  /* Returns remaining duration of a spell casted on a thing.
  * @param thing The thing which can have spell flags on.
- * @param spell_flags The spell flags to be checked. */
-GameTurnDelta get_spell_duration_left_on_thing_f(const struct Thing *thing, unsigned long spell_flags, const char *func_name)
+ * @param spkind The spell kind to be checked. */
+GameTurnDelta get_spell_duration_left_on_thing_f(const struct Thing *thing, SpellKind spell_idx, const char *func_name)
 {
     struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
-    struct SpellConfig *spconf;
     if (creature_control_invalid(cctrl))
     {
         ERRORLOG("%s: Invalid creature control for thing %d", func_name, (int)thing->index);
         return 0;
     }
-    for (int spell_idx = 0; spell_idx < CREATURE_MAX_SPELLS_CASTED_AT; spell_idx++)
+    struct CastedSpellData *cspell;
+    for (int i = 0; i < CREATURE_MAX_SPELLS_CASTED_AT; i++)
     {
-        spconf = get_spell_config(cctrl->casted_spells[spell_idx].spkind);
-        if (flag_is_set(spconf->spell_flags, spell_flags))
+        cspell = &cctrl->casted_spells[i];
+        if (cspell->spkind == spell_idx)
         {
-            return cctrl->casted_spells[spell_idx].duration;
+            return cspell->duration;
         }
     }
-    // Shouldn't happen but if it does then log which function failed and with what spell flags.
-    ERRORLOG("%s: No SpellFlags %d is found to get spell duration left on %s index %d", func_name, spell_flags, thing_model_name(thing), (int)thing->index);
+    // Shouldn't happen but if it does then log which function failed and with what spell kind.
+    ERRORLOG("%s: No spell of type %d is found to get spell duration left on %s index %d", func_name, (int)spell_idx, thing_model_name(thing), (int)thing->index);
     return 0;
 }
 
@@ -973,6 +1028,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
         if (flag_is_set(spconf->spell_flags, CSAfF_Teleport))
         {
             set_flag(cctrl->stateblock_flags, CCSpl_Teleport);
+            cctrl->active_teleport_spell = spell_idx; // Remember the spell_idx for a later use.
         }
         if (flag_is_set(spconf->spell_flags, CSAfF_Heal))
         {
@@ -1181,6 +1237,7 @@ void terminate_thing_spell_effect(struct Thing *thing, SpellKind spell_idx)
     if (flag_is_set(spconf->spell_flags, CSAfF_Teleport))
     {
         clear_flag(cctrl->stateblock_flags, CCSpl_Teleport);
+        cctrl->active_teleport_spell = 0;
     }
     int slot_idx = get_spell_slot(thing, spell_idx);
     if (slot_idx >= 0)
@@ -1412,12 +1469,11 @@ void process_thing_spell_effects(struct Thing *thing)
     for (int i = 0; i < CREATURE_MAX_SPELLS_CASTED_AT; i++)
     {
         struct CastedSpellData *cspell = &cctrl->casted_spells[i];
-        struct SpellConfig *spconf = get_spell_config(cspell->spkind);
-        if (cspell->spkind == SplK_None)
+        if (cspell->spkind == 0)
         {
             continue;
         }
-        if (flag_is_set(spconf->spell_flags, CSAfF_Teleport))
+        if (cspell->spkind == cctrl->active_teleport_spell)
         {
             process_thing_spell_teleport_effects(thing, cspell);
         }
@@ -1665,7 +1721,7 @@ void level_up_familiar(struct Thing *famlrtng)
     if (level <= 0)
     {
         // We know already the Summoner will level-up next turn?
-        if ((flag_is_set(summonercctrl->spell_flags, CSAfF_ExpLevelUp)) && (summonercctrl->explevel + 1 < CREATURE_MAX_LEVEL))
+        if ((creature_affected_with_spell_flags(summonertng, CSAfF_ExpLevelUp)) && (summonercctrl->explevel + 1 < CREATURE_MAX_LEVEL))
         {
             summonerxp += 1;
         }
@@ -4572,7 +4628,11 @@ long player_list_creature_filter_in_fight_and_not_affected_by_spell(const struct
         {
             return -1;
         }
-        if ((spconf->spell_flags == 0) || creature_affected_with_spell_flags(thing, spconf->spell_flags))
+        if (spconf->spell_flags == 0)
+        {
+            return -1;
+        }
+        if (creature_affected_with_spell_flags(thing, spconf->spell_flags))
         {
             return -1;
         }

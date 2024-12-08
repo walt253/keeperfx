@@ -101,10 +101,10 @@ static void draw_creature_view_icons(struct Thing *creatng)
     }
     struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
     struct SpellConfig *spconf;
-    for (int spell_idx = 0; spell_idx < CREATURE_MAX_SPELLS_CASTED_AT; spell_idx++)
+    for (SpellKind spell_idx = 0; spell_idx < game.conf.magic_conf.spell_types_count; spell_idx++)
     {
-        spconf = get_spell_config(cctrl->casted_spells[spell_idx].spkind);
-        if (creature_affected_with_spell_flags(creatng, spconf->spell_flags))
+        spconf = get_spell_config(spell_idx);
+        if ((spconf->spell_flags > 0) && (creature_affected_with_spell_flags(creatng, spconf->spell_flags)))
         {
             long spridx = spconf->medsym_sprite_idx;
             if (flag_is_set(spconf->spell_flags, CSAfF_Invisibility))
@@ -114,7 +114,7 @@ static void draw_creature_view_icons(struct Thing *creatng)
                     spridx++;
                 }
             }
-            else if (flag_is_set(spconf->spell_flags, CSAfF_Timebomb))
+            if (flag_is_set(spconf->spell_flags, CSAfF_Timebomb))
             {
                 int tx_units_per_px = (dbc_language > 0) ? scale_ui_value_lofi(16) : (22 * units_per_pixel) / LbTextLineHeight();
                 int h = LbTextLineHeight() * tx_units_per_px / 16;
@@ -144,38 +144,38 @@ static void draw_creature_view_icons(struct Thing *creatng)
         x = MyScreenWidth - (scale_value_by_horizontal_resolution(148) / 4);
         switch (dragtng->class_id)
         {
-        case TCls_Object:
-        {
-            RoomKind rkind;
-            struct RoomConfigStats *roomst;
-            if (thing_is_workshop_crate(dragtng))
+            case TCls_Object:
             {
-                rkind = find_first_roomkind_with_role(RoRoF_CratesStorage);
+                RoomKind rkind;
+                struct RoomConfigStats *roomst;
+                if (thing_is_workshop_crate(dragtng))
+                {
+                    rkind = find_first_roomkind_with_role(RoRoF_CratesStorage);
+                }
+                else
+                {
+                    rkind = find_first_roomkind_with_role(RoRoF_PowersStorage);
+                }
+                roomst = get_room_kind_stats(rkind);
+                spr_idx = roomst->medsym_sprite_idx;
+                break;
             }
-            else
+            case TCls_DeadCreature:
+            case TCls_Creature:
             {
-                rkind = find_first_roomkind_with_role(RoRoF_PowersStorage);
+                y -= scale_value_by_horizontal_resolution(spr->SHeight / 2);
+                spr_idx = get_creature_model_graphics(dragtng->model, CGI_HandSymbol);
+                if (dragtng->class_id == TCls_DeadCreature)
+                {
+                    spr_idx++;
+                }
+                break;
             }
-            roomst = get_room_kind_stats(rkind);
-            spr_idx = roomst->medsym_sprite_idx;
-            break;
-        }
-        case TCls_DeadCreature:
-        case TCls_Creature:
-        {
-            y -= scale_value_by_horizontal_resolution(spr->SHeight / 2);
-            spr_idx = get_creature_model_graphics(dragtng->model, CGI_HandSymbol);
-            if (dragtng->class_id == TCls_DeadCreature)
+            default:
             {
-                spr_idx++;
+                spr_idx = 0;
+                break;
             }
-            break;
-        }
-        default:
-        {
-            spr_idx = 0;
-            break;
-        }
         }
         draw_gui_panel_sprite_left(x, y, ps_units_per_px, spr_idx);
     }

@@ -1,6 +1,7 @@
-# KeeperFX Effects Configuration file
-# file version 15
-# Contains Effects, EffectGenerators and EffectElements
+# KeeperFX Effects Configuration file version 1.0.
+# Contains Effects, EffectGenerators and EffectElements.
+
+# Effects.
 
 [effect0]
 Name = "NULL"
@@ -8,7 +9,7 @@ Health = 0
 GenerationType = 1
 GenerationAccelXYRange = [0,0]
 GenerationAccelZRange = [0,0]
-# Which effect is displayed, up to which other one
+# Which effect is displayed, up to which other one.
 GenerationKindRange = [0,0]
 # Controls how the effect affects the area.
 # 1 - Gas that deals damage.
@@ -32,10 +33,9 @@ Sound = 0
 LightRadius = 0
 LightIntensity = 0
 LightFlags = 0
-# amount of effect
+# Amount of effect elements.
 ElementsCount = 0
-# generate when no players can see 
-# (only usefull for ones that deal damage)
+# Generate when no players can see. Only useful for ones that deals damages.
 AlwaysGenerate = 0
 
 [effect1]
@@ -1460,7 +1460,7 @@ LightFlags = 0
 ElementsCount = 1
 AlwaysGenerate = 0
 
-#EffectGenerators
+# EffectGenerators.
 
 [effectGenerator0]
 Name = "EFFECTGENERATOR_NULL"
@@ -1534,7 +1534,7 @@ AccelerationMin = [-15,-15,0]
 AccelerationMax = [15,15,0]
 Sound = [0,0]
 
-#EffectElements
+# EffectElements.
 
 [effectElement0]
 Name = "EFFECTELEMENT_NULL"

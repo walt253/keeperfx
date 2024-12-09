@@ -1014,7 +1014,7 @@ void create_relevant_effect_for_shot_hitting_thing(struct Thing *shotng, struct 
         if (shotst->hit_creature.effect_model != 0) {
             create_used_effect_or_element(&shotng->mappos, shotst->hit_creature.effect_model, shotng->owner);
         }
-        if (creature_affected_by_spell(target, SplK_Freeze))
+        if (flag_is_set(cctrl->stateblock_flags, CCSpl_Freeze))
         {
             if (shotst->effect_frozen != 0) {
                 create_used_effect_or_element(&shotng->mappos, shotst->effect_frozen, shotng->owner);
@@ -1159,7 +1159,8 @@ long melee_shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, stru
             else {
                 n = 0;
             }
-            if (shotst->cast_spell_kind == SplK_Disease)
+            struct SpellConfig *spconf = get_spell_config(shotst->cast_spell_kind);
+            if (flag_is_set(spconf->spell_flags, CSAfF_Disease))
             {
                 tgcctrl->disease_caster_plyridx = shotng->owner;
             }
@@ -1267,7 +1268,7 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
     if (((shotst->model_flags & ShMF_NoHit) != 0) || (trgtng->health < 0)) {
         return 0;
     }
-    if (creature_affected_by_spell(trgtng, SplK_Rebound) && !(shotst->model_flags & ShMF_ReboundImmune))
+    if (creature_affected_with_spell_flags(trgtng, CSAfF_Rebound) && !flag_is_set(shotst->model_flags, ShMF_ReboundImmune))
     {
         struct Thing* killertng = INVALID_THING;
         if (shotng->index != shotng->parent_idx) {
@@ -1360,7 +1361,8 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
         } else {
             n = 0;
         }
-        if (shotst->cast_spell_kind == SplK_Disease)
+        struct SpellConfig *spconf = get_spell_config(shotst->cast_spell_kind);
+        if (flag_is_set(spconf->spell_flags, CSAfF_Disease))
         {
             cctrl->disease_caster_plyridx = shotng->owner;
         }

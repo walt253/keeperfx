@@ -171,13 +171,13 @@ TbBool creature_will_do_combat(const struct Thing *thing)
     {
         return false;
     }
-    // Frozen creature cannot attack.
-    if (flag_is_set(cctrl->stateblock_flags, CCSpl_Freeze))
+    // Creature turned to chicken is defenseless.
+    if (creature_affected_with_spell_flags(thing, CSAfF_Chicken))
     {
         return false;
     }
-    // Creature turned to chicken is defenseless.
-    if (creature_affected_with_spell_flags(thing, CSAfF_Chicken))
+    // Frozen creature cannot attack.
+    if (flag_is_set(cctrl->stateblock_flags, CCSpl_Freeze))
     {
         return false;
     }

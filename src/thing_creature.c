@@ -1389,20 +1389,20 @@ void clear_thing_spell_flags(struct Thing *thing, unsigned long spell_flags)
         clear_flag(cctrl->spell_flags, CSAfF_Fear);
     }
     // Other cases are ignored as they are either short-lived or cleaned up with other spell flags, e.g., CSAfF_Grounded.
-	return;
+    return;
 }
 
 void terminate_thing_spell_effect(struct Thing *thing, SpellKind spell_idx)
 {
     TRACE_THING(thing);
     struct SpellConfig *spconf = get_spell_config(spell_idx);
-	clear_thing_spell_flags(thing, spconf->spell_flags);
+    clear_thing_spell_flags(thing, spconf->spell_flags);
     int slot_idx = get_spell_slot(thing, spell_idx);
     if (slot_idx >= 0)
     {
         free_spell_slot(thing, slot_idx);
     }
-	return;
+    return;
 }
 
 /* Clears spell flags on a thing. 
@@ -1434,7 +1434,7 @@ void clean_spell_flags_f(struct Thing *thing, unsigned long spell_flags, const c
         }
     }
     // If no exact match is found, then check for each spell flags separately without terminating a spell.
-	clear_thing_spell_flags(thing, spell_flags);
+    clear_thing_spell_flags(thing, spell_flags);
     return;
 }
 

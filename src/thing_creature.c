@@ -883,6 +883,20 @@ TbBool free_spell_slot(struct Thing *thing, int slot_idx)
 
 void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, long spell_lev)
 {
+    // This pointer may be invalid if spell_idx is incorrect. But we're using it only when correct.
+    struct SpellConfig *spconf = get_spell_config(spell_idx);
+    if (spell_config_is_invalid(spconf))
+    {
+        return; // Exit the function early, config is invalid.
+    }
+    // Handle cases where a modder assigns a spell with only these flags set.
+    // These cases are treated differently and have no effect on the spells.
+    if ((spconf->spell_flags == CSAfF_PoisonCloud)
+    || (spconf->spell_flags == CSAfF_CalledToArms)
+    || (spconf->spell_flags == CSAfF_Wind))
+    {
+        return; // Exit the function early, as no further processing is needed for these cases.
+    }
     struct CreatureStats *crstat = creature_stats_get(thing->model);
     struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
     struct ComponentVector cvect;
@@ -892,8 +906,6 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
     {
         spell_lev = SPELL_MAX_LEVEL;
     }
-    // This pointer may be invalid if spell_idx is incorrect. But we're using it only when correct.
-    struct SpellConfig *spconf = get_spell_config(spell_idx);
     const struct MagicStats *pwrdynst = get_power_dynamic_stats(spconf->linked_power);
     GameTurn duration;
     // If not linked to a keeper power, use the duration set on the spell, otherwise use the strength or duration of the linked power.
@@ -1048,6 +1060,14 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
             set_flag(cctrl->spell_flags, CSAfF_ExpLevelUp);
             affected = true;
         }
+        if (flag_is_set(spconf->spell_flags, CSAfF_Teleport)
+        && (!creature_is_immune_to_spell_flags(thing, CSAfF_Teleport)))
+        {
+            set_flag(cctrl->spell_flags, CSAfF_Teleport);
+            set_flag(cctrl->stateblock_flags, CCSpl_Teleport);
+            cctrl->active_teleport_spell = spell_idx; // Remember the spell_idx for a later use.
+            affected = true;
+        }
         if (flag_is_set(spconf->spell_flags, CSAfF_Timebomb)
         && (!creature_is_immune_to_spell_flags(thing, CSAfF_Timebomb)))
         {
@@ -1063,18 +1083,16 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
             set_flag(cctrl->stateblock_flags, CCSpl_Freeze);
             if ((thing->movement_flags & TMvF_Flying) != 0)
             {
-                set_flag(cctrl->spell_flags, CSAfF_Grounded);
+                set_flag(cctrl->stateblock_flags, CCSpl_Grounded);
                 clear_flag(thing->movement_flags, TMvF_Flying);
             }
             creature_set_speed(thing, 0);
             affected = true;
         }
-        if (flag_is_set(spconf->spell_flags, CSAfF_Teleport)
-        && (!creature_is_immune_to_spell_flags(thing, CSAfF_Teleport)))
+        if (flag_is_set(spconf->spell_flags, CSAfF_Fear)
+        && (!creature_is_immune_to_spell_flags(thing, CSAfF_Fear)))
         {
-            set_flag(cctrl->spell_flags, CSAfF_Teleport);
-            set_flag(cctrl->stateblock_flags, CCSpl_Teleport);
-            cctrl->active_teleport_spell = spell_idx; // Remember the spell_idx for a later use.
+            set_flag(cctrl->spell_flags, CSAfF_Fear);
             affected = true;
         }
         if (flag_is_set(spconf->spell_flags, CSAfF_Heal)
@@ -1100,22 +1118,6 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
                 thing->health = min(healing_recovery, cctrl->max_health);
             }
             affected = true;
-        }
-        if (flag_is_set(spconf->spell_flags, CSAfF_Fear)
-        && (!creature_is_immune_to_spell_flags(thing, CSAfF_Fear)))
-        {
-            set_flag(cctrl->spell_flags, CSAfF_Fear);
-            affected = true;
-        }
-        // Special cases: Handle cases where a modder tries to assign a spell with only these flags set.
-        // These cases are treated differently from normal spells.
-        if ((spconf->spell_flags == CSAfF_PoisonCloud)
-        || (spconf->spell_flags == CSAfF_CalledToArms)
-        || (spconf->spell_flags == CSAfF_MagicFall)
-        || (spconf->spell_flags == CSAfF_Grounded)
-        || (spconf->spell_flags == CSAfF_Wind))
-        {
-            affected = false;
         }
         // If CSAflag_ExpLevelUp is set alone, don't fill the spell slot, but still apply the aura effect.
         if ((spconf->spell_flags == CSAfF_ExpLevelUp)
@@ -1149,6 +1151,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
             }
         }
     }
+    return;
 }
 
 void reapply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, long spell_lev, long idx)
@@ -1213,6 +1216,7 @@ void reapply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, lon
         cctrl->spell_aura = spconf->aura_effect;
         cctrl->spell_aura_duration = spconf->duration;
     }
+    return;
 }
 
 void apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, long spell_lev)
@@ -1349,6 +1353,13 @@ void clear_thing_spell_flags(struct Thing *thing, unsigned long spell_flags)
     {
         clear_flag(cctrl->spell_flags, CSAfF_MadKilling);
     }
+    if (flag_is_set(spell_flags, CSAfF_Teleport)
+    && (creature_affected_with_spell_flags(thing, CSAfF_Teleport)))
+    {
+        clear_flag(cctrl->spell_flags, CSAfF_Teleport);
+        clear_flag(cctrl->stateblock_flags, CCSpl_Teleport);
+        cctrl->active_teleport_spell = 0;
+    }
     if (flag_is_set(spell_flags, CSAfF_Timebomb)
     && (creature_affected_with_spell_flags(thing, CSAfF_Timebomb)))
     {
@@ -1365,30 +1376,22 @@ void clear_thing_spell_flags(struct Thing *thing, unsigned long spell_flags)
     {
         clear_flag(cctrl->spell_flags, CSAfF_Freeze);
         clear_flag(cctrl->stateblock_flags, CCSpl_Freeze);
-        if (creature_affected_with_spell_flags(thing, CSAfF_Grounded))
+        if (flag_is_set(cctrl->stateblock_flags, CCSpl_Grounded))
         {
             set_flag(thing->movement_flags, TMvF_Flying);
-            clear_flag(cctrl->spell_flags, CSAfF_Grounded);
+            clear_flag(cctrl->stateblock_flags, CCSpl_Grounded);
         }
-    }
-    if (flag_is_set(spell_flags, CSAfF_Teleport)
-    && (creature_affected_with_spell_flags(thing, CSAfF_Teleport)))
-    {
-        clear_flag(cctrl->spell_flags, CSAfF_Teleport);
-        clear_flag(cctrl->stateblock_flags, CCSpl_Teleport);
-        cctrl->active_teleport_spell = 0;
-    }
-    if (flag_is_set(spell_flags, CSAfF_Heal)
-    && (creature_affected_with_spell_flags(thing, CSAfF_Heal)))
-    {
-        clear_flag(cctrl->spell_flags, CSAfF_Heal);
     }
     if (flag_is_set(spell_flags, CSAfF_Fear)
     && (creature_affected_with_spell_flags(thing, CSAfF_Fear)))
     {
         clear_flag(cctrl->spell_flags, CSAfF_Fear);
     }
-    // Other cases are ignored as they are either short-lived or cleaned up with other spell flags, e.g., CSAfF_Grounded.
+    if (flag_is_set(spell_flags, CSAfF_Heal)
+    && (creature_affected_with_spell_flags(thing, CSAfF_Heal)))
+    {
+        clear_flag(cctrl->spell_flags, CSAfF_Heal);
+    }
     return;
 }
 
@@ -1876,7 +1879,7 @@ void thing_summon_temporary_creature(struct Thing *creatng, ThingModel model, ch
                             famlrtng->veloc_push_add.y.val += CREATURE_RANDOM(thing, 161) - 80;
                             famlrtng->veloc_push_add.z.val += 0;
                             set_flag(famlrtng->state_flags, TF1_PushAdd);
-                            set_flag(famcctrl->spell_flags, CSAfF_MagicFall);
+                            set_flag(famcctrl->stateblock_flags, CCSpl_MagicFall);
                             famlrtng->move_angle_xy = 0;
                         }
                     }
@@ -6610,7 +6613,7 @@ struct Thing *script_create_creature_at_location(PlayerNumber plyr_idx, ThingMod
     struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
     if (fall_from_gate)
     {
-        set_flag(cctrl->spell_flags, CSAfF_MagicFall);
+        set_flag(cctrl->stateblock_flags, CCSpl_MagicFall);
         thing->veloc_push_add.x.val += PLAYER_RANDOM(plyr_idx, 193) - 96;
         thing->veloc_push_add.y.val += PLAYER_RANDOM(plyr_idx, 193) - 96;
         if ((thing->movement_flags & TMvF_Flying) != 0)

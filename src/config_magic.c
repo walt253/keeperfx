@@ -79,15 +79,13 @@ const struct NamedCommand magic_spell_flags[] = {
     {"POISON_CLOUD", 11},
     {"CALL_TO_ARMS", 12},
     {"MAD_KILLING",  13},
-    {"MAGIC_FALL",   14},
+    {"HEAL",         14},
     {"EXP_LEVEL_UP", 15},
-    {"GROUNDED",     16},
+    {"TELEPORT",     16},
     {"TIMEBOMB",     17},
     {"WIND",         18},
     {"FREEZE",       19},
-    {"TELEPORT",     20},
-    {"HEAL",         21},
-    {"FEAR",         22},
+    {"FEAR",         20},
     {NULL,            0},
 };
 
@@ -739,16 +737,16 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
                         set_flag(spconf->spell_flags, CSAfF_MadKilling);
                         n++;
                         break;
-                    case 14: // MAGIC_FALL
-                        set_flag(spconf->spell_flags, CSAfF_MagicFall);
+                    case 14: // HEAL
+                        set_flag(spconf->spell_flags, CSAfF_Heal);
                         n++;
                         break;
                     case 15: // EXP_LEVEL_UP
                         set_flag(spconf->spell_flags, CSAfF_ExpLevelUp);
                         n++;
                         break;
-                    case 16: // GROUNDED
-                        set_flag(spconf->spell_flags, CSAfF_Grounded);
+                    case 16: // TELEPORT
+                        set_flag(spconf->spell_flags, CSAfF_Teleport);
                         n++;
                         break;
                     case 17: // TIMEBOMB
@@ -763,15 +761,7 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
                         set_flag(spconf->spell_flags, CSAfF_Freeze);
                         n++;
                         break;
-                    case 20: // TELEPORT
-                        set_flag(spconf->spell_flags, CSAfF_Teleport);
-                        n++;
-                        break;
-                    case 21: // HEAL
-                        set_flag(spconf->spell_flags, CSAfF_Heal);
-                        n++;
-                        break;
-                    case 22: // FEAR
+                    case 20: // FEAR
                         set_flag(spconf->spell_flags, CSAfF_Fear);
                         n++;
                         break;

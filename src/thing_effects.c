@@ -325,7 +325,7 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
         }
     }
     // Effect elements related to Magic Fall.
-    if (creature_affected_with_spell_flags(thing, CSAfF_MagicFall))
+    if (flag_is_set(cctrl->stateblock_flags, CCSpl_MagicFall))
     {
         dturn = game.play_gameturn - thing->creation_turn;
         if ((dturn & 1) == 0)
@@ -336,7 +336,7 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
         creature_turn_to_face_angle(thing, thing->move_angle_xy + crstat->max_turning_speed);
         if ((dturn > 32) || thing_touching_floor(thing))
         {
-            clear_flag(cctrl->spell_flags, CSAfF_MagicFall);
+            clear_flag(cctrl->stateblock_flags, CCSpl_MagicFall);
         }
     }
 }
@@ -1458,7 +1458,7 @@ TbBool poison_cloud_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, 
                     }
                     break;
                 default:
-                    break:
+                    break;
             }
             affected = true;
         }

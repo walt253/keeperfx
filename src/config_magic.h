@@ -51,15 +51,13 @@ enum CreatureSpellAffectedFlags {
     CSAfF_PoisonCloud  = 0x000400,
     CSAfF_CalledToArms = 0x000800,
     CSAfF_MadKilling   = 0x001000,
-    CSAfF_MagicFall    = 0x002000, // The creature does a free fall with magical effect, ie. it was just created with some initial velocity.
+    CSAfF_Heal         = 0x002000,
     CSAfF_ExpLevelUp   = 0x004000,
-    CSAfF_Grounded     = 0x008000, // For creature which are normally flying, this informs that its grounded due to spells or its condition.
+    CSAfF_Teleport     = 0x008000,
     CSAfF_Timebomb     = 0x010000,
     CSAfF_Wind         = 0x020000,
     CSAfF_Freeze       = 0x040000,
-    CSAfF_Teleport     = 0x080000, // Creature will teleport when using the spell.
-    CSAfF_Heal         = 0x100000, // Creature will heal when using the spell.
-    CSAfF_Fear         = 0x200000, // TODO: Flag ready for Fear spell implementation, remove comment once done.
+    CSAfF_Fear         = 0x080000,
 };
 
 enum PowerKinds {

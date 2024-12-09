@@ -84,13 +84,13 @@ enum CreatureControlFlags {
 
 enum CreatureControlSpells {
     CCSpl_ChickenRel    = 0x01, // This is something related to chicken spell, but the spell itself is CSAfF_Chicken.
-    CCSpl_Freeze        = 0x02,
-    CCSpl_Teleport      = 0x04,
-    CCSpl_Unknown08     = 0x08,
-    CCSpl_Unknown10     = 0x10,
-    CCSpl_Unknown20     = 0x20,
-    CCSpl_Unknown40     = 0x40,
-    CCSpl_Unknown80     = 0x80,
+    CCSpl_Freeze        = 0x02, // Related to CSAfF_Freeze.
+    CCSpl_Teleport      = 0x04, // Related to CSAfF_Teleport.
+    CCSpl_MagicFall     = 0x08, // The creature does a free fall with magical effect, ie. it was just created with some initial velocity.
+    CCSpl_Grounded      = 0x10, // For creature which are normally flying, this informs that its grounded due to spells or its condition.
+    CCSpl_Unknown20     = 0x20, // Unused.
+    CCSpl_Unknown40     = 0x40, // Unused.
+    CCSpl_Unknown80     = 0x80, // Unused.
 };
 
 enum CreatureControlMoodFlags {

@@ -9,7 +9,7 @@ Health = 0
 GenerationType = 1
 GenerationAccelXYRange = [0,0]
 GenerationAccelZRange = [0,0]
-# Which effect is displayed, up to which other one.
+# Which effect element is displayed, up to which other one.
 GenerationKindRange = [0,0]
 # Controls how the effect affects the area.
 # 1 - Gas that deals damage.

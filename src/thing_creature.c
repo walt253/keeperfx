@@ -2333,7 +2333,7 @@ void creature_look_for_hidden_doors(struct Thing *creatng)
         {
             MapSubtlCoord z = doortng->mappos.z.stl.num;
             doortng->mappos.z.stl.num = 2;
-            // TODO: We could add a creature property 'DETECT_MECHANISM' allowing them to see secret door but not invisible creatures.
+            // TODO: Could add a creature property 'DETECT_MECHANISM' allowing them to see secret door but not invisible creatures.
             if (creature_affected_with_spell_flags(creatng, CSAfF_Sight))
             {
                 if (creature_can_see_thing_ignoring_specific_door(creatng, doortng, doortng))
@@ -4956,6 +4956,11 @@ long player_list_creature_filter_in_fight_and_not_affected_by_spell(const struct
             return -1;
         }
         if (creature_affected_with_spell_flags(thing, spconf->spell_flags))
+        {
+            return -1;
+        }
+        // Stop creatures from casting spells on enemies that are immune, but perhaps they shouldn't be that smart?
+        if (creature_is_immune_to_spell_flags(thing, spconf->spell_flags))
         {
             return -1;
         }

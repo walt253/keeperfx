@@ -102,7 +102,7 @@ static void draw_creature_view_icons(struct Thing *creatng)
     struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
     struct SpellConfig *spconf;
     for (SpellKind spell_idx = 0; spell_idx < game.conf.magic_conf.spell_types_count; spell_idx++)
-    {
+    { // ^Maybe it should only loop with the actives spells?
         spconf = get_spell_config(spell_idx);
         if ((spconf->spell_flags > 0) && (creature_affected_with_spell_flags(creatng, spconf->spell_flags)))
         {

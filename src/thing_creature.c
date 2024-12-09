@@ -770,7 +770,7 @@ TbBool creature_is_immune_to_spell_flags_f(const struct Thing *thing, unsigned l
  /* Returns remaining duration of a spell casted on a thing.
  * @param thing The thing which can have spell flags on.
  * @param spkind The spell kind to be checked. */
-GameTurnDelta get_spell_duration_left_on_thing_f(const struct Thing *thing, SpellKind spell_idx, const char *func_name)
+GameTurnDelta get_spell_duration_left_on_thing_f(struct Thing *thing, SpellKind spell_idx, const char *func_name)
 {
     struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
     if (creature_control_invalid(cctrl))
@@ -1240,193 +1240,10 @@ void apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, long 
     first_apply_spell_effect_to_thing(thing, spell_idx, spell_lev);
 }
 
-void terminate_thing_spell_effect(struct Thing *thing, SpellKind spell_idx)
+void clear_thing_spell_flags(struct Thing *thing, unsigned long spell_flags)
 {
-    TRACE_THING(thing);
     struct CreatureStats *crstat = creature_stats_get(thing->model);
     struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
-    struct SpellConfig *spconf = get_spell_config(spell_idx);
-    if (flag_is_set(spconf->spell_flags, CSAfF_Slow)
-    && (creature_affected_with_spell_flags(thing, CSAfF_Slow)))
-    {
-        clear_flag(cctrl->spell_flags, CSAfF_Slow);
-        cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
-    }
-    if (flag_is_set(spconf->spell_flags, CSAfF_Speed)
-    && (creature_affected_with_spell_flags(thing, CSAfF_Speed)))
-    {
-        clear_flag(cctrl->spell_flags, CSAfF_Speed);
-        cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
-    }
-    if (flag_is_set(spconf->spell_flags, CSAfF_Armour)
-    && (creature_affected_with_spell_flags(thing, CSAfF_Armour)))
-    {
-        clear_flag(cctrl->spell_flags, CSAfF_Armour);
-        for (int i = 0; i < 3; i++)
-        {
-            ThingIndex eff_idx = cctrl->spell_tngidx_armour[i];
-            if (eff_idx > 0)
-            {
-                struct Thing *efftng;
-                efftng = thing_get(eff_idx);
-                delete_thing_structure(efftng, 0);
-                cctrl->spell_tngidx_armour[i] = 0;
-            }
-        }
-    }
-    if (flag_is_set(spconf->spell_flags, CSAfF_Rebound)
-    && (creature_affected_with_spell_flags(thing, CSAfF_Rebound)))
-    {
-        clear_flag(cctrl->spell_flags, CSAfF_Rebound);
-    }
-    if (flag_is_set(spconf->spell_flags, CSAfF_Flying)
-    && (creature_affected_with_spell_flags(thing, CSAfF_Flying)))
-    {
-        clear_flag(cctrl->spell_flags, CSAfF_Flying);
-        // TODO: Strange condition regarding the fly, check why it's here?
-        if (!flag_is_set(game.conf.crtr_conf.model[thing->model].model_flags, CMF_IsDiptera))
-        {
-            clear_flag(thing->movement_flags, TMvF_Flying);
-        }
-    }
-    if (flag_is_set(spconf->spell_flags, CSAfF_Invisibility)
-    && (creature_affected_with_spell_flags(thing, CSAfF_Invisibility)))
-    {
-        clear_flag(cctrl->spell_flags, CSAfF_Invisibility);
-        cctrl->force_visible = 0;
-    }
-    if (flag_is_set(spconf->spell_flags, CSAfF_Sight)
-    && (creature_affected_with_spell_flags(thing, CSAfF_Sight)))
-    {
-        clear_flag(cctrl->spell_flags, CSAfF_Sight);
-    }
-    if (flag_is_set(spconf->spell_flags, CSAfF_Light)
-    && (creature_affected_with_spell_flags(thing, CSAfF_Light)))
-    {
-        if (!crstat->illuminated)
-        {
-            clear_flag(cctrl->spell_flags, CSAfF_Light);
-            if (thing->light_id != 0)
-            {
-                if (flag_is_set(thing->rendering_flags, TRF_Invisible))
-                {
-                    light_set_light_intensity(thing->light_id, (light_get_light_intensity(thing->light_id) - 20));
-                    struct Light *lgt = &game.lish.lights[thing->light_id];
-                    lgt->radius = 2560;
-                }
-                else
-                {
-                    light_delete_light(thing->light_id);
-                    thing->light_id = 0;
-                }
-            }
-        }
-    }
-    if (flag_is_set(spconf->spell_flags, CSAfF_Disease)
-    && (creature_affected_with_spell_flags(thing, CSAfF_Disease)))
-    {
-        clear_flag(cctrl->spell_flags, CSAfF_Disease);
-        for (int j = 0; j < 3; j++)
-        {
-            ThingIndex eff_idx = cctrl->spell_tngidx_disease[j];
-            if (eff_idx > 0)
-            {
-                struct Thing *efftng;
-                efftng = thing_get(eff_idx);
-                delete_thing_structure(efftng, 0);
-                cctrl->spell_tngidx_disease[j] = 0;
-            }
-        }
-        cctrl->active_disease_spell = 0;
-    }
-    if (flag_is_set(spconf->spell_flags, CSAfF_Chicken)
-    && (creature_affected_with_spell_flags(thing, CSAfF_Chicken)))
-    {
-        clear_flag(cctrl->spell_flags, CSAfF_Chicken);
-        external_set_thing_state(thing, CrSt_CreatureChangeFromChicken);
-        cctrl->countdown = 10;
-    }
-    if (flag_is_set(spconf->spell_flags, CSAfF_MadKilling)
-    && (creature_affected_with_spell_flags(thing, CSAfF_MadKilling)))
-    {
-        clear_flag(cctrl->spell_flags, CSAfF_MadKilling);
-    }
-    if (flag_is_set(spconf->spell_flags, CSAfF_Timebomb)
-    && (creature_affected_with_spell_flags(thing, CSAfF_Timebomb)))
-    {
-        clear_flag(cctrl->spell_flags, CSAfF_Timebomb);
-        thing->veloc_push_add.x.val = 0;
-        thing->veloc_push_add.y.val = 0;
-        clear_flag(thing->state_flags, TF1_PushAdd);
-        cleanup_current_thing_state(thing);
-        set_start_state(thing);
-        cctrl->active_timebomb_spell = 0;
-    }
-    if (flag_is_set(spconf->spell_flags, CSAfF_Freeze)
-    && (creature_affected_with_spell_flags(thing, CSAfF_Freeze)))
-    {
-        clear_flag(cctrl->spell_flags, CSAfF_Freeze);
-        clear_flag(cctrl->stateblock_flags, CCSpl_Freeze);
-        if (creature_affected_with_spell_flags(thing, CSAfF_Grounded))
-        {
-            set_flag(thing->movement_flags, TMvF_Flying);
-            clear_flag(cctrl->spell_flags, CSAfF_Grounded);
-        }
-    }
-    if (flag_is_set(spconf->spell_flags, CSAfF_Teleport)
-    && (creature_affected_with_spell_flags(thing, CSAfF_Teleport)))
-    {
-        clear_flag(cctrl->spell_flags, CSAfF_Teleport);
-        clear_flag(cctrl->stateblock_flags, CCSpl_Teleport);
-        cctrl->active_teleport_spell = 0;
-    }
-    if (flag_is_set(spconf->spell_flags, CSAfF_Heal)
-    && (creature_affected_with_spell_flags(thing, CSAfF_Heal)))
-    {
-        clear_flag(cctrl->spell_flags, CSAfF_Heal);
-    }
-    if (flag_is_set(spconf->spell_flags, CSAfF_Fear)
-    && (creature_affected_with_spell_flags(thing, CSAfF_Fear)))
-    {
-        clear_flag(cctrl->spell_flags, CSAfF_Fear);
-    }
-    // Other cases are ignored as they are either short-lived or cleaned up with other spell flags, e.g., CSAfF_Grounded.
-    int slot_idx = get_spell_slot(thing, spell_idx);
-    if (slot_idx >= 0)
-    {
-        free_spell_slot(thing, slot_idx);
-    }
-}
-
-/* Clears spell flags on a object. 
- * It first checks for an active spell match and terminates the associated spell.
- * If no exact match is found, it clears only the flag without affecting others.
- * This ensures that spells with multiple flags remain intact.
- * This is used to stop a spell effect before its duration ends, like Temple cures.
- * @param thing The thing which can have spell flags on.
- * @param spell_flags The spell flags to be cleaned. */
-void clean_spell_flags_f(const struct Thing *thing, unsigned long spell_flags, const char *func_name)
-{
-    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
-    if (creature_control_invalid(cctrl))
-    {
-        ERRORLOG("%s: Invalid creature control for thing %d", func_name, (int)thing->index);
-        return;
-    }
-    struct CastedSpellData *cspell;
-    struct SpellConfig *spconf;
-    // First checks for an exact match with the active spells.
-    for (int i = 0; i < CREATURE_MAX_SPELLS_CASTED_AT; i++)
-    {
-        cspell = &cctrl->casted_spells[i];
-        spconf = get_spell_config(cspell->spkind)
-        if (spconf->spell_flags == spell_flags)
-        {
-            terminate_thing_spell_effect(thing, cspell->spkind);
-            return;
-        }
-    }
-    // If no exact match is found, then check for each spell flags separately without terminating a spell.
     if (flag_is_set(spell_flags, CSAfF_Slow)
     && (creature_affected_with_spell_flags(thing, CSAfF_Slow)))
     {
@@ -1464,6 +1281,7 @@ void clean_spell_flags_f(const struct Thing *thing, unsigned long spell_flags, c
     && (creature_affected_with_spell_flags(thing, CSAfF_Flying)))
     {
         clear_flag(cctrl->spell_flags, CSAfF_Flying);
+        // TODO: Strange condition regarding the fly, check why it's here?
         if (!flag_is_set(game.conf.crtr_conf.model[thing->model].model_flags, CMF_IsDiptera))
         {
             clear_flag(thing->movement_flags, TMvF_Flying);
@@ -1475,7 +1293,7 @@ void clean_spell_flags_f(const struct Thing *thing, unsigned long spell_flags, c
         clear_flag(cctrl->spell_flags, CSAfF_Invisibility);
         cctrl->force_visible = 0;
     }
-    if ((flag_is_set(spell_flags, CSAfF_Sight)
+    if (flag_is_set(spell_flags, CSAfF_Sight)
     && (creature_affected_with_spell_flags(thing, CSAfF_Sight)))
     {
         clear_flag(cctrl->spell_flags, CSAfF_Sight);
@@ -1519,7 +1337,7 @@ void clean_spell_flags_f(const struct Thing *thing, unsigned long spell_flags, c
         }
         cctrl->active_disease_spell = 0;
     }
-    if (flag_is_set(spell_flags, CSAfF_Chicken))
+    if (flag_is_set(spell_flags, CSAfF_Chicken)
     && (creature_affected_with_spell_flags(thing, CSAfF_Chicken)))
     {
         clear_flag(cctrl->spell_flags, CSAfF_Chicken);
@@ -1571,6 +1389,52 @@ void clean_spell_flags_f(const struct Thing *thing, unsigned long spell_flags, c
         clear_flag(cctrl->spell_flags, CSAfF_Fear);
     }
     // Other cases are ignored as they are either short-lived or cleaned up with other spell flags, e.g., CSAfF_Grounded.
+	return;
+}
+
+void terminate_thing_spell_effect(struct Thing *thing, SpellKind spell_idx)
+{
+    TRACE_THING(thing);
+    struct SpellConfig *spconf = get_spell_config(spell_idx);
+	clear_thing_spell_flags(thing, spconf->spell_flags);
+    int slot_idx = get_spell_slot(thing, spell_idx);
+    if (slot_idx >= 0)
+    {
+        free_spell_slot(thing, slot_idx);
+    }
+	return;
+}
+
+/* Clears spell flags on a thing. 
+ * It first checks for an active spell match and terminates the associated spell.
+ * If no exact match is found, it clears only the flag without affecting others.
+ * This ensures that spells with multiple flags remain intact.
+ * This is used to stop a spell effect before its duration ends, like Temple cures.
+ * @param thing The thing which can have spell flags on.
+ * @param spell_flags The spell flags to be cleaned. */
+void clean_spell_flags_f(struct Thing *thing, unsigned long spell_flags, const char *func_name)
+{
+    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
+    if (creature_control_invalid(cctrl))
+    {
+        ERRORLOG("%s: Invalid creature control for thing %d", func_name, (int)thing->index);
+        return;
+    }
+    struct CastedSpellData *cspell;
+    struct SpellConfig *spconf;
+    // First checks for an exact match with the active spells.
+    for (int i = 0; i < CREATURE_MAX_SPELLS_CASTED_AT; i++)
+    {
+        cspell = &cctrl->casted_spells[i];
+        spconf = get_spell_config(cspell->spkind)
+        if (spconf->spell_flags == spell_flags)
+        {
+            terminate_thing_spell_effect(thing, cspell->spkind);
+            return;
+        }
+    }
+    // If no exact match is found, then check for each spell flags separately without terminating a spell.
+	clear_thing_spell_flags(thing, spell_flags);
     return;
 }
 

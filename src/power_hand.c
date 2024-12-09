@@ -632,7 +632,6 @@ void draw_power_hand(void)
         switch (picktng->class_id)
         {
         case TCls_Creature:
-            struct CreatureControl *cctrl = creature_control_get_from_thing(picktng);
             if (!creature_affected_with_spell_flags(picktng, CSAfF_Chicken))
             {
                 pickoffs = get_creature_picked_up_offset(picktng);
@@ -1372,7 +1371,6 @@ TbBool place_thing_in_power_hand(struct Thing *thing, PlayerNumber plyr_idx)
             return false;
         }
         // Removing combat is called in insert_thing_into_power_hand_list(), so we don't have to do it here.
-        struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
         if (creature_affected_with_spell_flags(thing, CSAfF_Chicken))
         {
             i = convert_td_iso(122); // Hardcoded value, 122 is grabbed chicken.

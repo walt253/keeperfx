@@ -3124,7 +3124,6 @@ long task_magic_speed_up(struct Computer2 *comp, struct ComputerTask *ctask)
         remove_task(comp, ctask);
         return CTaskRet_Unk4;
     }
-    struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
     if (computer_able_to_use_power(comp, PwrK_SPEEDCRTR, ctask->attack_magic.splevel, 1)
     && !creature_affected_with_spell_flags(creatng, CSAfF_Speed)
     && !creature_is_immune_to_spell_flags(creatng, CSAfF_Speed))

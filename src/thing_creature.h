@@ -163,10 +163,11 @@ TbBool creature_affected_with_spell_flags_f(const struct Thing *thing, unsigned 
 TbBool creature_is_immune_to_spell_flags_f(const struct Thing *thing, unsigned long spell_flags, const char *func_name);
 #define creature_is_immune_to_spell_flags(thing, spell_flags) creature_is_immune_to_spell_flags_f(thing, spell_flags, __func__)
 
+void clear_thing_spell_flags(struct Thing *thing, unsigned long spell_flags);
 void clean_spell_flags_f(struct Thing *thing, unsigned long spell_flags, const char *func_name);
 #define clean_spell_flags(thing, spell_flags) clean_spell_flags_f(thing, spell_flags, __func__)
 
-GameTurnDelta get_spell_duration_left_on_thing_f(struct Thing *thing, SpellKind spell_idx, const char *func_name);
+GameTurnDelta get_spell_duration_left_on_thing_f(const struct Thing *thing, SpellKind spell_idx, const char *func_name);
 #define get_spell_duration_left_on_thing(thing, spell_idx) get_spell_duration_left_on_thing_f(thing, spell_idx, __func__)
 
 void anger_set_creature_anger_all_types(struct Thing *thing, long new_value);

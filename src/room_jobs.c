@@ -95,9 +95,9 @@ TbBool add_creature_to_torture_room(struct Thing *creatng, const struct Room *ro
         creatng->light_id = 0;
     }
     if (creature_affected_with_spell_flags(creatng, CSAfF_Speed))
-    [
+    {
         clean_spell_flags(creatng, CSAfF_Speed);
-    ]
+    }
     if (creature_affected_with_spell_flags(creatng, CSAfF_Invisibility))
     {
         clean_spell_flags(creatng, CSAfF_Invisibility);

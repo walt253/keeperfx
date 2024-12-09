@@ -287,7 +287,7 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
     {
         // Get the duration of the active teleport spell and its duration left.
         spconf = get_spell_config(cctrl->active_teleport_spell);
-        dturn = get_spell_duration_left_on_thing(cctrl->active_teleport_spell);
+        dturn = get_spell_duration_left_on_thing(thing, cctrl->active_teleport_spell);
         if (spconf->duration / 2 < dturn)
         {
             effeltng = create_effect_element(&thing->mappos, TngEffElm_FlashBall2, thing->owner);

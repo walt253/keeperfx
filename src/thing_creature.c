@@ -770,7 +770,7 @@ TbBool creature_is_immune_to_spell_flags_f(const struct Thing *thing, unsigned l
  /* Returns remaining duration of a spell casted on a thing.
  * @param thing The thing which can have spell flags on.
  * @param spkind The spell kind to be checked. */
-GameTurnDelta get_spell_duration_left_on_thing_f(struct Thing *thing, SpellKind spell_idx, const char *func_name)
+GameTurnDelta get_spell_duration_left_on_thing_f(const struct Thing *thing, SpellKind spell_idx, const char *func_name)
 {
     struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
     if (creature_control_invalid(cctrl))
@@ -1426,7 +1426,7 @@ void clean_spell_flags_f(struct Thing *thing, unsigned long spell_flags, const c
     for (int i = 0; i < CREATURE_MAX_SPELLS_CASTED_AT; i++)
     {
         cspell = &cctrl->casted_spells[i];
-        spconf = get_spell_config(cspell->spkind)
+        spconf = get_spell_config(cspell->spkind);
         if (spconf->spell_flags == spell_flags)
         {
             terminate_thing_spell_effect(thing, cspell->spkind);
@@ -3036,7 +3036,7 @@ void delete_effects_attached_to_creature(struct Thing *creatng)
         clear_flag(cctrl->spell_flags, CSAfF_Disease);
         for (int j = 0; j < 3; j++)
         {
-            num_disease = cctrl->spell_tngidx_disease[j];
+            long num_disease = cctrl->spell_tngidx_disease[j];
             if (num_disease != 0)
             {
                 efftng = thing_get(num_disease);

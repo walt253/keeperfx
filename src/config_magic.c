@@ -686,88 +686,88 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
                     k = get_id(magic_spell_flags, word_buf);
                     switch (k)
                     {
-                    case 1: // SLOW
-                        set_flag(spconf->spell_flags, CSAfF_Slow);
-                        n++;
-                        break;
-                    case 2: // SPEED
-                        set_flag(spconf->spell_flags, CSAfF_Speed);
-                        n++;
-                        break;
-                    case 3: // ARMOUR
-                        set_flag(spconf->spell_flags, CSAfF_Armour);
-                        n++;
-                        break;
-                    case 4: // REBOUND
-                        set_flag(spconf->spell_flags, CSAfF_Rebound);
-                        n++;
-                        break;
-                    case 5: // FLYING
-                        set_flag(spconf->spell_flags, CSAfF_Flying);
-                        n++;
-                        break;
-                    case 6: // INVISIBILITY
-                        set_flag(spconf->spell_flags, CSAfF_Invisibility);
-                        n++;
-                        break;
-                    case 7: // SIGHT
-                        set_flag(spconf->spell_flags, CSAfF_Sight);
-                        n++;
-                        break;
-                    case 8: // LIGHT
-                        set_flag(spconf->spell_flags, CSAfF_Light);
-                        n++;
-                        break;
-                    case 9: // DISEASE
-                        set_flag(spconf->spell_flags, CSAfF_Disease);
-                        n++;
-                        break;
-                    case 10: // CHICKEN
-                        set_flag(spconf->spell_flags, CSAfF_Chicken);
-                        n++;
-                        break;
-                    case 11: // POISON_CLOUD
-                        set_flag(spconf->spell_flags, CSAfF_PoisonCloud);
-                        n++;
-                        break;
-                    case 12: // CALL_TO_ARMS
-                        set_flag(spconf->spell_flags, CSAfF_CalledToArms);
-                        n++;
-                        break;
-                    case 13: // MAD_KILLING
-                        set_flag(spconf->spell_flags, CSAfF_MadKilling);
-                        n++;
-                        break;
-                    case 14: // HEAL
-                        set_flag(spconf->spell_flags, CSAfF_Heal);
-                        n++;
-                        break;
-                    case 15: // EXP_LEVEL_UP
-                        set_flag(spconf->spell_flags, CSAfF_ExpLevelUp);
-                        n++;
-                        break;
-                    case 16: // TELEPORT
-                        set_flag(spconf->spell_flags, CSAfF_Teleport);
-                        n++;
-                        break;
-                    case 17: // TIMEBOMB
-                        set_flag(spconf->spell_flags, CSAfF_Timebomb);
-                        n++;
-                        break;
-                    case 18: // WIND
-                        set_flag(spconf->spell_flags, CSAfF_Wind);
-                        n++;
-                        break;
-                    case 19: // FREEZE
-                        set_flag(spconf->spell_flags, CSAfF_Freeze);
-                        n++;
-                        break;
-                    case 20: // FEAR
-                        set_flag(spconf->spell_flags, CSAfF_Fear);
-                        n++;
-                        break;
-                    default:
-                        break;
+                        case 1: // SLOW
+                            set_flag(spconf->spell_flags, CSAfF_Slow);
+                            n++;
+                            break;
+                        case 2: // SPEED
+                            set_flag(spconf->spell_flags, CSAfF_Speed);
+                            n++;
+                            break;
+                        case 3: // ARMOUR
+                            set_flag(spconf->spell_flags, CSAfF_Armour);
+                            n++;
+                            break;
+                        case 4: // REBOUND
+                            set_flag(spconf->spell_flags, CSAfF_Rebound);
+                            n++;
+                            break;
+                        case 5: // FLYING
+                            set_flag(spconf->spell_flags, CSAfF_Flying);
+                            n++;
+                            break;
+                        case 6: // INVISIBILITY
+                            set_flag(spconf->spell_flags, CSAfF_Invisibility);
+                            n++;
+                            break;
+                        case 7: // SIGHT
+                            set_flag(spconf->spell_flags, CSAfF_Sight);
+                            n++;
+                            break;
+                        case 8: // LIGHT
+                            set_flag(spconf->spell_flags, CSAfF_Light);
+                            n++;
+                            break;
+                        case 9: // DISEASE
+                            set_flag(spconf->spell_flags, CSAfF_Disease);
+                            n++;
+                            break;
+                        case 10: // CHICKEN
+                            set_flag(spconf->spell_flags, CSAfF_Chicken);
+                            n++;
+                            break;
+                        case 11: // POISON_CLOUD
+                            set_flag(spconf->spell_flags, CSAfF_PoisonCloud);
+                            n++;
+                            break;
+                        case 12: // CALL_TO_ARMS
+                            set_flag(spconf->spell_flags, CSAfF_CalledToArms);
+                            n++;
+                            break;
+                        case 13: // MAD_KILLING
+                            set_flag(spconf->spell_flags, CSAfF_MadKilling);
+                            n++;
+                            break;
+                        case 14: // HEAL
+                            set_flag(spconf->spell_flags, CSAfF_Heal);
+                            n++;
+                            break;
+                        case 15: // EXP_LEVEL_UP
+                            set_flag(spconf->spell_flags, CSAfF_ExpLevelUp);
+                            n++;
+                            break;
+                        case 16: // TELEPORT
+                            set_flag(spconf->spell_flags, CSAfF_Teleport);
+                            n++;
+                            break;
+                        case 17: // TIMEBOMB
+                            set_flag(spconf->spell_flags, CSAfF_Timebomb);
+                            n++;
+                            break;
+                        case 18: // WIND
+                            set_flag(spconf->spell_flags, CSAfF_Wind);
+                            n++;
+                            break;
+                        case 19: // FREEZE
+                            set_flag(spconf->spell_flags, CSAfF_Freeze);
+                            n++;
+                            break;
+                        case 20: // FEAR
+                            set_flag(spconf->spell_flags, CSAfF_Fear);
+                            n++;
+                            break;
+                        default:
+                            break;
                     }
                 }
             }

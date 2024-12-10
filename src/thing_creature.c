@@ -1394,7 +1394,7 @@ void clear_thing_spell_flags_f(struct Thing *thing, unsigned long spell_flags, c
     if (!success)
     {
         // Shouldn't happen but if it does then log which function failed and with what spell flags.
-        ERRORLOG("%s: No spell flags %d to clear on %s index %d", func_name, (ulong)spell_flags, thing_model_name(thing), (int)thing->index);
+        ERRORLOG("%s: No spell flags %d to clear on %s index %d", func_name, (uint)spell_flags, thing_model_name(thing), (int)thing->index);
     }
     return;
 }

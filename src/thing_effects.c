@@ -1023,12 +1023,12 @@ TbBool explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, con
                     else {
                         spell_level = 0;
                     }
+                    apply_spell_effect_to_thing(tngdst, shotst->cast_spell_kind, spell_level);
                     struct SpellConfig *spconf = get_spell_config(shotst->cast_spell_kind);
                     if (flag_is_set(spconf->spell_flags, CSAfF_Disease))
                     {
                         cctrl->disease_caster_plyridx = tngsrc->owner;
                     }
-                    apply_spell_effect_to_thing(tngdst, shotst->cast_spell_kind, spell_level);
                 }
                 if (tngdst->health < 0)
                 {

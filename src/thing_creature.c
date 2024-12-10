@@ -5926,7 +5926,7 @@ void process_magic_fall_effect(struct Thing *thing)
         GameTurnDelta dturn = game.play_gameturn - thing->creation_turn;
         if ((dturn & 1) == 0)
         {
-            struct Thing *effeltng = create_effect_element(&thing->mappos, birth_effect_element[get_player_color_idx(thing->owner)], thing->owner);
+            create_effect_element(&thing->mappos, birth_effect_element[get_player_color_idx(thing->owner)], thing->owner);
         }
         struct CreatureStats *crstat = creature_stats_get_from_thing(thing);
         creature_turn_to_face_angle(thing, thing->move_angle_xy + crstat->max_turning_speed);

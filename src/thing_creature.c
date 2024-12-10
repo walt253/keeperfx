@@ -4792,10 +4792,6 @@ long player_list_creature_filter_in_fight_and_not_affected_by_spell(const struct
         {
             return -1;
         }
-        if 
-        {
-            return -1;
-        }
         if ((spconf->spell_flags != 0) && (creature_affected_with_spell_flags(thing, spconf->spell_flags)))
         {
             return -1;

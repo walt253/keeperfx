@@ -687,18 +687,18 @@ TbBool creature_affected_with_spell_flags_f(const struct Thing *thing, unsigned 
     return flag_is_set(cctrl->spell_flags, spell_flags);
 }
 
-/* Returns if the creature is immune to a spell flags.
+/* Returns if the creature kind is immune to a spell flags.
  * @param thing The thing to be checked.
  * @param spell_flags The spell flags to be checked. */
 TbBool creature_is_immune_to_spell_flags_f(const struct Thing *thing, unsigned long spell_flags, const char *func_name)
 {
-    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
-    if (creature_control_invalid(cctrl))
+    struct CreatureStats *crstat = creature_stats_get(thing->model);
+    if (creature_stats_invalid(crstat))
     {
-        ERRORLOG("%s: Invalid creature control for thing %d", func_name, (int)thing->index);
+        ERRORLOG("%s: Invalid creature kind %s index %d", func_name, thing_model_name(thing), (int)thing->index);
         return false;
     }
-    return flag_is_set(cctrl->immunity_flags, spell_flags);
+    return flag_is_set(crstat->immunity_flags, spell_flags);
 }
 
 /* Returns an available instance associated to a spell kind that can set a spell flags.

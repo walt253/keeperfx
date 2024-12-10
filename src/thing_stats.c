@@ -1098,11 +1098,12 @@ long compute_creature_weight(const struct Thing* creatng)
     long eye_height = get_creature_eye_height(creatng);
     long weight = eye_height >> 2;
     weight += (crstat->hunger_fill + crstat->lair_size + 1) * cctrl->explevel;
-    if (!crstat->affected_by_wind)
+    if (creature_is_immune_to_spell_flags(creatng, CSAfF_Wind))
     {
         weight = weight * 3 / 2;
     }
-    if ((get_creature_model_flags(creatng) & CMF_Trembling) != 0)
+    if (((get_creature_model_flags(creatng) & CMF_Trembling) != 0)
+    || ((get_creature_model_flags(creatng) & CMF_Fat) != 0))
     {
         weight = weight * 3 / 2;
     }

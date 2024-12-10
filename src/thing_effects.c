@@ -1379,8 +1379,7 @@ TbBool poison_cloud_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, 
     SYNCDBG(17,"Starting for %s, max damage %d, max blow %d, owner %d",thing_model_name(tngdst),(int)max_damage,(int)blow_strength,(int)owner);
     if (thing_is_creature(tngdst))
     {
-        const struct CreatureStats* crstat = creature_stats_get_from_thing(tngdst);
-        if (crstat->immune_to_gas) {
+        if (creature_is_immune_to_spell_flags(tngdst, CSAfF_PoisonCloud)) {
             return affected;
         }
     } else {

@@ -323,7 +323,6 @@ unsigned char sound_flag;
     TbBool field_AA;
     unsigned char stateblock_flags;
     unsigned long spell_flags;
-    unsigned long immunity_flags;
     short force_visible;
     unsigned char frozen_on_hit;
     long last_piss_turn;
@@ -465,7 +464,6 @@ struct CreatureStats { // These stats are not compatible with original DK - they
     unsigned short walking_anim_speed;
     TbBool flying;
     TbBool fixed_anim_speed;
-    TbBool immune_to_gas;
     unsigned char attack_preference;
     short field_of_view;
     /** Instance identifiers of the instances creature can learn. */
@@ -516,7 +514,6 @@ struct CreatureStats { // These stats are not compatible with original DK - they
     TbBool can_see_invisible;
     TbBool can_go_locked_doors;
     TbBool bleeds;
-    TbBool affected_by_wind;
     short annoy_eat_food;
     short annoy_in_hand;
     short damage_to_boulder;
@@ -538,6 +535,7 @@ struct CreatureStats { // These stats are not compatible with original DK - they
     unsigned char swipe_idx;
     ThingModel prison_kind;
     ThingModel torture_kind;
+    unsigned long immunity_flags;
     struct CreaturePickedUpOffset creature_picked_up_offset;
 };
 

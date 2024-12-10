@@ -542,17 +542,24 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           crstat->bleeds = val4;
           break;
       case 2: // UNAFFECTED_BY_WIND
-          if (val4)
+          if (val4 >= 1)
           {
-              crstat->affected_by_wind = 0;
+              set_flag(crstat->immunity_flags, CSAfF_Wind);
           }
           else
           {
-              crstat->affected_by_wind = 1;
+              clear_flag(crstat->immunity_flags, CSAfF_Wind);
           }
           break;
       case 3: // IMMUNE_TO_GAS
-          crstat->immune_to_gas = val4;
+          if (val4 >= 1)
+          {
+              set_flag(crstat->immunity_flags, CSAfF_PoisonCloud);
+          }
+          else
+          {
+              clear_flag(crstat->immunity_flags, CSAfF_PoisonCloud);
+          }
           break;
       case 4: // HUMANOID_SKELETON
           crstat->humanoid_creature = val4;
@@ -632,11 +639,11 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       case 16: // NEVER_CHICKENS
           if (val4 >= 1)
           {
-              set_flag(crconf->model_flags,CMF_NeverChickens);
+              set_flag(crstat->immunity_flags, CSAfF_Chicken);
           }
           else
           {
-              clear_flag(crconf->model_flags,CMF_NeverChickens);
+              clear_flag(crstat->immunity_flags, CSAfF_Chicken);
           }
           break;
       case 17: // IMMUNE_TO_BOULDER
@@ -724,11 +731,11 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       case 25: // NEVER_SICK
           if (val4 >= 1)
           {
-              set_flag(crconf->model_flags,CMF_NeverSick);
+              set_flag(crstat->immunity_flags, CSAfF_Disease);
           }
           else
           {
-              clear_flag(crconf->model_flags,CMF_NeverSick);
+              clear_flag(crstat->immunity_flags, CSAfF_Disease);
           }
           break;
       case 26: // ILLUMINATED

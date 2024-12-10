@@ -1160,12 +1160,12 @@ long melee_shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, stru
             else {
                 n = 0;
             }
+            apply_spell_effect_to_thing(trgtng, shotst->cast_spell_kind, n);
             struct SpellConfig *spconf = get_spell_config(shotst->cast_spell_kind);
             if (flag_is_set(spconf->spell_flags, CSAfF_Disease))
             {
                 tgcctrl->disease_caster_plyridx = shotng->owner;
             }
-            apply_spell_effect_to_thing(trgtng, shotst->cast_spell_kind, n);
         }
         if (shotst->model_flags & ShMF_GroupUp)
         {
@@ -1362,12 +1362,12 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
         } else {
             n = 0;
         }
+        apply_spell_effect_to_thing(trgtng, shotst->cast_spell_kind, n);
         struct SpellConfig *spconf = get_spell_config(shotst->cast_spell_kind);
         if (flag_is_set(spconf->spell_flags, CSAfF_Disease))
         {
             cctrl->disease_caster_plyridx = shotng->owner;
         }
-        apply_spell_effect_to_thing(trgtng, shotst->cast_spell_kind, n);
     }
     if (shotst->model_flags & ShMF_GroupUp)
     {

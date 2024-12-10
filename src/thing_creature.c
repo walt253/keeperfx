@@ -776,7 +776,6 @@ GameTurnDelta get_spell_duration_left_on_thing_f(const struct Thing *thing, Spel
             return cspell->duration;
         }
     }
-    // Shouldn't happen but if it does then log which function failed and with what spell kind.
     ERRORLOG("%s: No spell of type %d is found to get spell duration left on %s index %d", func_name, (int)spell_idx, thing_model_name(thing), (int)thing->index);
     return 0;
 }
@@ -1098,10 +1097,11 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, unsigned long spell_flags, G
     {
         // 'CSAfF_Heal' is only for checking config or immunity, flag is never set to creature.
         HitPoints healing_recovery;
-        // TODO: make a new field for unlinked heal spell.
-        if (spconf->linked_power == 0)
+        if (spconf->linked_power == PwrK_None)
         {
-            healing_recovery = thing->health;
+            // TODO: make a new field for unlinked heal spell.
+            HitPoints unlinked = 0;
+            healing_recovery = saturate_set_signed(thing->health + unlinked, 16);
         }
         else
         {
@@ -1307,7 +1307,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
     const struct MagicStats *pwrdynst = get_power_dynamic_stats(spconf->linked_power);
     GameTurnDelta duration;
     // If not linked to a keeper power, use the duration set on the spell, otherwise use the strength or duration of the linked power.
-    if (spconf->linked_power == 0)
+    if (spconf->linked_power == PwrK_None)
     {
         duration = spconf->duration;
     }
@@ -1348,7 +1348,7 @@ void reapply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, lon
     const struct MagicStats *pwrdynst = get_power_dynamic_stats(spconf->linked_power);
     GameTurnDelta duration;
     // If not linked to a keeper power, use the duration set on the spell, otherwise use the strength or duration of the linked power.
-    if (spconf->linked_power == 0)
+    if (spconf->linked_power == PwrK_None)
     {
         duration = spconf->duration;
     }
@@ -1360,7 +1360,7 @@ void reapply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, lon
     {
         duration = pwrdynst->duration;
     }
-    // Only reset spell duration if the creature is still affected by at least one spell flags set.
+    // Only reset spell duration if the creature can still be affected by at least one spell flags set.
     if (set_thing_spell_flags(thing, spconf->spell_flags, duration, spconf->linked_power))
     {
         struct CastedSpellData *cspell = &cctrl->casted_spells[slot_idx];
@@ -1480,7 +1480,11 @@ void clean_spell_flags_f(struct Thing *thing, unsigned long spell_flags, const c
         }
     }
     // If no exact match is found, then check for each spell flags separately without terminating a spell.
-    clear_thing_spell_flags(thing, spell_flags);
+    if (!clear_thing_spell_flags(thing, spell_flags))
+    {
+        // Shouldn't happen within this function but if it does then log it.
+        ERRORLOG("%s: No spell flags %d to clear on %s index %d", func_name, (uint)spell_flags, thing_model_name(thing), (int)thing->index);
+    }
     return;
 }
 

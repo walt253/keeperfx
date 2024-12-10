@@ -162,8 +162,8 @@ void clean_spell_flags_f(struct Thing *thing, unsigned long spell_flags, const c
 #define clean_spell_flags(thing, spell_flags) clean_spell_flags_f(thing, spell_flags, __func__)
 
 void apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, long spell_lev);
-void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, long spell_lev)
-void reapply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, long spell_lev, long slot_idx)
+void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, long spell_lev);
+void reapply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, long spell_lev, long slot_idx);
 void terminate_thing_spell_effect(struct Thing *thing, SpellKind spell_idx);
 void process_thing_spell_effects(struct Thing *thing);
 void process_thing_spell_effects_while_blocked(struct Thing *thing);

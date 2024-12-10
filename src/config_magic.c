@@ -767,6 +767,8 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
                             n++;
                             break;
                         default:
+                            CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                                COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
                             break;
                     }
                 }

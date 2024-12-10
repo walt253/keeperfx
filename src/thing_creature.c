@@ -4613,8 +4613,11 @@ TbBool creature_increase_level(struct Thing *thing)
         struct CreatureStats *crstat = creature_stats_get_from_thing(thing);
         if ((cctrl->explevel < CREATURE_MAX_LEVEL - 1) || (crstat->grow_up != 0))
         {
-            set_flag(cctrl->spell_flags, CSAfF_ExpLevelUp);
-            return true;
+            if (!creature_is_immune_to_spell_flags(thing, CSAfF_ExpLevelUp))
+            {
+                set_flag(cctrl->spell_flags, CSAfF_ExpLevelUp);
+                return true;
+            }
         }
     }
     return false;
@@ -4639,9 +4642,12 @@ TbBool creature_change_multiple_levels(struct Thing *thing, int count)
                 struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
                 if ((cctrl->explevel < CREATURE_MAX_LEVEL - 1) || (crstat->grow_up != 0))
                 {
-                    set_flag(cctrl->spell_flags, CSAfF_ExpLevelUp);
-                    update_creature_levels(thing);
-                    k++;
+                    if (!creature_is_immune_to_spell_flags(thing, CSAfF_ExpLevelUp))
+                    {
+                        set_flag(cctrl->spell_flags, CSAfF_ExpLevelUp);
+                        update_creature_levels(thing);
+                        k++;
+                    }
                 }
             }
         }

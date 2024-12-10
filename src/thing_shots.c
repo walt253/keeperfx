@@ -1932,7 +1932,6 @@ static TngUpdateRet affect_thing_by_wind(struct Thing *thing, ModTngFilterParam 
         {
             if (!thing_is_picked_up(thing) && !creature_is_being_unconscious(thing))
             {
-                struct CreatureStats *crstat = creature_stats_get_from_thing(thing);
                 struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
                 TbBool creatureAlreadyAffected = false;
 
@@ -1960,18 +1959,18 @@ static TngUpdateRet affect_thing_by_wind(struct Thing *thing, ModTngFilterParam 
                         }
                     }
                 }
-                if ((creature_distance < blow_distance) && !creature_is_immune_to_spell_flags(thing, CSAfF_Wind) && !creatureAlreadyAffected)           
+                if ((creature_distance < blow_distance) && !creature_is_immune_to_spell_flags(thing, CSAfF_Wind) && !creatureAlreadyAffected)
                 {
                     set_start_state(thing);
                     cctrl->idle.start_gameturn = game.play_gameturn;
                     apply_velocity = true;
                     set_flag(cctrl->spell_flags, CSAfF_Wind);
+                } // If weight_affect_push_rule is on.
+                else if (game.conf.rules.magic.weight_calculate_push > 0 && creature_distance >= blow_distance && !creatureAlreadyAffected)
+                {
+                    // Add creature index to wind_affected_creature array.
+                    shotng->shot.wind_affected_creature[shotng->shot.num_wind_affected++] = cctrl->index;
                 }
-                   // if weight-affect-push-rule is on
-                else if (game.conf.rules.magic.weight_calculate_push > 0 && creature_distance >= blow_distance && !creatureAlreadyAffected){
-                    // add creature ID to allready-wind-affected-creature-array
-                    shotng->shot.wind_affected_creature[shotng->shot.num_wind_affected++] = cctrl->index;                  
-                    }
             }
             break;
         } 

@@ -1708,7 +1708,7 @@ short creature_change_to_chicken(struct Thing *creatng)
         }
         return 0;
     }
-    // Apparently, this function bypasses immunity, as no check was made against CMF_NeverChickens.
+    // Apparently, this function bypasses the immunity, as no check was made against CMF_NeverChickens.
     set_flag(cctrl->spell_flags, CSAfF_Chicken);
     clear_flag(creatng->rendering_flags, TRF_Invisible);
     set_creature_size_stuff(creatng);
@@ -4600,6 +4600,7 @@ TbBool check_experience_upgrade(struct Thing *thing)
     {
         if ((cctrl->explevel < CREATURE_MAX_LEVEL - 1) || (crstat->grow_up != 0))
         {
+            // This function bypasses the immunity.
             set_flag(cctrl->spell_flags, CSAfF_ExpLevelUp);
         }
     }

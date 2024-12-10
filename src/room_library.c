@@ -464,13 +464,13 @@ void reposition_all_books_in_room_on_subtile(struct Room *room, MapSubtlCoord st
         if (thing_is_spellbook(thing))
         {
             ThingModel objkind = thing->model;
-            PowerKind spl_idx = book_thing_to_power_kind(thing);
-            if ((spl_idx > 0) && ((thing->alloc_flags & TAlF_IsDragged) == 0))
+            PowerKind spell_idx = book_thing_to_power_kind(thing);
+            if ((spell_idx > 0) && ((thing->alloc_flags & TAlF_IsDragged) == 0))
             {
                 if (game.play_gameturn > 10) //Function is used to place books in rooms before dungeons are intialized
                 {
                     dungeon = get_players_num_dungeon(room->owner);
-                    if (dungeon->magic_level[spl_idx] < 2)
+                    if (dungeon->magic_level[spell_idx] < 2)
                     {
                         if (!store_reposition_entry(rrepos, objkind)) {
                             WARNLOG("Too many things to reposition in %s.", room_code_name(room->kind));
@@ -478,9 +478,9 @@ void reposition_all_books_in_room_on_subtile(struct Room *room, MapSubtlCoord st
                     }
                     if (!is_neutral_thing(thing))
                     {
-                        remove_power_from_player(spl_idx, room->owner);
+                        remove_power_from_player(spell_idx, room->owner);
                         dungeon = get_dungeon(room->owner);
-                        dungeon->magic_resrchable[spl_idx] = 1;
+                        dungeon->magic_resrchable[spell_idx] = 1;
                     }
                 }
                 else
@@ -491,7 +491,7 @@ void reposition_all_books_in_room_on_subtile(struct Room *room, MapSubtlCoord st
                     }
                     if (!is_neutral_thing(thing))
                     {
-                        remove_power_from_player(spl_idx, room->owner);
+                        remove_power_from_player(spell_idx, room->owner);
                     }
                 }
                 delete_thing_structure(thing, 0);
@@ -629,15 +629,15 @@ int check_books_on_subtile_for_reposition_in_room(struct Room *room, MapSubtlCoo
         // Per thing code
         if (thing_is_spellbook(thing))
         {
-            PowerKind spl_idx = book_thing_to_power_kind(thing);
-            if ((spl_idx > 0) && ((thing->alloc_flags & TAlF_IsDragged) == 0) && ((thing->owner == room->owner) || game.play_gameturn < 10))//Function is used to integrate preplaced books at map startup too.
+            PowerKind spell_idx = book_thing_to_power_kind(thing);
+            if ((spell_idx > 0) && ((thing->alloc_flags & TAlF_IsDragged) == 0) && ((thing->owner == room->owner) || game.play_gameturn < 10))//Function is used to integrate preplaced books at map startup too.
             {
                 // If exceeded capacity of the library
                 if (room->used_capacity > room->total_capacity)
                 {
                     SYNCDBG(7,"Room %d type %s capacity %d exceeded; space used is %d", room->index, room_code_name(room->kind), (int)room->total_capacity, (int)room->used_capacity);
                     struct Dungeon* dungeon = get_players_num_dungeon(room->owner);
-                    if (dungeon->magic_level[spl_idx] <= 1)
+                    if (dungeon->magic_level[spell_idx] <= 1)
                     { 
                         // We have a single copy, but nowhere to place it. -1 will handle the rest.
                         return -1;
@@ -646,7 +646,7 @@ int check_books_on_subtile_for_reposition_in_room(struct Room *room, MapSubtlCoo
                     {
                         if (!is_neutral_thing(thing))
                         {
-                            remove_power_from_player(spl_idx, thing->owner);
+                            remove_power_from_player(spell_idx, thing->owner);
                         }
                         SYNCLOG("Deleting from %s of player %d duplicate object %s", room_code_name(room->kind), (int)thing->owner, object_code_name(thing->model));
                         delete_thing_structure(thing, 0);

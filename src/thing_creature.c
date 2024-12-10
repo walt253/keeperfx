@@ -1479,90 +1479,90 @@ void process_thing_spell_teleport_effects(struct Thing *thing, struct CastedSpel
             struct Coord3d room_pos;
             switch (player->teleport_destination)
             {
-            case 6: // Dungeon Heart
-            {
-                newpos = dungeon_get_essential_pos(thing->owner);
-                break;
-            }
-            case 16: // Fight
-            {
-                if (active_battle_exists(thing->owner))
+                case 6: // Dungeon Heart
                 {
-                    long count = 0;
-                    if (player->battleid > BATTLES_COUNT)
+                    newpos = dungeon_get_essential_pos(thing->owner);
+                    break;
+                }
+                case 16: // Fight
+                {
+                    if (active_battle_exists(thing->owner))
                     {
-                        player->battleid = 1;
-                    }
-                    for (i = player->battleid; i <= BATTLES_COUNT; i++)
-                    {
-                        if (i > BATTLES_COUNT)
+                        long count = 0;
+                        if (player->battleid > BATTLES_COUNT)
                         {
-                            i = 1;
                             player->battleid = 1;
                         }
-                        count++;
-                        struct CreatureBattle *battle = creature_battle_get(i);
-                        if ((battle->fighters_num != 0) && (battle_with_creature_of_player(thing->owner, i)))
+                        for (i = player->battleid; i <= BATTLES_COUNT; i++)
                         {
-                            struct Thing *tng = thing_get(battle->first_creatr);
-                            TRACE_THING(tng);
-                            if (creature_can_navigate_to(thing, &tng->mappos, NavRtF_NoOwner))
+                            if (i > BATTLES_COUNT)
                             {
-                                pos.x.val = tng->mappos.x.val;
-                                pos.y.val = tng->mappos.y.val;
-                                player->battleid = i + 1;
+                                i = 1;
+                                player->battleid = 1;
+                            }
+                            count++;
+                            struct CreatureBattle *battle = creature_battle_get(i);
+                            if ((battle->fighters_num != 0) && (battle_with_creature_of_player(thing->owner, i)))
+                            {
+                                struct Thing *tng = thing_get(battle->first_creatr);
+                                TRACE_THING(tng);
+                                if (creature_can_navigate_to(thing, &tng->mappos, NavRtF_NoOwner))
+                                {
+                                    pos.x.val = tng->mappos.x.val;
+                                    pos.y.val = tng->mappos.y.val;
+                                    player->battleid = i + 1;
+                                    break;
+                                }
+                            }
+                            if (count >= BATTLES_COUNT)
+                            {
+                                player->battleid = 1;
                                 break;
                             }
-                        }
-                        if (count >= BATTLES_COUNT)
-                        {
-                            player->battleid = 1;
-                            break;
-                        }
-                        if (i >= BATTLES_COUNT)
-                        {
-                            i = 0;
-                            player->battleid = 1;
-                            continue;
+                            if (i >= BATTLES_COUNT)
+                            {
+                                i = 0;
+                                player->battleid = 1;
+                                continue;
+                            }
                         }
                     }
+                    else
+                    {
+                        allowed = false;
+                    }
+                    break;
                 }
-                else
+                case 17: // Last work room
                 {
-                    allowed = false;
+                    room = room_get(cctrl->last_work_room_id);
+                    break;
                 }
-                break;
-            }
-            case 17: // Last work room
-            {
-                room = room_get(cctrl->last_work_room_id);
-                break;
-            }
-            case 18: // Call to Arms
-            {
-                struct Coord3d cta_pos;
-                cta_pos.x.val = subtile_coord_center(dungeon->cta_stl_x);
-                cta_pos.y.val = subtile_coord_center(dungeon->cta_stl_y);
-                cta_pos.z.val = subtile_coord(1, 0);
-                if (creature_can_navigate_to(thing, &cta_pos, NavRtF_NoOwner))
+                case 18: // Call to Arms
                 {
-                    pos = cta_pos;
+                    struct Coord3d cta_pos;
+                    cta_pos.x.val = subtile_coord_center(dungeon->cta_stl_x);
+                    cta_pos.y.val = subtile_coord_center(dungeon->cta_stl_y);
+                    cta_pos.z.val = subtile_coord(1, 0);
+                    if (creature_can_navigate_to(thing, &cta_pos, NavRtF_NoOwner))
+                    {
+                        pos = cta_pos;
+                    }
+                    else
+                    {
+                        allowed = false;
+                    }
+                    break;
                 }
-                else
+                case 19: // Lair
                 {
-                    allowed = false;
+                    desttng = thing_get(cctrl->lairtng_idx);
+                    break;
                 }
-                break;
-            }
-            case 19: // Lair
-            {
-                desttng = thing_get(cctrl->lairtng_idx);
-                break;
-            }
-            default:
-            {
-                rkind = zoom_key_room_order[player->teleport_destination];
-            }
+                default:
+                {
+                    rkind = zoom_key_room_order[player->teleport_destination];
+                }
             }
             if (rkind > 0)
             {
@@ -1827,7 +1827,7 @@ void thing_summon_temporary_creature(struct Thing *creatng, ThingModel model, ch
                     // Remember your Summoner.
                     famcctrl->summoner_idx = creatng->index;
                     // Remember the spell that created you.
-                    famcctrl->summon_spl_idx = spell_idx;
+                    famcctrl->summon_spell_idx = spell_idx;
                     creature_change_multiple_levels(famlrtng, sumxp);
                     remove_first_creature(famlrtng); // Temporary units are not real creatures.
                     famcctrl->unsummon_turn = game.play_gameturn + duration;
@@ -1909,7 +1909,7 @@ void level_up_familiar(struct Thing *famlrtng)
     struct CreatureControl *summonercctrl = creature_control_get_from_thing(summonertng);
     short summonerxp = summonercctrl->explevel;
     // Get spell the summoner used to make this familiar.
-    struct SpellConfig *spconf = get_spell_config(famlrcctrl->summon_spl_idx);
+    struct SpellConfig *spconf = get_spell_config(famlrcctrl->summon_spell_idx);
     char level = spconf->crtr_summon_level;
     // Calculate correct level for familiar.
     short sumxp = level - 1;

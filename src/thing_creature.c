@@ -861,15 +861,17 @@ TbBool free_spell_slot(struct Thing *thing, int slot_idx)
     return true;
 }
 
-TbBool set_thing_spell_flags_f(struct Thing *thing, unsigned long spell_flags, GameTurnDelta duration, PowerKind linked_power, const char *func_name)
+TbBool set_thing_spell_flags_f(struct Thing *thing, SpellKind spell_idx, GameTurnDelta duration, long spell_lev, const char *func_name)
 {
     struct CreatureStats *crstat = creature_stats_get(thing->model);
     struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
+    struct SpellConfig *spconf = get_spell_config(spell_idx);
+    const struct MagicStats *pwrdynst = get_power_dynamic_stats(spconf->linked_power);
     struct ComponentVector cvect;
     struct Coord3d pos;
     struct Thing *ntng;
     TbBool affected = false;
-    if (flag_is_set(spell_flags, CSAfF_Slow)
+    if (flag_is_set(spconf->spell_flags, CSAfF_Slow)
     && (!creature_is_immune_to_spell_flags(thing, CSAfF_Slow)))
     {
         if (!creature_affected_with_spell_flags(thing, CSAfF_Slow))
@@ -879,7 +881,7 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, unsigned long spell_flags, G
         cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
         affected = true;
     }
-    if (flag_is_set(spell_flags, CSAfF_Speed)
+    if (flag_is_set(spconf->spell_flags, CSAfF_Speed)
     && (!creature_is_immune_to_spell_flags(thing, CSAfF_Speed)))
     {
         if (!creature_affected_with_spell_flags(thing, CSAfF_Speed))
@@ -889,7 +891,7 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, unsigned long spell_flags, G
         cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
         affected = true;
     }
-    if (flag_is_set(spell_flags, CSAfF_Armour)
+    if (flag_is_set(spconf->spell_flags, CSAfF_Armour)
     && (!creature_is_immune_to_spell_flags(thing, CSAfF_Armour)))
     {
         if (!creature_affected_with_spell_flags(thing, CSAfF_Armour))
@@ -919,7 +921,7 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, unsigned long spell_flags, G
         }
         affected = true;
     }
-    if (flag_is_set(spell_flags, CSAfF_Rebound)
+    if (flag_is_set(spconf->spell_flags, CSAfF_Rebound)
     && (!creature_is_immune_to_spell_flags(thing, CSAfF_Rebound)))
     {
         if (!creature_affected_with_spell_flags(thing, CSAfF_Rebound))
@@ -928,7 +930,7 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, unsigned long spell_flags, G
         }
         affected = true;
     }
-    if (flag_is_set(spell_flags, CSAfF_Flying)
+    if (flag_is_set(spconf->spell_flags, CSAfF_Flying)
     && (!creature_is_immune_to_spell_flags(thing, CSAfF_Flying)))
     {
         if (!creature_affected_with_spell_flags(thing, CSAfF_Flying))
@@ -938,7 +940,7 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, unsigned long spell_flags, G
         }
         affected = true;
     }
-    if (flag_is_set(spell_flags, CSAfF_Invisibility)
+    if (flag_is_set(spconf->spell_flags, CSAfF_Invisibility)
     && (!creature_is_immune_to_spell_flags(thing, CSAfF_Invisibility)))
     {
         if (!creature_affected_with_spell_flags(thing, CSAfF_Invisibility))
@@ -948,7 +950,7 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, unsigned long spell_flags, G
         }
         affected = true;
     }
-    if (flag_is_set(spell_flags, CSAfF_Sight)
+    if (flag_is_set(spconf->spell_flags, CSAfF_Sight)
     && (!creature_is_immune_to_spell_flags(thing, CSAfF_Sight)))
     {
         if (!creature_affected_with_spell_flags(thing, CSAfF_Sight))
@@ -957,7 +959,7 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, unsigned long spell_flags, G
         }
         affected = true;
     }
-    if (flag_is_set(spell_flags, CSAfF_Light)
+    if (flag_is_set(spconf->spell_flags, CSAfF_Light)
     && (!creature_is_immune_to_spell_flags(thing, CSAfF_Light)))
     {
         if (!crstat->illuminated)
@@ -970,7 +972,7 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, unsigned long spell_flags, G
             affected = true;
         }
     }
-    if (flag_is_set(spell_flags, CSAfF_Disease)
+    if (flag_is_set(spconf->spell_flags, CSAfF_Disease)
     && (!creature_is_immune_to_spell_flags(thing, CSAfF_Disease)))
     {
         if (!creature_affected_with_spell_flags(thing, CSAfF_Disease))
@@ -1011,7 +1013,7 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, unsigned long spell_flags, G
         cctrl->active_disease_spell = spell_idx; // Remember the spell_idx for a later use.
         affected = true;
     }
-    if (flag_is_set(spell_flags, CSAfF_Chicken)
+    if (flag_is_set(spconf->spell_flags, CSAfF_Chicken)
     && (!creature_is_immune_to_spell_flags(thing, CSAfF_Chicken)))
     {
         if (!creature_affected_with_spell_flags(thing, CSAfF_Chicken))
@@ -1027,7 +1029,7 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, unsigned long spell_flags, G
         }
         affected = true;
     }
-    if (flag_is_set(spell_flags, CSAfF_MadKilling)
+    if (flag_is_set(spconf->spell_flags, CSAfF_MadKilling)
     && (!creature_is_immune_to_spell_flags(thing, CSAfF_MadKilling)))
     {
         if (!creature_affected_with_spell_flags(thing, CSAfF_MadKilling))
@@ -1036,7 +1038,7 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, unsigned long spell_flags, G
         }
         affected = true;
     }
-    if (flag_is_set(spell_flags, CSAfF_ExpLevelUp)
+    if (flag_is_set(spconf->spell_flags, CSAfF_ExpLevelUp)
     && (!creature_is_immune_to_spell_flags(thing, CSAfF_ExpLevelUp)))
     {
         if (!creature_affected_with_spell_flags(thing, CSAfF_ExpLevelUp))
@@ -1045,7 +1047,7 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, unsigned long spell_flags, G
         }
         affected = true;
     }
-    if (flag_is_set(spell_flags, CSAfF_Teleport)
+    if (flag_is_set(spconf->spell_flags, CSAfF_Teleport)
     && (!creature_is_immune_to_spell_flags(thing, CSAfF_Teleport)))
     {
         if (!creature_affected_with_spell_flags(thing, CSAfF_Teleport))
@@ -1056,7 +1058,7 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, unsigned long spell_flags, G
         cctrl->active_teleport_spell = spell_idx; // Remember the spell_idx for a later use.
         affected = true;
     }
-    if (flag_is_set(spell_flags, CSAfF_Timebomb)
+    if (flag_is_set(spconf->spell_flags, CSAfF_Timebomb)
     && (!creature_is_immune_to_spell_flags(thing, CSAfF_Timebomb)))
     {
         if (!creature_affected_with_spell_flags(thing, CSAfF_Timebomb))
@@ -1067,7 +1069,7 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, unsigned long spell_flags, G
         cctrl->active_timebomb_spell = spell_idx; // Remember the spell_idx for a later use.
         affected = true;
     }
-    if (flag_is_set(spell_flags, CSAfF_Freeze)
+    if (flag_is_set(spconf->spell_flags, CSAfF_Freeze)
     && (!creature_is_immune_to_spell_flags(thing, CSAfF_Freeze)))
     {
         if (!creature_affected_with_spell_flags(thing, CSAfF_Freeze))
@@ -1083,7 +1085,7 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, unsigned long spell_flags, G
         creature_set_speed(thing, 0);
         affected = true;
     }
-    if (flag_is_set(spell_flags, CSAfF_Fear)
+    if (flag_is_set(spconf->spell_flags, CSAfF_Fear)
     && (!creature_is_immune_to_spell_flags(thing, CSAfF_Fear)))
     {
         if (!creature_affected_with_spell_flags(thing, CSAfF_Fear))
@@ -1092,7 +1094,7 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, unsigned long spell_flags, G
         }
         affected = true;
     }
-    if (flag_is_set(spell_flags, CSAfF_Heal)
+    if (flag_is_set(spconf->spell_flags, CSAfF_Heal)
     && (!creature_is_immune_to_spell_flags(thing, CSAfF_Heal)))
     {
         // 'CSAfF_Heal' is only for checking config or immunity, flag is never set to creature.
@@ -1119,7 +1121,7 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, unsigned long spell_flags, G
     }
     if (!affected)
     {
-        SYNCDBG(7, "%s: No spell flags %d to set on %s index %d", func_name, (uint)spell_flags, thing_model_name(thing), (int)thing->index);
+        SYNCDBG(7, "%s: No spell flags %d to set on %s index %d", func_name, (uint)spconf->spell_flags, thing_model_name(thing), (int)thing->index);
     }
     return affected;
 }
@@ -1323,7 +1325,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
     if (i != -1)
     {
         // Only fill the spell slot if the creature has at least one spell flags set.
-        if (set_thing_spell_flags(thing, spconf->spell_flags, duration, spconf->linked_power))
+        if (set_thing_spell_flags(thing, spell_idx, duration, spell_lev))
         {
             fill_spell_slot(thing, i, spell_idx, duration);
             if (spconf->aura_effect != 0)
@@ -1336,7 +1338,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
     return;
 }
 
-void reapply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, long spell_lev, long slot_idx)
+void reapply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, long spell_lev, int slot_idx)
 {
     struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
     if (spell_lev > SPELL_MAX_LEVEL)
@@ -1361,7 +1363,7 @@ void reapply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, lon
         duration = pwrdynst->duration;
     }
     // Only reset spell duration if the creature can still be affected by at least one spell flags set.
-    if (set_thing_spell_flags(thing, spconf->spell_flags, duration, spconf->linked_power))
+    if (set_thing_spell_flags(thing, spell_idx, duration, spell_lev))
     {
         struct CastedSpellData *cspell = &cctrl->casted_spells[slot_idx];
         cspell->duration = duration;
@@ -1399,7 +1401,7 @@ void apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, long 
     }
     if (creature_is_immune_to_spell_flags(thing, spconf->spell_flags))
     {
-        SYNCDBG(7, "Creature %s index %d is immune to all spell flags %d set on %s", thing_model_name(thing), (int)thing->index, (uint)spell_flags, spell_code_name(spell_idx));
+        SYNCDBG(7, "Creature %s index %d is immune to all spell flags %d set on %s", thing_model_name(thing), (int)thing->index, (uint)spconf->spell_flags, spell_code_name(spell_idx));
         return; // Exit the function, creature is immune to all spell flags set on spell_idx.
     }
     if ((spconf->spell_flags == 0)

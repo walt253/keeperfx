@@ -154,8 +154,8 @@ TbBool creature_affected_with_spell_flags_f(const struct Thing *thing, unsigned 
 TbBool creature_is_immune_to_spell_flags_f(const struct Thing *thing, unsigned long spell_flags, const char *func_name);
 #define creature_is_immune_to_spell_flags(thing, spell_flags) creature_is_immune_to_spell_flags_f(thing, spell_flags, __func__)
 
-TbBool set_thing_spell_flags_f(struct Thing *thing, unsigned long spell_flags, GameTurnDelta duration, PowerKind linked_power, const char *func_name);
-#define set_thing_spell_flags(thing, spell_flags, duration, linked_power) set_thing_spell_flags_f(thing, spell_flags, duration, linked_power, __func__)
+TbBool set_thing_spell_flags_f(struct Thing *thing, SpellKind spell_idx, GameTurnDelta duration, long spell_lev, const char *func_name);
+#define set_thing_spell_flags(thing, spell_idx, duration, spell_lev) set_thing_spell_flags_f(thing, spell_idx, duration, spell_lev, __func__)
 TbBool clear_thing_spell_flags_f(struct Thing *thing, unsigned long spell_flags, const char *func_name);
 #define clear_thing_spell_flags(thing, spell_flags) clear_thing_spell_flags_f(thing, spell_flags, __func__)
 void clean_spell_flags_f(struct Thing *thing, unsigned long spell_flags, const char *func_name);
@@ -163,7 +163,7 @@ void clean_spell_flags_f(struct Thing *thing, unsigned long spell_flags, const c
 
 void apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, long spell_lev);
 void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, long spell_lev);
-void reapply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, long spell_lev, long slot_idx);
+void reapply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, long spell_lev, int slot_idx);
 void terminate_thing_spell_effect(struct Thing *thing, SpellKind spell_idx);
 void process_thing_spell_effects(struct Thing *thing);
 void process_thing_spell_effects_while_blocked(struct Thing *thing);

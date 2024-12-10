@@ -905,7 +905,7 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, SpellKind spell_idx, GameTur
                 if (!thing_is_invalid(ntng))
                 {
                     cctrl->spell_tngidx_armour[k] = ntng->index;
-                    ntng->health = pwrdynst->strength[spell_lev] + 1;
+                    ntng->health = pwrdynst->strength[spell_lev] + 1; // TODO: Make it possible to have it unlinked.
                     ntng->armor.belongs_to = thing->index;
                     ntng->armor.shspeed = k;
                     ntng->move_angle_xy = thing->move_angle_xy;
@@ -996,7 +996,7 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, SpellKind spell_idx, GameTur
                 if (!thing_is_invalid(ntng))
                 {
                     cctrl->spell_tngidx_disease[j] = ntng->index;
-                    ntng->health = pwrdynst->strength[spell_lev] + 1;
+                    ntng->health = pwrdynst->strength[spell_lev] + 1; // TODO: Make it possible to have it unlinked.
                     ntng->disease.belongs_to = thing->index;
                     ntng->disease.effect_slot = j;
                     ntng->move_angle_xy = thing->move_angle_xy;
@@ -1396,7 +1396,7 @@ void apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, long 
     || (spconf->spell_flags == CSAfF_CalledToArms)
     || (spconf->spell_flags == CSAfF_Wind))
     {
-        WARNLOG("Spell %s is trying to apply spell flags %s that has no effect on it", spell_code_name(spell_idx), (uint)spconf->spell_flags);
+        WARNLOG("Spell %s is trying to apply spell flags %d that has no effect on it", spell_code_name(spell_idx), (uint)spconf->spell_flags);
         return; // Exit the function, no further processing is needed for these cases.
     }
     if (creature_is_immune_to_spell_flags(thing, spconf->spell_flags))

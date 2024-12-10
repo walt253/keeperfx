@@ -375,8 +375,8 @@ struct SpellConfig {
     ThingModel crtr_summon_model;
     short crtr_summon_level;
     short crtr_summon_amount;
-    short linked_power;
-    short duration;
+    PowerKind linked_power;
+    GameTurnDelta duration;
     short aura_effect;
     unsigned long spell_flags;
 };

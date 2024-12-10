@@ -876,6 +876,7 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, SpellKind spell_idx, GameTur
     {
         if (!creature_affected_with_spell_flags(thing, CSAfF_Slow))
         {
+            // Re-set the flag if it was cleared before spell termination.
             set_flag(cctrl->spell_flags, CSAfF_Slow);
         }
         cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
@@ -1078,7 +1079,7 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, SpellKind spell_idx, GameTur
             set_flag(cctrl->stateblock_flags, CCSpl_Freeze);
             if ((thing->movement_flags & TMvF_Flying) != 0)
             {
-                set_flag(cctrl->stateblock_flags, CCSpl_Grounded);
+                set_flag(thing->movement_flags, TMvF_Grounded);
                 clear_flag(thing->movement_flags, TMvF_Flying);
             }
         }
@@ -1272,10 +1273,10 @@ TbBool clear_thing_spell_flags_f(struct Thing *thing, unsigned long spell_flags,
     {
         clear_flag(cctrl->spell_flags, CSAfF_Freeze);
         clear_flag(cctrl->stateblock_flags, CCSpl_Freeze);
-        if (flag_is_set(cctrl->stateblock_flags, CCSpl_Grounded))
+        if (flag_is_set(thing->movement_flags, TMvF_Grounded))
         {
             set_flag(thing->movement_flags, TMvF_Flying);
-            clear_flag(cctrl->stateblock_flags, CCSpl_Grounded);
+            clear_flag(thing->movement_flags, TMvF_Grounded);
         }
         cleared = true;
     }
@@ -1818,7 +1819,7 @@ void creature_cast_spell_at_thing(struct Thing *castng, struct Thing *targetng, 
         else
             hit_type = THit_CrtrsOnlyNotOwn;
     }
-    const struct SpellConfig* spconf = get_spell_config(spl_idx);
+    struct SpellConfig* spconf = get_spell_config(spl_idx);
     if (spell_config_is_invalid(spconf))
     {
         ERRORLOG("The %s owned by player %d tried to cast invalid spell %d",thing_model_name(castng),(int)castng->owner,(int)spl_idx);
@@ -1930,7 +1931,7 @@ void thing_summon_temporary_creature(struct Thing* creatng, ThingModel model, ch
                             famlrtng->veloc_push_add.y.val += CREATURE_RANDOM(thing, 161) - 80;
                             famlrtng->veloc_push_add.z.val += 0;
                             set_flag(famlrtng->state_flags, TF1_PushAdd);
-                            set_flag(famcctrl->stateblock_flags, CCSpl_MagicFall);
+                            set_flag(famlrtng->movement_flags, TMvF_MagicFall);
                             famlrtng->move_angle_xy = 0;
                         }
                     }
@@ -1960,7 +1961,7 @@ void level_up_familiar(struct Thing* famlrtng)
     struct CreatureControl *summonercctrl = creature_control_get_from_thing(summonertng);
     short summonerxp = summonercctrl->explevel;
     //get spell the summoner used to make this familiar
-    const struct SpellConfig* spconf = get_spell_config(famlrcctrl->summon_spl_idx);
+    struct SpellConfig* spconf = get_spell_config(famlrcctrl->summon_spl_idx);
     char level = spconf->crtr_summon_level;
     //calculate correct level for familiar
     short sumxp = level - 1;
@@ -2023,7 +2024,7 @@ void remove_creature_from_summon_list(struct Dungeon* dungeon, ThingIndex famlrt
 void creature_cast_spell(struct Thing *castng, SpellKind spl_idx, long shot_lvl, MapSubtlCoord trg_x, MapSubtlCoord trg_y)
 {
     long i;
-    const struct SpellConfig* spconf = get_spell_config(spl_idx);
+    struct SpellConfig* spconf = get_spell_config(spl_idx);
     struct CreatureControl* cctrl = creature_control_get_from_thing(castng);
     if (creature_control_invalid(cctrl))
     {
@@ -5918,6 +5919,24 @@ HitPoints apply_damage_to_thing_and_display_health(struct Thing *thing, HitPoint
     return cdamage;
 }
 
+void process_magic_fall_effect(struct Thing *thing)
+{
+    if (flag_is_set(thing->movement_flags, TMvF_MagicFall))
+    {
+        GameTurnDelta dturn = game.play_gameturn - thing->creation_turn;
+        if ((dturn & 1) == 0)
+        {
+            struct Thing *effeltng = create_effect_element(&thing->mappos, birth_effect_element[get_player_color_idx(thing->owner)], thing->owner);
+        }
+        struct CreatureStats *crstat = creature_stats_get_from_thing(thing);
+        creature_turn_to_face_angle(thing, thing->move_angle_xy + crstat->max_turning_speed);
+        if ((dturn > 32) || thing_touching_floor(thing))
+        {
+            clear_flag(thing->movement_flags, TMvF_MagicFall);
+        }
+    }
+}
+
 void process_landscape_affecting_creature(struct Thing *thing)
 {
     SYNCDBG(18,"Starting");
@@ -6287,6 +6306,7 @@ TngUpdateRet update_creature(struct Thing *thing)
         cctrl->move_speed = 0;
     }
     process_spells_affected_by_effect_elements(thing);
+    process_magic_fall_effect(thing);
     process_landscape_affecting_creature(thing);
     process_disease(thing);
     move_thing_in_map(thing, &thing->mappos);
@@ -6611,10 +6631,9 @@ struct Thing *script_create_creature_at_location(PlayerNumber plyr_idx, ThingMod
             // Error is already logged
         return INVALID_THING;
     }
-    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     if (fall_from_gate)
     {
-        set_flag(cctrl->stateblock_flags, CCSpl_MagicFall);
+        set_flag(thing->movement_flags, TMvF_MagicFall);
         thing->veloc_push_add.x.val += PLAYER_RANDOM(plyr_idx, 193) - 96;
         thing->veloc_push_add.y.val += PLAYER_RANDOM(plyr_idx, 193) - 96;
         if (flag_is_set(thing->movement_flags, TMvF_Flying))
@@ -6642,6 +6661,7 @@ struct Thing *script_create_creature_at_location(PlayerNumber plyr_idx, ThingMod
             create_effect(&thing->mappos, TngEff_CeilingBreach, thing->owner);
             initialise_thing_state(thing, CrSt_CreatureHeroEntering);
             set_flag(thing->rendering_flags, TRF_Invisible);
+            struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
             cctrl->countdown = 24;
         }
     default:

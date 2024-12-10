@@ -413,8 +413,8 @@ extern const struct NamedCommand powermodel_expand_check_func_type[];
 extern const struct NamedCommand magic_power_commands[];
 extern const Expand_Check_Func powermodel_expand_check_func_list[];
 /******************************************************************************/
-struct SpellConfig *get_spell_config(int mgc_idx);
-TbBool spell_config_is_invalid(const struct SpellConfig *mgcinfo);
+struct SpellConfig *get_spell_config(SpellKind spell_idx);
+TbBool spell_config_is_invalid(struct SpellConfig *mgcinfo);
 TextStringId get_power_description_strindex(PowerKind pwkind);
 TextStringId get_power_name_strindex(PowerKind pwkind);
 TbBool power_is_instinctive(int pwkind);

@@ -4848,7 +4848,6 @@ long player_list_creature_filter_in_fight_and_not_affected_by_spell(const struct
         {
             return -1;
         }
-        // Stop creatures from casting spells on enemies that are immune, but perhaps they shouldn't be that smart?
         if (creature_is_immune_to_spell_flags(thing, spconf->spell_flags))
         {
             return -1;

@@ -3057,6 +3057,11 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
                 value1 = get_id(creature_desc, scline->tp[2]);
             }
         }
+        else if (creatvar == 37) // SPELLIMMUNITY
+        {
+            value1 = get_id(magic_spell_flags, scline->tp[2]);
+            value2 = atoi(scline->tp[3]);
+        }
         else
         {
             value1 = atoi(scline->tp[2]);
@@ -3596,6 +3601,214 @@ static void set_creature_configuration_process(struct ScriptContext* context)
             break;
         case 36: // TORTUREKIND
             crstat->torture_kind = value;
+            break;
+        case 37: // SPELLIMMUNITY
+            switch (value)
+            {
+                case 1: // SLOW
+                    if (value2 > 0)
+                    {
+                        set_flag(crstat->immunity_flags, CSAfF_Slow);
+                    }
+                    else
+                    {
+                        clear_flag(crstat->immunity_flags, CSAfF_Slow);
+                    }
+                    break;
+                case 2: // SPEED
+                    if (value2 > 0)
+                    {
+                        set_flag(crstat->immunity_flags, CSAfF_Speed);
+                    }
+                    else
+                    {
+                        clear_flag(crstat->immunity_flags, CSAfF_Speed);
+                    }
+                    break;
+                case 3: // ARMOUR
+                    if (value2 > 0)
+                    {
+                        set_flag(crstat->immunity_flags, CSAfF_Armour);
+                    }
+                    else
+                    {
+                        clear_flag(crstat->immunity_flags, CSAfF_Armour);
+                    }
+                    break;
+                case 4: // REBOUND
+                    if (value2 > 0)
+                    {
+                        set_flag(crstat->immunity_flags, CSAfF_Rebound);
+                    }
+                    else
+                    {
+                        clear_flag(crstat->immunity_flags, CSAfF_Rebound);
+                    }
+                    break;
+                case 5: // FLYING
+                    if (value2 > 0)
+                    {
+                        set_flag(crstat->immunity_flags, CSAfF_Flying);
+                    }
+                    else
+                    {
+                        clear_flag(crstat->immunity_flags, CSAfF_Flying);
+                    }
+                    break;
+                case 6: // INVISIBILITY
+                    if (value2 > 0)
+                    {
+                        set_flag(crstat->immunity_flags, CSAfF_Invisibility);
+                    }
+                    else
+                    {
+                        clear_flag(crstat->immunity_flags, CSAfF_Invisibility);
+                    }
+                    break;
+                case 7: // SIGHT
+                    if (value2 > 0)
+                    {
+                        set_flag(crstat->immunity_flags, CSAfF_Sight);
+                    }
+                    else
+                    {
+                        clear_flag(crstat->immunity_flags, CSAfF_Sight);
+                    }
+                    break;
+                case 8: // LIGHT
+                    if (value2 > 0)
+                    {
+                        set_flag(crstat->immunity_flags, CSAfF_Light);
+                    }
+                    else
+                    {
+                        clear_flag(crstat->immunity_flags, CSAfF_Light);
+                    }
+                    break;
+                case 9: // DISEASE
+                    if (value2 > 0)
+                    {
+                        set_flag(crstat->immunity_flags, CSAfF_Disease);
+                    }
+                    else
+                    {
+                        clear_flag(crstat->immunity_flags, CSAfF_Disease);
+                    }
+                    break;
+                case 10: // CHICKEN
+                    if (value2 > 0)
+                    {
+                        set_flag(crstat->immunity_flags, CSAfF_Chicken);
+                    }
+                    else
+                    {
+                        clear_flag(crstat->immunity_flags, CSAfF_Chicken);
+                    }
+                    break;
+                case 11: // POISON_CLOUD
+                    if (value2 > 0)
+                    {
+                        set_flag(crstat->immunity_flags, CSAfF_PoisonCloud);
+                    }
+                    else
+                    {
+                        clear_flag(crstat->immunity_flags, CSAfF_PoisonCloud);
+                    }
+                    break;
+                case 12: // CALL_TO_ARMS
+                    if (value2 > 0)
+                    {
+                        set_flag(crstat->immunity_flags, CSAfF_CalledToArms);
+                    }
+                    else
+                    {
+                        clear_flag(crstat->immunity_flags, CSAfF_CalledToArms);
+                    }
+                    break;
+                case 13: // MAD_KILLING
+                    if (value2 > 0)
+                    {
+                        set_flag(crstat->immunity_flags, CSAfF_MadKilling);
+                    }
+                    else
+                    {
+                        clear_flag(crstat->immunity_flags, CSAfF_MadKilling);
+                    }
+                    break;
+                case 14: // HEAL
+                    if (value2 > 0)
+                    {
+                        set_flag(crstat->immunity_flags, CSAfF_Heal);
+                    }
+                    else
+                    {
+                        clear_flag(crstat->immunity_flags, CSAfF_Heal);
+                    }
+                    break;
+                case 15: // EXP_LEVEL_UP
+                    if (value2 > 0)
+                    {
+                        set_flag(crstat->immunity_flags, CSAfF_ExpLevelUp);
+                    }
+                    else
+                    {
+                        clear_flag(crstat->immunity_flags, CSAfF_ExpLevelUp);
+                    }
+                    break;
+                case 16: // TELEPORT
+                    if (value2 > 0)
+                    {
+                        set_flag(crstat->immunity_flags, CSAfF_Teleport);
+                    }
+                    else
+                    {
+                        clear_flag(crstat->immunity_flags, CSAfF_Teleport);
+                    }
+                    break;
+                case 17: // TIMEBOMB
+                    if (value2 > 0)
+                    {
+                        set_flag(crstat->immunity_flags, CSAfF_Timebomb);
+                    }
+                    else
+                    {
+                        clear_flag(crstat->immunity_flags, CSAfF_Timebomb);
+                    }
+                    break;
+                case 18: // WIND
+                    if (value2 > 0)
+                    {
+                        set_flag(crstat->immunity_flags, CSAfF_Wind);
+                    }
+                    else
+                    {
+                        clear_flag(crstat->immunity_flags, CSAfF_Wind);
+                    }
+                    break;
+                case 19: // FREEZE
+                    if (value2 > 0)
+                    {
+                        set_flag(crstat->immunity_flags, CSAfF_Freeze);
+                    }
+                    else
+                    {
+                        clear_flag(crstat->immunity_flags, CSAfF_Freeze);
+                    }
+                    break;
+                case 20: // FEAR
+                    if (value2 > 0)
+                    {
+                        set_flag(crstat->immunity_flags, CSAfF_Fear);
+                    }
+                    else
+                    {
+                        clear_flag(crstat->immunity_flags, CSAfF_Fear);
+                    }
+                    break;
+                default:
+                    CONFWRNLOG("Unrecognized attribute (%d)", creature_variable);
+                    break;
+            }
             break;
         case ccr_comment:
             break;

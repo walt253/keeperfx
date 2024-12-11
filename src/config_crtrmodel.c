@@ -42,6 +42,7 @@
 #include "creature_states.h"
 #include "creature_states_mood.h"
 #include "player_data.h"
+#include "console_cmd.h"
 #include "custom_sprites.h"
 #include "lvl_script_lib.h"
 #include "post_inc.h"

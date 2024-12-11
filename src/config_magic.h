@@ -216,7 +216,6 @@ struct SpellConfigStats {
     char code_name[COMMAND_WORD_LEN];
 };
 
-
 struct ShotHitConfig {
     ThingModel effect_model; /**< Effect kind to be created when the shot hits. */
     short sndsample_idx; /**< Base sound sample to be played on hit. */
@@ -407,6 +406,7 @@ extern struct NamedCommand spell_desc[];
 extern struct NamedCommand shot_desc[];
 extern struct NamedCommand power_desc[];
 extern struct SpellConfig spell_config[];
+extern const struct NamedCommand magic_spell_flags[];
 extern const struct NamedCommand powermodel_properties_commands[];
 extern const struct LongNamedCommand powermodel_castability_commands[];
 extern const struct NamedCommand powermodel_expand_check_func_type[];

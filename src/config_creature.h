@@ -214,6 +214,7 @@ struct CreatureModelConfig {
     char name[COMMAND_WORD_LEN];
     long namestr_idx;
     unsigned long model_flags;
+    unsigned long immunity_flags;
 };
 
 /**

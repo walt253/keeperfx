@@ -645,6 +645,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
           crstat->flying = false;
           crstat->can_see_invisible = false;
           crstat->can_go_locked_doors = false;
+          crstat->immunity_flags = 0; // Done here to preserve backward compatibility fix.
           crconf->model_flags = 0;
           while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {

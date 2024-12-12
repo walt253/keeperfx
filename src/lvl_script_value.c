@@ -814,6 +814,39 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
               clear_flag(crconf->model_flags, CMF_EventfulDeath);
           }
           break;
+      case 35: // IMMUNE_TO_CHARM
+          crstat->immune_to_charm = val4;
+          break;
+      case 36: // IMMUNE_TO_FREEZE
+          crstat->immune_to_freeze = val4;
+          break;
+      case 37: // IMMUNE_TO_SLOW
+          crstat->immune_to_slow = val4;
+          break;
+      case 38: // SELF_RECOVERY
+          crstat->self_recovery = val4;
+          break;
+      case 39: // RESIST_TO_MAGIC
+          crstat->resist_to_magic = val4;
+          break;
+      case 40: // MECHANICAL
+          crstat->is_mechanical = val4;
+          break;
+      case 41: // UNDEAD
+          crstat->is_undead = val4;
+          break;
+      case 42: // THIEF
+          crstat->is_thief = val4;
+          break;
+      case 43: // ETHEREAL
+          crstat->ethereal = val4;
+          break;
+      case 44: // HOARFROST
+          crstat->hoarfrost = val4;
+          break;
+      case 45: // BOSS
+          crstat->boss = val4;
+          break;
       default:
           SCRPTERRLOG("Unknown creature property '%ld'", val3);
           break;

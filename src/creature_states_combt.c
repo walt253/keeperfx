@@ -1853,14 +1853,16 @@ CrInstance get_best_self_preservation_instance_to_use(const struct Thing *thing)
 {
     struct InstanceInfo* inst_inf;
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    struct SpellConfig *spconf;
     for (int p = PRIORITY_MAX; p >= 0; p--)
     {
         for (int i = 0; i < game.conf.crtr_conf.instances_count; i++)
         {
             inst_inf = creature_instance_info_get(i);
+            spconf = get_spell_config(inst_inf->func_params[0]);
             if (inst_inf->priority < p) // Instances with low priority are used last.
                 continue;
-            if ((flag_is_set(inst_inf->instance_property_flags, InstPF_SelfBuff)) && ((inst_inf->func_idx != 2) || (!creature_affected_by_spell(thing, inst_inf->func_params[0]))))
+            if ((flag_is_set(inst_inf->instance_property_flags, InstPF_SelfBuff)) && ((inst_inf->func_idx != 2) || (!creature_affected_with_spell_flags(thing, spconf->spell_flags))))
             {
                 if (flag_is_set(inst_inf->instance_property_flags, InstPF_OnlyInjured))
                 {
@@ -1891,15 +1893,17 @@ CrInstance get_instance_casting(const struct Thing *thing)
 {
     struct InstanceInfo* inst_inf;
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    struct SpellConfig *spconf;
     CrtrStateId state_type = get_creature_state_type(thing);
     for (int p = PRIORITY_MAX; p >= 0; p--)
     {
         for (int i = 0; i < game.conf.crtr_conf.instances_count; i++)
         {
             inst_inf = creature_instance_info_get(i);
+            spconf = get_spell_config(inst_inf->func_params[0]);
             if (inst_inf->priority < p) // Instances with low priority are used last.
                 continue;
-            if ((inst_inf->func_idx != 2) || (!creature_affected_by_spell(thing, inst_inf->func_params[0])))
+            if ((inst_inf->func_idx != 2) || (!creature_affected_with_spell_flags(thing, spconf->spell_flags)))
             {
                 if ( // Start of the condition block.
 ((!creature_is_kept_in_custody(thing)) && // Not on custody condition block start here.

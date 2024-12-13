@@ -1076,7 +1076,8 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, SpellKind spell_idx, GameTur
         affected = true;
     }
     if (flag_is_set(spconf->spell_flags, CSAfF_Freeze)
-    && (!creature_is_immune_to_spell_flags(thing, CSAfF_Freeze)))
+    && ((!creature_is_immune_to_spell_flags(thing, CSAfF_Freeze))
+    || (cctrl->force_to_freeze)))
     {
         if (!creature_affected_with_spell_flags(thing, CSAfF_Freeze))
         {
@@ -1087,6 +1088,10 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, SpellKind spell_idx, GameTur
                 set_flag(thing->movement_flags, TMvF_Grounded);
                 clear_flag(thing->movement_flags, TMvF_Flying);
             }
+        }
+        if (cctrl->force_to_freeze)
+        {
+            cctrl->force_to_freeze = false;
         }
         creature_set_speed(thing, 0);
         affected = true;

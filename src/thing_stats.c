@@ -1254,8 +1254,8 @@ HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, DamageType d
         }
         // Weaknesses&Resistances to Frostbite damage type.
         if (damage_type == DmgT_Frostbite) {
-            // IMMUNE_TO_FREEZE negates the damage.
-            if (crstat->immune_to_freeze != 0) {
+            // Immunity negates the damage.
+            if (creature_is_immune_to_spell_flags(thing, CSAfF_Freeze)) {
                 return 0;
             }
             // If HurtByLava is set to 0 then apply a weakness.
@@ -1281,17 +1281,17 @@ HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, DamageType d
         }
         // Weaknesses&Resistances to Heatburn damage type.
         if (damage_type == DmgT_Heatburn) {
-            // If creature is frozen then apply a weakness and unfroze it.
+            // If creature is frozen then apply a weakness and defrost it.
             if (creature_affected_with_spell_flags(thing, CSAfF_Freeze)) {
                 dmg *= 8;
-                terminate_thing_spell_effect(thing, 3);
+                clean_spell_flags(thing, CSAfF_Freeze);
             }
             // HOARFROST weakness.
             if (crstat->hoarfrost != 0) {
                 dmg *= 4;
             }
-            // IMMUNE_TO_FREEZE weakness ONLY if HurtByLava is NOT set to 0.
-            if ((crstat->immune_to_freeze != 0) && (crstat->hurt_by_lava != 0)) {
+            // Immunity weakness ONLY if HurtByLava is NOT set to 0.
+            if ((creature_is_immune_to_spell_flags(thing, CSAfF_Freeze)) && (crstat->hurt_by_lava != 0)) {
                 dmg *= 4;
             }
             // ARACHNID weakness.
@@ -1394,21 +1394,20 @@ HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, DamageType d
         }
         // Weaknesses&Resistances to Hoarfrost damage type.
         if (damage_type == DmgT_Hoarfrost) {
-            // Apply SplK_Freeze EVEN on IMMUNE_TO_FREEZE if not HOARFROST.
+            // Apply CSAfF_Freeze EVEN on immunity if not HOARFROST.
             if (crstat->hoarfrost == 0) {
                 if (creature_affected_with_spell_flags(thing, CSAfF_Freeze)) {
-                    // SplK_Freeze weakness.
-                    dmg *= 4;
+                    dmg *= 4; // CSAfF_Freeze weakness.
                 } else {
                     cctrl->force_to_freeze = true;
-                    apply_spell_effect_to_thing(thing, 3, 8);
+                    apply_spell_effect_to_thing(thing, 3, 1); // Hardcoded to SplK_Freeze for now.
                 }
             } else {
                 // HOARFROST resistance.
                 dmg /= 4;
             }
-            // Not IMMUNE_TO_FREEZE weakness.
-            if (crstat->immune_to_freeze == 0) {
+            // No immunity weakness.
+            if (!creature_is_immune_to_spell_flags(thing, CSAfF_Freeze)) {
                 dmg *= 2;
             }
             // If HurtByLava is set to 0 then apply a weakness.

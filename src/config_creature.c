@@ -436,6 +436,7 @@ void init_creature_model_stats(void)
         {
             crstat->hostile_towards[n] = 0;
         }
+        crstat->immunity_flags = 0;
         crconf->namestr_idx = 0;
         crconf->model_flags = 0;
         // Attraction block.
@@ -524,8 +525,6 @@ void init_creature_model_stats(void)
         crstat->partner_training = 0;
         // ANSO specific.
         crstat->immune_to_charm = false;
-        crstat->immune_to_freeze = false;
-        crstat->immune_to_slow = false;
         crstat->self_recovery = false;
         crstat->resist_to_magic = false;
         crstat->is_mechanical = false;

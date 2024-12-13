@@ -817,34 +817,28 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       case 35: // IMMUNE_TO_CHARM
           crstat->immune_to_charm = val4;
           break;
-      case 36: // IMMUNE_TO_FREEZE
-          crstat->immune_to_freeze = val4;
-          break;
-      case 37: // IMMUNE_TO_SLOW
-          crstat->immune_to_slow = val4;
-          break;
-      case 38: // SELF_RECOVERY
+      case 36: // SELF_RECOVERY
           crstat->self_recovery = val4;
           break;
-      case 39: // RESIST_TO_MAGIC
+      case 37: // RESIST_TO_MAGIC
           crstat->resist_to_magic = val4;
           break;
-      case 40: // MECHANICAL
+      case 38: // MECHANICAL
           crstat->is_mechanical = val4;
           break;
-      case 41: // UNDEAD
+      case 39: // UNDEAD
           crstat->is_undead = val4;
           break;
-      case 42: // THIEF
+      case 40: // THIEF
           crstat->is_thief = val4;
           break;
-      case 43: // ETHEREAL
+      case 41: // ETHEREAL
           crstat->ethereal = val4;
           break;
-      case 44: // HOARFROST
+      case 42: // HOARFROST
           crstat->hoarfrost = val4;
           break;
-      case 45: // BOSS
+      case 43: // BOSS
           crstat->boss = val4;
           break;
       default:

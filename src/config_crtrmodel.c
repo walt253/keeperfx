@@ -622,8 +622,6 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
           crstat->can_see_invisible = false;
           crstat->can_go_locked_doors = false;
           crstat->immune_to_charm = false;
-          crstat->immune_to_freeze = false;
-          crstat->immune_to_slow = false;
           crstat->self_recovery = false;
           crstat->resist_to_magic = false;
           crstat->is_mechanical = false;
@@ -775,43 +773,35 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
                 crstat->immune_to_charm = true;
                 n++;
                 break;
-            case 36: // IMMUNE_TO_FREEZE
-                crstat->immune_to_freeze = true;
-                n++;
-                break;
-            case 37: // IMMUNE_TO_SLOW
-                crstat->immune_to_slow = true;
-                n++;
-                break;
-            case 38: // SELF_RECOVERY
+            case 36: // SELF_RECOVERY
                 crstat->self_recovery = true;
                 n++;
                 break;
-            case 39: // RESIST_TO_MAGIC
+            case 37: // RESIST_TO_MAGIC
                 crstat->resist_to_magic = true;
                 n++;
                 break;
-            case 40: // MECHANICAL
+            case 38: // MECHANICAL
                 crstat->is_mechanical = true;
                 n++;
                 break;
-            case 41: // UNDEAD
+            case 39: // UNDEAD
                 crstat->is_undead = true;
                 n++;
                 break;
-            case 42: // THIEF
+            case 40: // THIEF
                 crstat->is_thief = true;
                 n++;
                 break;
-            case 43: // ETHEREAL
+            case 41: // ETHEREAL
                 crstat->ethereal = true;
                 n++;
                 break;
-            case 44: // HOARFROST
+            case 42: // HOARFROST
                 crstat->hoarfrost = true;
                 n++;
                 break;
-            case 45: // BOSS
+            case 43: // BOSS
                 crstat->boss = true;
                 n++;
                 break;

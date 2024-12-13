@@ -333,12 +333,12 @@ const struct NamedCommand magic_use_func_commands[] = {
     {"magic_use_power_hold_audience",   12},
     {"magic_use_power_armageddon",      13},
     {"magic_use_power_tunneller",       14},
-    {"magic_use_power_meteor_storm",    19},
-    {"magic_use_power_mighty_infusion", 20},
-    {"magic_use_power_mass_teleport",   21},
-    {"magic_use_power_fart",            22},
-    {"magic_use_power_summon_creature", 23},
-    {"magic_use_power_eruption",        24},
+    {"magic_use_power_meteor_storm",    15},
+    {"magic_use_power_mighty_infusion", 16},
+    {"magic_use_power_mass_teleport",   17},
+    {"magic_use_power_fart",            18},
+    {"magic_use_power_summon_creature", 19},
+    {"magic_use_power_eruption",        20},
     {NULL,                               0},
 };
 

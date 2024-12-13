@@ -6164,9 +6164,9 @@ void process_landscape_affecting_creature(struct Thing *thing)
         {
             if (crstat->hurt_by_lava == 0)
             {
-                if (creature_affected_by_spell(thing, SplK_Freeze))
+                if (creature_affected_with_spell_flags(thing, CSAfF_Freeze))
                 {
-                    terminate_thing_spell_effect(thing, SplK_Freeze);
+                    clean_spell_flags(thing, CSAfF_Freeze);
                 }
             } else {
                 apply_damage_to_thing_and_display_health(thing, crstat->hurt_by_lava, DmgT_Heatburn, -1);
@@ -6618,6 +6618,7 @@ void process_creature_using_gold(struct Thing *thing)
     return;
 }
 
+/*
 void process_creature_buying_and_using_potion(struct Thing *thing)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
@@ -6773,6 +6774,7 @@ void process_creature_buying_and_using_potion(struct Thing *thing)
     }
     return;
 }
+*/
 
 void process_creature_pooping_thing(struct Thing *thing)
 {

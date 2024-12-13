@@ -4021,7 +4021,7 @@ void get_creature_instance_times(const struct Thing *thing, long inst_idx, long 
             itime -= itime / 4;
         }
     }
-    if (creature_affected_by_spell(thing, SplK_Rage))
+    if (creature_affected_with_spell_flags(thing, CSAfF_Rage))
     {
         aitime /= 2;
         itime /= 2;

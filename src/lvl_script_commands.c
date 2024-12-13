@@ -3867,6 +3867,7 @@ static void set_creature_configuration_process(struct ScriptContext* context)
                     CONFWRNLOG("Unrecognized attribute (%d)", creature_variable);
                     break;
             }
+            break;
         case 38: // HOSTILETOWARDS
             // Assume the mapmaker wants to reset it.
             for (int i = 0; i < CREATURE_TYPES_MAX; i++)

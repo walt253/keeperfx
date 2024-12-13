@@ -1349,7 +1349,7 @@ HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, DamageType d
         // Weaknesses&Resistances to Respiratory damage type.
         if (damage_type == DmgT_Respiratory) {
             // IMMUNE_TO_GAS or MECHANICAL negates the damage.
-            if ((crstat->immune_to_gas != 0) || (crstat->is_mechanical != 0)) {
+            if (creature_is_immune_to_spell_flags(thing, CSAfF_PoisonCloud) || (crstat->is_mechanical != 0)) {
                 return 0;
             }
             // BLEEDS weakness.

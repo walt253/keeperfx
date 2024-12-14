@@ -327,6 +327,8 @@ void set_player_state(struct PlayerInfo *player, short nwrk_state, long chosen_k
     case PSt_CallToArms:
         player->chosen_power_kind = chosen_kind;
         break;
+    case PSt_CtrlDirect:
+    case PSt_CtrlPassngr:
     case PSt_FreeCtrlPassngr:
     case PSt_FreeCtrlDirect:
         player->chosen_power_kind = PwrK_POSSESS;
@@ -407,6 +409,8 @@ void set_player_state(struct PlayerInfo *player, short nwrk_state, long chosen_k
         break;
   case PSt_FreeCtrlPassngr:
   case PSt_FreeCtrlDirect:
+  case PSt_CtrlPassngr:
+  case PSt_CtrlDirect:
         player->chosen_power_kind = PwrK_POSSESS;
         break;
   case PSt_FreeDestroyWalls:

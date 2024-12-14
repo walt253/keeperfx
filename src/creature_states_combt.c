@@ -1876,7 +1876,7 @@ CrInstance get_best_self_preservation_instance_to_use(const struct Thing *thing)
             spconf = get_spell_config(inst_inf->func_params[0]);
             if (inst_inf->priority < p) // Instances with low priority are used last.
                 continue;
-            if ((flag_is_set(inst_inf->instance_property_flags, InstPF_SelfBuff)) && ((inst_inf->func_idx != 2) || (!creature_affected_with_spell_flags(thing, spconf->spell_flags))))
+            if ((flag_is_set(inst_inf->instance_property_flags, InstPF_SelfBuff)) && ((inst_inf->func_idx != 2) || (!creature_under_spell_effect(thing, spconf->spell_flags))))
             {
                 if (flag_is_set(inst_inf->instance_property_flags, InstPF_OnlyInjured))
                 {

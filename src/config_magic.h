@@ -96,9 +96,11 @@ enum CreatureSpellAffectedFlags {
     CSAfF_Grounded     = 0x008000,
     CSAfF_Timebomb     = 0x010000,
     CSAfF_Wind         = 0x020000,
-    CSAfF_Rage         = 0x040000,
-    CSAfF_DivineShield = 0x080000,
-    CSAfF_MagicMist    = 0x100000,
+    CSAfF_Freeze       = 0x040000, //todo, use this. Still unused.
+    CSAfF_Fear         = 0x080000,
+    CSAfF_Rage         = 0x100000,
+    CSAfF_DivineShield = 0x200000,
+    CSAfF_MagicMist    = 0x400000,
 };
 
 enum PowerKinds {

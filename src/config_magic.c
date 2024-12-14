@@ -104,12 +104,6 @@ const struct NamedCommand magic_spell_properties[] = {
     {NULL,            0},
 };
 
-const struct NamedCommand magic_spell_properties[] = {
-    {"CLEANSE",       1},
-    {"PERCENT_BASED", 2},
-    {NULL,            0},
-};
-
 const struct NamedCommand magic_shot_commands[] = {
   {"NAME",                   1},
   {"HEALTH",                 2},

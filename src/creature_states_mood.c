@@ -206,21 +206,31 @@ void anger_calculate_creature_is_angry(struct Thing *creatng)
 
 TbBool anger_free_for_anger_increase(struct Thing *creatng)
 {
-    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    if (cctrl->combat_flags != 0) {
-        return false;
+    struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
+    if (!creature_control_invalid(cctrl))
+    {
+        if (cctrl->combat_flags != 0)
+        {
+            return false;
+        }
+        return !creature_affected_by_call_to_arms(creatng);
     }
-    return !creature_affected_by_call_to_arms(creatng);
+    return false;
 }
 
 TbBool anger_free_for_anger_decrease(struct Thing *creatng)
 {
-    // If the creature is mad killing, don't allow it not to be angry.
-    if (creature_under_spell_effect(creatng, CSAfF_MadKilling))
+    struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
+    if (!creature_control_invalid(cctrl))
     {
-        return false;
+        // If the creature is mad killing, don't allow it not to be angry.
+        if (creature_under_spell_effect(creatng, CSAfF_MadKilling))
+        {
+            return false;
+        }
+        return true;
     }
-    return true;
+    return false;
 }
 
 void anger_increase_creature_anger_f(struct Thing *creatng, long anger, AnnoyMotive reason, const char *func_name)

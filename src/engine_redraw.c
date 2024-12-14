@@ -101,41 +101,38 @@ static void draw_creature_view_icons(struct Thing* creatng)
     }
     struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
     struct SpellConfig *spconf;
-    for (SpellKind spell_idx = 0; spell_idx < game.conf.magic_conf.spell_types_count; spell_idx++)
-    { // ^Maybe it should only loop with the actives spells? -> 'for (SpellKind spell_idx = 0; spell_idx < CREATURE_MAX_SPELLS_CASTED_AT; spell_idx++)'
-        spconf = get_spell_config(spell_idx);
-        if ((spconf->spell_flags > 0) && (creature_affected_with_spell_flags(creatng, spconf->spell_flags)))
-        {
-            long spridx = spconf->medsym_sprite_idx;
-            if (spconf->spell_flags == CSAfF_Invisibility)
-            { // Spells with multiples flags shouldn't be affected to not confuse players.
-                if (cctrl->force_visible & 2)
-                {
-                    spridx++;
-                }
-            }
-            else if (flag_is_set(spconf->spell_flags, CSAfF_Timebomb))
+    for (SpellKind spell_idx = 0; spell_idx < CREATURE_MAX_SPELLS_CASTED_AT; spell_idx++)
+    {
+        spconf = get_spell_config(cctrl->casted_spells[spell_idx]);
+        long spridx = spconf->medsym_sprite_idx;
+        if (spconf->spell_flags == CSAfF_Invisibility)
+        { // Spells with multiples flags shouldn't be affected to not confuse players.
+            if (cctrl->force_visible & 2)
             {
-                int tx_units_per_px = (dbc_language > 0) ? scale_ui_value_lofi(16) : (22 * units_per_pixel) / LbTextLineHeight();
-                int h = LbTextLineHeight() * tx_units_per_px / 16;
-                int w = scale_ui_value_lofi(spr->SWidth);
-                if (dbc_language > 0)
-                {
-                    if (MyScreenHeight < 400)
-                    {
-                        w *= 2;
-                    }
-                }
-                LbTextSetWindow(x + scale_ui_value_lofi(spr->SWidth / 2), y - scale_ui_value_lofi(spr->SHeight), w, h);
-                lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;
-                lbDisplay.DrawColour = LbTextGetFontFaceColor();
-                lbDisplayEx.ShadowColour = LbTextGetFontBackColor();
-                char* text = buf_sprintf("%lu", (cctrl->timebomb_countdown / game_num_fps));
-                LbTextDrawResized(0, 0, tx_units_per_px, text);
+                spridx++;
             }
-            draw_gui_panel_sprite_left(x, y, ps_units_per_px, spridx);
-            x += scale_ui_value_lofi(spr->SWidth);
         }
+        else if (flag_is_set(spconf->spell_flags, CSAfF_Timebomb))
+        {
+            int tx_units_per_px = (dbc_language > 0) ? scale_ui_value_lofi(16) : (22 * units_per_pixel) / LbTextLineHeight();
+            int h = LbTextLineHeight() * tx_units_per_px / 16;
+            int w = scale_ui_value_lofi(spr->SWidth);
+            if (dbc_language > 0)
+            {
+                if (MyScreenHeight < 400)
+                {
+                    w *= 2;
+                }
+            }
+            LbTextSetWindow(x + scale_ui_value_lofi(spr->SWidth / 2), y - scale_ui_value_lofi(spr->SHeight), w, h);
+            lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;
+            lbDisplay.DrawColour = LbTextGetFontFaceColor();
+            lbDisplayEx.ShadowColour = LbTextGetFontBackColor();
+            char* text = buf_sprintf("%lu", (cctrl->timebomb_countdown / game_num_fps));
+            LbTextDrawResized(0, 0, tx_units_per_px, text);
+        }
+        draw_gui_panel_sprite_left(x, y, ps_units_per_px, spridx);
+        x += scale_ui_value_lofi(spr->SWidth);
     }
     if ( (cctrl->dragtng_idx != 0) && ((creatng->alloc_flags & TAlF_IsDragged) == 0) )
     {
@@ -638,11 +635,11 @@ void redraw_creature_view(void)
     message_draw();
     gui_draw_all_boxes();
     draw_tooltip();
-    draw_creature_view_icons(thing);
-    if (!gui_box_is_not_valid(gui_cheat_box_3))
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    if (!creature_control_invalid(cctrl))
     {
-        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-        if (!creature_control_invalid(cctrl))
+        draw_creature_view_icons(thing);
+        if (!gui_box_is_not_valid(gui_cheat_box_3))
         {
             struct GuiBoxOption* guop = gui_cheat_box_3->optn_list;
             while (guop->label[0] != '!')

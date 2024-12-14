@@ -3126,8 +3126,8 @@ long task_magic_speed_up(struct Computer2 *comp, struct ComputerTask *ctask)
         }
     }
     else if (computer_able_to_use_power(comp, PwrK_RAGE, ctask->attack_magic.splevel, 1)
-    && !creature_affected_with_spell_flags(creatng, CSAfF_Rage)
-    && !creature_is_immune_to_spell_flags(creatng, CSAfF_Rage))
+    && !creature_under_spell_effect(creatng, CSAfF_Rage)
+    && !creature_is_immune_to_spell_effect(creatng, CSAfF_Rage))
     {
         if (try_game_action(comp, dungeon->owner, GA_UsePwrRage, ctask->attack_magic.splevel, 0, 0, ctask->attack_magic.target_thing_idx, 0) > Lb_OK)
         {

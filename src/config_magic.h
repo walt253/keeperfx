@@ -67,11 +67,6 @@ enum SpellPropertiesFlags {
     SPF_PercentBased   = 0x02, // Damage or healing is based on a percentage of max health instead of a flat value.
 };
 
-enum SpellPropertiesFlags {
-    SPF_Cleanse        = 0x01, // Spell will clear the assigned SpellFlags instead of applying them.
-    SPF_PercentBased   = 0x02, // Damage or healing is based on a percentage of max health instead of a flat value.
-};
-
 enum PowerKinds {
     PwrK_None = 0,
     PwrK_HAND,

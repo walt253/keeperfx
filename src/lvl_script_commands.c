@@ -3743,14 +3743,14 @@ static void set_creature_configuration_process(struct ScriptContext* context)
                         clear_flag(crstat->immunity_flags, CSAfF_PoisonCloud);
                     }
                     break;
-                case 12: // CALL_TO_ARMS
+                case 12: // FREEZE
                     if (value2 > 0)
                     {
-                        set_flag(crstat->immunity_flags, CSAfF_CalledToArms);
+                        set_flag(crstat->immunity_flags, CSAfF_Freeze);
                     }
                     else
                     {
-                        clear_flag(crstat->immunity_flags, CSAfF_CalledToArms);
+                        clear_flag(crstat->immunity_flags, CSAfF_Freeze);
                     }
                     break;
                 case 13: // MAD_KILLING
@@ -3763,7 +3763,17 @@ static void set_creature_configuration_process(struct ScriptContext* context)
                         clear_flag(crstat->immunity_flags, CSAfF_MadKilling);
                     }
                     break;
-                case 14: // HEAL
+                case 14: // FEAR
+                    if (value2 > 0)
+                    {
+                        set_flag(crstat->immunity_flags, CSAfF_Fear);
+                    }
+                    else
+                    {
+                        clear_flag(crstat->immunity_flags, CSAfF_Fear);
+                    }
+                    break;
+                case 15: // HEAL
                     if (value2 > 0)
                     {
                         set_flag(crstat->immunity_flags, CSAfF_Heal);
@@ -3771,16 +3781,6 @@ static void set_creature_configuration_process(struct ScriptContext* context)
                     else
                     {
                         clear_flag(crstat->immunity_flags, CSAfF_Heal);
-                    }
-                    break;
-                case 15: // EXP_LEVEL_UP
-                    if (value2 > 0)
-                    {
-                        set_flag(crstat->immunity_flags, CSAfF_ExpLevelUp);
-                    }
-                    else
-                    {
-                        clear_flag(crstat->immunity_flags, CSAfF_ExpLevelUp);
                     }
                     break;
                 case 16: // TELEPORT
@@ -3813,27 +3813,7 @@ static void set_creature_configuration_process(struct ScriptContext* context)
                         clear_flag(crstat->immunity_flags, CSAfF_Wind);
                     }
                     break;
-                case 19: // FREEZE
-                    if (value2 > 0)
-                    {
-                        set_flag(crstat->immunity_flags, CSAfF_Freeze);
-                    }
-                    else
-                    {
-                        clear_flag(crstat->immunity_flags, CSAfF_Freeze);
-                    }
-                    break;
-                case 20: // FEAR
-                    if (value2 > 0)
-                    {
-                        set_flag(crstat->immunity_flags, CSAfF_Fear);
-                    }
-                    else
-                    {
-                        clear_flag(crstat->immunity_flags, CSAfF_Fear);
-                    }
-                    break;
-                case 21: // RAGE
+                case 19: // RAGE
                     if (value2 > 0)
                     {
                         set_flag(crstat->immunity_flags, CSAfF_Rage);
@@ -3843,7 +3823,7 @@ static void set_creature_configuration_process(struct ScriptContext* context)
                         clear_flag(crstat->immunity_flags, CSAfF_Rage);
                     }
                     break;
-                case 22: // DIVINE_SHIELD
+                case 20: // DIVINE_SHIELD
                     if (value2 > 0)
                     {
                         set_flag(crstat->immunity_flags, CSAfF_DivineShield);
@@ -3853,7 +3833,7 @@ static void set_creature_configuration_process(struct ScriptContext* context)
                         clear_flag(crstat->immunity_flags, CSAfF_DivineShield);
                     }
                     break;
-                case 23: // MAGIC_MIST
+                case 21: // MAGIC_MIST
                     if (value2 > 0)
                     {
                         set_flag(crstat->immunity_flags, CSAfF_MagicMist);

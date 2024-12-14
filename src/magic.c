@@ -402,7 +402,7 @@ TbBool can_cast_power_on_thing(PlayerNumber plyr_idx, const struct Thing *thing,
                 SYNCDBG(8,"Player %d cannot cast %s on %s index %d while teleporting",(int)plyr_idx,power_code_name(pwkind),thing_model_name(thing),(int)thing->index);
                 return false;
             }
-            if (creature_affected_with_spell_flags(thing, CSAfF_Timebomb)) {
+            if (creature_under_spell_effect(thing, CSAfF_Timebomb)) {
                 SYNCDBG(8,"Player %d cannot cast %s on %s index %d because TimeBomb blocks it",(int)plyr_idx,power_code_name(pwkind),thing_model_name(thing),(int)thing->index);
                 return false;
             }
@@ -982,7 +982,7 @@ static TbResult magic_use_power_armageddon(PowerKind power_kind, PlayerNumber pl
         {
             cctrl->armageddon_teleport_turn = 0;
         }
-        else if (creature_affected_with_spell_flags(thing, CSAfF_Chicken)) // Creatures killed by Armageddon.
+        else if (creature_under_spell_effect(thing, CSAfF_Chicken)) // Creatures killed by Armageddon.
         {
             kill_creature(thing, heartng, plyr_idx, CrDed_DiedInBattle);
         }
@@ -1335,7 +1335,7 @@ static TbResult magic_use_power_apply_spell(PowerKind power_kind, PlayerNumber p
     struct PowerConfigStats *powerst = get_power_model_stats(power_kind);
     struct SpellConfig *spconf = get_spell_config(powerst->spell_idx);
     // If this spell is already casted at that creature, do nothing.
-    if (creature_affected_with_spell_flags(thing, spconf->spell_flags))
+    if (creature_under_spell_effect(thing, spconf->spell_flags))
     {
         return Lb_OK;
     }
@@ -1354,7 +1354,7 @@ static TbResult magic_use_power_apply_spell(PowerKind power_kind, PlayerNumber p
         }
     }
     // Check if the creature kind isn't affected by that spell.
-    if (creature_is_immune_to_spell_flags(thing, spconf->spell_flags))
+    if (creature_is_immune_to_spell_effect(thing, spconf->spell_flags))
     {
         thing_play_sample(thing, 58, 20, 0, 3, 0, 2, 128);
         return Lb_SUCCESS;
@@ -1821,8 +1821,7 @@ static TbResult magic_use_power_cave_in(PowerKind power_kind, PlayerNumber plyr_
  */
 TbBool update_creature_influenced_by_call_to_arms_at_pos(struct Thing *creatng, const struct Coord3d *cta_pos)
 {
-    struct CreatureControl *cctrl;
-    cctrl = creature_control_get_from_thing(creatng);
+    struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
     if (!creature_can_navigate_to_with_storage(creatng, cta_pos, NavRtF_Default) || process_creature_needs_to_heal_critical(creatng) || (creatng->continue_state == CrSt_CreatureCombatFlee))
     {
         creature_stop_affected_by_call_to_arms(creatng);
@@ -1837,8 +1836,7 @@ TbBool update_creature_influenced_by_call_to_arms_at_pos(struct Thing *creatng, 
     }
     setup_person_move_to_coord(creatng, cta_pos, NavRtF_Default);
     creatng->continue_state = CrSt_ArriveAtCallToArms;
-    // Only influence creature that are not immune to it.
-    set_flag(cctrl->spell_flags, CSAfF_CalledToArms);
+    cctrl->called_to_arms = true;
     if (flag_is_set(cctrl->flgfield_1, CCFlg_NoCompControl))
     {
         WARNLOG("The %s index %d is called to arms with no comp control, fixing", thing_model_name(creatng), (int)creatng->index);

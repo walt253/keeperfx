@@ -188,7 +188,7 @@ void process_disease(struct Thing *creatng)
     SYNCDBG(18, "Starting");
     struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
     struct CreatureControl *tngcctrl;
-    if (!creature_affected_with_spell_flags(creatng, CSAfF_Disease))
+    if (!creature_under_spell_effect(creatng, CSAfF_Disease))
     {
         return;
     }
@@ -214,8 +214,8 @@ void process_disease(struct Thing *creatng)
                 if (thing_is_creature(thing)
                 && ((get_creature_model_flags(thing) & CMF_IsSpecDigger) == 0)
                 && (thing->owner != cctrl->disease_caster_plyridx)
-                && !creature_affected_with_spell_flags(thing, CSAfF_Disease)
-                && !creature_is_immune_to_spell_flags(thing, CSAfF_Disease)
+                && !creature_under_spell_effect(thing, CSAfF_Disease)
+                && !creature_is_immune_to_spell_effect(thing, CSAfF_Disease)
                 && (cctrl->disease_caster_plyridx != game.neutral_player_num))
                 { // Apply the spell kind stored in 'active_disease_spell'.
                     apply_spell_effect_to_thing(thing, cctrl->active_disease_spell, cctrl->explevel);
@@ -402,11 +402,12 @@ TbBool player_uses_power_call_to_arms(PlayerNumber plyr_idx)
 
 void creature_stop_affected_by_call_to_arms(struct Thing *thing)
 {
-    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    clear_flag(cctrl->spell_flags, CSAfF_CalledToArms);
+    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
+    cctrl->called_to_arms = false;
     if (!thing_is_picked_up(thing) && !creature_is_being_unconscious(thing))
     {
-        if (creature_is_called_to_arms(thing)) {
+        if (creature_is_called_to_arms(thing))
+        {
             set_start_state(thing);
         }
     }
@@ -688,7 +689,7 @@ void remove_explored_flags_for_power_sight(struct PlayerInfo *player)
 void process_timebomb(struct Thing *creatng)
 {
     SYNCDBG(18,"Starting");
-    if (!creature_affected_with_spell_flags(creatng, CSAfF_Timebomb))
+    if (!creature_under_spell_effect(creatng, CSAfF_Timebomb))
     {
         return;
     }
@@ -754,14 +755,13 @@ void timebomb_explode(struct Thing *creatng)
     struct ShotConfigStats *shotst = get_shot_model_stats(spconf->shot_model);
     SYNCDBG(8, "Explode Timebomb");
     long weight = compute_creature_weight(creatng);
-    unsigned char weight_divisor = 64; // Not sure why it was #define.
     if (shotst->area_range != 0)
     {
         long luck = calculate_correct_creature_luck(creatng);
-        long dist = (compute_creature_attack_range(shotst->area_range * COORD_PER_STL, luck, cctrl->explevel) * weight) / weight_divisor;
-        long damage = (compute_creature_attack_spell_damage(shotst->area_damage, luck, cctrl->explevel, creatng) * weight) / weight_divisor;
+        long dist = (compute_creature_attack_range(shotst->area_range * COORD_PER_STL, luck, cctrl->explevel) * weight) / WEIGHT_DIVISOR;
+        long damage = (compute_creature_attack_spell_damage(shotst->area_damage, luck, cctrl->explevel, creatng) * weight) / WEIGHT_DIVISOR;
         HitTargetFlags hit_targets = hit_type_to_hit_targets(shotst->area_hit_type);
-        explosion_affecting_area(creatng, &creatng->mappos, dist, damage, (shotst->area_blow * weight) / weight_divisor, hit_targets, shotst->damage_type);
+        explosion_affecting_area(creatng, &creatng->mappos, dist, damage, (shotst->area_blow * weight) / WEIGHT_DIVISOR, hit_targets, shotst->damage_type);
     }
     struct Thing *efftng = create_used_effect_or_element(&creatng->mappos, TngEff_Explosion5, creatng->owner);
     if (!thing_is_invalid(efftng))
@@ -782,9 +782,9 @@ void timebomb_explode(struct Thing *creatng)
         }
         HitTargetFlags hit_targets = hit_type_to_hit_targets(shotst->area_hit_type);
         cctrl->timebomb_death = ((shotst->model_flags & ShMF_Exploding) != 0);
-        MapCoord max_dist = (shotst->area_range * weight) / weight_divisor;
-        HitPoints max_damage = (shotst->area_damage * weight) / weight_divisor;
-        long blow_strength = (shotst->area_blow * weight) / weight_divisor;
+        MapCoord max_dist = (shotst->area_range * weight) / WEIGHT_DIVISOR;
+        HitPoints max_damage = (shotst->area_damage * weight) / WEIGHT_DIVISOR;
+        long blow_strength = (shotst->area_blow * weight) / WEIGHT_DIVISOR;
         kill_creature(creatng, INVALID_THING, -1, CrDed_NoUnconscious);
         explosion_affecting_area(efftng, &efftng->mappos, max_dist, max_damage, blow_strength, hit_targets, shotst->damage_type);
     }

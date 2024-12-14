@@ -86,11 +86,6 @@ enum CreatureControlSpells {
     CCSpl_ChickenRel    = 0x01, // This is something related to chicken spell, but the spell itself is CSAfF_Chicken.
     CCSpl_Freeze        = 0x02, // Related to CSAfF_Freeze.
     CCSpl_Teleport      = 0x04, // Related to CSAfF_Teleport.
-    CCSpl_Unknown08     = 0x08, // Unused.
-    CCSpl_Unknown10     = 0x10, // Unused.
-    CCSpl_Unknown20     = 0x20, // Unused.
-    CCSpl_Unknown40     = 0x40, // Unused.
-    CCSpl_Unknown80     = 0x80, // Unused.
 };
 
 enum CreatureControlMoodFlags {
@@ -321,6 +316,8 @@ struct CreatureControl {
   };
     unsigned char fight_til_death;
     TbBool field_AA;
+    TbBool called_to_arms;
+    TbBool exp_level_up;
     unsigned char stateblock_flags;
     unsigned long spell_flags;
     short force_visible;
@@ -376,8 +373,8 @@ struct CreatureControl {
     struct MemberPos followers_pos[GROUP_MEMBERS_COUNT];
     unsigned short next_in_room;
     unsigned short prev_in_room;
-    short spell_aura;
-    short spell_aura_duration;
+    EffectOrEffElModel spell_aura;
+    GameTurnDelta spell_aura_duration;
     unsigned short job_assigned;
     unsigned short spell_tngidx_armour[3];
     unsigned short spell_tngidx_disease[3];

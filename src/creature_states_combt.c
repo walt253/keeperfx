@@ -1917,7 +1917,7 @@ CrInstance get_instance_casting(const struct Thing *thing)
             spconf = get_spell_config(inst_inf->func_params[0]);
             if (inst_inf->priority < p) // Instances with low priority are used last.
                 continue;
-            if ((inst_inf->func_idx != 2) || (!creature_affected_with_spell_flags(thing, spconf->spell_flags)))
+            if ((inst_inf->func_idx != 2) || (!creature_under_spell_effect(thing, spconf->spell_flags)))
             {
                 if ( // Start of the condition block.
 ((!creature_is_kept_in_custody(thing)) && // Not on custody condition block start here.

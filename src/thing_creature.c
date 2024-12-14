@@ -4042,7 +4042,7 @@ void get_creature_instance_times(const struct Thing *thing, long inst_idx, long 
             itime -= itime / 4;
         }
     }
-    if (creature_affected_with_spell_flags(thing, CSAfF_Rage))
+    if (creature_under_spell_effect(thing, CSAfF_Rage))
     {
         aitime /= 2;
         itime /= 2;
@@ -6179,7 +6179,7 @@ void process_landscape_affecting_creature(struct Thing *thing)
         {
             if (crstat->hurt_by_lava == 0)
             {
-                if (creature_affected_with_spell_flags(thing, CSAfF_Freeze))
+                if (creature_under_spell_effect(thing, CSAfF_Freeze))
                 {
                     clean_spell_flags(thing, CSAfF_Freeze);
                 }

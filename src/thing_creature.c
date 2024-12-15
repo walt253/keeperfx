@@ -876,6 +876,10 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, SpellKind spell_idx, GameTur
     struct Coord3d pos;
     struct Thing *ntng;
     TbBool affected = false;
+    if (flag_is_set(spconf->properties_flags, SPF_Cleanse))
+    {
+        return true; // Exit the function, cleanse is set, spell flags should not be applied.
+    }
     if (flag_is_set(spconf->spell_flags, CSAfF_Slow)
     && (!creature_is_immune_to_spell_effect(thing, CSAfF_Slow)))
     {
@@ -1368,19 +1372,13 @@ TbBool clear_thing_spell_flags_f(struct Thing *thing, unsigned long spell_flags,
     return cleared;
 }
 
-void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, long spell_lev)
+GameTurnDelta get_spell_full_duration(SpellKind spell_idx, long spell_lev)
 {
-    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
-    if (spell_lev > SPELL_MAX_LEVEL)
-    {
-        spell_lev = SPELL_MAX_LEVEL;
-    }
-    // This pointer may be invalid if spell_idx is incorrect. But we're using it only when correct.
+    // If not linked to a keeper power, use the duration set on the spell, otherwise use the strength or duration of the linked power.
     struct SpellConfig *spconf = get_spell_config(spell_idx);
     const struct MagicStats *pwrdynst = get_power_dynamic_stats(spconf->linked_power);
     GameTurnDelta duration;
-    // If not linked to a keeper power, use the duration set on the spell, otherwise use the strength or duration of the linked power.
-    if (spconf->linked_power == PwrK_None)
+    if (spconf->linked_power == 0)
     {
         duration = spconf->duration;
     }
@@ -1392,18 +1390,57 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
     {
         duration = pwrdynst->duration;
     }
+    return duration;
+}
+
+TbBool spell_is_continuous(SpellKind spell_idx, GameTurnDelta duration)
+{
+    if (duration > 0)
+    {
+        struct SpellConfig *spconf = get_spell_config(spell_idx);
+        if (flag_is_set(spconf->properties_flags, SPF_Cleanse))
+        {
+            return true;
+        }
+        else if (spconf->damage > 0 && spconf->damage_frequency > 0)
+        {
+            return true;
+        }
+        else if (spconf->aura_effect != 0 && spconf->aura_duration > 0 && spconf->aura_frequency > 0)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+void update_aura_effect_to_thing(struct Thing *thing, SpellKind spell_idx)
+{
+    struct SpellConfig *spconf = get_spell_config(spell_idx);
+    if ((spconf->aura_effect != 0) && (spconf->aura_duration > 0))
+    {
+        struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
+        cctrl->spell_aura = spconf->aura_effect;
+        cctrl->spell_aura_duration = spconf->aura_duration;
+    }
+}
+
+void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, long spell_lev)
+{
+    if (spell_lev > SPELL_MAX_LEVEL)
+    {
+        spell_lev = SPELL_MAX_LEVEL;
+    }
+    GameTurnDelta duration = get_spell_full_duration(spell_idx, spell_lev);
     long i = get_free_spell_slot(thing);
     if (i != -1)
     {
-        // Only fill the spell slot if the creature has at least one spell flags set.
-        if (set_thing_spell_flags(thing, spell_idx, duration, spell_lev))
+        // Fill the spell slot if the spell has a continuous effect.
+        if (set_thing_spell_flags(thing, spell_idx, duration, spell_lev)
+        || spell_is_continuous(spell_idx, duration))
         {
             fill_spell_slot(thing, i, spell_idx, duration);
-            if (spconf->aura_effect != 0)
-            {
-                cctrl->spell_aura = spconf->aura_effect;
-                cctrl->spell_aura_duration = spconf->duration;
-            }
+            update_aura_effect_to_thing(thing, spell_idx);
         }
     }
     return;
@@ -1411,38 +1448,19 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
 
 void reapply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, long spell_lev, int slot_idx)
 {
-    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
     if (spell_lev > SPELL_MAX_LEVEL)
     {
         spell_lev = SPELL_MAX_LEVEL;
     }
-    // This pointer may be invalid if spell_idx is incorrect. But we're using it only when correct.
-    struct SpellConfig *spconf = get_spell_config(spell_idx);
-    const struct MagicStats *pwrdynst = get_power_dynamic_stats(spconf->linked_power);
-    GameTurnDelta duration;
-    // If not linked to a keeper power, use the duration set on the spell, otherwise use the strength or duration of the linked power.
-    if (spconf->linked_power == PwrK_None)
+    GameTurnDelta duration = get_spell_full_duration(spell_idx, spell_lev);
+    // Reset the spell duration if the spell has a continuous effect.
+    if (set_thing_spell_flags(thing, spell_idx, duration, spell_lev)
+    || spell_is_continuous(spell_idx, duration))
     {
-        duration = spconf->duration;
-    }
-    else if (pwrdynst->duration == 0)
-    {
-        duration = pwrdynst->strength[spell_lev];
-    }
-    else
-    {
-        duration = pwrdynst->duration;
-    }
-    // Only reset spell duration if the creature can still be affected by at least one spell flags set.
-    if (set_thing_spell_flags(thing, spell_idx, duration, spell_lev))
-    {
+        struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
         struct CastedSpellData *cspell = &cctrl->casted_spells[slot_idx];
         cspell->duration = duration;
-        if (spconf->aura_effect != 0)
-        {
-            cctrl->spell_aura = spconf->aura_effect;
-            cctrl->spell_aura_duration = spconf->duration;
-        }
+        update_aura_effect_to_thing(thing, spell_idx);
     }
     return;
 }
@@ -1461,25 +1479,60 @@ void apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, long 
         ERRORLOG("Spell %s config is invalid", spell_code_name(spell_idx));
         return; // Exit the function, spell config is invalid.
     }
-    if ((spconf->spell_flags > 0) && (creature_is_immune_to_spell_effect(thing, spconf->spell_flags)))
+    // TODO: Add a check for specific spell_idx immunity that checks if creature is immune to a specific spell.
+    /*
+    if (implement_new_function_to_check_for_specific_spell_immunity(thing, spell_idx))
     {
-        SYNCDBG(7, "Creature %s index %d is immune to all spell flags %d set on %s", thing_model_name(thing), (int)thing->index, (uint)spconf->spell_flags, spell_code_name(spell_idx));
-        return; // Exit the function, creature is immune to all spell flags set on spell_idx.
+        return; // Exit the function, creature is immune to spell_idx.
     }
-    if (spconf->spell_flags == 0)
-    {
-        // Spells with no flags can apply the aura effect.
-        if (spconf->aura_effect != 0)
-        {
-            cctrl->spell_aura = spconf->aura_effect;
-            cctrl->spell_aura_duration = spconf->duration;
-        }
-        return; // Exit the function, no further processing is needed for this case.
-    }
+    */
     // Make sure the creature level isn't larger than max spell level.
     if (spell_lev > SPELL_MAX_LEVEL)
     {
         spell_lev = SPELL_MAX_LEVEL;
+    }
+    GameTurnDelta duration = get_spell_full_duration(spell_idx, spell_lev);
+    // Check for one-time damage/heal.
+    if ((spconf->damage > 0) && (spconf->damage_frequency == 0))
+    {
+        process_thing_spell_damage_or_heal_effects(thing, spell_idx);
+        if (spconf->spell_flags == 0
+        && !spell_is_continuous(spell_idx, duration))
+        {
+            update_aura_effect_to_thing(thing, spell_idx);
+            return; // Exit the function, no continuous effect to apply.
+        }
+    }
+    // Check for cleanse property.
+    if ((flag_is_set(spconf->properties_flags, SPF_Cleanse))
+    && (any_flag_is_set(spconf->spell_flags, cctrl->spell_flags)))
+    {
+        if (spconf->spell_flags > 0)
+        {
+            clean_spell_effect(thing, spconf->spell_flags);
+            if (!spell_is_continuous(spell_idx, duration))
+            {
+                update_aura_effect_to_thing(thing, spell_idx);
+                return; // Exit the function, cleanse did its job.
+            }
+        }
+        else
+        {
+            WARNLOG("Creature %s index %d is trying to cleanse with no spell flags set on %s", thing_model_name(thing), (int)thing->index, spell_code_name(spell_idx));
+        }
+    }
+    // Check for immunities against each spell flags set on spell_idx.
+    if (((spconf->spell_flags > 0) && creature_is_immune_to_spell_effect(thing, spconf->spell_flags))
+    && !spell_is_continuous(spell_idx, duration))
+    {
+        SYNCDBG(7, "Creature %s index %d is immune to each spell flags %d set on %s", thing_model_name(thing), (int)thing->index, (uint)spconf->spell_flags, spell_code_name(spell_idx));
+        return; // Exit the function, creature is immune to each spell flags set on spell_idx and there are no other continuous effects.
+    }
+    // Lastly, check if spell is not continuous.
+    if (!spell_is_continuous(spell_idx, duration))
+    {
+        update_aura_effect_to_thing(thing, spell_idx);
+        return; // Exit the function, no further processing is required.
     }
     SYNCDBG(6, "Applying %s to %s index %d", spell_code_name(spell_idx), thing_model_name(thing), (int)thing->index);
     for (int i = 0; i < CREATURE_MAX_SPELLS_CASTED_AT; i++)
@@ -1497,7 +1550,8 @@ void terminate_thing_spell_effect(struct Thing *thing, SpellKind spell_idx)
 {
     TRACE_THING(thing);
     struct SpellConfig *spconf = get_spell_config(spell_idx);
-    if (clear_thing_spell_flags(thing, spconf->spell_flags))
+    if (clear_thing_spell_flags(thing, spconf->spell_flags)
+    || spell_is_continuous(spell_idx, get_spell_full_duration(spell_idx, 1)))
     {
         int slot_idx = get_spell_slot(thing, spell_idx);
         if (slot_idx >= 0)
@@ -1534,7 +1588,7 @@ void clean_spell_effect_f(struct Thing *thing, unsigned long spell_flags, const 
     }
     struct CastedSpellData *cspell;
     struct SpellConfig *spconf;
-    // First checks for an exact match with the active spells.
+    // First check for an exact match with the active spells.
     for (int i = 0; i < CREATURE_MAX_SPELLS_CASTED_AT; i++)
     {
         cspell = &cctrl->casted_spells[i];
@@ -1773,6 +1827,44 @@ void process_thing_spell_teleport_effects(struct Thing *thing, struct CastedSpel
     }
 }
 
+void process_thing_spell_damage_or_heal_effects(struct Thing *thing, SpellKind spell_idx)
+{
+    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
+    struct SpellConfig *spconf = get_spell_config(spell_idx);
+    HitPoints damage = compute_creature_attack_spell_damage(spconf->damage, 0, cctrl->explevel, thing);
+    // If percent based, update the damage value.
+    if (flag_is_set(spconf->properties_flags, SPF_PercentBased)
+    || flag_is_set(spconf->properties_flags, SPF_MaxHealth))
+    {
+        // Percent based on max health.
+        if (flag_is_set(spconf->properties_flags, SPF_MaxHealth))
+        {
+            damage = cctrl->max_health * spconf->damage / 100;
+            if (damage > cctrl->max_health)
+            {
+                damage = cctrl->max_health;
+            }
+        }
+        else // Percent based on current health.
+        {
+            damage = thing->health * spconf->damage / 100;
+            if (damage > thing->health)
+            {
+                damage = thing->health;
+            }
+        }
+    }
+    // Apply damage.
+    if (spconf->damage_type != DmgT_Restoration) // TODO: Check for immunities when types are implemented.
+    {
+        apply_damage_to_thing_and_display_health(thing, damage, spconf->damage_type, -1);
+    }
+    else // Or heal if damage type is of restoration.
+    {
+        apply_health_to_thing_and_display_health(thing, damage);
+    }
+}
+
 void process_thing_spell_effects(struct Thing *thing)
 {
     struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
@@ -1783,14 +1875,48 @@ void process_thing_spell_effects(struct Thing *thing)
         {
             continue;
         }
+        struct SpellConfig *spconf = get_spell_config(cspell->spkind);
+        // Process spell with damage (or heal) overtime.
+        if ((spconf->damage > 0) && (spconf->damage_frequency > 0))
+        {
+            if (cspell->duration % spconf->damage_frequency == 0)
+            {
+                process_thing_spell_damage_or_heal_effects(thing, cspell->spkind);
+            }
+        }
+        // Process spell with cleanse property.
+        if ((flag_is_set(spconf->properties_flags, SPF_Cleanse))
+        && (any_flag_is_set(spconf->spell_flags, cctrl->spell_flags)))
+        {
+            clean_spell_effect(thing, spconf->spell_flags);
+        }
+        // Process spell with teleport flag.
         if (cspell->spkind == cctrl->active_teleport_spell)
         {
             process_thing_spell_teleport_effects(thing, cspell);
         }
-        cspell->duration--;
+        // Set the duration to 0 if each flags of the spell are cleared and there are no other continuous effects.
+        if (((spconf->spell_flags > 0) && (!flag_is_set(spconf->spell_flags, cctrl->spell_flags)))
+        && !spell_is_continuous(cspell->spkind, cspell->duration))
+        {
+            cspell->duration = 0;
+        }
+        else
+        {
+            cspell->duration--;
+        }
+        // Terminate the spell.
         if (cspell->duration <= 0)
         {
             terminate_thing_spell_effect(thing, cspell->spkind);
+        }
+        else if (spconf->aura_frequency > 0)
+        {
+            if (cspell->duration % spconf->aura_frequency == 0)
+            {
+                // Reapply aura effect if possible.
+                update_aura_effect_to_thing(thing, cspell->spkind);
+            }
         }
     }
     // Slap is not in spell array, it is so common that has its own dedicated duration.

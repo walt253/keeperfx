@@ -67,7 +67,9 @@ const struct NamedCommand magic_spell_commands[] = {
     {"DAMAGE",          14},
     {"DAMAGEFREQUENCY", 15},
     {"DAMAGETYPE",      16},
-    {"PROPERTIES",      17},
+    {"AURADURATION",    17},
+    {"AURAFREQUENCY",   18},
+    {"PROPERTIES",      19},
     {NULL,               0},
 };
 
@@ -100,7 +102,6 @@ const struct NamedCommand magic_spell_properties[] = {
     {"CLEANSE",         1},
     {"PERCENT_BASED",   2},
     {"MAX_HEALTH",      3},
-    {"REPEATABLE_AURA", 4},
     {NULL,              0},
 };
 
@@ -511,6 +512,8 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
       spconf->crtr_summon_level = 0;
       spconf->crtr_summon_amount = 0;
       spconf->aura_effect = 0;
+      spconf->aura_duration = 0;
+      spconf->aura_frequency = 0;
       spconf->spell_flags = 0;
       spconf->properties_flags = 0;
       spconf->countdown = 0;
@@ -928,7 +931,33 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
                 break;
             }
             break;
-        case 17: // PROPERTIES
+        case 17: // AURADURATION
+            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                spconf->aura_duration = k;
+                n++;
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+            }
+            break;
+        case 18: // AURAFREQUENCY
+            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                spconf->aura_frequency = k;
+                n++;
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+            }
+            break;
+        case 19: // PROPERTIES
             spconf->properties_flags = 0;
             while (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
             {
@@ -945,10 +974,6 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
                         break;
                     case 3: // MAX_HEALTH
                         set_flag(spconf->properties_flags, SPF_MaxHealth);
-                        n++;
-                        break;
-                    case 4: // REPEATABLE_AURA
-                        set_flag(spconf->properties_flags, SPF_RepeatableAura);
                         n++;
                         break;
                     default:

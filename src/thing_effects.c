@@ -197,8 +197,7 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
     {
         int diamtr = 4 * thing->clipbox_size_xy / 2;
         dturn = game.play_gameturn - thing->creation_turn;
-        MapCoord cor_z_max = thing->clipbox_size_z + (thing->clipbox_size_z * game.conf.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 80; //effect is 25% larger than unit
-
+        MapCoord cor_z_max = thing->clipbox_size_z + (thing->clipbox_size_z * game.conf.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 80; // Effect is 25% larger than unit.
         struct EffectElementConfigStats* eestat = get_effect_element_model_stats(TngEffElm_FlashBall1);
         unsigned short nframes = keepersprite_frames(eestat->sprite_idx);
         GameTurnDelta dtadd = 0;
@@ -225,10 +224,10 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
     if (creature_under_spell_effect(thing, CSAfF_Slow))
     {
         int diamtr = 4 * thing->clipbox_size_xy / 2;
-        MapCoord cor_z_max = thing->clipbox_size_z + (thing->clipbox_size_z * game.conf.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 80; //effect is 20% smaller than unit
-        int i = cor_z_max / 64; //64 is the vertical speed of the circle.
+        MapCoord cor_z_max = thing->clipbox_size_z + (thing->clipbox_size_z * game.conf.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 80; // Effect is 20% smaller than unit.
+        int i = cor_z_max / 64; // 64 is the vertical speed of the circle.
         if (i <= 1)
-          i = 1;
+            i = 1;
         dturn = game.play_gameturn - thing->creation_turn;
         int vrange = i;
         if (dturn % (2 * i) < vrange)
@@ -257,7 +256,7 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
         effeltng = create_effect_element(&thing->mappos, TngEffElm_FlashBall2, thing->owner);
         if (!thing_is_invalid(effeltng))
         {
-            //make an afterimage of the speeding unit
+            // Make an afterimage of the speeding unit.
             effeltng->anim_time = thing->anim_time;
             effeltng->anim_sprite = thing->anim_sprite;
             effeltng->sprite_size = thing->sprite_size;
@@ -287,7 +286,7 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
             effeltng = create_effect_element(&thing->mappos, TngEffElm_FlashBall2, thing->owner);
             if (!thing_is_invalid(effeltng))
             {
-                //make an afterimage of the teleporting unit
+                // Make an afterimage of the teleporting unit.
                 effeltng->anim_speed = 0;
                 effeltng->anim_time = thing->anim_time;
                 effeltng->anim_sprite = thing->anim_sprite;
@@ -315,6 +314,72 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
                 effeltng = create_effect_element(&thing->mappos, birth_effect_element[get_player_color_idx(thing->owner)], thing->owner);
             }
             creature_turn_to_face_angle(thing, thing->move_angle_xy + crstat->max_turning_speed);
+        }
+    }
+    // Effect elements related to MadKilling.
+    if (creature_under_spell_effect(thing, CSAfF_MadKilling))
+    {
+        pos.x.val = thing->mappos.x.val;
+        pos.y.val = thing->mappos.y.val;
+        pos.z.val = thing->mappos.z.val;
+        effeltng = create_thing(&pos, TCls_EffectElem, TngEffElm_BloodSplat, thing->owner, -1);
+    }
+    // Effect elements related to Rage.
+    if (creature_under_spell_effect(thing, CSAfF_Rage))
+    {
+        pos.x.val = thing->mappos.x.val;
+        pos.y.val = thing->mappos.y.val;
+        pos.z.val = thing->mappos.z.val + get_creature_eye_height(thing);
+        effeltng = create_thing(&pos, TCls_EffectElem, TngEffElm_RedDot, thing->owner, -1);
+    }
+    // Effect elements related to DivineShield.
+    if (creature_under_spell_effect(thing, CSAfF_DivineShield))
+    {
+        int diamtr = 3 * thing->clipbox_size_xy / 2;
+        MapCoord cor_z_max = thing->clipbox_size_z + (thing->clipbox_size_z * game.conf.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 80;
+        int i = cor_z_max / 16;
+        if (i <= 1)
+            i = 1;
+        dturn = game.play_gameturn - thing->creation_turn;
+        int vrange = i;
+        if (dturn % (2 * i) < vrange)
+            pos.z.val = thing->mappos.z.val + cor_z_max / vrange * (dturn % vrange);
+        else
+            pos.z.val = thing->mappos.z.val + cor_z_max / vrange * (vrange - (dturn % vrange));
+        int radius = diamtr / 2;
+        for (i=0; i < 16; i++)
+        {
+            angle = (abs(i) & 0xF) << 7;
+            shift_x =  (radius * LbSinL(angle) >> 8) >> 8;
+            shift_y = -(radius * LbCosL(angle) >> 8) >> 8;
+            pos.x.val = thing->mappos.x.val + shift_x;
+            pos.y.val = thing->mappos.y.val + shift_y;
+            effeltng = create_thing(&pos, TCls_EffectElem, TngEffElm_LavaFlameMoving, thing->owner, -1);
+        }
+    }
+    // Effect elements related to MagicMist.
+    if (creature_under_spell_effect(thing, CSAfF_MagicMist))
+    {
+        int diamtr = thing->clipbox_size_xy;
+        MapCoord cor_z_max = thing->clipbox_size_z + (thing->clipbox_size_z * game.conf.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 80;
+        int i = cor_z_max / 128;
+        if (i <= 1)
+            i = 1;
+        dturn = game.play_gameturn - thing->creation_turn;
+        int vrange = i;
+        if (dturn % (2 * i) < vrange)
+            pos.z.val = thing->mappos.z.val + cor_z_max / vrange * (dturn % vrange);
+        else
+            pos.z.val = thing->mappos.z.val + cor_z_max / vrange * (vrange - (dturn % vrange));
+        int radius = diamtr / 2;
+        for (i=0; i < 16; i++)
+        {
+            angle = (abs(i) & 0xF) << 7;
+            shift_x =  (radius * LbSinL(angle) >> 8) >> 8;
+            shift_y = -(radius * LbCosL(angle) >> 8) >> 8;
+            pos.x.val = thing->mappos.x.val + shift_x;
+            pos.y.val = thing->mappos.y.val + shift_y;
+            effeltng = create_thing(&pos, TCls_EffectElem, TngEffElm_CloudDisperse, thing->owner, -1);
         }
     }
 }

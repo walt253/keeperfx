@@ -6181,7 +6181,7 @@ void process_landscape_affecting_creature(struct Thing *thing)
             {
                 if (creature_under_spell_effect(thing, CSAfF_Freeze))
                 {
-                    clean_spell_flags(thing, CSAfF_Freeze);
+                    clean_spell_effect(thing, CSAfF_Freeze);
                 }
             } else {
                 apply_damage_to_thing_and_display_health(thing, crstat->hurt_by_lava, DmgT_Heatburn, -1);

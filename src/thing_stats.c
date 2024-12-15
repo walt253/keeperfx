@@ -1284,7 +1284,7 @@ HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, DamageType d
             // If creature is frozen then apply a weakness and defrost it.
             if (creature_under_spell_effect(thing, CSAfF_Freeze)) {
                 dmg *= 8;
-                clean_spell_flags(thing, CSAfF_Freeze);
+                clean_spell_effect(thing, CSAfF_Freeze);
             }
             // HOARFROST weakness.
             if (crstat->hoarfrost != 0) {

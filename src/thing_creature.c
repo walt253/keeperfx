@@ -1380,7 +1380,6 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
     }
     GameTurnDelta duration = get_spell_full_duration(spell_idx, spell_lev);
     long i = get_free_spell_slot(thing);
-    JUSTLOG("Spell %s has %d duration", spell_code_name(spell_idx), (int)duration);
     if (i != -1)
     {
         // Fill the spell slot if the spell has a continuous effect.
@@ -1440,6 +1439,7 @@ void apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, long 
         spell_lev = SPELL_MAX_LEVEL;
     }
     GameTurnDelta duration = get_spell_full_duration(spell_idx, spell_lev);
+    JUSTLOG("1, Spell %s has %d duration", spell_code_name(spell_idx), (int)duration);
     // Check for one-time damage/heal.
     if ((spconf->damage > 0) && (spconf->damage_frequency == 0))
     {
@@ -1451,6 +1451,7 @@ void apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, long 
             return; // Exit the function, no continuous effect to apply.
         }
     }
+    JUSTLOG("2, Spell %s has %d duration", spell_code_name(spell_idx), (int)duration);
     // Check for cleanse property.
     if ((flag_is_set(spconf->properties_flags, SPF_Cleanse))
     && (any_flag_is_set(spconf->spell_flags, cctrl->spell_flags)))
@@ -1469,6 +1470,7 @@ void apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, long 
             WARNLOG("Creature %s index %d is trying to cleanse with no spell flags set on %s", thing_model_name(thing), (int)thing->index, spell_code_name(spell_idx));
         }
     }
+    JUSTLOG("3, Spell %s has %d duration", spell_code_name(spell_idx), (int)duration);
     // Check for immunities against each spell flags set on spell_idx.
     if (((spconf->spell_flags > 0) && creature_is_immune_to_spell_effect(thing, spconf->spell_flags))
     && !spell_is_continuous(spell_idx, duration))
@@ -1477,11 +1479,12 @@ void apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, long 
         return; // Exit the function, creature is immune to each spell flags set on spell_idx and there are no other continuous effects.
     }
     // Lastly, check if spell is not continuous.
-    if (!spell_is_continuous(spell_idx, duration))
+    if ((spconf->spell_flags == 0) && (!spell_is_continuous(spell_idx, duration)))
     {
         update_aura_effect_to_thing(thing, spell_idx);
         return; // Exit the function, no further processing is required.
     }
+    JUSTLOG("4, Spell %s has %d duration", spell_code_name(spell_idx), (int)duration);
     SYNCDBG(6, "Applying %s to %s index %d", spell_code_name(spell_idx), thing_model_name(thing), (int)thing->index);
     for (int i = 0; i < CREATURE_MAX_SPELLS_CASTED_AT; i++)
     {

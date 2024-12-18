@@ -1380,7 +1380,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
     }
     GameTurnDelta duration = get_spell_full_duration(spell_idx, spell_lev);
     long i = get_free_spell_slot(thing);
-    JUSTLOG("Spell %s has %d duration", spell_code_name(spell_idx), duration);
+    JUSTLOG("Spell %s has %d duration", spell_code_name(spell_idx), (int)duration);
     if (i != -1)
     {
         // Fill the spell slot if the spell has a continuous effect.

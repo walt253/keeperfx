@@ -1356,6 +1356,7 @@ static TbResult magic_use_power_apply_spell(PowerKind power_kind, PlayerNumber p
     // Check if the creature kind isn't affected by that spell.
     if (creature_is_immune_to_spell_effect(thing, spconf->spell_flags))
     {
+        // Refusal sound.
         thing_play_sample(thing, 58, 20, 0, 3, 0, 2, 128);
         return Lb_SUCCESS;
     }
@@ -1367,7 +1368,7 @@ static TbResult magic_use_power_apply_spell(PowerKind power_kind, PlayerNumber p
         create_used_effect_or_element(&effpos, powerst->effect_id, thing->owner);
     }
     thing_play_sample(thing, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
-    apply_spell_effect_to_thing(thing, powerst->spell_idx, splevel);
+    apply_spell_effect_to_thing(thing, powerst->spell_idx, splevel, plyr_idx);
     // Special cases.
     if (flag_is_set(spconf->spell_flags, CSAfF_Disease))
     { // Set disease_caster_plyridx if spell_idx has 'CSAfF_Disease'.

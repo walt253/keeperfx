@@ -1883,14 +1883,14 @@ void process_thing_spell_effects(struct Thing *thing)
         {
             terminate_thing_spell_effect(thing, cspell->spkind);
         }
-        /*else if (spconf->aura_frequency > 0)
+        else if (spconf->aura_frequency > 0)
         {
             if (cspell->duration % spconf->aura_frequency == 0)
             {
                 // Reapply aura effect if possible.
                 update_aura_effect_to_thing(thing, cspell->spkind);
             }
-        }*/
+        }
     }
     // Slap is not in spell array, it is so common that has its own dedicated duration.
     if (cctrl->slap_turns > 0)

@@ -1124,7 +1124,7 @@ HitPoints calculate_shot_real_damage_to_door(struct Thing *doortng, struct Thing
     if (shotst->damage_type == DmgT_Respiratory) {
         return 0;
     }
-    if (((doorst->model_flags & DoMF_ResistNonMagic) != 0) && ((shotst->damage_type == DmgT_Combustion) ||(shotst->damage_type == DmgT_Physical) || (shotst->damage_type == DmgT_Biological))) {
+    if (flag_is_set(doorst->model_flags, DoMF_ResistNonMagic) && (!shotst->is_magical)) {
         dmg /= 10;
     }
     if ((doorst->model_flags & DoMF_Wooden) != 0) {
@@ -1164,11 +1164,10 @@ HitPoints calculate_shot_real_damage_to_door(struct Thing *doortng, struct Thing
  * Can be used only to make damage - never to heal creature.
  * @param thing
  * @param dmg
- * @param damage_type
  * @param inflicting_plyr_idx
  * @return Amount of damage really inflicted.
  */
-HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, DamageType damage_type, PlayerNumber dealing_plyr_idx)
+HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, PlayerNumber dealing_plyr_idx)
 {
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);

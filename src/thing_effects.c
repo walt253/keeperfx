@@ -1034,13 +1034,12 @@ TbBool explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, con
 {
     HitPoints max_damage = shotst->area_damage;
     long blow_strength = shotst->area_blow;
-    DamageType damage_type = shotst->damage_type;
     unsigned long shot_model_flags = shotst->model_flags;
     PlayerNumber owner = tngsrc->owner;
 
     if (thing_is_deployed_door(tngdst))
     {
-        return explosion_affecting_door(tngsrc, tngdst, pos, max_dist, max_damage, blow_strength, damage_type, owner);
+        return explosion_affecting_door(tngsrc, tngdst, pos, max_dist, max_damage, blow_strength, owner);
     }
     TbBool affected = false;
     SYNCDBG(17,"Starting for %s, max damage %d, max blow %d, owner %d",thing_model_name(tngdst),(int)max_damage,(int)blow_strength,(int)owner);
@@ -1061,7 +1060,7 @@ TbBool explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, con
                 {
                     HitPoints damage = get_radially_decaying_value(max_damage, max_dist / 4, 3 * max_dist / 4, distance) + 1;
                     SYNCDBG(7,"Causing %d damage to %s at distance %d",(int)damage,thing_model_name(tngdst),(int)distance);
-                    apply_damage_to_thing_and_display_health(tngdst, damage, damage_type, owner);
+                    apply_damage_to_thing_and_display_health(tngdst, damage, owner);
                 }
                 affected = true;
                 if (shotst->cast_spell_kind != 0)
@@ -1102,7 +1101,7 @@ TbBool explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, con
             {
                 HitPoints damage = get_radially_decaying_value(max_damage, max_dist / 4, 3 * max_dist / 4, distance) + 1;
                 SYNCDBG(7,"Causing %d damage to %s at distance %d",(int)damage,thing_model_name(tngdst),(int)distance);
-                apply_damage_to_thing(tngdst, damage, damage_type, -1);
+                apply_damage_to_thing(tngdst, damage, -1);
                 affected = true;
                 event_create_event_or_update_nearby_existing_event(tngdst->mappos.x.val, tngdst->mappos.y.val,EvKind_HeartAttacked, tngdst->owner, 0);
                 if (is_my_player_number(tngdst->owner))
@@ -1144,7 +1143,7 @@ TbBool explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, con
 }
 
 TbBool explosion_affecting_door(struct Thing *tngsrc, struct Thing *tngdst, const struct Coord3d *pos,
-    MapCoordDelta max_dist, HitPoints max_damage, long blow_strength, DamageType damage_type, PlayerNumber owner)
+    MapCoordDelta max_dist, HitPoints max_damage, long blow_strength, PlayerNumber owner)
 {
     TbBool affected = false;
     SYNCDBG(17,"Starting for %s, max damage %d, max blow %d, owner %d",thing_model_name(tngdst),(int)max_damage,(int)blow_strength,(int)owner);
@@ -1171,7 +1170,7 @@ TbBool explosion_affecting_door(struct Thing *tngsrc, struct Thing *tngdst, cons
                 }
             }
             SYNCDBG(7,"Causing %d damage to %s at distance %d",(int)damage,thing_model_name(tngdst),(int)distance);
-            apply_damage_to_thing(tngdst, damage, damage_type, -1);
+            apply_damage_to_thing(tngdst, damage, -1);
             affected = true;
         }
     }
@@ -1211,7 +1210,7 @@ long explosion_effect_affecting_map_block(struct Thing *efftng, struct Thing *tn
         // Per thing processing block
         if ((thing->class_id == TCls_Door) && (efftng->shot_effect.hit_type != THit_CrtrsOnlyNotOwn)) //TODO: Find pretty way to say that WoP traps should not destroy doors. And make it configurable through configs.
         {
-            if (explosion_affecting_door(tngsrc, thing, &efftng->mappos, max_dist, shotst->area_damage, shotst->area_blow, shotst->damage_type, owner))
+            if (explosion_affecting_door(tngsrc, thing, &efftng->mappos, max_dist, shotst->area_damage, shotst->area_blow, owner))
             {
                 num_affected++;
             }
@@ -1335,10 +1334,9 @@ TbBool area_effect_can_affect_thing(const struct Thing *thing, HitTargetFlags hi
  * @param max_damage Damage at epicenter of the explosion.
  * @param blow_strength The strength of hitwave blowing creatures out of affected area.
  * @param hit_targets Defines which things are affected.
- * @param damage_type Type of the damage inflicted.
  */
 long explosion_affecting_map_block(struct Thing *tngsrc, const struct Map *mapblk, const struct Coord3d *pos,
-    MapCoord max_dist, HitPoints max_damage, long blow_strength, HitTargetFlags hit_targets, DamageType damage_type)
+    MapCoord max_dist, HitPoints max_damage, long blow_strength, HitTargetFlags hit_targets)
 {
     PlayerNumber owner;
     if (!thing_is_invalid(tngsrc))
@@ -1395,7 +1393,7 @@ long explosion_affecting_map_block(struct Thing *tngsrc, const struct Map *mapbl
  * @return Gives number of things which were affected by the explosion.
  */
 long explosion_affecting_area(struct Thing *tngsrc, const struct Coord3d *pos, MapCoord max_dist,
-    HitPoints max_damage, long blow_strength, HitTargetFlags hit_targets, DamageType damage_type)
+    HitPoints max_damage, long blow_strength, HitTargetFlags hit_targets)
 {
     MapSubtlCoord start_x;
     MapSubtlCoord start_y;
@@ -1429,14 +1427,14 @@ long explosion_affecting_area(struct Thing *tngsrc, const struct Coord3d *pos, M
         for (MapSubtlCoord stl_x = start_x; stl_x <= end_x; stl_x++)
         {
             const struct Map* mapblk = get_map_block_at(stl_x, stl_y);
-            num_affected += explosion_affecting_map_block(tngsrc, mapblk, pos, max_dist, max_damage, blow_strength, hit_targets, damage_type);
+            num_affected += explosion_affecting_map_block(tngsrc, mapblk, pos, max_dist, max_damage, blow_strength, hit_targets);
         }
     }
     return num_affected;
 }
 
 TbBool poison_cloud_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, const struct Coord3d *pos,
-    MapCoordDelta max_dist, HitPoints max_damage, long blow_strength, unsigned char area_affect_type, DamageType damage_type, PlayerNumber owner)
+    MapCoordDelta max_dist, HitPoints max_damage, long blow_strength, unsigned char area_affect_type, PlayerNumber owner)
 {
     TbBool affected = false;
     SYNCDBG(17,"Starting for %s, max damage %d, max blow %d, owner %d",thing_model_name(tngdst),(int)max_damage,(int)blow_strength,(int)owner);
@@ -1464,7 +1462,7 @@ TbBool poison_cloud_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, 
                     HitPoints damage;
                     damage = get_radially_decaying_value(max_damage,max_dist/4, 3*max_dist/4,distance)+1;
                     SYNCDBG(7,"Causing %d damage to %s at distance %d",(int)damage,thing_model_name(tngdst),(int)distance);
-                    apply_damage_to_thing_and_display_health(tngdst, damage, damage_type, tngsrc->owner);
+                    apply_damage_to_thing_and_display_health(tngdst, damage, tngsrc->owner);
                 }
                 break;
             case AAffT_GasSlow:
@@ -1479,7 +1477,7 @@ TbBool poison_cloud_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, 
                     HitPoints damage;
                     damage = get_radially_decaying_value(max_damage, 3 * max_dist / 4, max_dist / 4, distance) + 1;
                     SYNCDBG(7, "Causing %d damage to %s at distance %d", (int)damage, thing_model_name(tngdst), (int)distance);
-                    apply_damage_to_thing_and_display_health(tngdst, damage, damage_type, tngsrc->owner);
+                    apply_damage_to_thing_and_display_health(tngdst, damage, tngsrc->owner);
                 }
                 if (!creature_affected_by_spell(tngdst, SplK_Slow)) {
                     struct CreatureControl* srcctrl;
@@ -1501,7 +1499,7 @@ TbBool poison_cloud_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, 
 }
 
 long poison_cloud_affecting_map_block(struct Thing *tngsrc, const struct Map *mapblk, const struct Coord3d *pos,
-    MapCoord max_dist, HitPoints max_damage, long blow_strength, HitTargetFlags hit_targets, unsigned char area_affect_type, DamageType damage_type)
+    MapCoord max_dist, HitPoints max_damage, long blow_strength, HitTargetFlags hit_targets, unsigned char area_affect_type)
 {
     PlayerNumber owner;
     if (!thing_is_invalid(tngsrc))
@@ -1530,7 +1528,7 @@ long poison_cloud_affecting_map_block(struct Thing *tngsrc, const struct Map *ma
         // Per thing processing block
         if (area_effect_can_affect_thing(thing, hit_targets, owner))
         {
-            if (poison_cloud_affecting_thing(tngsrc, thing, pos, max_dist, max_damage, blow_strength, area_affect_type, damage_type, owner))
+            if (poison_cloud_affecting_thing(tngsrc, thing, pos, max_dist, max_damage, blow_strength, area_affect_type, owner))
                 num_affected++;
         }
         // Per thing processing block ends
@@ -1587,7 +1585,7 @@ long poison_cloud_affecting_area(struct Thing *tngsrc, struct Coord3d *pos, long
         {
             HitTargetFlags hit_targets = hit_type_to_hit_targets(tngsrc->shot_effect.hit_type);
             struct Map* mapblk = get_map_block_at(stl_x, stl_y);
-            num_affected += poison_cloud_affecting_map_block(tngsrc, mapblk, pos, max_dist, max_damage/dmg_divider, 0, hit_targets, area_affect_type, DmgT_Respiratory);
+            num_affected += poison_cloud_affecting_map_block(tngsrc, mapblk, pos, max_dist, max_damage/dmg_divider, 0, hit_targets, area_affect_type);
         }
     }
     return num_affected;

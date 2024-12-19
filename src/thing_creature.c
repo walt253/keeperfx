@@ -1871,15 +1871,10 @@ void process_thing_spell_effects(struct Thing *thing)
         {
             clean_spell_effect(thing, spconf->cleanse_flags);
         } TODO: Implements CSAfF_SpellBlocks. */
-        // Set the duration to 0 if each flags of the spell are cleared and there are no other continuous effects.
-        /*if (((spconf->spell_flags > 0) && (!flag_is_set(spconf->spell_flags, cctrl->spell_flags)))
-        && !spell_is_continuous(cspell->spkind, cspell->duration))
-        {
-            cspell->duration = 0;
-        }*/
         cspell->duration--;
-        // Terminate the spell.
-        if (cspell->duration <= 0)
+        // Terminate the spell if its duration expires, or if the spell flags are cleared and no other continuous effects are active.
+        if ((cspell->duration <= 0)
+        || ((spconf->spell_flags > 0) && !flag_is_set(cctrl->spell_flags, spconf->spell_flags) && !spell_is_continuous(cspell->spkind, cspell->duration)))
         {
             terminate_thing_spell_effect(thing, cspell->spkind);
         }

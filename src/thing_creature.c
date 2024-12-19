@@ -1520,14 +1520,11 @@ void terminate_thing_spell_effect(struct Thing *thing, SpellKind spell_idx)
 {
     TRACE_THING(thing);
     struct SpellConfig *spconf = get_spell_config(spell_idx);
-    if (clear_thing_spell_flags(thing, spconf->spell_flags)
-    || spell_is_continuous(spell_idx, get_spell_full_duration(spell_idx, 1)))
+    clear_thing_spell_flags(thing, spconf->spell_flags);
+    int slot_idx = get_spell_slot(thing, spell_idx);
+    if (slot_idx >= 0)
     {
-        int slot_idx = get_spell_slot(thing, spell_idx);
-        if (slot_idx >= 0)
-        {
-            free_spell_slot(thing, slot_idx);
-        }
+        free_spell_slot(thing, slot_idx);
     }
     return;
 }

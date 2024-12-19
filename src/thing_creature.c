@@ -1851,15 +1851,15 @@ void process_thing_spell_effects(struct Thing *thing)
         {
             continue;
         }
-        //struct SpellConfig *spconf = get_spell_config(cspell->spkind);
-        /*// Process spell with damage (or heal) overtime.
+        struct SpellConfig *spconf = get_spell_config(cspell->spkind);
+        // Process spell with damage (or heal) overtime.
         if ((spconf->damage > 0) && (spconf->damage_frequency > 0))
         {
             if (cspell->duration % spconf->damage_frequency == 0)
             {
                 process_thing_spell_damage_or_heal_effects(thing, cspell->spkind, cspell->caster_level, cspell->caster_owner);
             }
-        }*/
+        }
         // Process spell with teleport flag.
         if (cspell->spkind == cctrl->active_teleport_spell)
         {

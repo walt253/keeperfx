@@ -1842,48 +1842,16 @@ void process_thing_spell_effects(struct Thing *thing)
             continue;
         }
         struct SpellConfig *spconf = get_spell_config(cspell->spkind);
-        // Process spell with damage (or heal) overtime.
-        if ((spconf->damage > 0) && (spconf->damage_frequency > 0))
-        {
-            if (cspell->duration % spconf->damage_frequency == 0)
-            {
-                process_thing_spell_damage_or_heal_effects(thing, cspell->spkind);
-            }
-        }
-        // Process spell with cleanse property.
-        if ((flag_is_set(spconf->properties_flags, SPF_Cleanse))
-        && (any_flag_is_set(spconf->spell_flags, cctrl->spell_flags)))
-        {
-            clean_spell_effect(thing, spconf->spell_flags);
-        }
         // Process spell with teleport flag.
         if (cspell->spkind == cctrl->active_teleport_spell)
         {
             process_thing_spell_teleport_effects(thing, cspell);
         }
-        // Set the duration to 0 if each flags of the spell are cleared and there are no other continuous effects.
-        if (((spconf->spell_flags > 0) && (!flag_is_set(spconf->spell_flags, cctrl->spell_flags)))
-        && (spconf->damage_frequency == 0) && (!flag_is_set(spconf->properties_flags, SPF_Cleanse)))
-        {
-            cspell->duration = 0;
-        }
-        else
-        {
-            cspell->duration--;
-        }
+        cspell->duration--;
         // Terminate the spell.
         if (cspell->duration <= 0)
         {
             terminate_thing_spell_effect(thing, cspell->spkind);
-        }
-        else if (cctrl->spell_aura_duration <= 0 && flag_is_set(spconf->properties_flags, SPF_RepeatableAura))
-        {
-            // Reapply aura effect if possible.
-            if (spconf->aura_effect != 0)
-            {
-                cctrl->spell_aura = spconf->aura_effect;
-                cctrl->spell_aura_duration = spconf->duration;
-            }
         }
     }
     // Slap is not in spell array, it is so common that has its own dedicated duration.

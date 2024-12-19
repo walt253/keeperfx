@@ -1880,10 +1880,7 @@ void process_thing_spell_effects(struct Thing *thing)
         {
             cspell->duration = 0;
         }
-        else
-        {
-            cspell->duration--;
-        }
+        cspell->duration--;
         // Terminate the spell.
         if (cspell->duration <= 0)
         {

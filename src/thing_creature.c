@@ -1405,13 +1405,14 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
     {
         spell_lev = SPELL_MAX_LEVEL;
     }
-    GameTurnDelta duration = get_spell_full_duration(spell_idx, spell_lev);
+    // GameTurnDelta duration = get_spell_full_duration(spell_idx, spell_lev);
+    GameTurnDelta duration = 100;
     long i = get_free_spell_slot(thing);
     if (i != -1)
     {
         // Fill the spell slot if the spell has a continuous effect.
-        if (set_thing_spell_flags(thing, spell_idx, duration, spell_lev))
-        //|| spell_is_continuous(spell_idx, duration))
+        if (set_thing_spell_flags(thing, spell_idx, duration, spell_lev)
+        || spell_is_continuous(spell_idx, duration))
         {
             fill_spell_slot(thing, spell_idx, duration, spell_lev, plyr_idx, i);
             update_aura_effect_to_thing(thing, spell_idx);
@@ -1426,10 +1427,11 @@ void reapply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, Crt
     {
         spell_lev = SPELL_MAX_LEVEL;
     }
-    GameTurnDelta duration = get_spell_full_duration(spell_idx, spell_lev);
+    // GameTurnDelta duration = get_spell_full_duration(spell_idx, spell_lev);
+    GameTurnDelta duration = 100;
     // Reset the spell duration if the spell has a continuous effect.
-    if (set_thing_spell_flags(thing, spell_idx, duration, spell_lev))
-    //|| spell_is_continuous(spell_idx, duration))
+    if (set_thing_spell_flags(thing, spell_idx, duration, spell_lev)
+    || spell_is_continuous(spell_idx, duration))
     {
         struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
         struct CastedSpellData *cspell = &cctrl->casted_spells[slot_idx];
@@ -1467,7 +1469,8 @@ void apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, CrtrE
     {
         spell_lev = SPELL_MAX_LEVEL;
     }
-    GameTurnDelta duration = get_spell_full_duration(spell_idx, spell_lev);
+    // GameTurnDelta duration = get_spell_full_duration(spell_idx, spell_lev);
+    GameTurnDelta duration = 100;
     // Check for cleansing one-time effect.
     if (spconf->cleanse_flags > 0
     && any_flag_is_set(spconf->cleanse_flags, cctrl->spell_flags))

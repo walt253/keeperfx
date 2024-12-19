@@ -212,13 +212,13 @@ void process_disease(struct Thing *creatng)
                 // Per thing code.
                 tngcctrl = creature_control_get_from_thing(thing);
                 if (thing_is_creature(thing)
-                && ((get_creature_model_flags(thing) & CMF_IsSpecDigger) == 0)
+                && !thing_is_creature_special_digger(thing)
                 && (thing->owner != cctrl->disease_caster_plyridx)
                 && !creature_under_spell_effect(thing, CSAfF_Disease)
                 && !creature_is_immune_to_spell_effect(thing, CSAfF_Disease)
                 && (cctrl->disease_caster_plyridx != game.neutral_player_num))
                 { // Apply the spell kind stored in 'active_disease_spell'.
-                    apply_spell_effect_to_thing(thing, cctrl->active_disease_spell, cctrl->explevel);
+                    apply_spell_effect_to_thing(thing, cctrl->active_disease_spell, cctrl->explevel, creatng->owner);
                     tngcctrl->disease_caster_plyridx = cctrl->disease_caster_plyridx;
                 }
                 // Per thing code ends.
@@ -747,6 +747,8 @@ void process_timebomb(struct Thing *creatng)
         timebomb_explode(creatng);
     }
 }
+
+#define WEIGHT_DIVISOR 64
 
 void timebomb_explode(struct Thing *creatng)
 {

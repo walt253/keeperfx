@@ -594,6 +594,30 @@ long compute_creature_attack_range(long base_param, long luck, unsigned short cr
 }
 
 /**
+ * Computes damage of a spell with damage overtime.
+ * @param spell_damage Base Damage.
+ * @param caster_level Caster Level.
+ * @param caster_owner Caster Owner.
+ */
+HitPoints compute_creature_spell_damage_overtime(HitPoints spell_damage, CrtrExpLevel caster_level, PlayerNumber caster_owner)
+{
+    struct Dungeon* dungeon;
+    if (caster_level >= CREATURE_MAX_LEVEL)
+    {
+        caster_level = CREATURE_MAX_LEVEL-1;
+    }
+    HitPoints max_damage = spell_damage + (game.conf.crtr_conf.exp.spell_damage_increase_on_exp * spell_damage * caster_level) / 100;
+    // Apply modifier.
+    if (!player_is_neutral(caster_owner))
+    {
+        dungeon = get_dungeon(caster_owner);
+        unsigned short modifier = dungeon->modifier.spell_damage;
+        max_damage = (max_damage * modifier) / 100;
+    }
+    return max_damage;
+}
+
+/**
  * Computes work value, taking creature level into account.
  * The job value is an efficiency of doing a job by a creature.
  * @param base_param Base value of the parameter.
@@ -1400,7 +1424,7 @@ HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, DamageType d
                     dmg *= 4; // CSAfF_Freeze weakness.
                 } else {
                     cctrl->force_to_freeze = true;
-                    apply_spell_effect_to_thing(thing, 3, 1); // Hardcoded to SplK_Freeze for now.
+                    apply_spell_effect_to_thing(thing, 3, 0, dealing_plyr_idx); // Hardcoded to SplK_Freeze for now.
                 }
             } else {
                 // HOARFROST resistance.

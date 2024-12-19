@@ -1075,7 +1075,7 @@ TbBool explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, con
                     else {
                         spell_level = 0;
                     }
-                    apply_spell_effect_to_thing(tngdst, shotst->cast_spell_kind, spell_level);
+                    apply_spell_effect_to_thing(tngdst, shotst->cast_spell_kind, spell_level, owner);
                     struct SpellConfig *spconf = get_spell_config(shotst->cast_spell_kind);
                     if (flag_is_set(spconf->spell_flags, CSAfF_Disease))
                     {
@@ -1483,7 +1483,7 @@ TbBool poison_cloud_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, 
                     {
                         struct CreatureControl *srcctrl;
                         srcctrl = creature_control_get_from_thing(tngsrc);
-                        apply_spell_effect_to_thing(tngdst, spell_idx, srcctrl->explevel);
+                        apply_spell_effect_to_thing(tngdst, spell_idx, srcctrl->explevel, tngsrc->owner);
                     }
                     break;
                 case AAffT_GasEffect:
@@ -1492,7 +1492,7 @@ TbBool poison_cloud_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, 
                     {
                         struct CreatureControl *srcctrl;
                         srcctrl = creature_control_get_from_thing(tngsrc);
-                        apply_spell_effect_to_thing(tngdst, spell_idx, srcctrl->explevel);
+                        apply_spell_effect_to_thing(tngdst, spell_idx, srcctrl->explevel, tngsrc->owner);
                     }
                     break;
                 default:

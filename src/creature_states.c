@@ -951,12 +951,11 @@ TbBool creature_state_is_unset(const struct Thing *thing)
 TbBool restore_creature_flight_flag(struct Thing *creatng)
 {
     struct CreatureStats *crstat = creature_stats_get_from_thing(creatng);
-    struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
     // Creature can fly either by spell or naturally.
     if ((crstat->flying) || creature_under_spell_effect(creatng, CSAfF_Flying))
     {
         // Even flying creature is grounded while frozen.
-        if (!flag_is_set(cctrl->stateblock_flags, CCSpl_Freeze))
+        if (!creature_under_spell_effect(creatng, CSAfF_Freeze))
         {
             set_flag(creatng->movement_flags, TMvF_Flying);
             return true;
@@ -4148,7 +4147,7 @@ TbBool process_creature_hunger(struct Thing *thing)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-    if ((crstat->hunger_rate == 0) || flag_is_set(cctrl->stateblock_flags, CCSpl_Freeze) || is_neutral_thing(thing))
+    if ((crstat->hunger_rate == 0) || creature_under_spell_effect(thing, CSAfF_Freeze) || is_neutral_thing(thing))
         return false;
     cctrl->hunger_level++;
     if (!hunger_is_creature_hungry(thing))

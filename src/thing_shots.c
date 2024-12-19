@@ -1116,8 +1116,7 @@ void create_relevant_effect_for_shot_hitting_thing(struct Thing *shotng, struct 
         if (shotst->hit_creature.effect_model != 0) {
             create_used_effect_or_element(&shotng->mappos, shotst->hit_creature.effect_model, shotng->owner);
         }
-        struct CreatureControl* cctrl = creature_control_get_from_thing(target);
-        if (flag_is_set(cctrl->stateblock_flags, CCSpl_Freeze))
+        if (creature_under_spell_effect(target, CSAfF_Freeze))
         {
             if (shotst->effect_frozen != 0) {
                 create_used_effect_or_element(&shotng->mappos, shotst->effect_frozen, shotng->owner);
@@ -1305,7 +1304,7 @@ long melee_shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, stru
             {
                 n = 0;
             }
-            apply_spell_effect_to_thing(trgtng, shotst->cast_spell_kind, n);
+            apply_spell_effect_to_thing(trgtng, shotst->cast_spell_kind, n, shotng->owner);
             struct SpellConfig *spconf = get_spell_config(shotst->cast_spell_kind);
             if (flag_is_set(spconf->spell_flags, CSAfF_Disease))
             {
@@ -1673,7 +1672,7 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
         {
             n = 0;
         }
-        apply_spell_effect_to_thing(trgtng, shotst->cast_spell_kind, n);
+        apply_spell_effect_to_thing(trgtng, shotst->cast_spell_kind, n, shotng->owner);
         struct SpellConfig *spconf = get_spell_config(shotst->cast_spell_kind);
         if (flag_is_set(spconf->spell_flags, CSAfF_Disease))
         {

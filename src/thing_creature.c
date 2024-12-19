@@ -1852,14 +1852,14 @@ void process_thing_spell_effects(struct Thing *thing)
             continue;
         }
         struct SpellConfig *spconf = get_spell_config(cspell->spkind);
-        // Process spell with damage (or heal) overtime.
+        /*// Process spell with damage (or heal) overtime.
         if ((spconf->damage > 0) && (spconf->damage_frequency > 0))
         {
             if (cspell->duration % spconf->damage_frequency == 0)
             {
                 process_thing_spell_damage_or_heal_effects(thing, cspell->spkind, cspell->caster_level, cspell->caster_owner);
             }
-        }
+        }*/
         // Process spell with teleport flag.
         if (cspell->spkind == cctrl->active_teleport_spell)
         {
@@ -1872,25 +1872,25 @@ void process_thing_spell_effects(struct Thing *thing)
             clean_spell_effect(thing, spconf->cleanse_flags);
         } TODO: Implements CSAfF_SpellBlocks. */
         // Set the duration to 0 if each flags of the spell are cleared and there are no other continuous effects.
-        if (((spconf->spell_flags > 0) && (!flag_is_set(spconf->spell_flags, cctrl->spell_flags)))
+        /*if (((spconf->spell_flags > 0) && (!flag_is_set(spconf->spell_flags, cctrl->spell_flags)))
         && !spell_is_continuous(cspell->spkind, cspell->duration))
         {
             cspell->duration = 0;
-        }
+        }*/
         cspell->duration--;
         // Terminate the spell.
         if (cspell->duration <= 0)
         {
             terminate_thing_spell_effect(thing, cspell->spkind);
         }
-        else if (spconf->aura_frequency > 0)
+        /*else if (spconf->aura_frequency > 0)
         {
             if (cspell->duration % spconf->aura_frequency == 0)
             {
                 // Reapply aura effect if possible.
                 update_aura_effect_to_thing(thing, cspell->spkind);
             }
-        }
+        }*/
     }
     // Slap is not in spell array, it is so common that has its own dedicated duration.
     if (cctrl->slap_turns > 0)

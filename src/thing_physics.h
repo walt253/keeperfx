@@ -31,20 +31,21 @@ extern "C" {
 #pragma pack(1)
 
 enum DamageTypes {
-    DmgT_None = 0,
-    DmgT_Physical,
-    DmgT_Electric,
-    DmgT_Combustion,
-    DmgT_Frostbite,
-    DmgT_Heatburn,
-    DmgT_Biological,
-    DmgT_Magical,
-    DmgT_Respiratory,
-    DmgT_Restoration,
-    DmgT_Holy,
-    DmgT_Darkness,
-    DmgT_Hoarfrost,
-    DmgT_TypesCount, /*< Last item in enumeration, allows checking amount of valid types. */
+    DmgT_None        = 0,
+    DmgT_Physical    = 1,
+    DmgT_Electric    = 2,
+    DmgT_Combustion  = 3,
+    DmgT_Frostbite   = 4,
+    DmgT_Heatburn    = 5,
+    DmgT_Biological  = 6,
+    DmgT_Magical     = 7,
+    DmgT_Respiratory = 8,
+    DmgT_Restoration = 9,
+    DmgT_Poison      = 10,
+    DmgT_Holy        = 11,
+    DmgT_Darkness    = 12,
+    DmgT_Hoarfrost   = 13,
+    DmgT_TypesCount,
 };
 
 struct Thing;

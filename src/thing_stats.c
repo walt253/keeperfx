@@ -1164,10 +1164,11 @@ HitPoints calculate_shot_real_damage_to_door(struct Thing *doortng, struct Thing
  * Can be used only to make damage - never to heal creature.
  * @param thing
  * @param dmg
+ * @param damage_type
  * @param inflicting_plyr_idx
  * @return Amount of damage really inflicted.
  */
-HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, PlayerNumber dealing_plyr_idx)
+HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, DamageType damage_type, PlayerNumber dealing_plyr_idx)
 {
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);

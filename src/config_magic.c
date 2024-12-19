@@ -132,6 +132,7 @@ const struct NamedCommand magic_shot_commands[] = {
   {"GOLDPERCENT",           63},
   {"SLABKIND",              64},
   {"NOTRIGGERONFRIENDLY",   65},
+  {"DAMAGETYPE",            66},
   {NULL,                     0},
   };
 
@@ -1882,6 +1883,28 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
               k = atoi(word_buf);
               shotst->no_trigger_on_friendly = k;
               n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+          }
+          break;
+      case 66: // DAMAGETYPE
+          shotst->damage_type = 0;
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = get_id(shotmodel_damagetype_commands, word_buf);
+              if (k >= 0)
+              {
+                  shotst->damage_type = k;
+                  n++;
+              }
+              else
+              {
+                  shotst->damage_type = 0;
+                  n++;
+              }
           }
           if (n < 1)
           {

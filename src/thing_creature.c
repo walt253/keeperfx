@@ -5887,14 +5887,15 @@ void process_creature_leave_footsteps(struct Thing *thing)
  *
  * @param thing
  * @param dmg
+ * @param damage_type
  * @param inflicting_plyr_idx
  */
-HitPoints apply_damage_to_thing_and_display_health(struct Thing *thing, HitPoints dmg, PlayerNumber inflicting_plyr_idx)
+HitPoints apply_damage_to_thing_and_display_health(struct Thing *thing, HitPoints dmg, DamageType damage_type, PlayerNumber inflicting_plyr_idx)
 {
     HitPoints cdamage;
     if (dmg > 0)
     {
-        cdamage = apply_damage_to_thing(thing, dmg, inflicting_plyr_idx);
+        cdamage = apply_damage_to_thing(thing, dmg, damage_type, inflicting_plyr_idx);
     } else {
         cdamage = 0;
     }

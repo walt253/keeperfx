@@ -309,7 +309,7 @@ struct ShotConfigStats {
     /** Type of the damage inflicted by this shot. */
     short damage;
     short speed;
-    DamageType damage_type;
+    TbBool is_magical;
     struct ShotHitConfig hit_generic;
     struct ShotHitConfig hit_door;
     struct ShotHitConfig hit_water;
@@ -363,6 +363,7 @@ struct ShotConfigStats {
     unsigned char gold_percent;
     unsigned char slab_kind;
     unsigned char no_trigger_on_friendly;
+    DamageType damage_type;
 };
 
 typedef unsigned char (*Expand_Check_Func)(void);

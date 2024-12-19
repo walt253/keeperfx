@@ -1851,7 +1851,7 @@ void process_thing_spell_effects(struct Thing *thing)
         {
             continue;
         }
-        struct SpellConfig *spconf = get_spell_config(cspell->spkind);
+        //struct SpellConfig *spconf = get_spell_config(cspell->spkind);
         /*// Process spell with damage (or heal) overtime.
         if ((spconf->damage > 0) && (spconf->damage_frequency > 0))
         {

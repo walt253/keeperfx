@@ -1778,7 +1778,7 @@ short get_creature_control_action_inputs(void)
                 set_players_packet_action(player, PckA_SelectFPPickup, player->thing_under_hand, 0, 0, 0);
             }
         }
-        if (!creature_affected_by_spell(thing, SplK_Chicken))
+        if (!creature_under_spell_effect(thing, CSAfF_Chicken))
         {
             if (numkey != -1)
             {
@@ -1810,7 +1810,7 @@ void get_packet_control_mouse_clicks(void)
     static int synthetic_right = 0;
     SYNCDBG(8,"Starting");
 
-    if ( flag_is_set(game.operation_flags,GOF_Paused)  || busy_doing_gui )
+    if (flag_is_set(game.operation_flags, GOF_Paused))
     {
         return;
     }

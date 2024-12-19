@@ -51,25 +51,66 @@ extern "C" {
 const char keeper_magic_file[]="magic.cfg";
 
 const struct NamedCommand magic_spell_commands[] = {
-  {"NAME",            1},
-  {"DURATION",        2},
-  {"SELFCASTED",      3},
-  {"CASTATTHING",     4},
-  {"SHOTMODEL",       5},
-  {"EFFECTMODEL",     6},
-  {"SYMBOLSPRITES",   7},
-  {"SPELLPOWER",      8},
-  {"AURAEFFECT",      9},
-  {"SPELLFLAGS",     10},
-  {"SUMMONCREATURE", 11},
-  {NULL,              0},
-  };
+    {"NAME",             1},
+    {"DURATION",         2},
+    {"SELFCASTED",       3},
+    {"CASTATTHING",      4},
+    {"SHOTMODEL",        5},
+    {"EFFECTMODEL",      6},
+    {"SYMBOLSPRITES",    7},
+    {"SPELLPOWER",       8},
+    {"AURAEFFECT",       9},
+    {"SPELLFLAGS",      10},
+    {"SUMMONCREATURE",  11},
+    {"COUNTDOWN",       12},
+    {"HEALINGRECOVERY", 13},
+    {"DAMAGE",          14},
+    {"DAMAGEFREQUENCY", 15},
+    {"DAMAGETYPE",      16},
+    {"AURADURATION",    17},
+    {"AURAFREQUENCY",   18},
+    {"CLEANSEFLAGS",    19},
+    {"PROPERTIES",      20},
+    {NULL,               0},
+};
+
+const struct NamedCommand magic_spell_flags[] = {
+    {"SLOW",           1},
+    {"SPEED",          2},
+    {"ARMOUR",         3},
+    {"REBOUND",        4},
+    {"FLYING",         5},
+    {"INVISIBILITY",   6},
+    {"SIGHT",          7},
+    {"LIGHT",          8},
+    {"DISEASE",        9},
+    {"CHICKEN",       10},
+    {"POISON_CLOUD",  11},
+    {"FREEZE",        12},
+    {"MAD_KILLING",   13},
+    {"FEAR",          14},
+    {"HEAL",          15},
+    {"TELEPORT",      16},
+    {"TIMEBOMB",      17},
+    {"WIND",          18},
+    {"RAGE",          19},
+    {"DIVINE_SHIELD", 20},
+    {"MAGIC_MIST",    21},
+    {NULL,             0},
+};
+
+const struct NamedCommand magic_spell_properties[] = {
+    {"FIXED_DAMAGE",    1},
+    {"PERCENT_BASED",   2},
+    {"MAX_HEALTH",      3},
+    {NULL,              0},
+};
 
 const struct NamedCommand magic_shot_commands[] = {
   {"NAME",                   1},
   {"HEALTH",                 2},
   {"DAMAGE",                 3},
-  {"DAMAGETYPE",             4},
+  {"ISMAGICAL",              4},
   {"HITTYPE",                5},
   {"AREADAMAGE",             6},
   {"SPEED",                  7},
@@ -132,6 +173,7 @@ const struct NamedCommand magic_shot_commands[] = {
   {"GOLDPERCENT",           63},
   {"SLABKIND",              64},
   {"NOTRIGGERONFRIENDLY",   65},
+  {"DAMAGETYPE",            66},
   {NULL,                     0},
   };
 
@@ -260,21 +302,22 @@ const struct NamedCommand powermodel_properties_commands[] = {
 };
 
 const struct NamedCommand shotmodel_damagetype_commands[] = {
-  {"NONE",        DmgT_None},
-  {"PHYSICAL",    DmgT_Physical},
-  {"ELECTRIC",    DmgT_Electric},
-  {"COMBUSTION",  DmgT_Combustion},
-  {"FROSTBITE",   DmgT_Frostbite},
-  {"HEATBURN",    DmgT_Heatburn},
-  {"BIOLOGICAL",  DmgT_Biological},
-  {"MAGICAL",     DmgT_Magical},
-  {"RESPIRATORY", DmgT_Respiratory},
-  {"RESTORATION", DmgT_Restoration},
-  {"HOLY",        DmgT_Holy},
-  {"DARKNESS",    DmgT_Darkness},
-  {"HOARFROST",   DmgT_Hoarfrost},
-  {NULL,          DmgT_None},
-  };
+    {"NONE",        DmgT_None},
+    {"PHYSICAL",    DmgT_Physical},
+    {"ELECTRIC",    DmgT_Electric},
+    {"COMBUSTION",  DmgT_Combustion},
+    {"FROSTBITE",   DmgT_Frostbite},
+    {"HEATBURN",    DmgT_Heatburn},
+    {"BIOLOGICAL",  DmgT_Biological},
+    {"MAGICAL",     DmgT_Magical},
+    {"RESPIRATORY", DmgT_Respiratory},
+    {"RESTORATION", DmgT_Restoration},
+    {"POISON",      DmgT_Poison},
+    {"HOLY",        DmgT_Holy},
+    {"DARKNESS",    DmgT_Darkness},
+    {"HOARFROST",   DmgT_Hoarfrost},
+    {NULL,          DmgT_None},
+};
 
 const struct NamedCommand powermodel_expand_check_func_type[] = {
   {"general_expand",           OcC_General_expand},
@@ -291,33 +334,29 @@ const struct NamedCommand magic_cost_formula_commands[] = {
 };
 
 const struct NamedCommand magic_use_func_commands[] = {
-  {"none",                             0},
-  {"magic_use_power_hand",             1},
-  {"magic_use_power_heal",             2},
-  {"magic_use_power_apply_spell",      3},
-  {"magic_use_power_disease",          4},
-  {"magic_use_power_chicken",          5},
-  {"magic_use_power_slap_thing",       6},
-  {"magic_use_power_possess_thing",    7},
-  {"magic_use_power_call_to_arms",     8},
-  {"magic_use_power_lightning",        9},
-  {"magic_use_power_time_bomb",       10},
-  {"magic_use_power_imp",             11},
-  {"magic_use_power_sight",           12},
-  {"magic_use_power_cave_in",         13},
-  {"magic_use_power_destroy_walls",   14},
-  {"magic_use_power_obey",            15},
-  {"magic_use_power_hold_audience",   16},
-  {"magic_use_power_armageddon",      17},
-  {"magic_use_power_tunneller",       18},
-  {"magic_use_power_meteor_storm",    19},
-  {"magic_use_power_mighty_infusion", 20},
-  {"magic_use_power_mass_teleport",   21},
-  {"magic_use_power_fart",            22},
-  {"magic_use_power_summon_creature", 23},
-  {"magic_use_power_eruption",        24},
-  {NULL,                               0},
-  };
+    {"none",                             0},
+    {"magic_use_power_hand",             1},
+    {"magic_use_power_apply_spell",      2},
+    {"magic_use_power_slap_thing",       3},
+    {"magic_use_power_possess_thing",    4},
+    {"magic_use_power_call_to_arms",     5},
+    {"magic_use_power_lightning",        6},
+    {"magic_use_power_imp",              7},
+    {"magic_use_power_sight",            8},
+    {"magic_use_power_cave_in",          9},
+    {"magic_use_power_destroy_walls",   10},
+    {"magic_use_power_obey",            11},
+    {"magic_use_power_hold_audience",   12},
+    {"magic_use_power_armageddon",      13},
+    {"magic_use_power_tunneller",       14},
+    {"magic_use_power_meteor_storm",    15},
+    {"magic_use_power_mighty_infusion", 16},
+    {"magic_use_power_mass_teleport",   17},
+    {"magic_use_power_fart",            18},
+    {"magic_use_power_summon_creature", 19},
+    {"magic_use_power_eruption",        20},
+    {NULL,                               0},
+};
 
 const Expand_Check_Func powermodel_expand_check_func_list[] = {
   NULL,
@@ -338,18 +377,22 @@ struct NamedCommand special_desc[MAGIC_ITEMS_MAX];
 }
 #endif
 /******************************************************************************/
-struct SpellConfig *get_spell_config(int mgc_idx)
+struct SpellConfig *get_spell_config(SpellKind spell_idx)
 {
-  if ((mgc_idx < 0) || (mgc_idx >= game.conf.magic_conf.spell_types_count))
-    return &game.conf.magic_conf.spell_config[0];
-  return &game.conf.magic_conf.spell_config[mgc_idx];
+    if ((spell_idx == 0) || (spell_idx >= game.conf.magic_conf.spell_types_count))
+    {
+        return &game.conf.magic_conf.spell_config[0];
+    }
+    return &game.conf.magic_conf.spell_config[spell_idx];
 }
 
-TbBool spell_config_is_invalid(const struct SpellConfig *mgcinfo)
+TbBool spell_config_is_invalid(struct SpellConfig *mgcinfo)
 {
-  if (mgcinfo <= &game.conf.magic_conf.spell_config[0])
-    return true;
-  return false;
+    if (mgcinfo <= &game.conf.magic_conf.spell_config[0])
+    {
+        return true;
+    }
+    return false;
 }
 
 TextStringId get_power_name_strindex(PowerKind pwkind)
@@ -439,7 +482,7 @@ short write_magic_shot_to_log(const struct ShotConfigStats *shotst, int num)
 {
   JUSTMSG("[shot%d]",(int)num);
   JUSTMSG("Name = %s",shotst->code_name);
-  JUSTMSG("Values = %d %d",(int)shotst->damage_type,(int)shotst->experience_given_to_shooter);
+  JUSTMSG("Values = %d %d",(int)shotst->is_magical,(int)shotst->experience_given_to_shooter);
   return true;
 }
 
@@ -472,7 +515,15 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
       spconf->crtr_summon_level = 0;
       spconf->crtr_summon_amount = 0;
       spconf->aura_effect = 0;
+      spconf->aura_duration = 0;
+      spconf->aura_frequency = 0;
       spconf->spell_flags = 0;
+      spconf->properties_flags = 0;
+      spconf->countdown = 0;
+      spconf->healing_recovery = 0;
+      spconf->damage = 0;
+      spconf->damage_frequency = 0;
+      spconf->damage_type = 0;
     }
   }
   spell_desc[MAGIC_ITEMS_MAX - 1].name = NULL; // must be null for get_id
@@ -664,22 +715,130 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
                   COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
-      case 10: // SPELLFLAGS
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              if (k >= 0)
-              {
-                  spconf->spell_flags = k;
-                  n++;
-              }
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-          }
-          break;
+        case 10: // SPELLFLAGS
+            spconf->spell_flags = 0;
+            while (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+            {
+                if (parameter_is_number(word_buf))
+                {
+                    k = atoi(word_buf);
+                    spconf->spell_flags = k;
+                    if (flag_is_set(spconf->spell_flags, CSAfF_PoisonCloud))
+                    {
+                        clear_flag(spconf->spell_flags, CSAfF_PoisonCloud);
+                        WARNLOG("'POISON_CLOUD' has no effect on spells, spell flag is not set on %s", spell_code_name(i));
+                    }
+                    if (flag_is_set(spconf->spell_flags, CSAfF_Wind))
+                    {
+                        clear_flag(spconf->spell_flags, CSAfF_Wind);
+                        WARNLOG("'WIND' has no effect on spells, spell flag is not set on %s", spell_code_name(i));
+                    }
+                    n++;
+                }
+                else
+                {
+                    k = get_id(magic_spell_flags, word_buf);
+                    switch (k)
+                    {
+                        case 1: // SLOW
+                            set_flag(spconf->spell_flags, CSAfF_Slow);
+                            n++;
+                            break;
+                        case 2: // SPEED
+                            set_flag(spconf->spell_flags, CSAfF_Speed);
+                            n++;
+                            break;
+                        case 3: // ARMOUR
+                            set_flag(spconf->spell_flags, CSAfF_Armour);
+                            n++;
+                            break;
+                        case 4: // REBOUND
+                            set_flag(spconf->spell_flags, CSAfF_Rebound);
+                            n++;
+                            break;
+                        case 5: // FLYING
+                            set_flag(spconf->spell_flags, CSAfF_Flying);
+                            n++;
+                            break;
+                        case 6: // INVISIBILITY
+                            set_flag(spconf->spell_flags, CSAfF_Invisibility);
+                            n++;
+                            break;
+                        case 7: // SIGHT
+                            set_flag(spconf->spell_flags, CSAfF_Sight);
+                            n++;
+                            break;
+                        case 8: // LIGHT
+                            set_flag(spconf->spell_flags, CSAfF_Light);
+                            n++;
+                            break;
+                        case 9: // DISEASE
+                            set_flag(spconf->spell_flags, CSAfF_Disease);
+                            n++;
+                            break;
+                        case 10: // CHICKEN
+                            set_flag(spconf->spell_flags, CSAfF_Chicken);
+                            n++;
+                            break;
+                        case 11: // POISON_CLOUD
+                            //set_flag(spconf->spell_flags, CSAfF_PoisonCloud);
+                            WARNLOG("'POISON_CLOUD' has no effect on spells, spell flag is not set on %s", spell_code_name(i));
+                            n++;
+                            break;
+                        case 12: // FREEZE
+                            set_flag(spconf->spell_flags, CSAfF_Freeze);
+                            n++;
+                            break;
+                        case 13: // MAD_KILLING
+                            set_flag(spconf->spell_flags, CSAfF_MadKilling);
+                            n++;
+                            break;
+                        case 14: // FEAR
+                            set_flag(spconf->spell_flags, CSAfF_Fear);
+                            n++;
+                            break;
+                        case 15: // HEAL
+                            set_flag(spconf->spell_flags, CSAfF_Heal);
+                            n++;
+                            break;
+                        case 16: // TELEPORT
+                            set_flag(spconf->spell_flags, CSAfF_Teleport);
+                            n++;
+                            break;
+                        case 17: // TIMEBOMB
+                            set_flag(spconf->spell_flags, CSAfF_Timebomb);
+                            n++;
+                            break;
+                        case 18: // WIND
+                            //set_flag(spconf->spell_flags, CSAfF_Wind);
+                            WARNLOG("'WIND' has no effect on spells, spell flag is not set on %s", spell_code_name(i));
+                            n++;
+                            break;
+                        case 19: // RAGE
+                            set_flag(spconf->spell_flags, CSAfF_Rage);
+                            n++;
+                            break;
+                        case 20: // DIVINE_SHIELD
+                            set_flag(spconf->spell_flags, CSAfF_DivineShield);
+                            n++;
+                            break;
+                        case 21: // MAGIC_MIST
+                            set_flag(spconf->spell_flags, CSAfF_MagicMist);
+                            n++;
+                            break;
+                        default:
+                            CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                                COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+                            break;
+                    }
+                }
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+            }
+            break;
         case 11: // SUMMONCREATURE
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
@@ -717,6 +876,252 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
                   COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
+        case 12: // COUNTDOWN
+            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                spconf->countdown = k;
+                n++;
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+            }
+            break;
+        case 13: // HEALINGRECOVERY
+            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                spconf->healing_recovery = k;
+                n++;
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+            }
+            break;
+        case 14: // DAMAGE
+            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                spconf->damage = k;
+                n++;
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+            }
+            break;
+        case 15: // DAMAGEFREQUENCY
+            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                spconf->damage_frequency = k;
+                n++;
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+            }
+            break;
+        case 16: // DAMAGETYPE
+            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+            {
+                k = get_id(shotmodel_damagetype_commands, word_buf);
+                if (k >= 0)
+                {
+                    spconf->damage_type = k;
+                    n++;
+                }
+            }
+            if (n < 1)
+            {
+                spconf->damage_type = 0; // Default damage type to "none", to allow empty values in config.
+                break;
+            }
+            break;
+        case 17: // AURADURATION
+            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                spconf->aura_duration = k;
+                n++;
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+            }
+            break;
+        case 18: // AURAFREQUENCY
+            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                spconf->aura_frequency = k;
+                n++;
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+            }
+            break;
+        case 19: // CLEANSEFLAGS
+            spconf->cleanse_flags = 0;
+            while (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+            {
+                if (parameter_is_number(word_buf))
+                {
+                    k = atoi(word_buf);
+                    spconf->cleanse_flags = k;
+                    if (flag_is_set(spconf->cleanse_flags, CSAfF_PoisonCloud))
+                    {
+                        clear_flag(spconf->cleanse_flags, CSAfF_PoisonCloud);
+                        WARNLOG("'POISON_CLOUD' has no effect on spells, cleanse flag is not set on %s", spell_code_name(i));
+                    }
+                    if (flag_is_set(spconf->cleanse_flags, CSAfF_Wind))
+                    {
+                        clear_flag(spconf->cleanse_flags, CSAfF_Wind);
+                        WARNLOG("'WIND' has no effect on spells, cleanse flag is not set on %s", spell_code_name(i));
+                    }
+                    n++;
+                }
+                else
+                {
+                    k = get_id(magic_spell_flags, word_buf);
+                    switch (k)
+                    {
+                        case 1: // SLOW
+                            set_flag(spconf->cleanse_flags, CSAfF_Slow);
+                            n++;
+                            break;
+                        case 2: // SPEED
+                            set_flag(spconf->cleanse_flags, CSAfF_Speed);
+                            n++;
+                            break;
+                        case 3: // ARMOUR
+                            set_flag(spconf->cleanse_flags, CSAfF_Armour);
+                            n++;
+                            break;
+                        case 4: // REBOUND
+                            set_flag(spconf->cleanse_flags, CSAfF_Rebound);
+                            n++;
+                            break;
+                        case 5: // FLYING
+                            set_flag(spconf->cleanse_flags, CSAfF_Flying);
+                            n++;
+                            break;
+                        case 6: // INVISIBILITY
+                            set_flag(spconf->cleanse_flags, CSAfF_Invisibility);
+                            n++;
+                            break;
+                        case 7: // SIGHT
+                            set_flag(spconf->cleanse_flags, CSAfF_Sight);
+                            n++;
+                            break;
+                        case 8: // LIGHT
+                            set_flag(spconf->cleanse_flags, CSAfF_Light);
+                            n++;
+                            break;
+                        case 9: // DISEASE
+                            set_flag(spconf->cleanse_flags, CSAfF_Disease);
+                            n++;
+                            break;
+                        case 10: // CHICKEN
+                            set_flag(spconf->cleanse_flags, CSAfF_Chicken);
+                            n++;
+                            break;
+                        case 11: // POISON_CLOUD
+                            //set_flag(spconf->cleanse_flags, CSAfF_PoisonCloud);
+                            WARNLOG("'POISON_CLOUD' has no effect on spells, cleanse flag is not set on %s", spell_code_name(i));
+                            n++;
+                            break;
+                        case 12: // FREEZE
+                            set_flag(spconf->cleanse_flags, CSAfF_Freeze);
+                            n++;
+                            break;
+                        case 13: // MAD_KILLING
+                            set_flag(spconf->cleanse_flags, CSAfF_MadKilling);
+                            n++;
+                            break;
+                        case 14: // FEAR
+                            set_flag(spconf->cleanse_flags, CSAfF_Fear);
+                            n++;
+                            break;
+                        case 15: // HEAL
+                            set_flag(spconf->cleanse_flags, CSAfF_Heal);
+                            n++;
+                            break;
+                        case 16: // TELEPORT
+                            set_flag(spconf->cleanse_flags, CSAfF_Teleport);
+                            n++;
+                            break;
+                        case 17: // TIMEBOMB
+                            set_flag(spconf->cleanse_flags, CSAfF_Timebomb);
+                            n++;
+                            break;
+                        case 18: // WIND
+                            //set_flag(spconf->cleanse_flags, CSAfF_Wind);
+                            WARNLOG("'WIND' has no effect on spells, cleanse flag is not set on %s", spell_code_name(i));
+                            n++;
+                            break;
+                        default:
+                            CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                                COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+                            break;
+                    }
+                }
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+            }
+            break;
+        case 20: // PROPERTIES
+            spconf->properties_flags = 0;
+            while (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+            {
+                if (parameter_is_number(word_buf))
+                {
+                    k = atoi(word_buf);
+                    spconf->properties_flags = k;
+                    n++;
+                }
+                else
+                {
+                    k = get_id(magic_spell_properties, word_buf);
+                    switch (k)
+                    {
+                        case 1: // FIXED_DAMAGE
+                            set_flag(spconf->properties_flags, SPF_FixedDamage);
+                            n++;
+                            break;
+                        case 2: // PERCENT_BASED
+                            set_flag(spconf->properties_flags, SPF_PercentBased);
+                            n++;
+                            break;
+                        case 3: // MAX_HEALTH
+                            set_flag(spconf->properties_flags, SPF_MaxHealth);
+                            n++;
+                            break;
+                        default:
+                            CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                                COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+                            break;
+                    }
+                }
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+            }
+            break;
       case ccr_comment:
           break;
       case ccr_endOfFile:
@@ -859,20 +1264,17 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
                 COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
-      case 4: // DAMAGETYPE
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+      case 4: // ISMAGICAL
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
-              k = get_id(shotmodel_damagetype_commands, word_buf);
-              if (k >= 0) {
-                  shotst->damage_type = k;
-                  n++;
-              }
+              k = atoi(word_buf);
+              shotst->is_magical = k;
+              n++;
           }
           if (n < 1)
           {
-              //CONFWRNLOG("Incorrect shot model \"%s\" in [%s] block of %s file.",word_buf,block_buf,config_textname);
-              shotst->damage_type = 0; // Default damage type to "none", to allow empty values in config.
-              break;
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 5: // HITTYPE
@@ -1884,6 +2286,28 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
               k = atoi(word_buf);
               shotst->no_trigger_on_friendly = k;
               n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+          }
+          break;
+      case 66: // DAMAGETYPE
+          shotst->damage_type = 0;
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = get_id(shotmodel_damagetype_commands, word_buf);
+              if (k >= 0)
+              {
+                  shotst->damage_type = k;
+                  n++;
+              }
+              else
+              {
+                  shotst->damage_type = 0;
+                  n++;
+              }
           }
           if (n < 1)
           {

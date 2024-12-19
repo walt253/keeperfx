@@ -34,6 +34,7 @@
 #include "thing_stats.h"
 #include "config_campaigns.h"
 #include "config_creature.h"
+#include "config_magic.h"
 #include "config_terrain.h"
 #include "config_lenses.h"
 #include "creature_control.h"
@@ -41,6 +42,7 @@
 #include "creature_states.h"
 #include "creature_states_mood.h"
 #include "player_data.h"
+#include "console_cmd.h"
 #include "custom_sprites.h"
 #include "lvl_script_lib.h"
 #include "post_inc.h"
@@ -72,7 +74,7 @@ const struct NamedCommand creatmodel_attributes_commands[] = {
   {"SIZE",               19},
   {"ATTACKPREFERENCE",   20},
   {"PAY",                21},
-  {"HEROVSKEEPERCOST",   22},//removed
+  {"HEROVSKEEPERCOST",   22}, // Removed.
   {"SLAPSTOKILL",        23},
   {"CREATURELOYALTY",    24},
   {"LOYALTYLEVEL",       25},
@@ -87,22 +89,23 @@ const struct NamedCommand creatmodel_attributes_commands[] = {
   {"LAIROBJECT",         34},
   {"PRISONKIND",         35},
   {"TORTUREKIND",        36},
-  {"HOSTILETOWARDS",     37},
-  {"LAVARECOVERY",       38},
-  {"HURTBYWATER",        39},
-  {"WATERRECOVERY",      40},
-  {"MAGIC",              41},
-  {"POOPAMOUNT",         42},
-  {"POOPFREQUENCY",      43},
-  {"POOPRANDOM",         44},
-  {"POOPTYPE",           45},
+  {"SPELLIMMUNITY",      37},
+  {"HOSTILETOWARDS",     38},
+  {"LAVARECOVERY",       39},
+  {"HURTBYWATER",        40},
+  {"WATERRECOVERY",      41},
+  {"MAGIC",              42},
+  {"POOPAMOUNT",         43},
+  {"POOPFREQUENCY",      44},
+  {"POOPRANDOM",         45},
+  {"POOPTYPE",           46},
   {NULL,                  0},
-  };
+};
 
 const struct NamedCommand creatmodel_properties_commands[] = {
   {"BLEEDS",             1},
-  {"UNAFFECTED_BY_WIND", 2},
-  {"IMMUNE_TO_GAS",      3},
+  {"UNAFFECTED_BY_WIND", 2}, // Deprecated, but retained in NamedCommand for backward compatibility.
+  {"IMMUNE_TO_GAS",      3}, // Deprecated, but retained in NamedCommand for backward compatibility.
   {"HUMANOID_SKELETON",  4},
   {"PISS_ON_DEAD",       5},
   {"FLYING",             7},
@@ -114,7 +117,7 @@ const struct NamedCommand creatmodel_properties_commands[] = {
   {"LORD",              13},
   {"SPECTATOR",         14},
   {"EVIL",              15},
-  {"NEVER_CHICKENS",    16},
+  {"NEVER_CHICKENS",    16}, // Deprecated, but retained in NamedCommand for backward compatibility.
   {"IMMUNE_TO_BOULDER", 17},
   {"NO_CORPSE_ROTTING", 18},
   {"NO_ENMHEART_ATTCK", 19},
@@ -123,7 +126,7 @@ const struct NamedCommand creatmodel_properties_commands[] = {
   {"INSECT",            22},
   {"ONE_OF_KIND",       23},
   {"NO_IMPRISONMENT",   24},
-  {"IMMUNE_TO_DISEASE", 25},
+  {"IMMUNE_TO_DISEASE", 25}, // Deprecated, but retained in NamedCommand for backward compatibility.
   {"ILLUMINATED",       26},
   {"ALLURING_SCVNGR",   27},
   {"NO_RESURRECT",      28},
@@ -134,18 +137,16 @@ const struct NamedCommand creatmodel_properties_commands[] = {
   {"PREFER_STEAL",      33},
   {"EVENTFUL_DEATH",    34},
   {"IMMUNE_TO_CHARM",   35},
-  {"IMMUNE_TO_FREEZE",  36},
-  {"IMMUNE_TO_SLOW",    37},
-  {"SELF_RECOVERY",     38},
-  {"RESIST_TO_MAGIC",   39},
-  {"MECHANICAL",        40},
-  {"UNDEAD",            41},
-  {"THIEF",             42},
-  {"ETHEREAL",          43},
-  {"HOARFROST",         44},
-  {"BOSS",              45},
+  {"SELF_RECOVERY",     36},
+  {"RESIST_TO_MAGIC",   37},
+  {"MECHANICAL",        38},
+  {"UNDEAD",            39},
+  {"THIEF",             40},
+  {"ETHEREAL",          41},
+  {"HOARFROST",         42},
+  {"BOSS",              43},
   {NULL,                 0},
-  };
+};
 
 const struct NamedCommand creatmodel_attraction_commands[] = {
   {"ENTRANCEROOM",       1},
@@ -615,16 +616,12 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
           break;
       case 28: // PROPERTIES
           crstat->bleeds = false;
-          crstat->affected_by_wind = true;
-          crstat->immune_to_gas = false;
           crstat->humanoid_creature = false;
           crstat->piss_on_dead = false;
           crstat->flying = false;
           crstat->can_see_invisible = false;
           crstat->can_go_locked_doors = false;
           crstat->immune_to_charm = false;
-          crstat->immune_to_freeze = false;
-          crstat->immune_to_slow = false;
           crstat->self_recovery = false;
           crstat->resist_to_magic = false;
           crstat->is_mechanical = false;
@@ -644,11 +641,11 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
               n++;
               break;
             case 2: // UNAFFECTED_BY_WIND
-              crstat->affected_by_wind = false;
+              set_flag(crstat->immunity_flags, CSAfF_Wind);
               n++;
               break;
             case 3: // IMMUNE_TO_GAS
-              crstat->immune_to_gas = true;
+              set_flag(crstat->immunity_flags, CSAfF_PoisonCloud);
               n++;
               break;
             case 4: // HUMANOID_SKELETON
@@ -696,7 +693,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
               n++;
               break;
             case 16: // NEVER_CHICKENS
-              crconf->model_flags |= CMF_NeverChickens;
+              set_flag(crstat->immunity_flags, CSAfF_Chicken);
               n++;
               break;
             case 17: // IMMUNE_TO_BOULDER
@@ -733,7 +730,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
                 n++;
                 break;
             case 25: // IMMUNE_TO_DISEASE
-                crconf->model_flags |= CMF_NeverSick;
+                set_flag(crstat->immunity_flags, CSAfF_Disease);
                 n++;
                 break;
             case 26: // ILLUMINATED
@@ -776,43 +773,35 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
                 crstat->immune_to_charm = true;
                 n++;
                 break;
-            case 36: // IMMUNE_TO_FREEZE
-                crstat->immune_to_freeze = true;
-                n++;
-                break;
-            case 37: // IMMUNE_TO_SLOW
-                crstat->immune_to_slow = true;
-                n++;
-                break;
-            case 38: // SELF_RECOVERY
+            case 36: // SELF_RECOVERY
                 crstat->self_recovery = true;
                 n++;
                 break;
-            case 39: // RESIST_TO_MAGIC
+            case 37: // RESIST_TO_MAGIC
                 crstat->resist_to_magic = true;
                 n++;
                 break;
-            case 40: // MECHANICAL
+            case 38: // MECHANICAL
                 crstat->is_mechanical = true;
                 n++;
                 break;
-            case 41: // UNDEAD
+            case 39: // UNDEAD
                 crstat->is_undead = true;
                 n++;
                 break;
-            case 42: // THIEF
+            case 40: // THIEF
                 crstat->is_thief = true;
                 n++;
                 break;
-            case 43: // ETHEREAL
+            case 41: // ETHEREAL
                 crstat->ethereal = true;
                 n++;
                 break;
-            case 44: // HOARFROST
+            case 42: // HOARFROST
                 crstat->hoarfrost = true;
                 n++;
                 break;
-            case 45: // BOSS
+            case 43: // BOSS
                 crstat->boss = true;
                 n++;
                 break;
@@ -921,7 +910,129 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
                   COMMAND_TEXT(cmd_num), block_buf, config_textname);
           }
           break;
-        case 37: // HOSTILETOWARDS
+        case 37: // SPELLIMMUNITY
+            // Backward compatibility check.
+            TbBool unaffected_by_wind = flag_is_set(crstat->immunity_flags, CSAfF_Wind);
+            TbBool immune_to_gas = flag_is_set(crstat->immunity_flags, CSAfF_PoisonCloud);
+            TbBool never_chickens = flag_is_set(crstat->immunity_flags, CSAfF_Chicken);
+            TbBool immune_to_disease = flag_is_set(crstat->immunity_flags, CSAfF_Disease);
+            crstat->immunity_flags = 0; // Clear flags, this is necessary for partial config if modder wants to remove all flags.
+            // Backward compatibility fix.
+            if (unaffected_by_wind) {set_flag(crstat->immunity_flags, CSAfF_Wind);}
+            if (immune_to_gas) {set_flag(crstat->immunity_flags, CSAfF_PoisonCloud);}
+            if (never_chickens) {set_flag(crstat->immunity_flags, CSAfF_Chicken);}
+            if (immune_to_disease) {set_flag(crstat->immunity_flags, CSAfF_Disease);}
+            while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+                if (parameter_is_number(word_buf))
+                {
+                    k = atoi(word_buf);
+                    crstat->immunity_flags = k;
+                    n++;
+                }
+                else
+                {
+                    k = get_id(magic_spell_flags, word_buf);
+                    switch (k)
+                    {
+                        case 1: // SLOW
+                            set_flag(crstat->immunity_flags, CSAfF_Slow);
+                            n++;
+                            break;
+                        case 2: // SPEED
+                            set_flag(crstat->immunity_flags, CSAfF_Speed);
+                            n++;
+                            break;
+                        case 3: // ARMOUR
+                            set_flag(crstat->immunity_flags, CSAfF_Armour);
+                            n++;
+                            break;
+                        case 4: // REBOUND
+                            set_flag(crstat->immunity_flags, CSAfF_Rebound);
+                            n++;
+                            break;
+                        case 5: // FLYING
+                            set_flag(crstat->immunity_flags, CSAfF_Flying);
+                            n++;
+                            break;
+                        case 6: // INVISIBILITY
+                            set_flag(crstat->immunity_flags, CSAfF_Invisibility);
+                            n++;
+                            break;
+                        case 7: // SIGHT
+                            set_flag(crstat->immunity_flags, CSAfF_Sight);
+                            n++;
+                            break;
+                        case 8: // LIGHT
+                            set_flag(crstat->immunity_flags, CSAfF_Light);
+                            n++;
+                            break;
+                        case 9: // DISEASE
+                            set_flag(crstat->immunity_flags, CSAfF_Disease);
+                            n++;
+                            break;
+                        case 10: // CHICKEN
+                            set_flag(crstat->immunity_flags, CSAfF_Chicken);
+                            n++;
+                            break;
+                        case 11: // POISON_CLOUD
+                            set_flag(crstat->immunity_flags, CSAfF_PoisonCloud);
+                            n++;
+                            break;
+                        case 12: // FREEZE
+                            set_flag(crstat->immunity_flags, CSAfF_Freeze);
+                            n++;
+                            break;
+                        case 13: // MAD_KILLING
+                            set_flag(crstat->immunity_flags, CSAfF_MadKilling);
+                            n++;
+                            break;
+                        case 14: // FEAR
+                            set_flag(crstat->immunity_flags, CSAfF_Fear);
+                            n++;
+                            break;
+                        case 15: // HEAL
+                            set_flag(crstat->immunity_flags, CSAfF_Heal);
+                            n++;
+                            break;
+                        case 16: // TELEPORT
+                            set_flag(crstat->immunity_flags, CSAfF_Teleport);
+                            n++;
+                            break;
+                        case 17: // TIMEBOMB
+                            set_flag(crstat->immunity_flags, CSAfF_Timebomb);
+                            n++;
+                            break;
+                        case 18: // WIND
+                            set_flag(crstat->immunity_flags, CSAfF_Wind);
+                            n++;
+                            break;
+                        case 19: // RAGE
+                            set_flag(crstat->immunity_flags, CSAfF_Rage);
+                            n++;
+                            break;
+                        case 20: // DIVINE_SHIELD
+                            set_flag(crstat->immunity_flags, CSAfF_DivineShield);
+                            n++;
+                            break;
+                        case 21: // MAGIC_MIST
+                            set_flag(crstat->immunity_flags, CSAfF_MagicMist);
+                            n++;
+                            break;
+                        default:
+                            CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in [%s] block of %s %s file.",
+                                COMMAND_TEXT(cmd_num), word_buf, block_buf, creature_code_name(crtr_model), config_textname);
+                            break;
+                    }
+                }
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s %s file.",
+                    COMMAND_TEXT(cmd_num), block_buf, creature_code_name(crtr_model), config_textname);
+            }
+            break;
+        case 38: // HOSTILETOWARDS
             for (int i = 0; i < CREATURE_TYPES_MAX; i++)
             {
                 if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
@@ -953,7 +1064,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
                     COMMAND_TEXT(cmd_num), block_buf, config_textname, creature_code_name(crtr_model));
             }
             break;
-      case 38: // LAVARECOVERY
+      case 39: // LAVARECOVERY
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
@@ -966,7 +1077,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
                   COMMAND_TEXT(cmd_num), block_buf, creature_code_name(crtr_model), config_textname);
           }
           break;
-      case 39: // HURTBYWATER
+      case 40: // HURTBYWATER
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
@@ -979,7 +1090,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
                   COMMAND_TEXT(cmd_num), block_buf, creature_code_name(crtr_model), config_textname);
           }
           break;
-      case 40: // WATERRECOVERY
+      case 41: // WATERRECOVERY
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
@@ -992,7 +1103,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
                   COMMAND_TEXT(cmd_num), block_buf, creature_code_name(crtr_model), config_textname);
           }
           break;
-      case 41: // MAGIC
+      case 42: // MAGIC
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
@@ -1005,7 +1116,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
                   COMMAND_TEXT(cmd_num), block_buf, creature_code_name(crtr_model), config_textname);
           }
           break;
-      case 42: // POOPAMOUNT
+      case 43: // POOPAMOUNT
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
@@ -1018,7 +1129,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
                   COMMAND_TEXT(cmd_num), block_buf, creature_code_name(crtr_model), config_textname);
           }
           break;
-      case 43: // POOPFREQUENCY
+      case 44: // POOPFREQUENCY
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
@@ -1031,7 +1142,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
                   COMMAND_TEXT(cmd_num), block_buf, creature_code_name(crtr_model), config_textname);
           }
           break;
-      case 44: // POOPRANDOM
+      case 45: // POOPRANDOM
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
@@ -1044,7 +1155,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
                   COMMAND_TEXT(cmd_num), block_buf, creature_code_name(crtr_model), config_textname);
           }
           break;
-      case 45: // POOPTYPE
+      case 46: // POOPTYPE
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = get_id(object_desc, word_buf);

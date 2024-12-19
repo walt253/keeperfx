@@ -507,7 +507,7 @@ long project_creature_attack_spell_damage(long base_param, long luck, unsigned s
     unsigned short magic = calculate_correct_creature_magic(thing);
     base_param = (base_param * magic) / 100;
     long max_param = base_param + (game.conf.crtr_conf.exp.spell_damage_increase_on_exp * base_param * (long)crlevel) / 100;
-    if (creature_affected_by_spell(thing, SplK_MagicMist))
+    if (creature_under_spell_effect(thing, CSAfF_MagicMist))
         max_param = (384 * max_param) / 256;
     // Apply modifier.
     if ((!is_neutral_thing(thing)) && (!is_owner_invalid_player_id(thing)))
@@ -563,7 +563,7 @@ long compute_creature_attack_spell_damage(long base_param, long luck, unsigned s
     unsigned short magic = calculate_correct_creature_magic(thing);
     base_param = (base_param * magic) / 100;
     long max_param = base_param + (game.conf.crtr_conf.exp.spell_damage_increase_on_exp * base_param * (long)crlevel) / 100;
-    if (creature_affected_by_spell(thing, SplK_MagicMist))
+    if (creature_under_spell_effect(thing, CSAfF_MagicMist))
         max_param = (384 * max_param) / 256;
     // Apply modifier.
     if ((!is_neutral_thing(thing)) && (!is_owner_invalid_player_id(thing)))
@@ -591,6 +591,30 @@ long compute_creature_attack_range(long base_param, long luck, unsigned short cr
         crlevel = CREATURE_MAX_LEVEL-1;
     long max_param = base_param + (game.conf.crtr_conf.exp.range_increase_on_exp * base_param * (long)crlevel) / 100;
     return saturate_set_signed(max_param, 16);
+}
+
+/**
+ * Computes damage of a spell with damage overtime.
+ * @param spell_damage Base Damage.
+ * @param caster_level Caster Level.
+ * @param caster_owner Caster Owner.
+ */
+HitPoints compute_creature_spell_damage_overtime(HitPoints spell_damage, CrtrExpLevel caster_level, PlayerNumber caster_owner)
+{
+    struct Dungeon* dungeon;
+    if (caster_level >= CREATURE_MAX_LEVEL)
+    {
+        caster_level = CREATURE_MAX_LEVEL-1;
+    }
+    HitPoints max_damage = spell_damage + (game.conf.crtr_conf.exp.spell_damage_increase_on_exp * spell_damage * caster_level) / 100;
+    // Apply modifier.
+    if (!player_is_neutral(caster_owner))
+    {
+        dungeon = get_dungeon(caster_owner);
+        unsigned short modifier = dungeon->modifier.spell_damage;
+        max_damage = (max_damage * modifier) / 100;
+    }
+    return max_damage;
 }
 
 /**
@@ -691,7 +715,7 @@ long calculate_correct_creature_strength(const struct Thing *thing)
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     long max_param = compute_creature_max_strength(crstat->strength + cctrl->strength_upgrade, cctrl->explevel);
-    if (creature_affected_by_spell(thing, SplK_Rage))
+    if (creature_under_spell_effect(thing, CSAfF_Rage))
         max_param = (384 * max_param) / 256;
     // Apply modifier.
     if ((!is_neutral_thing(thing)) && (!is_owner_invalid_player_id(thing)))
@@ -713,9 +737,9 @@ long calculate_correct_creature_armour(const struct Thing *thing)
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     long max_param = compute_creature_max_armour(crstat->armour + cctrl->armour_upgrade, cctrl->explevel);
-    if (creature_affected_by_spell(thing, SplK_Armour))
+    if (creature_under_spell_effect(thing, CSAfF_Armour))
         max_param = (320 * max_param) / 256;
-    if (creature_affected_by_spell(thing, SplK_MagicMist))
+    if (creature_under_spell_effect(thing, CSAfF_MagicMist))
         max_param = (320 * max_param) / 256;
     // This limit makes armour absorb up to 80% of damage even with the buff.
     if (max_param > 204)
@@ -743,9 +767,9 @@ long calculate_correct_creature_defense(const struct Thing *thing)
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     long max_param = compute_creature_max_defense(crstat->defense + cctrl->defense_upgrade, cctrl->explevel);
-    if (creature_affected_by_spell(thing, SplK_Rage))
+    if (creature_under_spell_effect(thing, CSAfF_Rage))
         max_param = 0;
-    if (creature_affected_by_spell(thing, SplK_MagicMist))
+    if (creature_under_spell_effect(thing, CSAfF_MagicMist))
         max_param = (320 * max_param) / 256;
     // Apply modifier.
     if ((!is_neutral_thing(thing)) && (!is_owner_invalid_player_id(thing)))
@@ -765,7 +789,7 @@ long calculate_correct_creature_dexterity(const struct Thing *thing)
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     long max_param = compute_creature_max_dexterity(crstat->dexterity + cctrl->dexterity_upgrade, cctrl->explevel);
-    if (creature_affected_by_spell(thing, SplK_MagicMist))
+    if (creature_under_spell_effect(thing, CSAfF_MagicMist))
         max_param = (320 * max_param) / 256;
     // Apply modifier.
     if ((!is_neutral_thing(thing)) && (!is_owner_invalid_player_id(thing)))
@@ -810,13 +834,13 @@ long calculate_correct_creature_maxspeed(const struct Thing *thing)
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     long speed = crstat->base_speed + cctrl->speed_upgrade;
-    if ((creature_affected_by_slap(thing)) || (creature_affected_by_spell(thing, SplK_TimeBomb)))
+    if ((creature_affected_by_slap(thing)) || (creature_under_spell_effect(thing, CSAfF_Timebomb)))
         speed *= 2;
-    if (creature_affected_by_spell(thing, SplK_Speed))
+    if (creature_under_spell_effect(thing, CSAfF_Speed))
         speed *= 2;
-    if (creature_affected_by_spell(thing, SplK_Rage))
+    if (creature_under_spell_effect(thing, CSAfF_Rage))
         speed *= 2;
-    if (creature_affected_by_spell(thing, SplK_Slow))
+    if (creature_under_spell_effect(thing, CSAfF_Slow))
         speed /= 2;
     // Apply modifier.
     if ((!is_neutral_thing(thing)) && (!is_owner_invalid_player_id(thing)))
@@ -1012,11 +1036,13 @@ TbBool update_relative_creature_health(struct Thing* creatng)
 }
 
 TbBool set_creature_health_to_max_with_heal_effect(struct Thing* thing)
-{
+{ // Hardcoded function for 'SpcKind_HealAll'. TODO: Refactor when specials are made more configurable.
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    if (cctrl->max_health > thing->health)
+    if (cctrl->max_health > thing->health) // 'SpcKind_HealAll' bypasses immunity.
     {
-        apply_spell_effect_to_thing(thing, SplK_Heal, 1);
+        // apply_spell_effect_to_thing(thing, 7, 1); 7 was 'SplK_Heal' in the enum.
+        cctrl->spell_aura = TngEffElm_Heal;
+        cctrl->spell_aura_duration = 100;
         thing->health = cctrl->max_health;
     }
     return true;
@@ -1062,7 +1088,7 @@ static HitPoints apply_damage_to_creature(struct Thing *thing, HitPoints dmg)
     long carmor = calculate_correct_creature_armour(thing);
     // Now compute damage.
     HitPoints cdamage = (dmg * (256 - carmor)) / 256;
-    if ((cdamage <= 0) || (creature_affected_by_spell(thing, SplK_DivineShield)))
+    if ((cdamage <= 0) || (creature_under_spell_effect(thing, CSAfF_DivineShield)))
     {
         cdamage = 1;
     }
@@ -1124,7 +1150,7 @@ HitPoints calculate_shot_real_damage_to_door(struct Thing *doortng, struct Thing
     if (shotst->damage_type == DmgT_Respiratory) {
         return 0;
     }
-    if (((doorst->model_flags & DoMF_ResistNonMagic) != 0) && ((shotst->damage_type == DmgT_Combustion) ||(shotst->damage_type == DmgT_Physical) || (shotst->damage_type == DmgT_Biological))) {
+    if (flag_is_set(doorst->model_flags, DoMF_ResistNonMagic) && (!shotst->is_magical)) {
         dmg /= 10;
     }
     if ((doorst->model_flags & DoMF_Wooden) != 0) {
@@ -1189,8 +1215,8 @@ HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, DamageType d
             if (crstat->ethereal != 0) {
                 dmg = GAME_RANDOM(dmg) / (1 + GAME_RANDOM(calculate_correct_creature_armour(thing)));
             }
-            // SplK_Armour resistance.
-            if (creature_affected_by_spell(thing, SplK_Armour)) {
+            // CSAfF_Armour resistance.
+            if (creature_under_spell_effect(thing, CSAfF_Armour)) {
                 dmg /= 2;
             }
         } else {
@@ -1219,8 +1245,8 @@ HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, DamageType d
             if (crstat->resist_to_magic != 0) {
                 dmg /= 2;
             }
-            // SplK_MagicMist resistance.
-            if (creature_affected_by_spell(thing, SplK_MagicMist)) {
+            // CSAfF_MagicMist resistance.
+            if (creature_under_spell_effect(thing, CSAfF_MagicMist)) {
                 dmg /= 2;
             }
         }
@@ -1234,12 +1260,12 @@ HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, DamageType d
             if (crstat->resist_to_magic != 0) {
                 dmg /= 2;
             }
-            // SplK_Armour resistance.
-            if (creature_affected_by_spell(thing, SplK_Armour)) {
+            // CSAfF_Armour resistance.
+            if (creature_under_spell_effect(thing, CSAfF_Armour)) {
                 dmg /= 2;
             }
-            // SplK_MagicMist resistance.
-            if (creature_affected_by_spell(thing, SplK_MagicMist)) {
+            // CSAfF_MagicMist resistance.
+            if (creature_under_spell_effect(thing, CSAfF_MagicMist)) {
                 dmg /= 2;
             }
         }
@@ -1252,8 +1278,8 @@ HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, DamageType d
         }
         // Weaknesses&Resistances to Frostbite damage type.
         if (damage_type == DmgT_Frostbite) {
-            // IMMUNE_TO_FREEZE negates the damage.
-            if (crstat->immune_to_freeze != 0) {
+            // Immunity negates the damage.
+            if (creature_is_immune_to_spell_effect(thing, CSAfF_Freeze)) {
                 return 0;
             }
             // If HurtByLava is set to 0 then apply a weakness.
@@ -1268,28 +1294,28 @@ HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, DamageType d
             if (crstat->resist_to_magic != 0) {
                 dmg /= 2;
             }
-            // SplK_Armour resistance.
-            if (creature_affected_by_spell(thing, SplK_Armour)) {
+            // CSAfF_Armour resistance.
+            if (creature_under_spell_effect(thing, CSAfF_Armour)) {
                 dmg /= 2;
             }
-            // SplK_MagicMist resistance.
-            if (creature_affected_by_spell(thing, SplK_MagicMist)) {
+            // CSAfF_MagicMist resistance.
+            if (creature_under_spell_effect(thing, CSAfF_MagicMist)) {
                 dmg /= 2;
             }
         }
         // Weaknesses&Resistances to Heatburn damage type.
         if (damage_type == DmgT_Heatburn) {
-            // If creature is frozen then apply a weakness and unfroze it.
-            if (creature_affected_by_spell(thing, SplK_Freeze)) {
+            // If creature is frozen then apply a weakness and defrost it.
+            if (creature_under_spell_effect(thing, CSAfF_Freeze)) {
                 dmg *= 8;
-                terminate_thing_spell_effect(thing, SplK_Freeze);
+                clean_spell_effect(thing, CSAfF_Freeze);
             }
             // HOARFROST weakness.
             if (crstat->hoarfrost != 0) {
                 dmg *= 4;
             }
-            // IMMUNE_TO_FREEZE weakness ONLY if HurtByLava is NOT set to 0.
-            if ((crstat->immune_to_freeze != 0) && (crstat->hurt_by_lava != 0)) {
+            // Immunity weakness ONLY if HurtByLava is NOT set to 0.
+            if ((creature_is_immune_to_spell_effect(thing, CSAfF_Freeze)) && (crstat->hurt_by_lava != 0)) {
                 dmg *= 4;
             }
             // ARACHNID weakness.
@@ -1320,12 +1346,12 @@ HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, DamageType d
             if (crstat->resist_to_magic != 0) {
                 dmg /= 2;
             }
-            // SplK_Armour resistance.
-            if (creature_affected_by_spell(thing, SplK_Armour)) {
+            // CSAfF_Armour resistance.
+            if (creature_under_spell_effect(thing, CSAfF_Armour)) {
                 dmg /= 2;
             }
-            // SplK_MagicMist resistance.
-            if (creature_affected_by_spell(thing, SplK_MagicMist)) {
+            // CSAfF_MagicMist resistance.
+            if (creature_under_spell_effect(thing, CSAfF_MagicMist)) {
                 dmg /= 2;
             }
         }
@@ -1335,19 +1361,19 @@ HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, DamageType d
             if (crstat->is_mechanical != 0) {
                 dmg /= 2;
             }
-            // SplK_Armour resistance.
-            if (creature_affected_by_spell(thing, SplK_Armour)) {
+            // CSAfF_Armour resistance.
+            if (creature_under_spell_effect(thing, CSAfF_Armour)) {
                 dmg /= 2;
             }
-            // SplK_MagicMist resistance.
-            if (creature_affected_by_spell(thing, SplK_MagicMist)) {
+            // CSAfF_MagicMist resistance.
+            if (creature_under_spell_effect(thing, CSAfF_MagicMist)) {
                 dmg /= 2;
             }
         }
         // Weaknesses&Resistances to Respiratory damage type.
         if (damage_type == DmgT_Respiratory) {
             // IMMUNE_TO_GAS or MECHANICAL negates the damage.
-            if ((crstat->immune_to_gas != 0) || (crstat->is_mechanical != 0)) {
+            if (creature_is_immune_to_spell_effect(thing, CSAfF_PoisonCloud) || (crstat->is_mechanical != 0)) {
                 return 0;
             }
             // BLEEDS weakness.
@@ -1358,12 +1384,12 @@ HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, DamageType d
             if (((get_creature_model_flags(thing) & CMF_IsArachnid) != 0) || ((get_creature_model_flags(thing) & CMF_IsDiptera) != 0) || ((get_creature_model_flags(thing) & CMF_Insect) != 0)) {
                 dmg /= 2;
             }
-            // SplK_Armour resistance.
-            if (creature_affected_by_spell(thing, SplK_Armour)) {
+            // CSAfF_Armour resistance.
+            if (creature_under_spell_effect(thing, CSAfF_Armour)) {
                 dmg /= 2;
             }
-            // SplK_MagicMist resistance.
-            if (creature_affected_by_spell(thing, SplK_MagicMist)) {
+            // CSAfF_MagicMist resistance.
+            if (creature_under_spell_effect(thing, CSAfF_MagicMist)) {
                 dmg /= 2;
             }
         }
@@ -1392,21 +1418,20 @@ HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, DamageType d
         }
         // Weaknesses&Resistances to Hoarfrost damage type.
         if (damage_type == DmgT_Hoarfrost) {
-            // Apply SplK_Freeze EVEN on IMMUNE_TO_FREEZE if not HOARFROST.
+            // Apply CSAfF_Freeze EVEN on immunity if not HOARFROST.
             if (crstat->hoarfrost == 0) {
-                if (creature_affected_by_spell(thing, SplK_Freeze)) {
-                    // SplK_Freeze weakness.
-                    dmg *= 4;
+                if (creature_under_spell_effect(thing, CSAfF_Freeze)) {
+                    dmg *= 4; // CSAfF_Freeze weakness.
                 } else {
                     cctrl->force_to_freeze = true;
-                    apply_spell_effect_to_thing(thing, SplK_Freeze, 8);
+                    apply_spell_effect_to_thing(thing, 3, 0, dealing_plyr_idx); // Hardcoded to SplK_Freeze for now.
                 }
             } else {
                 // HOARFROST resistance.
                 dmg /= 4;
             }
-            // Not IMMUNE_TO_FREEZE weakness.
-            if (crstat->immune_to_freeze == 0) {
+            // No immunity weakness.
+            if (!creature_is_immune_to_spell_effect(thing, CSAfF_Freeze)) {
                 dmg *= 2;
             }
             // If HurtByLava is set to 0 then apply a weakness.
@@ -1421,12 +1446,12 @@ HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, DamageType d
             if (crstat->resist_to_magic != 0) {
                 dmg /= 2;
             }
-            // SplK_Armour resistance.
-            if (creature_affected_by_spell(thing, SplK_Armour)) {
+            // CSAfF_Armour resistance.
+            if (creature_under_spell_effect(thing, CSAfF_Armour)) {
                 dmg /= 2;
             }
-            // SplK_MagicMist resistance.
-            if (creature_affected_by_spell(thing, SplK_MagicMist)) {
+            // CSAfF_MagicMist resistance.
+            if (creature_under_spell_effect(thing, CSAfF_MagicMist)) {
                 dmg /= 2;
             }
         }
@@ -1493,28 +1518,36 @@ GoldAmount calculate_gold_digged_out_of_slab_with_single_hit(long damage_did_to_
 
 long compute_creature_weight(const struct Thing* creatng)
 {
-    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    long eye_height = get_creature_eye_height(creatng);
-    long weight = eye_height >> 2;
-    weight += (crstat->hunger_fill + crstat->lair_size + 1) * cctrl->explevel;
-    if (!crstat->affected_by_wind)
+    if (!creature_control_invalid(cctrl))
     {
-        weight = weight * 3 / 2;
+        struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
+        long eye_height = get_creature_eye_height(creatng);
+        long weight = eye_height >> 2;
+        weight += (crstat->hunger_fill + crstat->lair_size + 1) * cctrl->explevel;
+        if (creature_is_immune_to_spell_effect(creatng, CSAfF_Wind))
+        {
+            weight = weight * 3 / 2;
+        }
+        if ((get_creature_model_flags(creatng) & CMF_Trembling) != 0)
+        {
+            weight = weight * 3 / 2;
+        }
+        if ((get_creature_model_flags(creatng) & CMF_Fat) != 0)
+        {
+            weight = weight * 3 / 2;
+        }
+        if ((get_creature_model_flags(creatng) & CMF_IsDiptera) != 0)
+        {
+            weight = weight / 2;
+        }
+        if (crstat->can_go_locked_doors == true)
+        {
+            weight = weight / 10;
+        }
+        return weight;
     }
-    if ((get_creature_model_flags(creatng) & CMF_Trembling) != 0)
-    {
-        weight = weight * 3 / 2;
-    }
-    if ((get_creature_model_flags(creatng) & CMF_IsDiptera) != 0)
-    {
-        weight = weight / 2;
-    }
-    if (crstat->can_go_locked_doors == true)
-    {
-        weight = weight / 10;
-    }
-    return weight;
+    return 0;
 }
 
 const char *creature_statistic_text(const struct Thing *creatng, CreatureLiveStatId clstat_id)

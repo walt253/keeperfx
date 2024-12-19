@@ -165,7 +165,7 @@ TbBool process_dungeon_control_packet_spell_overcharge(long plyr_idx)
     struct Dungeon* dungeon = get_players_dungeon(player);
     SYNCDBG(6,"Starting for player %d state %s",(int)plyr_idx,player_state_code_name(player->work_state));
     struct Packet* pckt = get_packet_direct(player->packet_num);
-    if ((pckt->control_flags & PCtr_LBtnHeld) != 0)
+    if (flag_is_set(pckt->control_flags,PCtr_LBtnHeld))
     {
         struct PowerConfigStats *powerst = get_power_model_stats(player->chosen_power_kind);
 
@@ -1188,6 +1188,8 @@ void process_players_creature_control_packet_control(long idx)
         return;
     if ((ccctrl->stateblock_flags != 0) || (cctng->active_state == CrSt_CreatureUnconscious))
         return;
+    if (flag_is_set(pckt->control_flags, PCtr_Gui))
+        return;
     long speed_limit = get_creature_speed(cctng);
     if ((pckt->control_flags & PCtr_MoveUp) != 0)
     {
@@ -1243,7 +1245,7 @@ void process_players_creature_control_packet_control(long idx)
             {
                 if (creature_instance_has_reset(cctng, i))
                 {
-                    if (!creature_affected_by_spell(cctng, SplK_Chicken))
+                    if (!creature_under_spell_effect(cctng, CSAfF_Chicken))
                     {
                         inst_inf = creature_instance_info_get(i);
                         process_player_use_instance(cctng, i, pckt);

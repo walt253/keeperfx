@@ -1424,7 +1424,7 @@ HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, DamageType d
                     dmg *= 4; // CSAfF_Freeze weakness.
                 } else {
                     cctrl->force_to_freeze = true;
-                    apply_spell_effect_to_thing(thing, 3, 1); // Hardcoded to SplK_Freeze for now.
+                    apply_spell_effect_to_thing(thing, 3, 0, dealing_plyr_idx); // Hardcoded to SplK_Freeze for now.
                 }
             } else {
                 // HOARFROST resistance.

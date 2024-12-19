@@ -260,8 +260,6 @@ typedef long ActionPointId;
 typedef long FilterParam;
 /** Type which stores IAvail_* values. */
 typedef char ItemAvailability;
-/** Type which stores types of damage as DmgT_* values. */
-typedef unsigned char DamageType;
 /** Type which stores hit filters for things as THit_* values. */
 typedef unsigned char ThingHitType;
 /** Type which stores hit filters for things as HitTF_* flags. */
@@ -281,7 +279,7 @@ typedef int8_t SmallAroundIndex;
 /** a player state as defined in config_players*/
 typedef unsigned char PlayerState;
 typedef unsigned short CctrlIndex;
-
+typedef unsigned char DamageType;
 
 /**
  * Stores a 2d coordinate (x,y).

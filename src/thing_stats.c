@@ -1126,7 +1126,7 @@ HitPoints calculate_shot_real_damage_to_door(struct Thing *doortng, struct Thing
     if (shotst->damage_type == DmgT_Respiratory) {
         return 0;
     }
-    if (((doorst->model_flags & DoMF_ResistNonMagic) != 0) && ((shotst->damage_type == DmgT_Combustion) ||(shotst->damage_type == DmgT_Physical) || (shotst->damage_type == DmgT_Biological))) {
+    if (flag_is_set(doorst->model_flags, DoMF_ResistNonMagic) && (!shotst->is_magical)) {
         dmg /= 10;
     }
     if ((doorst->model_flags & DoMF_Wooden) != 0) {

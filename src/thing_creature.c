@@ -1841,7 +1841,6 @@ void process_thing_spell_effects(struct Thing *thing)
         {
             continue;
         }
-        struct SpellConfig *spconf = get_spell_config(cspell->spkind);
         // Process spell with teleport flag.
         if (cspell->spkind == cctrl->active_teleport_spell)
         {

@@ -128,7 +128,7 @@ TbBool detonate_shot(struct Thing *shotng, TbBool destroy)
             damage = compute_creature_attack_spell_damage(shotst->area_damage, luck, cctrl->explevel, castng);
 			if (creature_control_invalid(cctrl))
 			{
-				WARNLOG("%s is invalid (detonate_shot)", thing_model_name(castng))
+				WARNLOG("%s is invalid (detonate_shot)", thing_model_name(castng));
 			}
         }
         HitTargetFlags hit_targets = hit_type_to_hit_targets(shotst->area_hit_type);

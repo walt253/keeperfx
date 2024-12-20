@@ -3577,7 +3577,7 @@ long calculate_shot_damage(struct Thing *creatng, ThingModel shot_model)
     long damage = compute_creature_attack_spell_damage(shotst->damage, luck, cctrl->explevel, creatng);
 	if (creature_control_invalid(cctrl))
 	{
-		WARNLOG("%s is invalid (calculate_shot_damage)", thing_model_name(creatng))
+		WARNLOG("%s is invalid (calculate_shot_damage)", thing_model_name(creatng));
 	}
     if (((shotst->model_flags & ShMF_Digging) != 0) && ((shotst->model_flags & ShMF_NoHit) != 0) && (damage < shotst->damage))
     {

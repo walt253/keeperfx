@@ -765,7 +765,7 @@ void timebomb_explode(struct Thing *creatng)
         long damage = (compute_creature_attack_spell_damage(shotst->area_damage, luck, cctrl->explevel, creatng) * weight) / WEIGHT_DIVISOR;
 		if (creature_control_invalid(cctrl))
 		{
-			WARNLOG("%s is invalid (timebomb_explode)", thing_model_name(creatng))
+			WARNLOG("%s is invalid (timebomb_explode)", thing_model_name(creatng));
 		}
         HitTargetFlags hit_targets = hit_type_to_hit_targets(shotst->area_hit_type);
         explosion_affecting_area(creatng, &creatng->mappos, dist, damage, (shotst->area_blow * weight) / WEIGHT_DIVISOR, hit_targets, shotst->damage_type);

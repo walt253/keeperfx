@@ -126,6 +126,10 @@ TbBool detonate_shot(struct Thing *shotng, TbBool destroy)
         else
         {
             damage = compute_creature_attack_spell_damage(shotst->area_damage, luck, cctrl->explevel, castng);
+			if (creature_control_invalid(cctrl))
+			{
+				WARNLOG("%s is invalid (detonate_shot)", thing_model_name(castng))
+			}
         }
         HitTargetFlags hit_targets = hit_type_to_hit_targets(shotst->area_hit_type);
         explosion_affecting_area(shotng, &shotng->mappos, dist, damage, shotst->area_blow, hit_targets, shotst->damage_type);
@@ -1469,122 +1473,125 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
         }
         return 1;
     }
-    if (shotst->dexterity_percent > 0)
+    if (!creature_control_invalid(cctrl) && !creature_control_invalid(trgtcctrl))
     {
-        unsigned char dxtprcnt = shotst->dexterity_percent;
-        unsigned char dxtshtr = calculate_correct_creature_dexterity(shooter);
-        unsigned char deftrgt = calculate_correct_creature_defense(trgtng);
-        HitPoints dxtdmg = (((dxtshtr * dxtprcnt) / 100) * (256 - deftrgt)) / 256;
-        if (!thing_is_invalid(shooter))
+        if (shotst->dexterity_percent > 0)
         {
-            apply_damage_to_thing_and_display_health(trgtng, dxtdmg, shotst->damage_type, shooter->owner);
-        }
-        else
-        {
-            apply_damage_to_thing_and_display_health(trgtng, dxtdmg, shotst->damage_type, -1);
-        }
-    }
-    if (shotst->break_percent > 0)
-    {
-        cctrl = creature_control_get_from_thing(shooter);
-        HitPoints max_health = cctrl->max_health;
-        HitPoints current_health = shooter->health;
-        unsigned char brkprcnt = shotst->break_percent;
-        HitPoints brkdmg = ((max_health - current_health) * brkprcnt) / 100;
-        if (!thing_is_invalid(shooter))
-        {
-            apply_damage_to_thing_and_display_health(trgtng, brkdmg, shotst->damage_type, shooter->owner);
-        }
-        else
-        {
-            apply_damage_to_thing_and_display_health(trgtng, brkdmg, shotst->damage_type, -1);
-        }
-    }
-    if (shotst->gold_percent > 0)
-    {
-        unsigned char gldprcnt = shotst->gold_percent;
-        GoldAmount gldcnt = shooter->creature.gold_carried;
-        HitPoints glddmg = (gldcnt * gldprcnt) / 100;
-        if (!thing_is_invalid(shooter))
-        {
-            apply_damage_to_thing_and_display_health(trgtng, glddmg, shotst->damage_type, shooter->owner);
-            shooter->creature.gold_carried -= glddmg;
-        }
-        else
-        {
-            apply_damage_to_thing_and_display_health(trgtng, glddmg, shotst->damage_type, -1);
-        }
-    }
-    if (((shotst->model_flags & ShMF_Stealing) != 0) && (trgtng->creature.gold_carried > 0))
-    {
-        crstat = creature_stats_get_from_thing(shooter);
-        trgtstat = creature_stats_get_from_thing(trgtng);
-        unsigned char stlngshtr = calculate_correct_creature_dexterity(shooter);
-        unsigned char stlngtrgt = calculate_correct_creature_dexterity(trgtng);
-        GoldAmount stlngcnt = (stlngshtr * (384 - stlngtrgt)) / 512;
-        if (crstat->is_thief != 0)
-        {
-            stlngcnt *= 2;
-        }
-        if (trgtstat->is_thief != 0)
-        {
-            stlngcnt /= 2;
-        }
-        if (stlngcnt > trgtng->creature.gold_carried)
-        {
-            stlngcnt = trgtng->creature.gold_carried;
-        }
-        if (crstat->gold_hold >= (shooter->creature.gold_carried + stlngcnt))
-        {
-            shooter->creature.gold_carried += stlngcnt;
-        }
-        else
-        {
-            drop_gold_pile(stlngcnt, &shooter->mappos);
-        }
-        trgtng->creature.gold_carried -= stlngcnt;
-    }
-    if ((shotst->model_flags & ShMF_Looting) != 0)
-    {
-        crstat = creature_stats_get_from_thing(shooter);
-        trgtstat = creature_stats_get_from_thing(trgtng);
-        unsigned char lckshtr = GAME_RANDOM(calculate_correct_creature_luck(shooter));
-        unsigned char lcktrgt = GAME_RANDOM(calculate_correct_creature_luck(trgtng));
-        if (crstat->is_thief != 0)
-        {
-            lckshtr = 255;
-        }
-        if (trgtstat->is_thief != 0)
-        {
-            lcktrgt = 255;
-        }
-        if (lckshtr > lcktrgt)
-        {
-            unsigned char ltngshtr = calculate_correct_creature_dexterity(shooter);
-            unsigned char ltngtrgt = calculate_correct_creature_dexterity(trgtng);
-            GoldAmount ltngcnt = (ltngshtr * (384 - ltngtrgt)) / 512;
-            if (crstat->gold_hold >= (shooter->creature.gold_carried + ltngcnt))
+            unsigned char dxtprcnt = shotst->dexterity_percent;
+            unsigned char dxtshtr = calculate_correct_creature_dexterity(shooter);
+            unsigned char deftrgt = calculate_correct_creature_defense(trgtng);
+            HitPoints dxtdmg = (((dxtshtr * dxtprcnt) / 100) * (256 - deftrgt)) / 256;
+            if (!thing_is_invalid(shooter))
             {
-                shooter->creature.gold_carried += ltngcnt;
+                apply_damage_to_thing_and_display_health(trgtng, dxtdmg, shotst->damage_type, shooter->owner);
             }
             else
             {
-                drop_gold_pile(ltngcnt, &trgtng->mappos);
+                apply_damage_to_thing_and_display_health(trgtng, dxtdmg, shotst->damage_type, -1);
             }
         }
-    }
-    if ((shotst->model_flags & ShMF_Charming) != 0)
-    {
-        trgtstat = creature_stats_get_from_thing(trgtng);
-        if (trgtstat->immune_to_charm == 0)
+        if (shotst->break_percent > 0)
         {
             cctrl = creature_control_get_from_thing(shooter);
-            trgtcctrl = creature_control_get_from_thing(trgtng);
-            unsigned char lvlshtr = cctrl->explevel;
-            unsigned char lvltrgt = trgtcctrl->explevel;
-            if ((lvlshtr / 2) >= lvltrgt)
+            HitPoints max_health = cctrl->max_health;
+            HitPoints current_health = shooter->health;
+            unsigned char brkprcnt = shotst->break_percent;
+            HitPoints brkdmg = ((max_health - current_health) * brkprcnt) / 100;
+            if (!thing_is_invalid(shooter))
             {
-                change_creature_owner(trgtng, shooter->owner);
+                apply_damage_to_thing_and_display_health(trgtng, brkdmg, shotst->damage_type, shooter->owner);
+            }
+            else
+            {
+                apply_damage_to_thing_and_display_health(trgtng, brkdmg, shotst->damage_type, -1);
+            }
+        }
+        if (shotst->gold_percent > 0)
+        {
+            unsigned char gldprcnt = shotst->gold_percent;
+            GoldAmount gldcnt = shooter->creature.gold_carried;
+            HitPoints glddmg = (gldcnt * gldprcnt) / 100;
+            if (!thing_is_invalid(shooter))
+            {
+                apply_damage_to_thing_and_display_health(trgtng, glddmg, shotst->damage_type, shooter->owner);
+                shooter->creature.gold_carried -= glddmg;
+            }
+            else
+            {
+                apply_damage_to_thing_and_display_health(trgtng, glddmg, shotst->damage_type, -1);
+            }
+        }
+        if (((shotst->model_flags & ShMF_Stealing) != 0) && (trgtng->creature.gold_carried > 0))
+        {
+            crstat = creature_stats_get_from_thing(shooter);
+            trgtstat = creature_stats_get_from_thing(trgtng);
+            unsigned char stlngshtr = calculate_correct_creature_dexterity(shooter);
+            unsigned char stlngtrgt = calculate_correct_creature_dexterity(trgtng);
+            GoldAmount stlngcnt = (stlngshtr * (384 - stlngtrgt)) / 512;
+            if (crstat->is_thief != 0)
+            {
+                stlngcnt *= 2;
+            }
+            if (trgtstat->is_thief != 0)
+            {
+                stlngcnt /= 2;
+            }
+            if (stlngcnt > trgtng->creature.gold_carried)
+            {
+                stlngcnt = trgtng->creature.gold_carried;
+            }
+            if (crstat->gold_hold >= (shooter->creature.gold_carried + stlngcnt))
+            {
+                shooter->creature.gold_carried += stlngcnt;
+            }
+            else
+            {
+                drop_gold_pile(stlngcnt, &shooter->mappos);
+            }
+            trgtng->creature.gold_carried -= stlngcnt;
+        }
+        if ((shotst->model_flags & ShMF_Looting) != 0)
+        {
+            crstat = creature_stats_get_from_thing(shooter);
+            trgtstat = creature_stats_get_from_thing(trgtng);
+            unsigned char lckshtr = GAME_RANDOM(calculate_correct_creature_luck(shooter));
+            unsigned char lcktrgt = GAME_RANDOM(calculate_correct_creature_luck(trgtng));
+            if (crstat->is_thief != 0)
+            {
+                lckshtr = 255;
+            }
+            if (trgtstat->is_thief != 0)
+            {
+                lcktrgt = 255;
+            }
+            if (lckshtr > lcktrgt)
+            {
+                unsigned char ltngshtr = calculate_correct_creature_dexterity(shooter);
+                unsigned char ltngtrgt = calculate_correct_creature_dexterity(trgtng);
+                GoldAmount ltngcnt = (ltngshtr * (384 - ltngtrgt)) / 512;
+                if (crstat->gold_hold >= (shooter->creature.gold_carried + ltngcnt))
+                {
+                    shooter->creature.gold_carried += ltngcnt;
+                }
+                else
+                {
+                    drop_gold_pile(ltngcnt, &trgtng->mappos);
+                }
+            }
+        }
+        if ((shotst->model_flags & ShMF_Charming) != 0)
+        {
+            trgtstat = creature_stats_get_from_thing(trgtng);
+            if (trgtstat->immune_to_charm == 0)
+            {
+                cctrl = creature_control_get_from_thing(shooter);
+                trgtcctrl = creature_control_get_from_thing(trgtng);
+                unsigned char lvlshtr = cctrl->explevel;
+                unsigned char lvltrgt = trgtcctrl->explevel;
+                if ((lvlshtr / 2) >= lvltrgt)
+                {
+                    change_creature_owner(trgtng, shooter->owner);
+                }
             }
         }
     }

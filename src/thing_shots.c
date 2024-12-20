@@ -1257,13 +1257,13 @@ long melee_shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, stru
         {
             if (((shotst->model_flags & ShMF_BlocksRebirth) != 0) && (trgtstat->is_undead != 0))
             {
-                apply_damage_to_thing_and_display_health(trgtng, shotng->shot.damage, DmgT_Holy, shooter->owner);
+                apply_damage_to_thing_and_display_health(trgtng, shotng->shot.damage, DTF_Holy, shooter->owner);
             }
             else
             {
                 if (crstat->hoarfrost != 0)
                 {
-                    apply_damage_to_thing_and_display_health(trgtng, shotng->shot.damage, DmgT_Hoarfrost, shooter->owner);
+                    apply_damage_to_thing_and_display_health(trgtng, shotng->shot.damage, DTF_Hoarfrost, shooter->owner);
                 }
                 else
                 {
@@ -1275,13 +1275,13 @@ long melee_shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, stru
         {
             if (((shotst->model_flags & ShMF_BlocksRebirth) != 0) && (trgtstat->is_undead != 0))
             {
-                apply_damage_to_thing_and_display_health(trgtng, shotng->shot.damage, DmgT_Holy, -1);
+                apply_damage_to_thing_and_display_health(trgtng, shotng->shot.damage, DTF_Holy, -1);
             }
             else
             {
                 if (crstat->hoarfrost != 0)
                 {
-                    apply_damage_to_thing_and_display_health(trgtng, shotng->shot.damage, DmgT_Hoarfrost, -1);
+                    apply_damage_to_thing_and_display_health(trgtng, shotng->shot.damage, DTF_Hoarfrost, -1);
                 }
                 else
                 {
@@ -1616,13 +1616,13 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
         {
             if (((shotst->model_flags & ShMF_BlocksRebirth) != 0) && (trgtstat->is_undead != 0))
             {
-                damage_done = apply_damage_to_thing_and_display_health(trgtng, shotng->shot.damage, DmgT_Holy, shooter->owner);
+                damage_done = apply_damage_to_thing_and_display_health(trgtng, shotng->shot.damage, DTF_Holy, shooter->owner);
             }
             else
             {
                 if (crstat->hoarfrost != 0)
                 {
-                    damage_done = apply_damage_to_thing_and_display_health(trgtng, shotng->shot.damage, DmgT_Hoarfrost, shooter->owner);
+                    damage_done = apply_damage_to_thing_and_display_health(trgtng, shotng->shot.damage, DTF_Hoarfrost, shooter->owner);
                 }
                 else
                 {
@@ -1634,13 +1634,13 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
         {
             if (((shotst->model_flags & ShMF_BlocksRebirth) != 0) && (trgtstat->is_undead != 0))
             {
-                damage_done = apply_damage_to_thing_and_display_health(trgtng, shotng->shot.damage, DmgT_Holy, -1);
+                damage_done = apply_damage_to_thing_and_display_health(trgtng, shotng->shot.damage, DTF_Holy, -1);
             }
             else
             {
                 if (crstat->hoarfrost != 0)
                 {
-                    damage_done = apply_damage_to_thing_and_display_health(trgtng, shotng->shot.damage, DmgT_Hoarfrost, -1);
+                    damage_done = apply_damage_to_thing_and_display_health(trgtng, shotng->shot.damage, DTF_Hoarfrost, -1);
                 }
                 else
                 {

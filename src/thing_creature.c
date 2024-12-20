@@ -6341,7 +6341,7 @@ void process_landscape_affecting_creature(struct Thing *thing)
                     clean_spell_effect(thing, CSAfF_Freeze);
                 }
             } else {
-                apply_damage_to_thing_and_display_health(thing, crstat->hurt_by_lava, DmgT_Heatburn, -1);
+                apply_damage_to_thing_and_display_health(thing, crstat->hurt_by_lava, DTF_Heatburn, -1);
             }
             if ((crstat->lava_recovery > 0) && (cctrl->max_health > thing->health))
             {
@@ -6360,7 +6360,7 @@ void process_landscape_affecting_creature(struct Thing *thing)
         if (cube_is_water(i))
         {
             if (crstat->hurt_by_water > 0) {
-                apply_damage_to_thing_and_display_health(thing, crstat->hurt_by_water, DmgT_Physical, -1);
+                apply_damage_to_thing_and_display_health(thing, crstat->hurt_by_water, DTF_Soaked, -1);
             }
             if ((crstat->water_recovery > 0) && (cctrl->max_health > thing->health))
             {

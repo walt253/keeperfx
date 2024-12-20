@@ -1443,7 +1443,8 @@ TbBool poison_cloud_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, 
     SYNCDBG(17,"Starting for %s, max damage %d, max blow %d, owner %d",thing_model_name(tngdst),(int)max_damage,(int)blow_strength,(int)owner);
     if (thing_is_creature(tngdst))
     {
-        if (creature_is_immune_to_spell_effect(tngdst, CSAfF_PoisonCloud)) {
+        if (creature_is_immune_to_spell_effect(tngdst, CSAfF_PoisonCloud) && flag_is_set(damage_type, DTF_Respiratory))
+        {
             return affected;
         }
     } else {
@@ -1591,9 +1592,15 @@ long poison_cloud_affecting_area(struct Thing *tngsrc, struct Coord3d *pos, long
     {
         for (MapSubtlCoord stl_x = start_x; stl_x <= end_x; stl_x++)
         {
+            DamageType damage_type = DTF_Respiratory;
+            struct SpellConfig *spconf = get_spell_config(spell_idx);
+            if (spconf->damage_type > 0)
+            {
+                damage_type = spconf->damage_type;
+            }
             HitTargetFlags hit_targets = hit_type_to_hit_targets(tngsrc->shot_effect.hit_type);
             struct Map* mapblk = get_map_block_at(stl_x, stl_y);
-            num_affected += poison_cloud_affecting_map_block(tngsrc, mapblk, pos, max_dist, max_damage/dmg_divider, 0, hit_targets, area_affect_type, DmgT_Respiratory, spell_idx);
+            num_affected += poison_cloud_affecting_map_block(tngsrc, mapblk, pos, max_dist, max_damage/dmg_divider, 0, hit_targets, area_affect_type, damage_type, spell_idx);
         }
     }
     return num_affected;

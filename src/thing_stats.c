@@ -1147,21 +1147,21 @@ HitPoints calculate_shot_real_damage_to_door(struct Thing *doortng, struct Thing
     HitPoints dmg = shotng->shot.damage;
     const struct ShotConfigStats* shotst = get_shot_model_stats(shotng->model);
     const struct DoorConfigStats* doorst = get_door_model_stats(doortng->model);
-    if (shotst->damage_type == DmgT_Respiratory) {
+    if (flag_is_set(shotst->damage_type, DTF_Respiratory)) {
         return 0;
     }
     if (flag_is_set(doorst->model_flags, DoMF_ResistNonMagic) && (!shotst->is_magical)) {
         dmg /= 10;
     }
     if ((doorst->model_flags & DoMF_Wooden) != 0) {
-        if (shotst->damage_type == DmgT_Combustion) {
+        if (flag_is_set(shotst->damage_type, DTF_Explosive)) {
             dmg *= 2;
         }
-        if (shotst->damage_type == DmgT_Heatburn) {
+        if (flag_is_set(shotst->damage_type, DTF_Heatburn)) {
             dmg *= dmg;
         }
     }
-    if (((doorst->model_flags & DoMF_Steelen) != 0) && ((shotst->damage_type == DmgT_Magical) || (shotst->damage_type == DmgT_Electric) || (shotst->damage_type == DmgT_Frostbite) || (shotst->damage_type == DmgT_Heatburn) || (shotst->damage_type == DmgT_Holy) || (shotst->damage_type == DmgT_Darkness) || (shotst->damage_type == DmgT_Hoarfrost))) {
+    if (((doorst->model_flags & DoMF_Steelen) != 0) && (shotst->is_magical)) {
         dmg /= 2;
     }
     if ((doorst->model_flags & DoMF_Golden) != 0) {
@@ -1209,8 +1209,8 @@ HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, DamageType d
     switch (thing->class_id)
     { // TODO: make own function for Weaknesses&Resistances system and rewrite it entirely.
     case TCls_Creature:
-        // Weaknesses&Resistances to Physical damage type.
-        if (damage_type == DmgT_Physical) {
+        // Weaknesses&Resistances to Impactful damage type.
+        if (flag_is_set(damage_type, DTF_Impactful)) {
             // ETHEREAL receives random damage.
             if (crstat->ethereal != 0) {
                 dmg = GAME_RANDOM(dmg) / (1 + GAME_RANDOM(calculate_correct_creature_armour(thing)));
@@ -1220,7 +1220,13 @@ HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, DamageType d
                 dmg /= 2;
             }
         } else {
-            if ((damage_type == DmgT_Magical) || (damage_type == DmgT_Electric) || (damage_type == DmgT_Frostbite) || (damage_type == DmgT_Heatburn) || (damage_type == DmgT_Holy) || (damage_type == DmgT_Darkness) || (damage_type == DmgT_Hoarfrost)) {
+            if (flag_is_set(damage_type, DTF_Arcane)
+            || flag_is_set(damage_type, DTF_Electrical)
+            || flag_is_set(damage_type, DTF_Frostbite)
+            || flag_is_set(damage_type, DTF_Heatburn)
+            || flag_is_set(damage_type, DTF_Holy)
+            || flag_is_set(damage_type, DTF_Darkness)
+            || flag_is_set(damage_type, DTF_Hoarfrost)) {
                 // Apply a minor reduction based on Magic stat.
                 unsigned short magic_reduction = calculate_correct_creature_magic(thing);
                 dmg = (dmg * 200) / (100 + magic_reduction);
@@ -1235,8 +1241,8 @@ HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, DamageType d
                 }
             }
         }
-        // Weaknesses&Resistances to Magical damage type.
-        if (damage_type == DmgT_Magical) {
+        // Weaknesses&Resistances to Arcane damage type.
+        if (flag_is_set(damage_type, DTF_Arcane)) {
             // MECHANICAL resistance.
             if (crstat->is_mechanical != 0) {
                 dmg /= 2;
@@ -1250,8 +1256,8 @@ HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, DamageType d
                 dmg /= 2;
             }
         }
-        // Weaknesses&Resistances to Electric damage type.
-        if (damage_type == DmgT_Electric) {
+        // Weaknesses&Resistances to Electrical damage type.
+        if (flag_is_set(damage_type, DTF_Electrical)) {
             // MECHANICAL weakness.
             if (crstat->is_mechanical != 0) {
                 dmg *= 2;
@@ -1269,15 +1275,15 @@ HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, DamageType d
                 dmg /= 2;
             }
         }
-        // Weaknesses&Resistances to Combustion damage type.
-        if (damage_type == DmgT_Combustion) {
+        // Weaknesses&Resistances to Explosive damage type.
+        if (flag_is_set(damage_type, DTF_Explosive)) {
             // TREMBLING_FAT resistance.
             if (((get_creature_model_flags(thing) & CMF_Trembling) != 0) && ((get_creature_model_flags(thing) & CMF_Fat) != 0)) {
                 dmg /= 2;
             }
         }
         // Weaknesses&Resistances to Frostbite damage type.
-        if (damage_type == DmgT_Frostbite) {
+        if (flag_is_set(damage_type, DTF_Frostbite)) {
             // Immunity negates the damage.
             if (creature_is_immune_to_spell_effect(thing, CSAfF_Freeze)) {
                 return 0;
@@ -1304,7 +1310,7 @@ HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, DamageType d
             }
         }
         // Weaknesses&Resistances to Heatburn damage type.
-        if (damage_type == DmgT_Heatburn) {
+        if (flag_is_set(damage_type, DTF_Heatburn)) {
             // If creature is frozen then apply a weakness and defrost it.
             if (creature_under_spell_effect(thing, CSAfF_Freeze)) {
                 dmg *= 8;
@@ -1356,7 +1362,7 @@ HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, DamageType d
             }
         }
         // Weaknesses&Resistances to Biological damage type.
-        if (damage_type == DmgT_Biological) {
+        if (flag_is_set(damage_type, DTF_Biological)) {
             // MECHANICAL resistance.
             if (crstat->is_mechanical != 0) {
                 dmg /= 2;
@@ -1371,7 +1377,7 @@ HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, DamageType d
             }
         }
         // Weaknesses&Resistances to Respiratory damage type.
-        if (damage_type == DmgT_Respiratory) {
+        if (flag_is_set(damage_type, DTF_Respiratory)) {
             // IMMUNE_TO_GAS or MECHANICAL negates the damage.
             if (creature_is_immune_to_spell_effect(thing, CSAfF_PoisonCloud) || (crstat->is_mechanical != 0)) {
                 return 0;
@@ -1394,14 +1400,14 @@ HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, DamageType d
             }
         }
         // Weaknesses&Resistances to Holy damage type.
-        if (damage_type == DmgT_Holy) {
+        if (flag_is_set(damage_type, DTF_Holy)) {
             // UNDEAD weakness.
             if (crstat->is_undead != 0) {
                 dmg *= 8;
             }
         }
         // Weaknesses&Resistances to Darkness damage type.
-        if (damage_type == DmgT_Darkness) {
+        if (flag_is_set(damage_type, DTF_Darkness)) {
             if ((crstat->bleeds != 0) && (crstat->humanoid_creature != 0)) {
                 if (crstat->immune_to_charm == 0) {
                     // BLEEDS with HUMANOID_SKELETON not IMMUNE_TO_CHARM weakness.
@@ -1417,7 +1423,7 @@ HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, DamageType d
             }
         }
         // Weaknesses&Resistances to Hoarfrost damage type.
-        if (damage_type == DmgT_Hoarfrost) {
+        if (flag_is_set(damage_type, DTF_Hoarfrost)) {
             // Apply CSAfF_Freeze EVEN on immunity if not HOARFROST.
             if (crstat->hoarfrost == 0) {
                 if (creature_under_spell_effect(thing, CSAfF_Freeze)) {

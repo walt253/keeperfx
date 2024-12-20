@@ -66,11 +66,11 @@ const struct NamedCommand magic_spell_commands[] = {
     {"HEALINGRECOVERY", 13},
     {"DAMAGE",          14},
     {"DAMAGEFREQUENCY", 15},
-    {"DAMAGETYPE",      16},
-    {"AURADURATION",    17},
-    {"AURAFREQUENCY",   18},
-    {"CLEANSEFLAGS",    19},
-    {"PROPERTIES",      20},
+    {"AURADURATION",    16},
+    {"AURAFREQUENCY",   17},
+    {"CLEANSEFLAGS",    18},
+    {"PROPERTIES",      19},
+    {"DAMAGETYPE",      20},
     {NULL,               0},
 };
 
@@ -301,22 +301,30 @@ const struct NamedCommand powermodel_properties_commands[] = {
     {NULL,                0},
 };
 
-const struct NamedCommand shotmodel_damagetype_commands[] = {
-    {"NONE",        DmgT_None},
-    {"PHYSICAL",    DmgT_Physical},
-    {"ELECTRIC",    DmgT_Electric},
-    {"COMBUSTION",  DmgT_Combustion},
-    {"FROSTBITE",   DmgT_Frostbite},
-    {"HEATBURN",    DmgT_Heatburn},
-    {"BIOLOGICAL",  DmgT_Biological},
-    {"MAGICAL",     DmgT_Magical},
-    {"RESPIRATORY", DmgT_Respiratory},
-    {"RESTORATION", DmgT_Restoration},
-    {"POISON",      DmgT_Poison},
-    {"HOLY",        DmgT_Holy},
-    {"DARKNESS",    DmgT_Darkness},
-    {"HOARFROST",   DmgT_Hoarfrost},
-    {NULL,          DmgT_None},
+const struct NamedCommand damage_types_flags[] = {
+    {"NEUTRAL",       0},
+    {"EXPLOSIVE",     1},
+    {"IMPACTFUL",     2},
+    {"RADIOACTIVE",   3},
+    {"RESPIRATORY",   4},
+    {"BIOLOGICAL",    5},
+    {"ELECTRICAL",    6},
+    {"MECHANICAL",    7},
+    {"MYSTICAL",      8},
+    {"NATURAL",       9},
+    {"TEMPORAL",     10},
+    {"HEATBURN",     11},
+    {"SOAKED",       12},
+    {"FROSTBITE",    13},
+    {"HOARFROST",    14},
+    {"POISONOUS",    15},
+    {"ARCANE",       16},
+    {"EARTH",        17},
+    {"WHIRLWIND",    18},
+    {"HOLY",         19},
+    {"DARKNESS",     20},
+    {"UNSTABLE",     21},
+    {NULL,            0},
 };
 
 const struct NamedCommand powermodel_expand_check_func_type[] = {
@@ -928,29 +936,7 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
                     COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
             }
             break;
-        case 16: // DAMAGETYPE
-            spconf->damage_type = 0;
-            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-            {
-                k = get_id(shotmodel_damagetype_commands, word_buf);
-                if (k >= 0)
-                {
-                    spconf->damage_type = k;
-                    n++;
-                }
-                else
-                {
-                    spconf->damage_type = 0;
-                    n++;
-                }
-            }
-            if (n < 1)
-            {
-                CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
-                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-            }
-            break;
-        case 17: // AURADURATION
+        case 16: // AURADURATION
             if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
@@ -963,7 +949,7 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
                     COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
             }
             break;
-        case 18: // AURAFREQUENCY
+        case 17: // AURAFREQUENCY
             if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
@@ -976,7 +962,7 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
                     COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
             }
             break;
-        case 19: // CLEANSEFLAGS
+        case 18: // CLEANSEFLAGS
             spconf->cleanse_flags = 0;
             while (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
             {
@@ -1088,7 +1074,7 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
                     COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
             }
             break;
-        case 20: // PROPERTIES
+        case 19: // PROPERTIES
             spconf->properties_flags = 0;
             while (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
             {
@@ -1119,6 +1105,38 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
                             CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
                                 COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
                             break;
+                    }
+                }
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+            }
+            break;
+        case 20: // DAMAGETYPE
+            spconf->damage_type = 0;
+            while (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+            {
+                if (parameter_is_number(word_buf))
+                {
+                    k = atoi(word_buf);
+                    spconf->damage_type = k;
+                    n++;
+                }
+                else if (0 == strcmp(word_buf, "NEUTRAL"))
+                {
+                    spconf->damage_type = 0;
+                    n++;
+                    break;
+                }
+                else
+                {
+                    k = get_id(damage_types_flags, word_buf);
+                    if (k > 0)
+                    {
+                        set_flag(spconf->damage_type, 1 << (k - 1));
+                        n++;
                     }
                 }
             }
@@ -2302,18 +2320,28 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           break;
       case 66: // DAMAGETYPE
           shotst->damage_type = 0;
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          while (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
-              k = get_id(shotmodel_damagetype_commands, word_buf);
-              if (k >= 0)
+              if (parameter_is_number(word_buf))
               {
+                  k = atoi(word_buf);
                   shotst->damage_type = k;
                   n++;
               }
-              else
+              else if (0 == strcmp(word_buf, "NEUTRAL"))
               {
                   shotst->damage_type = 0;
                   n++;
+                  break;
+              }
+              else
+              {
+                  k = get_id(damage_types_flags, word_buf);
+                  if (k > 0)
+                  {
+                      set_flag(shotst->damage_type, 1 << (k - 1));
+                      n++;
+                  }
               }
           }
           if (n < 1)

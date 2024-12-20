@@ -234,7 +234,8 @@ void process_disease(struct Thing *creatng)
     }
     if (((game.play_gameturn - cctrl->disease_start_turn) % game.conf.rules.magic.disease_lose_health_time) == 0)
     {
-        apply_damage_to_thing_and_display_health(creatng, game.conf.rules.magic.disease_lose_percentage_health * cctrl->max_health / 100, DmgT_Biological, cctrl->disease_caster_plyridx);
+        struct SpellConfig *spconf = get_spell_config(cctrl->active_disease_spell);
+        apply_damage_to_thing_and_display_health(creatng, game.conf.rules.magic.disease_lose_percentage_health * cctrl->max_health / 100, spconf->damage_type, cctrl->disease_caster_plyridx);
     }
 }
 

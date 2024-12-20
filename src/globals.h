@@ -279,7 +279,7 @@ typedef int8_t SmallAroundIndex;
 /** a player state as defined in config_players*/
 typedef unsigned char PlayerState;
 typedef unsigned short CctrlIndex;
-typedef unsigned char DamageType;
+typedef unsigned long DamageType;
 
 /**
  * Stores a 2d coordinate (x,y).

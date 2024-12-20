@@ -30,22 +30,29 @@ extern "C" {
 /******************************************************************************/
 #pragma pack(1)
 
-enum DamageTypes {
-    DmgT_None        = 0,
-    DmgT_Physical    = 1,
-    DmgT_Electric    = 2,
-    DmgT_Combustion  = 3,
-    DmgT_Frostbite   = 4,
-    DmgT_Heatburn    = 5,
-    DmgT_Biological  = 6,
-    DmgT_Magical     = 7,
-    DmgT_Respiratory = 8,
-    DmgT_Restoration = 9,
-    DmgT_Poison      = 10,
-    DmgT_Holy        = 11,
-    DmgT_Darkness    = 12,
-    DmgT_Hoarfrost   = 13,
-    DmgT_TypesCount,
+enum DamageTypesFlags {
+    DTF_Neutral       = 0x000000,
+    DTF_Explosive     = 0x000001,
+    DTF_Impactful     = 0x000002,
+    DTF_Radioactive   = 0x000004,
+    DTF_Respiratory   = 0x000008,
+    DTF_Biological    = 0x000010,
+    DTF_Electrical    = 0x000020,
+    DTF_Mechanical    = 0x000040,
+    DTF_Mystical      = 0x000080,
+    DTF_Natural       = 0x000100,
+    DTF_Temporal      = 0x000200,
+    DTF_Heatburn      = 0x000400,
+    DTF_Soaked        = 0x000800,
+    DTF_Frostbite     = 0x001000,
+    DTF_Hoarfrost     = 0x002000,
+    DTF_Poisonous     = 0x004000,
+    DTF_Arcane        = 0x008000,
+    DTF_Earth         = 0x010000,
+    DTF_Whirlwind     = 0x020000,
+    DTF_Holy          = 0x040000,
+    DTF_Darkness      = 0x080000,
+    DTF_Unstable      = 0x100000,
 };
 
 struct Thing;

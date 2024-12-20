@@ -30,6 +30,24 @@ extern "C" {
 /******************************************************************************/
 #pragma pack(1)
 
+enum DamageTypes {
+    DmgT_None        = 0,
+    DmgT_Physical    = 1,
+    DmgT_Electric    = 2,
+    DmgT_Combustion  = 3,
+    DmgT_Frostbite   = 4,
+    DmgT_Heatburn    = 5,
+    DmgT_Biological  = 6,
+    DmgT_Magical     = 7,
+    DmgT_Respiratory = 8,
+    DmgT_Restoration = 9,
+    DmgT_Poison      = 10,
+    DmgT_Holy        = 11,
+    DmgT_Darkness    = 12,
+    DmgT_Hoarfrost   = 13,
+    DmgT_TypesCount,
+};
+
 struct Thing;
 struct Dungeon;
 struct ComponentVector;

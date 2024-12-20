@@ -1473,6 +1473,8 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
         }
         return 1;
     }
+	cctrl = creature_control_get_from_thing(shooter);
+	trgtcctrl = creature_control_get_from_thing(trgtng);
     if (!creature_control_invalid(cctrl) && !creature_control_invalid(trgtcctrl))
     {
         if (shotst->dexterity_percent > 0)

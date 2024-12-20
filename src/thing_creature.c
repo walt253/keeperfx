@@ -1475,7 +1475,6 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
             fill_spell_slot(thing, spell_idx, duration, spell_lev, plyr_idx, i);
             update_aura_effect_to_thing(thing, spell_idx);
         }
-        return false;
     }
     return;
 }

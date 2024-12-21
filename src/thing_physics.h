@@ -30,7 +30,7 @@ extern "C" {
 /******************************************************************************/
 #pragma pack(1)
 
-enum ElementFlags {
+enum MagicElementFlags {
     DTF_Neutral       = 0x000000,
     DTF_Physical      = 0x000001,
     DTF_Biological    = 0x000002,

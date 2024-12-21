@@ -86,8 +86,8 @@ enum CreatureInstances {
     CrInst_RANGED_REBOUND,
     CrInst_RAGE,
     CrInst_DIVINE_SHIELD, // 55
-    CrInst_INDOCTRINATION,
     CrInst_MAGIC_MIST,
+    CrInst_INDOCTRINATION,
     CrInst_KAMIKAZE,
     //CrInst_CAST_SPELL_GROUP,
     CrInst_LISTEND,

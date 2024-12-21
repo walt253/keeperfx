@@ -66,7 +66,9 @@ enum ShotModels {
     ShM_RangedSpeed = 34,
     ShM_RangedArmour = 35,
     ShM_RangedRebound = 36,
-    ShM_MeteorStorm = 37,
+    ShM_Fear = 37,
+    ShM_Indoctrination = 38,
+    ShM_MeteorStorm = 39,
 };
 
 enum ShotFireLogics {

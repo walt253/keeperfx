@@ -66,11 +66,11 @@ const struct NamedCommand magic_spell_commands[] = {
     {"HEALINGRECOVERY", 13},
     {"DAMAGE",          14},
     {"DAMAGEFREQUENCY", 15},
-    {"DAMAGETYPE",      16},
-    {"AURADURATION",    17},
-    {"AURAFREQUENCY",   18},
-    {"CLEANSEFLAGS",    19},
-    {"PROPERTIES",      20},
+    {"AURADURATION",    16},
+    {"AURAFREQUENCY",   17},
+    {"CLEANSEFLAGS",    18},
+    {"PROPERTIES",      19},
+    {"ELEMENTFLAGS",    20},
     {NULL,               0},
 };
 
@@ -173,7 +173,7 @@ const struct NamedCommand magic_shot_commands[] = {
   {"GOLDPERCENT",           63},
   {"SLABKIND",              64},
   {"NOTRIGGERONFRIENDLY",   65},
-  {"DAMAGETYPE",            66},
+  {"ELEMENTFLAGS",          66},
   {NULL,                     0},
   };
 
@@ -301,22 +301,30 @@ const struct NamedCommand powermodel_properties_commands[] = {
     {NULL,                0},
 };
 
-const struct NamedCommand shotmodel_damagetype_commands[] = {
-    {"NONE",        DmgT_None},
-    {"PHYSICAL",    DmgT_Physical},
-    {"ELECTRIC",    DmgT_Electric},
-    {"COMBUSTION",  DmgT_Combustion},
-    {"FROSTBITE",   DmgT_Frostbite},
-    {"HEATBURN",    DmgT_Heatburn},
-    {"BIOLOGICAL",  DmgT_Biological},
-    {"MAGICAL",     DmgT_Magical},
-    {"RESPIRATORY", DmgT_Respiratory},
-    {"RESTORATION", DmgT_Restoration},
-    {"POISON",      DmgT_Poison},
-    {"HOLY",        DmgT_Holy},
-    {"DARKNESS",    DmgT_Darkness},
-    {"HOARFROST",   DmgT_Hoarfrost},
-    {NULL,          DmgT_None},
+const struct NamedCommand magic_element_flags[] = {
+    {"NEUTRAL",       0},
+    {"PHYSICAL",      1},
+    {"BIOLOGICAL",    2},
+    {"ELECTRICAL",    3},
+    {"MECHANICAL",    4},
+    {"TEMPORAL",      5},
+    {"EXPLOSIVE",     6},
+    {"PROTECTIVE",    7},
+    {"POISONOUS",     8},
+    {"RESPIRATORY",   9},
+    {"HEATBURN",     10},
+    {"SOAKED",       11},
+    {"FROSTBITE",    12},
+    {"HOARFROST",    13},
+    {"ARCANE",       14},
+    {"EARTH",        15},
+    {"FIRE",         16},
+    {"WATER",        17},
+    {"WIND",         18},
+    {"HOLY",         19},
+    {"DARKNESS",     20},
+    {"UNSTABLE",     21},
+    {NULL,            0},
 };
 
 const struct NamedCommand powermodel_expand_check_func_type[] = {
@@ -523,7 +531,7 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
       spconf->healing_recovery = 0;
       spconf->damage = 0;
       spconf->damage_frequency = 0;
-      spconf->damage_type = 0;
+      spconf->element_flags = 0;
     }
   }
   spell_desc[MAGIC_ITEMS_MAX - 1].name = NULL; // must be null for get_id
@@ -934,23 +942,7 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
                     COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
             }
             break;
-        case 16: // DAMAGETYPE
-            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-            {
-                k = get_id(shotmodel_damagetype_commands, word_buf);
-                if (k >= 0)
-                {
-                    spconf->damage_type = k;
-                    n++;
-                }
-            }
-            if (n < 1)
-            {
-                spconf->damage_type = 0; // Default damage type to "none", to allow empty values in config.
-                break;
-            }
-            break;
-        case 17: // AURADURATION
+        case 16: // AURADURATION
             if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
@@ -963,7 +955,7 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
                     COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
             }
             break;
-        case 18: // AURAFREQUENCY
+        case 17: // AURAFREQUENCY
             if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
@@ -976,7 +968,7 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
                     COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
             }
             break;
-        case 19: // CLEANSEFLAGS
+        case 18: // CLEANSEFLAGS
             spconf->cleanse_flags = 0;
             while (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
             {
@@ -1088,7 +1080,7 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
                     COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
             }
             break;
-        case 20: // PROPERTIES
+        case 19: // PROPERTIES
             spconf->properties_flags = 0;
             while (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
             {
@@ -1119,6 +1111,38 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
                             CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
                                 COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
                             break;
+                    }
+                }
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+            }
+            break;
+        case 20: // ELEMENTFLAGS
+            spconf->element_flags = 0;
+            while (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+            {
+                if (parameter_is_number(word_buf))
+                {
+                    k = atoi(word_buf);
+                    spconf->element_flags = k;
+                    n++;
+                }
+                else if (0 == strcmp(word_buf, "NEUTRAL"))
+                {
+                    spconf->element_flags = 0;
+                    n++;
+                    break;
+                }
+                else
+                {
+                    k = get_id(magic_element_flags, word_buf);
+                    if (k > 0)
+                    {
+                        set_flag(spconf->element_flags, 1 << (k - 1));
+                        n++;
                     }
                 }
             }
@@ -1192,6 +1216,7 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
       shotst->soft_landing = 0;
       shotst->periodical = 0;
       shotst->no_trigger_on_friendly = 0;
+      shotst->element_flags = 0;
     }
   }
   shot_desc[MAGIC_ITEMS_MAX - 1].name = NULL; // must be null for get_id
@@ -2299,20 +2324,30 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
                   COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
-      case 66: // DAMAGETYPE
-          shotst->damage_type = 0;
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+      case 66: // ELEMENTFLAGS
+          shotst->element_flags = 0;
+          while (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
-              k = get_id(shotmodel_damagetype_commands, word_buf);
-              if (k >= 0)
+              if (parameter_is_number(word_buf))
               {
-                  shotst->damage_type = k;
+                  k = atoi(word_buf);
+                  shotst->element_flags = k;
                   n++;
+              }
+              else if (0 == strcmp(word_buf, "NEUTRAL"))
+              {
+                  shotst->element_flags = 0;
+                  n++;
+                  break;
               }
               else
               {
-                  shotst->damage_type = 0;
-                  n++;
+                  k = get_id(magic_element_flags, word_buf);
+                  if (k > 0)
+                  {
+                      set_flag(shotst->element_flags, 1 << (k - 1));
+                      n++;
+                  }
               }
           }
           if (n < 1)

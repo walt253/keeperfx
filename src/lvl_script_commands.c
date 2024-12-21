@@ -3633,11 +3633,11 @@ static void set_creature_configuration_process(struct ScriptContext* context)
         case 37: // SPELLIMMUNITY
             if (value2 > 0)
             {
-                set_flag(crstat->immunity_flags, 1 << (value - 1));
+                set_flag(crstat->immunity_flags, to_flag(value - 1));
             }
             else
             {
-                clear_flag(crstat->immunity_flags, 1 << (value - 1));
+                clear_flag(crstat->immunity_flags, to_flag(value - 1));
             }
             break;
         case 38: // HOSTILETOWARDS

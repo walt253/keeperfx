@@ -126,13 +126,9 @@ TbBool detonate_shot(struct Thing *shotng, TbBool destroy)
         else
         {
             damage = compute_creature_attack_spell_damage(shotst->area_damage, luck, cctrl->explevel, castng);
-			if (creature_control_invalid(cctrl))
-			{
-				WARNLOG("%s is invalid (detonate_shot)", thing_model_name(castng));
-			}
         }
         HitTargetFlags hit_targets = hit_type_to_hit_targets(shotst->area_hit_type);
-        explosion_affecting_area(shotng, &shotng->mappos, dist, damage, shotst->area_blow, hit_targets, shotst->damage_type);
+        explosion_affecting_area(shotng, &shotng->mappos, dist, damage, shotst->area_blow, hit_targets, shotst->element_flags);
     }
     create_used_effect_or_element(&shotng->mappos, shotst->explode.effect1_model, shotng->owner);
     create_used_effect_or_element(&shotng->mappos, shotst->explode.effect2_model, shotng->owner);
@@ -629,7 +625,7 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
                 }
             } else {
                 i = calculate_shot_real_damage_to_door(doortng, shotng);
-                apply_damage_to_thing(doortng, i, shotst->damage_type, -1);
+                apply_damage_to_thing(doortng, i, -1, shotst->element_flags);
                 reveal_secret_door_to_player(doortng, shotng->owner);
             }
         }
@@ -744,7 +740,7 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
                     destroy_shot = 1;
                 }
                 i = calculate_shot_real_damage_to_door(doortng, shotng);
-                apply_damage_to_thing(doortng, i, shotst->damage_type, -1);
+                apply_damage_to_thing(doortng, i, -1, shotst->element_flags);
                 reveal_secret_door_to_player(doortng, shotng->owner);
             }
             else
@@ -859,7 +855,7 @@ long shot_hit_door_at(struct Thing *shotng, struct Coord3d *pos)
             else
             {
                 i = calculate_shot_real_damage_to_door(doortng, shotng);
-                apply_damage_to_thing(doortng, i, shotst->damage_type, -1);
+                apply_damage_to_thing(doortng, i, -1, shotst->element_flags);
                 reveal_secret_door_to_player(doortng, shotng->owner);
             }
         }
@@ -966,7 +962,7 @@ static TbBool shot_hit_trap_at(struct Thing* shotng, struct Thing* target, struc
   
         if ((thing_is_destructible_trap(target) > 0) || ((thing_is_destructible_trap(target) > -1) && (shotst->model_flags & ShMF_Disarming)))
         {
-            damage_done = apply_damage_to_thing(target, shotng->shot.damage, shotst->damage_type, -1);
+            damage_done = apply_damage_to_thing(target, shotng->shot.damage, -1, shotst->element_flags);
 
             // Drain allows caster to regain half of damage
             if ((shotst->model_flags & ShMF_LifeDrain) && thing_is_creature(shootertng))
@@ -1042,7 +1038,7 @@ static TbBool shot_hit_object_at(struct Thing *shotng, struct Thing *target, str
     {
         if (object_can_be_damaged(target)) // do not damage objects that cannot be destroyed
         {
-            damage_done = apply_damage_to_thing(target, shotng->shot.damage, shotst->damage_type, -1);
+            damage_done = apply_damage_to_thing(target, shotng->shot.damage, -1, shotst->element_flags);
 
             // Drain allows caster to regain half of damage
             if ((shotst->model_flags & ShMF_LifeDrain) && thing_is_creature(shootertng))
@@ -1261,17 +1257,17 @@ long melee_shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, stru
         {
             if (((shotst->model_flags & ShMF_BlocksRebirth) != 0) && (trgtstat->is_undead != 0))
             {
-                apply_damage_to_thing_and_display_health(trgtng, shotng->shot.damage, DTF_Holy, shooter->owner);
+                apply_damage_to_thing_and_display_health(trgtng, shotng->shot.damage, shooter->owner, DTF_Holy);
             }
             else
             {
                 if (crstat->hoarfrost != 0)
                 {
-                    apply_damage_to_thing_and_display_health(trgtng, shotng->shot.damage, DTF_Hoarfrost, shooter->owner);
+                    apply_damage_to_thing_and_display_health(trgtng, shotng->shot.damage, shooter->owner, DTF_Hoarfrost);
                 }
                 else
                 {
-                    apply_damage_to_thing_and_display_health(trgtng, shotng->shot.damage, shotst->damage_type, shooter->owner);
+                    apply_damage_to_thing_and_display_health(trgtng, shotng->shot.damage, shooter->owner, shotst->element_flags);
                 }
             }
         }
@@ -1279,17 +1275,17 @@ long melee_shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, stru
         {
             if (((shotst->model_flags & ShMF_BlocksRebirth) != 0) && (trgtstat->is_undead != 0))
             {
-                apply_damage_to_thing_and_display_health(trgtng, shotng->shot.damage, DTF_Holy, -1);
+                apply_damage_to_thing_and_display_health(trgtng, shotng->shot.damage, -1, DTF_Holy);
             }
             else
             {
                 if (crstat->hoarfrost != 0)
                 {
-                    apply_damage_to_thing_and_display_health(trgtng, shotng->shot.damage, DTF_Hoarfrost, -1);
+                    apply_damage_to_thing_and_display_health(trgtng, shotng->shot.damage, -1, DTF_Hoarfrost);
                 }
                 else
                 {
-                    apply_damage_to_thing_and_display_health(trgtng, shotng->shot.damage, shotst->damage_type, -1);
+                    apply_damage_to_thing_and_display_health(trgtng, shotng->shot.damage, -1, shotst->element_flags);
                 }
             }
         }
@@ -1485,11 +1481,11 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
             HitPoints dxtdmg = (((dxtshtr * dxtprcnt) / 100) * (256 - deftrgt)) / 256;
             if (!thing_is_invalid(shooter))
             {
-                apply_damage_to_thing_and_display_health(trgtng, dxtdmg, shotst->damage_type, shooter->owner);
+                apply_damage_to_thing_and_display_health(trgtng, dxtdmg, shooter->owner, shotst->element_flags);
             }
             else
             {
-                apply_damage_to_thing_and_display_health(trgtng, dxtdmg, shotst->damage_type, -1);
+                apply_damage_to_thing_and_display_health(trgtng, dxtdmg, -1, shotst->element_flags);
             }
         }
         if (shotst->break_percent > 0)
@@ -1501,11 +1497,11 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
             HitPoints brkdmg = ((max_health - current_health) * brkprcnt) / 100;
             if (!thing_is_invalid(shooter))
             {
-                apply_damage_to_thing_and_display_health(trgtng, brkdmg, shotst->damage_type, shooter->owner);
+                apply_damage_to_thing_and_display_health(trgtng, brkdmg, shooter->owner, shotst->element_flags);
             }
             else
             {
-                apply_damage_to_thing_and_display_health(trgtng, brkdmg, shotst->damage_type, -1);
+                apply_damage_to_thing_and_display_health(trgtng, brkdmg, -1, shotst->element_flags);
             }
         }
         if (shotst->gold_percent > 0)
@@ -1515,12 +1511,12 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
             HitPoints glddmg = (gldcnt * gldprcnt) / 100;
             if (!thing_is_invalid(shooter))
             {
-                apply_damage_to_thing_and_display_health(trgtng, glddmg, shotst->damage_type, shooter->owner);
+                apply_damage_to_thing_and_display_health(trgtng, glddmg, shooter->owner, shotst->element_flags);
                 shooter->creature.gold_carried -= glddmg;
             }
             else
             {
-                apply_damage_to_thing_and_display_health(trgtng, glddmg, shotst->damage_type, -1);
+                apply_damage_to_thing_and_display_health(trgtng, glddmg, -1, shotst->element_flags);
             }
         }
         if (((shotst->model_flags & ShMF_Stealing) != 0) && (trgtng->creature.gold_carried > 0))
@@ -1625,17 +1621,17 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
         {
             if (((shotst->model_flags & ShMF_BlocksRebirth) != 0) && (trgtstat->is_undead != 0))
             {
-                damage_done = apply_damage_to_thing_and_display_health(trgtng, shotng->shot.damage, DTF_Holy, shooter->owner);
+                damage_done = apply_damage_to_thing_and_display_health(trgtng, shotng->shot.damage, shooter->owner, DTF_Holy);
             }
             else
             {
                 if (crstat->hoarfrost != 0)
                 {
-                    damage_done = apply_damage_to_thing_and_display_health(trgtng, shotng->shot.damage, DTF_Hoarfrost, shooter->owner);
+                    damage_done = apply_damage_to_thing_and_display_health(trgtng, shotng->shot.damage, shooter->owner, DTF_Hoarfrost);
                 }
                 else
                 {
-                    damage_done = apply_damage_to_thing_and_display_health(trgtng, shotng->shot.damage, shotst->damage_type, shooter->owner);
+                    damage_done = apply_damage_to_thing_and_display_health(trgtng, shotng->shot.damage, shooter->owner, shotst->element_flags);
                 }
             }
         }
@@ -1643,17 +1639,17 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
         {
             if (((shotst->model_flags & ShMF_BlocksRebirth) != 0) && (trgtstat->is_undead != 0))
             {
-                damage_done = apply_damage_to_thing_and_display_health(trgtng, shotng->shot.damage, DTF_Holy, -1);
+                damage_done = apply_damage_to_thing_and_display_health(trgtng, shotng->shot.damage, -1, DTF_Holy);
             }
             else
             {
                 if (crstat->hoarfrost != 0)
                 {
-                    damage_done = apply_damage_to_thing_and_display_health(trgtng, shotng->shot.damage, DTF_Hoarfrost, -1);
+                    damage_done = apply_damage_to_thing_and_display_health(trgtng, shotng->shot.damage, -1, DTF_Hoarfrost);
                 }
                 else
                 {
-                    damage_done = apply_damage_to_thing_and_display_health(trgtng, shotng->shot.damage, shotst->damage_type, -1);
+                    damage_done = apply_damage_to_thing_and_display_health(trgtng, shotng->shot.damage, -1, shotst->element_flags);
                 }
             }
         }
@@ -2170,7 +2166,7 @@ TngUpdateRet update_shot(struct Thing *thing)
               {
                   shotst = get_shot_model_stats(ShM_GodLightBall);
                   draw_lightning(&thing->mappos,&target->mappos, shotst->effect_spacing, shotst->effect_id);
-                  apply_damage_to_thing_and_display_health(target, shotst->damage, shotst->damage_type, thing->owner);
+                  apply_damage_to_thing_and_display_health(target, shotst->damage, thing->owner, shotst->element_flags);
               }
             }
             break;

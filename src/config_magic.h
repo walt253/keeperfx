@@ -97,10 +97,10 @@ enum PowerKinds {
     PwrK_MKTUNNELLER,
     PwrK_RAGE,
     PwrK_DIVINESHIELD, // 30
-    PwrK_METEORSTORM,
-    PwrK_INDOCTRINATION,
-    PwrK_MIGHTYINFUSION,
     PwrK_MAGICMIST,
+    PwrK_INDOCTRINATION,
+    PwrK_METEORSTORM,
+    PwrK_MIGHTYINFUSION,
     PwrK_MASSTELEPORT, // 35
     PwrK_FART,
     PwrK_SUMMONCREATURE,
@@ -325,7 +325,7 @@ struct ShotConfigStats {
     unsigned char gold_percent;
     unsigned char slab_kind;
     unsigned char no_trigger_on_friendly;
-    DamageType damage_type;
+    ElementFlags element_flags;
 };
 
 typedef unsigned char (*Expand_Check_Func)(void);
@@ -405,10 +405,10 @@ struct SpellConfig {
     HitPoints healing_recovery;
     HitPoints damage;
     GameTurnDelta damage_frequency;
-    DamageType damage_type;
     unsigned long spell_flags;
     unsigned long cleanse_flags;
     unsigned char properties_flags;
+    ElementFlags element_flags;
 };
 
 struct MagicStats {

@@ -1893,7 +1893,7 @@ void process_thing_spell_damage_or_heal_effects(struct Thing *thing, SpellKind s
     // Apply damage.
     if (damage >= 0)
     {
-        apply_damage_to_thing_and_display_health(thing, damage, spconf->damage_type, caster_owner);
+        apply_damage_to_thing_and_display_health(thing, damage, caster_owner, spconf->element_flags);
     }
     else // Or heal if damage is negative.
     {
@@ -3575,10 +3575,6 @@ long calculate_shot_damage(struct Thing *creatng, ThingModel shot_model)
     const struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     long luck = calculate_correct_creature_luck(creatng);
     long damage = compute_creature_attack_spell_damage(shotst->damage, luck, cctrl->explevel, creatng);
-	if (creature_control_invalid(cctrl))
-	{
-		WARNLOG("%s is invalid (calculate_shot_damage)", thing_model_name(creatng));
-	}
     if (((shotst->model_flags & ShMF_Digging) != 0) && ((shotst->model_flags & ShMF_NoHit) != 0) && (damage < shotst->damage))
     {
         damage = shotst->damage;
@@ -6279,15 +6275,15 @@ void process_creature_leave_footsteps(struct Thing *thing)
  *
  * @param thing
  * @param dmg
- * @param damage_type
+ * @param element_flags
  * @param inflicting_plyr_idx
  */
-HitPoints apply_damage_to_thing_and_display_health(struct Thing *thing, HitPoints dmg, DamageType damage_type, PlayerNumber inflicting_plyr_idx)
+HitPoints apply_damage_to_thing_and_display_health(struct Thing *thing, HitPoints dmg, PlayerNumber inflicting_plyr_idx, ElementFlags element_flags)
 {
     HitPoints cdamage;
     if (dmg > 0)
     {
-        cdamage = apply_damage_to_thing(thing, dmg, damage_type, inflicting_plyr_idx);
+        cdamage = apply_damage_to_thing(thing, dmg, inflicting_plyr_idx, element_flags);
     } else {
         cdamage = 0;
     }
@@ -6345,7 +6341,7 @@ void process_landscape_affecting_creature(struct Thing *thing)
                     clean_spell_effect(thing, CSAfF_Freeze);
                 }
             } else {
-                apply_damage_to_thing_and_display_health(thing, crstat->hurt_by_lava, DTF_Heatburn, -1);
+                apply_damage_to_thing_and_display_health(thing, crstat->hurt_by_lava, -1, DTF_Heatburn);
             }
             if ((crstat->lava_recovery > 0) && (cctrl->max_health > thing->health))
             {
@@ -6364,7 +6360,7 @@ void process_landscape_affecting_creature(struct Thing *thing)
         if (cube_is_water(i))
         {
             if (crstat->hurt_by_water > 0) {
-                apply_damage_to_thing_and_display_health(thing, crstat->hurt_by_water, DTF_Soaked, -1);
+                apply_damage_to_thing_and_display_health(thing, crstat->hurt_by_water, -1, DTF_Soaked);
             }
             if ((crstat->water_recovery > 0) && (cctrl->max_health > thing->health))
             {

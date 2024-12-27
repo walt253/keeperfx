@@ -1008,6 +1008,18 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
                       set_flag(crstat->immunity_flags, CSAfF_Wind);
                       n++;
                       break;
+                  case 19: // RAGE
+                      set_flag(crstat->immunity_flags, CSAfF_Rage);
+                      n++;
+                      break;
+                  case 20: // DIVINE_SHIELD
+                      set_flag(crstat->immunity_flags, CSAfF_DivineShield);
+                      n++;
+                      break;
+                  case 21: // MAGIC_MIST
+                      set_flag(crstat->immunity_flags, CSAfF_MagicMist);
+                      n++;
+                      break;
                   default:
                       CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in [%s] block of %s %s file.",
                           COMMAND_TEXT(cmd_num), word_buf, block_buf, creature_code_name(crtr_model), config_textname);

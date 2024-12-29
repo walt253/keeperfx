@@ -74,7 +74,7 @@ static enum DeltaEncoding encode(enum DeltaEncoding encoding, char * code,
 
     //compare information content and select best
     if (self_information(new_state, len) <= self_information(code, len)) {
-        NETDBG("No delta selected");
+        NETDBG(6, "No delta selected", 0);
         memcpy(code, new_state, len); //undo
         return DELTA_NONE;
     }

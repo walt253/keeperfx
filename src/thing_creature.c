@@ -3760,8 +3760,8 @@ void thing_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot
             project_point_to_wall_on_angle(&pos1, &pos2, firing->move_angle_xy, firing->move_angle_z, COORD_PER_STL, shotst->max_range/COORD_PER_STL);
         shotng = create_thing(&pos2, TCls_Shot, shot_model, firing->owner, -1);
         if (thing_is_invalid(shotng))
-          return;
-        draw_flame_breath(&pos1, &pos2, shotst->effect_spacing, shotst->effect_amount,shotst->effect_id, shotng->index);
+            return;
+        draw_flame_breath(&pos1, &pos2, shotst->effect_spacing, shotst->effect_amount, shotst->effect_id, shotng->index);
         shotng->health = shotst->health;
         shotng->shot.damage = damage;
         shotng->parent_idx = firing->index;

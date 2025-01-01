@@ -219,7 +219,7 @@ long process_torture_visuals(struct Thing *creatng, struct Room *room, CreatureJ
             ERRORLOG("No device for torture");
         }
         dturn = game.play_gameturn - cctrl->tortured.gameturn_A2x;
-        if ((dturn > 32) || ((cctrl->spell_flags & CSAfF_Speed) && (dturn > 16)))
+        if ((dturn > 32) || (creature_under_spell_effect(creatng, CSAfF_Speed) && (dturn > 16)))
         {
             play_creature_sound(creatng, CrSnd_Torture, 2, 0);
             cctrl->tortured.gameturn_A2x = game.play_gameturn;
@@ -472,12 +472,16 @@ long reveal_players_map_to_player(struct Thing *thing, PlayerNumber benefit_plyr
  */
 long compute_torture_convert_time(const struct Thing *thing, const struct Room *room)
 {
-    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
     long i = ((long)game.play_gameturn - cctrl->tortured.start_gameturn) * room->efficiency / ROOM_EFFICIENCY_MAX;
-    if (creature_affected_by_spell(thing, SplK_Speed))
-      i = (4 * i) / 3;
+    if (creature_under_spell_effect(thing, CSAfF_Speed))
+    {
+        i = (4 * i) / 3;
+    }
     if (creature_affected_by_slap(thing))
-      i = (5 * i) / 4;
+    {
+        i = (5 * i) / 4;
+    }
     return i;
 }
 
@@ -517,7 +521,7 @@ CrCheckRet process_torture_function(struct Thing *creatng)
     anger_apply_anger_to_creature(creatng, crstat->annoy_in_torture, AngR_Other, 1);
     if ((long)game.play_gameturn >= cctrl->turns_at_job + game.conf.rules.health.turns_per_torture_health_loss)
     {
-        HitPoints torture_damage = compute_creature_max_health(game.conf.rules.health.torture_health_loss, cctrl->explevel);
+        HitPoints torture_damage = (calculate_correct_creature_max_health(creatng) * game.conf.rules.health.torture_health_loss) / 100;
         remove_health_from_thing_and_display_health(creatng, torture_damage);
         cctrl->turns_at_job = (long)game.play_gameturn;
     }

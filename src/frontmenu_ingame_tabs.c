@@ -623,7 +623,8 @@ void gui_area_spell_button(struct GuiButton *gbtn)
             int i = powerst->work_state;
             if (((i == PSt_CallToArms) && player_uses_power_call_to_arms(my_player_number))
              || ((i == PSt_SightOfEvil) && player_uses_power_sight(my_player_number))
-             || ((pwkind == PwrK_OBEY) && player_uses_power_obey(my_player_number))) {
+             || ((pwkind == PwrK_OBEY) && player_uses_power_obey(my_player_number))
+             || ((pwkind == PwrK_MIGHTYINFUSION) && player_uses_power_mighty_infusion(my_player_number))) {
                 draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, GPS_rpanel_frame_portrt_light);
             }
             GoldAmount price = compute_power_price(dungeon->owner, pwkind, 0);
@@ -1694,9 +1695,11 @@ void gui_area_instance_button(struct GuiButton *gbtn)
     const char* text = buf_sprintf("%d", (curbtn_avail_pos + 1) % 10);
     LbTextDrawResized(gbtn->scr_pos_x + 52*units_per_px/16, gbtn->scr_pos_y + 9*units_per_px/16, tx_units_per_px, text);
     spr_idx = gbtn->sprite_idx;
-
-    if ( (!creature_instance_has_reset(ctrltng, curbtn_inst_id)) || ( (thing_affected_by_spell(ctrltng, SplK_Freeze)) && (!inst_inf->instant ) ) )
-      spr_idx++;
+    // Show disabled icon if instance is on cooldown or creature is frozen.
+    if ((!creature_instance_has_reset(ctrltng, curbtn_inst_id)) || (creature_under_spell_effect(ctrltng, CSAfF_Freeze) && (!inst_inf->instant)))
+    {
+        spr_idx++;
+    }
     if (MyScreenHeight < 400)
     {
         const struct TbSprite* spr = get_panel_sprite(GPS_plyrsym_symbol_player_red_std_b);

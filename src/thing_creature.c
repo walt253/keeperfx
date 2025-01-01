@@ -3433,7 +3433,9 @@ void set_creature_level(struct Thing *thing, long nlvl)
     }
     cctrl->explevel = nlvl;
     set_creature_size_stuff(thing);
+    JUSTLOG("set_creature_level: health: %d - max_health: %d", (int)thing->health, (int)cctrl->max_health);
     update_relative_creature_health(thing);
+    JUSTLOG("set_creature_level: health: %d - max_health: %d", (int)thing->health, (int)cctrl->max_health);
     creature_increase_available_instances(thing);
     add_creature_score_to_owner(thing);
 }
@@ -3447,7 +3449,9 @@ void init_creature_level(struct Thing *thing, long nlev)
         return;
     }
     set_creature_level(thing, nlev);
+    JUSTLOG("init_creature_level: health: %d - max_health: %d", (int)thing->health, (int)cctrl->max_health);
     thing->health = cctrl->max_health;
+    JUSTLOG("init_creature_level: health: %d - max_health: %d", (int)thing->health, (int)cctrl->max_health);
 }
 
 /** Retrieves speed of a creature.

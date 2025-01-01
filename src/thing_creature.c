@@ -111,14 +111,16 @@ struct TbSpriteSheet * swipe_sprites = NULL;
  * @note Dying creatures may return negative health, and in some rare cases creatures
  *  can have more health than their max.
  */
-int get_creature_health_permil(const struct Thing *thing)
+HitPoints get_creature_health_permil(const struct Thing *thing)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     HitPoints health = thing->health * 1000;
     HitPoints max_health = cctrl->max_health;
     if (max_health < 1)
+    {
         max_health = 1;
-    return health/max_health;
+    }
+    return health / max_health;
 }
 
 TbBool thing_can_be_controlled_as_controller(struct Thing *thing)
@@ -3884,23 +3886,9 @@ void set_creature_level(struct Thing *thing, long nlvl)
         ERRORLOG("Level %d too low, bounding", (int)nlvl);
         nlvl = 0;
     }
-    HitPoints old_max_health = calculate_correct_creature_max_health(thing);
-    if (old_max_health < 1)
-    {
-        old_max_health = 1;
-    }
     cctrl->explevel = nlvl;
-    HitPoints max_health = calculate_correct_creature_max_health(thing);
-    cctrl->max_health = max_health;
     set_creature_size_stuff(thing);
-    if (old_max_health > 0)
-    {
-        thing->health = ((thing->health * max_health) / old_max_health);
-    }
-    else
-    {
-        thing->health = -1;
-    }
+    update_relative_creature_health(thing);
     creature_increase_available_instances(thing);
     add_creature_score_to_owner(thing);
 }
@@ -5844,7 +5832,7 @@ long player_list_creature_filter_needs_to_be_placed_in_room_for_job(const struct
         }
     }
 
-    int health_permil = get_creature_health_permil(thing);
+    HitPoints health_permil = get_creature_health_permil(thing);
     // If it's angry but not furious, or has lost health due to disease, then should be placed in temple.
     if ((anger_is_creature_angry(thing)
     || (creature_under_spell_effect(thing, CSAfF_Disease) && (health_permil <= (game.conf.rules.computer.disease_to_temple_pct * 10))))

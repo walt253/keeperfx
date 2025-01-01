@@ -2840,7 +2840,7 @@ struct Thing *find_creature_for_defend_pickup(struct Computer2 *comp)
                                 expvalues = &game.creature_scores[thing->model];
                                 long expval = expvalues->value[cctrl->explevel];
                                 HitPoints healthprm = get_creature_health_permil(thing);
-                                long new_factor = healthprm * expval / 1000;
+                                HitPoints new_factor = healthprm * expval / 1000;
                                 if ((new_factor > best_factor) && (healthprm > 20))
                                 {
                                     best_factor = new_factor;

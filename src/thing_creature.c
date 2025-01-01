@@ -123,7 +123,7 @@ HitPoints get_creature_health_permil(const struct Thing *thing)
     // Use int64_t as intermediary variable to prevent overflow during the multiplication.
     // HitPoints is a 32-bit type, and multiplying health by 1000 could exceed its capacity.
     // By using int64_t, we ensure that the intermediate result can hold the larger value before it's cast back to HitPoints.
-    int64_t health_scaled = (health * 1000) / max_health;
+    int64_t health_scaled = ((int64_t)health * 1000) / (int64_t)max_health;
     HitPoints health_permil = health_scaled;
     return health_permil;
 }

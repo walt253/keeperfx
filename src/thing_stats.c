@@ -325,7 +325,7 @@ HitPoints compute_creature_max_health(HitPoints base_health, unsigned short crle
     {
         crlevel = CREATURE_MAX_LEVEL-1;
     }
-    int64_t compute_health = (int64_t)base_health + (game.conf.crtr_conf.exp.health_increase_on_exp * (int64_t)base_health * (int64_t)crlevel) / 100;
+    int64_t compute_health = (int64_t)base_health + ((int64_t)game.conf.crtr_conf.exp.health_increase_on_exp * (int64_t)base_health * (int64_t)crlevel) / 100;
     if (compute_health >= INT32_MAX)
     {
         compute_health = INT32_MAX;

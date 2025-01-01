@@ -896,7 +896,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
     i = get_free_spell_slot(thing);
     if (spell_idx == SplK_Heal)
     {
-        HitPoints healing_recovery = saturate_set_signed((thing->health + pwrdynst->strength[spell_lev]), 20);
+        HitPoints healing_recovery = saturate_set_signed((thing->health + pwrdynst->strength[spell_lev]), 16);
         if (healing_recovery < 0)
         {
             thing->health = 0;
@@ -1147,7 +1147,7 @@ void reapply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long spe
         break;
     case SplK_Heal:
     {
-        HitPoints healing_recovery = saturate_set_signed((thing->health + pwrdynst->strength[spell_lev]), 20);
+        HitPoints healing_recovery = saturate_set_signed((thing->health + pwrdynst->strength[spell_lev]), 16);
         if (healing_recovery < 0)
         {
             thing->health = 0;

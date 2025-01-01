@@ -325,12 +325,15 @@ HitPoints compute_creature_max_health(HitPoints base_health, unsigned short crle
     {
         crlevel = CREATURE_MAX_LEVEL-1;
     }
+    JUSTLOG("compute_creature_max_health: base_health: %d", (int)base_health);
     int64_t compute_health = base_health + (game.conf.crtr_conf.exp.health_increase_on_exp * base_health * (long)crlevel) / 100;
+    JUSTLOG("compute_creature_max_health: compute_health: %lld", compute_health);
     if (compute_health > LONG_MAX)
     {
         compute_health = LONG_MAX-1;
     }
     HitPoints max_health = compute_health;
+    JUSTLOG("compute_creature_max_health: max_health: %d", (int)max_health);
     return max_health;
 }
 
@@ -653,18 +656,21 @@ HitPoints calculate_correct_creature_max_health(const struct Thing *thing)
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     HitPoints max_health = compute_creature_max_health(crstat->health, cctrl->explevel);
+    JUSTLOG("calculate_correct_creature_max_health: health: %d - max_health: %d", (int)thing->health, (int)max_health);
     // Apply modifier.
     if (!is_neutral_thing(thing))
     {
         dungeon = get_dungeon(thing->owner);
         unsigned short modifier = dungeon->modifier.health;
         int64_t compute_health = (max_health * modifier) / 100;
+        JUSTLOG("calculate_correct_creature_max_health: compute_health: %lld - health: %d - max_health: %d", compute_health, (int)thing->health, (int)max_health);
         if (compute_health > LONG_MAX)
         {
             compute_health = LONG_MAX-1;
         }
         max_health = compute_health;
     }
+    JUSTLOG("calculate_correct_creature_max_health: health: %d - max_health: %d", (int)thing->health, (int)max_health);
     return max_health;
 }
 

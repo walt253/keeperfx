@@ -904,17 +904,11 @@ TbBool update_creature_health_to_max(struct Thing * creatng)
  */
 TbBool update_relative_creature_health(struct Thing* creatng)
 {
-    JUSTLOG("old_health: %d", (int)creatng->health);
     HitPoints health_permil = get_creature_health_permil(creatng);
-    JUSTLOG("health_permil: %d", (int)health_permil);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    JUSTLOG("old_max_health: %d", (int)cctrl->max_health);
     cctrl->max_health = calculate_correct_creature_max_health(creatng);
-    JUSTLOG("new_max_health: %d", (int)cctrl->max_health);
     int64_t health_scaled = (int64_t)cctrl->max_health * (int64_t)health_permil / 1000;
-    JUSTLOG("health_scaled: %lld", health_scaled);
     creatng->health = health_scaled;
-    JUSTLOG("new_health: %d", (int)creatng->health);
     return true;
 }
 

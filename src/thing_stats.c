@@ -325,7 +325,12 @@ HitPoints compute_creature_max_health(HitPoints base_health, unsigned short crle
     {
         crlevel = CREATURE_MAX_LEVEL-1;
     }
-    HitPoints max_health = base_health + (game.conf.crtr_conf.exp.health_increase_on_exp * base_health * (long)crlevel) / 100;
+    int64_t compute_health = base_health + (game.conf.crtr_conf.exp.health_increase_on_exp * base_health * (long)crlevel) / 100;
+    if (compute_health >= LONG_MAX)
+    {
+        compute_health = LONG_MAX;
+    }
+    HitPoints max_health = compute_health;
     return max_health;
 }
 
@@ -653,7 +658,12 @@ HitPoints calculate_correct_creature_max_health(const struct Thing *thing)
     {
         dungeon = get_dungeon(thing->owner);
         unsigned short modifier = dungeon->modifier.health;
-        max_health = (max_health * modifier) / 100;
+        int64_t compute_health = (max_health * modifier) / 100;
+        if (compute_health >= LONG_MAX)
+        {
+            compute_health = LONG_MAX;
+        }
+        max_health = compute_health;
     }
     return max_health;
 }

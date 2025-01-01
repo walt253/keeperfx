@@ -564,58 +564,59 @@ TbBool creature_model_bleeds(unsigned long crmodel)
   }
   return crstat->bleeds;
 }
+
 /******************************************************************************/
 /** Returns type of given creature state.
- *
  * @param thing The source thing.
  * @return Type of the creature state.
  */
 long get_creature_state_type_f(const struct Thing *thing, const char *func_name)
 {
-  long state_type;
-  unsigned long state = thing->active_state;
-  if ( (state > 0) && (state < CREATURE_STATES_COUNT) )
-  {
-      state_type = states[state].state_type;
-  } else
-  {
-      state_type = states[0].state_type;
-      WARNLOG("%s: The %s index %d active state %lu (%s) is out of range",
-        func_name,thing_model_name(thing),(int)thing->index,state,creature_state_code_name(state));
-  }
-  if (state_type == CrStTyp_Move)
-  {
-      state = thing->continue_state;
-      if ( (state > 0) && (state < CREATURE_STATES_COUNT) )
-      {
-          state_type = states[state].state_type;
-      } else
-      {
-          state_type = states[0].state_type;
-          // Show message with text name of active state - it's good as the state was checked before
-          WARNLOG("%s: The %s index %d owner %d continue state %lu (%s) is out of range; active state %u (%s)",func_name,
-              thing_model_name(thing),(int)thing->index,(int)thing->owner,state,creature_state_code_name(state),thing->active_state,creature_state_code_name(thing->active_state));
-      }
-  }
-  return state_type;
+    long state_type;
+    unsigned long state = thing->active_state;
+    if (state < CREATURE_STATES_COUNT)
+    {
+        state_type = states[state].state_type;
+    }
+    else
+    {
+        state_type = states[0].state_type;
+        WARNLOG("%s: The %s index %d active state %lu (%s) is out of range",
+            func_name, thing_model_name(thing), (int)thing->index, state, creature_state_code_name(state));
+    }
+    if (state_type == CrStTyp_Move)
+    {
+        state = thing->continue_state;
+        if (state < CREATURE_STATES_COUNT)
+        {
+            state_type = states[state].state_type;
+        }
+        else
+        {
+            state_type = states[0].state_type;
+            // Show message with text name of active state - it's good as the state was checked before.
+            WARNLOG("%s: The %s index %d owner %d continue state %lu (%s) is out of range; active state %u (%s)", func_name,
+                thing_model_name(thing), (int)thing->index, (int)thing->owner, state, creature_state_code_name(state), thing->active_state, creature_state_code_name(thing->active_state));
+        }
+    }
+    return state_type;
 }
 
 /** Returns GUI Job of given creature.
- *  The GUI Job is a simplified version of creature state which
- *  only takes 3 values: 0-idle, 1-working, 2-fighting.
- *
+ * The GUI Job is a simplified version of creature state which only takes 3 values: 0-idle, 1-working, 2-fighting.
  * @param thing The source thing.
- * @return GUI state, in range 0..2.
+ * @return GUI state, in range 0...2.
  */
 long get_creature_gui_job(const struct Thing *thing)
 {
     long state_type = get_creature_state_type(thing);
-    if ( (state_type >= 0) && (state_type < sizeof(state_type_to_gui_state)/sizeof(state_type_to_gui_state[0])) )
+    if ((state_type >= 0) && (state_type < sizeof(state_type_to_gui_state)/sizeof(state_type_to_gui_state[0])))
     {
         return state_type_to_gui_state[state_type];
-    } else
+    }
+    else
     {
-        WARNLOG("The %s index %d has invalid state type(%d)!",thing_model_name(thing),(int)thing->index,(int)state_type);
+        WARNLOG("The %s index %d has invalid state type(%d)!", thing_model_name(thing), (int)thing->index, (int)state_type);
         erstat_inc(ESE_BadCreatrState);
         return state_type_to_gui_state[0];
     }
@@ -697,6 +698,14 @@ TbBool creature_is_being_summoned(const struct Thing *thing)
     return false;
 }
 
+TbBool creature_is_fighting(const struct Thing *thing)
+{
+    CrtrStateId i = get_creature_state_type(thing);
+    if ((i == CrStTyp_FightCrtr) || (i == CrStTyp_FightDoor) || (i == CrStTyp_FightObj))
+        return true;
+    return false;
+}
+
 TbBool creature_is_training(const struct Thing *thing)
 {
     CrtrStateId i = get_creature_state_besides_interruptions(thing);
@@ -772,8 +781,8 @@ TbBool creature_is_fleeing_combat(const struct Thing *thing)
  */
 TbBool creature_affected_by_call_to_arms(const struct Thing *thing)
 {
-    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    return ((cctrl->spell_flags & CSAfF_CalledToArms) != 0);
+    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
+    return cctrl->called_to_arms;
 }
 
 /**
@@ -941,13 +950,14 @@ TbBool creature_state_is_unset(const struct Thing *thing)
 
 TbBool restore_creature_flight_flag(struct Thing *creatng)
 {
-    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
-    // Creature can fly either by spell or natural ability
-    if ((crstat->flying) || creature_affected_by_spell(creatng, SplK_Fly))
+    struct CreatureStats *crstat = creature_stats_get_from_thing(creatng);
+    // Creature can fly either by spell or naturally.
+    if ((crstat->flying) || creature_under_spell_effect(creatng, CSAfF_Flying))
     {
-        // Even flying creature is grounded while frozen
-        if (!creature_affected_by_spell(creatng, SplK_Freeze)) {
-            creatng->movement_flags |= TMvF_Flying;
+        // Even flying creature is grounded while frozen.
+        if (!creature_under_spell_effect(creatng, CSAfF_Freeze))
+        {
+            set_flag(creatng->movement_flags, TMvF_Flying);
             return true;
         }
     }
@@ -1463,7 +1473,7 @@ short creature_being_dropped(struct Thing *creatng)
         new_job = get_job_for_subtile(creatng, stl_x, stl_y, JoKF_AssignHumanDrop);
     }
     // Most tasks are disabled while creature is a chicken
-    if (!creature_affected_by_spell(creatng, SplK_Chicken))
+    if (!creature_under_spell_effect(creatng, CSAfF_Chicken))
     {
         // For creatures with trembling and not changed to chickens, tremble the camera
         if ((get_creature_model_flags(creatng) & CMF_Trembling) != 0)
@@ -1506,7 +1516,7 @@ short creature_being_dropped(struct Thing *creatng)
         }
     }
     // TODO CREATURE_JOBS it would be great if these jobs were also returned by get_job_for_subtile()
-    if (!creature_affected_by_spell(creatng, SplK_Chicken))
+    if (!creature_under_spell_effect(creatng, CSAfF_Chicken))
     {
         // Special tasks for diggers
         if ((get_creature_model_flags(creatng) & CMF_IsSpecDigger) != 0)
@@ -1526,7 +1536,7 @@ short creature_being_dropped(struct Thing *creatng)
                 }
             }
         }
-        if (creature_affected_by_spell(creatng, SplK_Fear))
+        if (creature_under_spell_effect(creatng, CSAfF_Fear))
         {
             external_set_thing_state(creatng, CrSt_CreatureCombatFlee);
             return 2;
@@ -1599,15 +1609,17 @@ short creature_being_dropped(struct Thing *creatng)
 short creature_cannot_find_anything_to_do(struct Thing *creatng)
 {
     TRACE_THING(creatng);
-	struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-	if ((game.play_gameturn - cctrl->countdown) >= 128)
-	{
-		set_start_state(creatng);
-		return 0;
-	}
-	if (creature_choose_random_destination_on_valid_adjacent_slab(creatng))
-		creatng->continue_state = CrSt_CreatureCannotFindAnythingToDo;
-	return 1;
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    if ((game.play_gameturn - cctrl->countdown) >= 128)
+    {
+        set_start_state(creatng);
+        return 0;
+    }
+    if (creature_choose_random_destination_on_valid_adjacent_slab(creatng))
+    {
+        creatng->continue_state = CrSt_CreatureCannotFindAnythingToDo;
+    }
+    return 1;
 }
 
 /**
@@ -1644,41 +1656,45 @@ short creature_casting_preparation(struct Thing *creatng)
 void set_creature_size_stuff(struct Thing *creatng)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    if (creature_affected_by_spell(creatng, SplK_Chicken))
+    if (creature_under_spell_effect(creatng, CSAfF_Chicken))
     {
-      creatng->sprite_size = game.conf.crtr_conf.sprite_size;
-    } else
+        creatng->sprite_size = game.conf.crtr_conf.sprite_size;
+    }
+    else
     {
-      creatng->sprite_size = game.conf.crtr_conf.sprite_size + (game.conf.crtr_conf.sprite_size * game.conf.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100;
+        creatng->sprite_size = game.conf.crtr_conf.sprite_size + (game.conf.crtr_conf.sprite_size * game.conf.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100;
     }
 }
 
 short creature_change_from_chicken(struct Thing *creatng)
 {
     TRACE_THING(creatng);
-    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
     creature_set_speed(creatng, 0);
     if (cctrl->countdown > 0)
+    {
         cctrl->countdown--;
+    }
     if (cctrl->countdown > 0)
-    { // Changing under way - gradually modify size of the creature
-        creatng->rendering_flags |= TRF_Invisible;
-        creatng->size_change |= TSC_ChangeSize;
-        struct Thing* efftng = create_effect_element(&creatng->mappos, TngEffElm_Chicken, creatng->owner);
+    { // Changing under way - gradually modify size of the creature.
+        set_flag(creatng->rendering_flags, TRF_Invisible);
+        set_flag(creatng->size_change, TSC_ChangeSize);
+        struct Thing *efftng = create_effect_element(&creatng->mappos, TngEffElm_Chicken, creatng->owner);
         if (!thing_is_invalid(efftng))
         {
             long n = (10 - cctrl->countdown) * (game.conf.crtr_conf.sprite_size + (game.conf.crtr_conf.sprite_size * game.conf.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100) / 10;
             unsigned long k = get_creature_anim(creatng, 0);
             set_thing_draw(efftng, k, 256, n, -1, 0, ODC_Default);
-            efftng->rendering_flags &= ~TRF_Transpar_Flags;
-            efftng->rendering_flags |= TRF_Transpar_8;
+            clear_flag(efftng->rendering_flags, TRF_Transpar_Flags);
+            set_flag(efftng->rendering_flags, TRF_Transpar_8);
         }
         return 0;
-    } else
+    }
+    else
     {
-        creatng->rendering_flags &= ~TRF_Invisible;
-        cctrl->stateblock_flags &= ~CCSpl_ChickenRel;
-        cctrl->spell_flags &= ~CSAfF_Chicken;
+        clear_flag(creatng->rendering_flags, TRF_Invisible);
+        clear_flag(cctrl->stateblock_flags, CCSpl_ChickenRel);
+        clear_flag(cctrl->spell_flags, CSAfF_Chicken);
         set_creature_size_stuff(creatng);
         set_start_state(creatng);
         return 1;
@@ -1688,28 +1704,31 @@ short creature_change_from_chicken(struct Thing *creatng)
 short creature_change_to_chicken(struct Thing *creatng)
 {
     TRACE_THING(creatng);
-    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
     creature_set_speed(creatng, 0);
     if (cctrl->countdown > 0)
+    {
         cctrl->countdown--;
+    }
     if (cctrl->countdown > 0)
     {
-      creatng->size_change |= TSC_ChangeSize;
-      creatng->rendering_flags |= TRF_Invisible;
-      struct Thing* efftng = create_effect_element(&creatng->mappos, TngEffElm_Chicken, creatng->owner);
-      if (!thing_is_invalid(efftng))
-      {
-          unsigned long k = convert_td_iso(819);
-          set_thing_draw(efftng, k, 0, 1200 * cctrl->countdown / 10 + game.conf.crtr_conf.sprite_size, -1, 0, ODC_Default);
-          efftng->rendering_flags &= ~TRF_Transpar_Flags;
-          efftng->rendering_flags |= TRF_Transpar_8;
-      }
-      return 0;
+        set_flag(creatng->size_change, TSC_ChangeSize);
+        set_flag(creatng->rendering_flags, TRF_Invisible);
+        struct Thing *efftng = create_effect_element(&creatng->mappos, TngEffElm_Chicken, creatng->owner);
+        if (!thing_is_invalid(efftng))
+        {
+            unsigned long k = convert_td_iso(819);
+            set_thing_draw(efftng, k, 0, 1200 * cctrl->countdown / 10 + game.conf.crtr_conf.sprite_size, -1, 0, ODC_Default);
+            clear_flag(efftng->rendering_flags, TRF_Transpar_Flags);
+            set_flag(efftng->rendering_flags, TRF_Transpar_8);
+        }
+        return 0;
     }
-    cctrl->spell_flags |= CSAfF_Chicken;
-    creatng->rendering_flags &= ~TRF_Invisible;
+    // Apparently, this function bypasses the immunity, as no check was made against CMF_NeverChickens.
+    set_flag(cctrl->spell_flags, CSAfF_Chicken);
+    clear_flag(creatng->rendering_flags, TRF_Invisible);
     set_creature_size_stuff(creatng);
-    creatng->state_flags &= ~TF1_Unkn10;
+    clear_flag(creatng->state_flags, TF1_Unkn10);
     creatng->active_state = CrSt_CreaturePretendChickenSetupMove;
     creatng->continue_state = CrSt_Unused;
     cctrl->stopped_for_hand_turns = 0;
@@ -1770,7 +1789,7 @@ short creature_doing_nothing(struct Thing *creatng)
     if (game.play_gameturn - cctrl->idle.start_gameturn <= 1) {
         return 1;
     }
-    if ((cctrl->spell_flags & CSAfF_MadKilling) != 0) {
+    if (creature_under_spell_effect(creatng, CSAfF_MadKilling)) {
         SYNCDBG(8,"The %s index %d goes mad killing",thing_model_name(creatng),creatng->index);
         internal_set_thing_state(creatng, CrSt_MadKillingPsycho);
         return 1;
@@ -2070,8 +2089,6 @@ short creature_explore_dungeon(struct Thing *creatng)
     }
     if (!ret)
     {
-        SYNCLOG("The %s owned by player %d can't navigate to subtile (%d,%d) for exploring",
-            thing_model_name(creatng),(int)creatng->owner, (int)pos.x.stl.num, (int)pos.y.stl.num);
         set_start_state(creatng);
         return CrCkRet_Available;
     }
@@ -2101,26 +2118,26 @@ short creature_exempt(struct Thing *creatng)
 short creature_follow_leader(struct Thing *creatng)
 {
     TRACE_THING(creatng);
-    struct Thing* leadtng = get_group_leader(creatng);
+    struct Thing *leadtng = get_group_leader(creatng);
     if (!thing_is_creature(leadtng))
     {
-        SYNCLOG("The %s index %d owned by player %d can no longer follow leader - it's invalid",
-            thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
+        /* SYNCLOG("The %s index %d owned by player %d can no longer follow leader - it's invalid",
+            thing_model_name(creatng), (int)creatng->index, (int)creatng->owner); */
         set_start_state(creatng);
         return 1;
     }
     if (leadtng->index == creatng->index)
     {
-        SYNCLOG("The %s index %d owned by player %d became party leader",
-            thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
+        /* SYNCLOG("The %s index %d owned by player %d became party leader",
+            thing_model_name(creatng), (int)creatng->index, (int)creatng->owner); */
         set_start_state(creatng);
         return 1;
     }
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    if ((cctrl->spell_flags & CSAfF_MadKilling) != 0)
+    if (creature_under_spell_effect(creatng, CSAfF_MadKilling))
     {
-        SYNCLOG("The %s index %d owned by player %d can no longer be in group - became mad",
-            thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
+        /* SYNCLOG("The %s index %d owned by player %d can no longer be in group - became mad",
+            thing_model_name(creatng), (int)creatng->index, (int)creatng->owner); */
         remove_creature_from_group(creatng);
         set_start_state(creatng);
         return 1;
@@ -2128,16 +2145,16 @@ short creature_follow_leader(struct Thing *creatng)
     struct Coord3d follwr_pos;
     if (!get_free_position_behind_leader(leadtng, &follwr_pos))
     {
-        SYNCLOG("The %s index %d owned by player %d can no longer follow %s - no place amongst followers",
-            thing_model_name(creatng),(int)creatng->index,(int)creatng->owner,thing_model_name(leadtng));
+        /* SYNCLOG("The %s index %d owned by player %d can no longer follow %s - no place amongst followers",
+            thing_model_name(creatng), (int)creatng->index, (int)creatng->owner, thing_model_name(leadtng)); */
         set_start_state(creatng);
         return 1;
     }
     int fails_amount = cctrl->follow_leader_fails;
-    if (fails_amount > 12) //When set too low, group might disband before a white wall is breached
+    if (fails_amount > 12) // When set too low, group might disband before a white wall is breached.
     {
-        SYNCDBG(3,"Removing %s index %d owned by player %d from group due to fails to follow",
-            thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
+        /* SYNCDBG(3, "Removing %s index %d owned by player %d from group due to fails to follow",
+            thing_model_name(creatng), (int)creatng->index, (int)creatng->owner); */
         remove_creature_from_group(creatng);
         return 0;
     }
@@ -2149,47 +2166,37 @@ short creature_follow_leader(struct Thing *creatng)
     MapCoordDelta distance_to_follower_pos = get_chessboard_distance(&creatng->mappos, &follwr_pos);
     TbBool cannot_reach_leader = creature_cannot_move_directly_to(creatng, &leadtng->mappos);
     int speed = get_creature_speed(leadtng);
-    // If we're too far from the designated position, do a speed run
-    if (distance_to_follower_pos > subtile_coord(12,0))
+    // If we're too far from the designated position, do a speed run.
+    if (distance_to_follower_pos > subtile_coord(12, 0))
     {
         speed = 2 * speed;
         if (speed >= MAX_VELOCITY)
+        {
             speed = MAX_VELOCITY;
+        }
         if (creature_move_to(creatng, &follwr_pos, speed, 0, 0) == -1)
         {
-            if (cannot_reach_leader) // only count fails when we're not able to get to the leader, instead of getting a position in the trail it cannot reach.
+            if (cannot_reach_leader) // Only count fails when we're not able to get to the leader, instead of getting a position in the trail it cannot reach.
             {
                 cctrl->follow_leader_fails++;
             }
-          return 0;
+            return 0;
         }
-    } else
-    // If we're far from the designated position, move considerably faster
-    if (distance_to_follower_pos > subtile_coord(6,0))
+    }
+    else if (distance_to_follower_pos > subtile_coord(6, 0)) // If we're far from the designated position, move considerably faster.
     {
-        if (speed > 4) {
+        if (speed > 4)
+        {
             speed = 5 * speed / 4;
-        } else {
+        }
+        else
+        {
             speed = speed + 1;
         }
         if (speed >= MAX_VELOCITY)
+        {
             speed = MAX_VELOCITY;
-        if (creature_move_to(creatng, &follwr_pos, speed, 0, 0) == -1)
-        {
-            if (cannot_reach_leader)
-            {
-                cctrl->follow_leader_fails++;
-            }
-          return 0;
         }
-    } else
-    // If we're close, continue moving at normal speed
-    if (distance_to_follower_pos <= subtile_coord(2,0))
-    {
-        if (distance_to_follower_pos <= 0)
-        {
-            creature_turn_to_face(creatng, &leadtng->mappos);
-        } else
         if (creature_move_to(creatng, &follwr_pos, speed, 0, 0) == -1)
         {
             if (cannot_reach_leader)
@@ -2198,16 +2205,36 @@ short creature_follow_leader(struct Thing *creatng)
             }
             return 0;
         }
-    } else
-    // If we're in between, move just a bit faster than leader
+    }
+    else if (distance_to_follower_pos <= subtile_coord(2, 0)) // If we're close, continue moving at normal speed.
     {
-        if (speed > 8) {
+        if (distance_to_follower_pos <= 0)
+        {
+            creature_turn_to_face(creatng, &leadtng->mappos);
+        }
+        else if (creature_move_to(creatng, &follwr_pos, speed, 0, 0) == -1)
+        {
+            if (cannot_reach_leader)
+            {
+                cctrl->follow_leader_fails++;
+            }
+            return 0;
+        }
+    }
+    else // If we're in between, move just a bit faster than leader.
+    {
+        if (speed > 8)
+        {
             speed = 9 * speed / 8;
-        } else {
+        }
+        else
+        {
             speed = speed + 1;
         }
         if (speed >= MAX_VELOCITY)
+        {
             speed = MAX_VELOCITY;
+        }
         if (creature_move_to(creatng, &follwr_pos, speed, 0, 0) == -1)
         {
             if (cannot_reach_leader)
@@ -2681,7 +2708,7 @@ short creature_pretend_chicken_move(struct Thing *creatng)
 {
     TRACE_THING(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    if ((cctrl->stateblock_flags & CCSpl_ChickenRel) != 0)
+    if (flag_is_set(cctrl->stateblock_flags, CCSpl_ChickenRel))
     {
         return 1;
     }
@@ -2705,7 +2732,7 @@ short creature_pretend_chicken_setup_move(struct Thing *creatng)
 
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
 
-    if ((cctrl->stateblock_flags & CCSpl_ChickenRel) != 0)
+    if (flag_is_set(cctrl->stateblock_flags, CCSpl_ChickenRel))
     {
         return 1;
     }
@@ -2876,20 +2903,25 @@ TbBool init_creature_state(struct Thing *creatng)
 
 TbBool restore_backup_state(struct Thing *creatng, CrtrStateId active_state, CrtrStateId continue_state)
 {
-    struct StateInfo* active_stati = &states[active_state];
-    struct StateInfo* continue_stati = &states[continue_state];
-    if ((active_stati->cleanup_state != NULL) || ((continue_state != CrSt_Unused) && (continue_stati->cleanup_state != NULL)))
+    struct StateInfo *active_stati = &states[active_state];
+    struct StateInfo *continue_stati = &states[continue_state];
+    if ((active_stati->cleanup_state != NULL)
+    || ((continue_state != CrSt_Unused) && (continue_stati->cleanup_state != NULL)))
     {
-        if ((active_state == CrSt_CreatureInPrison) || (active_state == CrSt_Torturing)
-          || (continue_state == CrSt_CreatureInPrison) || (continue_state == CrSt_Torturing))
+        if ((active_state == CrSt_CreatureInPrison)
+        || (active_state == CrSt_Torturing)
+        || (continue_state == CrSt_CreatureInPrison)
+        || (continue_state == CrSt_Torturing))
         {
             init_creature_state(creatng);
-        } else
+        }
+        else
         {
             set_start_state(creatng);
         }
         return true;
-    } else
+    }
+    else
     {
         internal_set_thing_state(creatng, active_state);
         creatng->continue_state = continue_state;
@@ -2998,6 +3030,7 @@ short creature_take_salary(struct Thing *creatng)
     }
     GoldAmount salary = calculate_correct_creature_pay(creatng);
     GoldAmount received = take_money_from_dungeon(creatng->owner, salary, 0);
+    creatng->creature.gold_carried += received;
     if (received < 1) {
         ERRORLOG("The %s index %d has used capacity %d but no gold for %s salary",room_code_name(room->kind),
             (int)room->index,(int)room->used_capacity,thing_model_name(creatng));
@@ -4114,9 +4147,8 @@ TbBool process_creature_hunger(struct Thing *thing)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-    if ( (crstat->hunger_rate == 0) || creature_affected_by_spell(thing, SplK_Freeze) || is_neutral_thing(thing))
+    if ((crstat->hunger_rate == 0) || creature_under_spell_effect(thing, CSAfF_Freeze) || is_neutral_thing(thing))
         return false;
-    SYNCDBG(19,"Hungering %s index %d",thing_model_name(thing), (int)thing->index);
     cctrl->hunger_level++;
     if (!hunger_is_creature_hungry(thing))
         return false;
@@ -4125,18 +4157,55 @@ TbBool process_creature_hunger(struct Thing *thing)
     {
         // Make sure every creature loses health on different turn.
         if (((game.play_gameturn + thing->index) % game.conf.rules.health.turns_per_hunger_health_loss) == 0) {
-            SYNCDBG(9,"The %s index %d lost %d health due to hunger",thing_model_name(thing), (int)thing->index, (int)game.conf.rules.health.hunger_health_loss);
-            remove_health_from_thing_and_display_health(thing, game.conf.rules.health.hunger_health_loss);
+            HitPoints hunger_health_loss = (cctrl->max_health * game.conf.rules.health.hunger_health_loss) / 100;
+            remove_health_from_thing_and_display_health(thing, hunger_health_loss);
             return true;
         }
     }
     return false;
 }
 
+TbBool creature_is_hostile_towards(const struct Thing *fightng, const struct Thing *enmtng)
+{
+    struct CreatureStats* crstat = creature_stats_get_from_thing(fightng);
+    for (int i = 0; i < CREATURE_TYPES_MAX; i++)
+    {
+        if ((crstat->hostile_towards[i] == enmtng->model) || (crstat->hostile_towards[i] == CREATURE_ANY))
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+TbBool creature_can_be_hostile(const struct Thing *fightng, const struct Thing *enmtng)
+{
+    // Creatures cannot be hostile towards allies if influenced by CTA.
+    if (creature_affected_by_call_to_arms(fightng) || creature_affected_by_call_to_arms(enmtng))
+    {
+        return false;
+    }
+    // Creatures cannot be hostile towards allies if it's part of a group.
+    if (creature_is_group_member(fightng) || creature_is_group_member(enmtng))
+    {
+        return false;
+    }
+    // Creatures cannot be hostile towards allies if they are working.
+    if ((get_creature_state_type(fightng) == CrStTyp_Work) || (get_creature_state_type(enmtng) == CrStTyp_Work))
+    {
+        return false;
+    }
+    // Lastly, check if both creatures doesn't have hostility set between each other.
+    if (!creature_is_hostile_towards(fightng, enmtng) && !creature_is_hostile_towards(enmtng, fightng))
+    {
+        return false;
+    }
+    return true;
+}
+
 /**
  * Checks if creatures can attack each other.
- * Note that this function does not include full check from players_are_enemies(),
- *  so both should be used when applicable.
+ * Note that this function does not include full check from players_are_enemies(), so both should be used when applicable.
  * @param tng1
  * @param tng2
  * @return
@@ -4144,48 +4213,58 @@ TbBool process_creature_hunger(struct Thing *thing)
  */
 TbBool creature_will_attack_creature(const struct Thing *fightng, const struct Thing *enmtng)
 {
-    if (creature_is_leaving_and_cannot_be_stopped(fightng) || creature_is_leaving_and_cannot_be_stopped(enmtng)) {
+    if (creature_is_leaving_and_cannot_be_stopped(fightng) || creature_is_leaving_and_cannot_be_stopped(enmtng))
+    {
         return false;
     }
-    if (creature_is_being_unconscious(fightng) || creature_is_being_unconscious(enmtng)) {
+    if (creature_is_being_unconscious(fightng) || creature_is_being_unconscious(enmtng))
+    {
         return false;
     }
-    if (thing_is_picked_up(fightng) || thing_is_picked_up(enmtng)) {
+    if (thing_is_picked_up(fightng) || thing_is_picked_up(enmtng))
+    {
         return false;
     }
     struct CreatureControl* fighctrl = creature_control_get_from_thing(fightng);
     struct CreatureControl* enmctrl = creature_control_get_from_thing(enmtng);
-    if (players_creatures_tolerate_each_other(fightng->owner, enmtng->owner))
+    if ((players_creatures_tolerate_each_other(fightng->owner, enmtng->owner)) && (!creature_can_be_hostile(fightng, enmtng)) && (game.conf.rules.creature.battle_royale == 0))
     {
-        if  (((fighctrl->spell_flags & CSAfF_MadKilling) == 0)
-         && ((enmctrl->spell_flags  & CSAfF_MadKilling) == 0)) {
-            if (fighctrl->combat_flags == 0) {
+        if ((!creature_under_spell_effect(fightng, CSAfF_MadKilling))
+        && (!creature_under_spell_effect(enmtng, CSAfF_MadKilling)))
+        {
+            if (fighctrl->combat_flags == 0)
+            {
                 return false;
             }
             struct Thing* tmptng = thing_get(fighctrl->combat.battle_enemy_idx);
             TRACE_THING(tmptng);
-            if (tmptng->index != enmtng->index) {
+            if (tmptng->index != enmtng->index)
+            {
                 return false;
             }
         }
-        // No self fight
-        if (enmtng->index == fightng->index) {
-            return false;
-        }
     }
-    // No fight when creature in custody
+    // No self fight.
+    if (enmtng->index == fightng->index)
+    {
+        return false;
+    }
+    // No fight when creature in custody.
     if (creature_is_kept_in_custody_by_player(fightng, enmtng->owner)
-     || creature_is_kept_in_custody_by_player(enmtng, fightng->owner)) {
+    || creature_is_kept_in_custody_by_player(enmtng, fightng->owner))
+    {
         return false;
     }
-    // No fight while dropping
-    if (creature_is_being_dropped(fightng) || creature_is_being_dropped(enmtng)) {
+    // No fight while dropping.
+    if (creature_is_being_dropped(fightng) || creature_is_being_dropped(enmtng))
+    {
         return false;
     }
-    // Final check - if creature is in control and can see the enemy - fight
+    // Final check - if creature is in control and can see the enemy - fight.
     if ((creature_control_exists(enmctrl)) && ((enmctrl->flgfield_1 & CCFlg_NoCompControl) == 0))
     {
-        if (!creature_is_invisible(enmtng) || creature_can_see_invisible(fightng)) {
+        if (!creature_is_invisible(enmtng) || creature_can_see_invisible(fightng))
+        {
             return true;
         }
     }
@@ -4220,9 +4299,10 @@ TbBool creature_will_attack_creature_incl_til_death(const struct Thing *fightng,
 
     if (players_creatures_tolerate_each_other(fightng->owner, enmtng->owner))
     {
-        if  ((fighctrl->fight_til_death == 0) // This differs in creature_will_attack_creature()
-         && ((fighctrl->spell_flags & CSAfF_MadKilling) == 0)
-         && ((enmctrl->spell_flags  & CSAfF_MadKilling) == 0)) {
+        if ((fighctrl->fight_til_death == 0) // This differs in creature_will_attack_creature()
+        && (!creature_under_spell_effect(fightng, CSAfF_MadKilling))
+        && (!creature_under_spell_effect(enmtng, CSAfF_MadKilling)))
+        {
             struct Thing* tmptng = thing_get(fighctrl->combat.battle_enemy_idx);
             TRACE_THING(tmptng);
             if ((fighctrl->combat_flags == 0) || (tmptng->index != enmtng->index)) {
@@ -4388,6 +4468,7 @@ long get_thing_navigation_distance(struct Thing* creatng, struct Coord3d* pos, u
         return 0;
 
     nav_thing_can_travel_over_lava = creature_can_travel_over_lava(creatng);
+    nav_thing_can_travel_over_water = creature_can_travel_over_water(creatng);
     if (resetOwnerPlayerNavigating)
         owner_player_navigating = -1;
     else
@@ -4402,8 +4483,9 @@ long get_thing_navigation_distance(struct Thing* creatng, struct Coord3d* pos, u
         creatng->mappos.y.val,
         pos->x.val,
         pos->y.val,
-	    -2, nav_sizexy, __func__);
+        -2, nav_sizexy, __func__);
     nav_thing_can_travel_over_lava = 0;
+    nav_thing_can_travel_over_water = 0;
 
     int distance = 0;
     if (!path.waypoints_num)
@@ -4564,8 +4646,10 @@ short state_cleanup_unconscious(struct Thing *creatng)
 long process_work_speed_on_work_value(const struct Thing *thing, long base_val)
 {
     long val = base_val;
-    if (creature_affected_by_spell(thing, SplK_Speed))
+    if (creature_under_spell_effect(thing, CSAfF_Speed))
         val = 2 * val;
+    if (creature_under_spell_effect(thing, CSAfF_MagicMist))
+        val = 3 * val / 2;
     if (creature_affected_by_slap(thing))
         val = 4 * val / 3;
     if (!is_neutral_thing(thing))
@@ -4582,17 +4666,21 @@ long process_work_speed_on_work_value(const struct Thing *thing, long base_val)
 
 TbBool check_experience_upgrade(struct Thing *thing)
 {
-    struct Dungeon* dungeon = get_dungeon(thing->owner);
-    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    struct Dungeon *dungeon = get_dungeon(thing->owner);
+    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
+    struct CreatureStats *crstat = creature_stats_get_from_thing(thing);
     long i = crstat->to_level[cctrl->explevel] << 8;
     if (cctrl->exp_points < i)
+    {
         return false;
+    }
     cctrl->exp_points -= i;
     if (cctrl->explevel < dungeon->creature_max_level[thing->model])
     {
-      if ((cctrl->explevel < CREATURE_MAX_LEVEL-1) || (crstat->grow_up != 0))
-        cctrl->spell_flags |= CSAfF_ExpLevelUp;
+        if ((cctrl->explevel < CREATURE_MAX_LEVEL - 1) || (crstat->grow_up != 0))
+        {
+            cctrl->exp_level_up = true;
+        }
     }
     return true;
 }
@@ -4653,15 +4741,25 @@ TbBool cleanup_creature_state_and_interactions(struct Thing *creatng)
     cleanup_current_thing_state(creatng);
     set_creature_assigned_job(creatng, Job_NULL);
     remove_all_traces_of_combat(creatng);
-    if (creature_is_group_member(creatng)) {
+    if (creature_is_group_member(creatng))
+    {
         remove_creature_from_group(creatng);
     }
     remove_events_thing_is_attached_to(creatng);
-    delete_effects_attached_to_creature(creatng);
+    // Use the correct function to clear them properly. Terminating the spells also removes the attached effects.
+    if (creature_under_spell_effect(creatng, CSAfF_Armour))
+    {
+        clean_spell_effect(creatng, CSAfF_Armour);
+    }
+    if (creature_under_spell_effect(creatng, CSAfF_Disease))
+    {
+        clean_spell_effect(creatng, CSAfF_Disease);
+    }
     delete_familiars_attached_to_creature(creatng);
     state_cleanup_dragging_body(creatng);
     state_cleanup_dragging_object(creatng);
-    if (flag_is_set((creature_control_get_from_thing(creatng))->flgfield_2, TF2_SummonedCreature)) {
+    if (flag_is_set((creature_control_get_from_thing(creatng))->flgfield_2, TF2_SummonedCreature))
+    {
         remove_creature_from_summon_list(get_dungeon(creatng->owner), creatng->index);
     }
     return true;
@@ -4735,13 +4833,13 @@ short set_start_state_f(struct Thing *thing,const char *func_name)
         initialise_thing_state(thing, CrSt_ManualControl);
         return thing->active_state;
     }
-    if (creature_affected_by_spell(thing, SplK_Chicken))
+    if (creature_under_spell_effect(thing, CSAfF_Chicken))
     {
         cleanup_current_thing_state(thing);
         initialise_thing_state(thing, CrSt_CreaturePretendChickenSetupMove);
         return thing->active_state;
     }
-    if (creature_affected_by_spell(thing, SplK_TimeBomb))
+    if (creature_under_spell_effect(thing, CSAfF_Timebomb))
     {
         cleanup_current_thing_state(thing);
         initialise_thing_state(thing, CrSt_Timebomb);
@@ -4955,9 +5053,9 @@ long process_creature_needs_a_wage(struct Thing *creatng, const struct CreatureS
 char creature_free_for_lunchtime(struct Thing *creatng)
 {
     return !creature_affected_by_slap(creatng)
-        && !creature_is_called_to_arms(creatng)
-        && !creature_affected_by_spell(creatng, SplK_Chicken)
-        && can_change_from_state_to(creatng, creatng->active_state, CrSt_CreatureToGarden);
+    && !creature_is_called_to_arms(creatng)
+    && !creature_under_spell_effect(creatng, CSAfF_Chicken)
+    && can_change_from_state_to(creatng, creatng->active_state, CrSt_CreatureToGarden);
 }
 
 long process_creature_needs_to_eat(struct Thing *creatng, const struct CreatureStats *crstat)
@@ -5049,7 +5147,8 @@ long anger_process_creature_anger(struct Thing *creatng, const struct CreatureSt
     }
     if (!anger_is_creature_angry(creatng)) {
         // If the creature is mad killing, don't allow it not to be angry
-        if ((cctrl->spell_flags & CSAfF_MadKilling) != 0) {
+        if (creature_under_spell_effect(creatng, CSAfF_MadKilling))
+        {
             // Mad creature's mind is tortured, so apply torture anger
             anger_apply_anger_to_creature(creatng, crstat->annoy_in_torture, AngR_Other, 1);
         }

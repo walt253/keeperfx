@@ -272,6 +272,7 @@ const struct NamedCommand trap_config_desc[] = {
   {"InstantPlacement",        50},
   {"RemoveOnceDepleted",      51},
   {"FlagNumber",              52},
+  {"PlaceOnRoom",             53},
   {NULL,                       0},
 };
 
@@ -341,6 +342,10 @@ const struct NamedCommand modifier_desc[] = {
   {"TrainingCost",    7},
   {"ScavengingCost",  8},
   {"Loyalty",         9},
+  {"Defense",        10},
+  {"Dexterity",      11},
+  {"Luck",           12},
+  {"Magic",          13},
   {NULL,              0},
 };
 
@@ -1751,6 +1756,7 @@ static void new_trap_type_check(const struct ScriptLine* scline)
     trapst->detect_invisible = true;
     trapst->notify = false;
     trapst->place_on_bridge = false;
+    trapst->place_on_room = false;
     trapst->place_on_subtile = false;
     trapst->instant_placement = false;
     trapst->remove_once_depleted = false;
@@ -2051,6 +2057,9 @@ static void set_trap_configuration_process(struct ScriptContext *context)
             break;
         case 52: // FlagNumber
             trapst->flag_number = value;
+            break;
+        case 53: // PlaceOnRoom
+            trapst->place_on_room = value;
             break;
         default:
             WARNMSG("Unsupported Trap configuration, variable %d.", context->value->shorts[1]);
@@ -3149,6 +3158,30 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
                 value1 = get_id(creature_desc, scline->tp[2]);
             }
         }
+        else if (creatvar == 37) // SPELLIMMUNITY
+        {
+            value1 = get_id(magic_spell_flags, scline->tp[2]);
+            value2 = atoi(scline->tp[3]);
+        }
+        else if (creatvar == 38) // HOSTILETOWARDS
+        {
+            if (parameter_is_number(scline->tp[2])) // Support name or number for hostile towards.
+            {
+                value1 = atoi(scline->tp[2]);
+            }
+            else if (0 == strcmp(scline->tp[2], "ANY_CREATURE")) // Support ANY_CREATURE for hostile towards.
+            {
+                value1 = CREATURE_ANY;
+            }
+            else if (strcasecmp(scline->tp[2], "NULL") == 0)  // Support NULL for hostile towards.
+            {
+                value1 = 0;
+            }
+            else
+            {
+                value1 = get_id(creature_desc, scline->tp[2]);
+            }
+        }
         else
         {
             value1 = atoi(scline->tp[2]);
@@ -3688,6 +3721,51 @@ static void set_creature_configuration_process(struct ScriptContext* context)
             break;
         case 36: // TORTUREKIND
             crstat->torture_kind = value;
+            break;
+        case 37: // SPELLIMMUNITY
+            if (value2 > 0)
+            {
+                set_flag(crstat->immunity_flags, 1 << (value - 1));
+            }
+            else
+            {
+                clear_flag(crstat->immunity_flags, 1 << (value - 1));
+            }
+            break;
+        case 38: // HOSTILETOWARDS
+            // Assume the mapmaker wants to reset it.
+            for (int i = 0; i < CREATURE_TYPES_MAX; i++)
+            {
+                crstat->hostile_towards[i] = 0;
+            }
+            if (value != 0)
+            {
+                crstat->hostile_towards[0] = value; // Then apply the change on the first only.
+            }
+            break;
+        case 39: // LAVARECOVERY
+            crstat->lava_recovery = value;
+            break;
+        case 40: // HURTBYWATER
+            crstat->hurt_by_water = value;
+            break;
+        case 41: // WATERRECOVERY
+            crstat->water_recovery = value;
+            break;
+        case 42: // MAGIC
+            crstat->magic = value;
+            break;
+        case 43: // POOPAMOUNT
+            crstat->poop_amount = value;
+            break;
+        case 44: // POOPFREQUENCY
+            crstat->poop_frequency = value;
+            break;
+        case 45: // POOPRANDOM
+            crstat->poop_random = value;
+            break;
+        case 46: // POOPTYPE
+            crstat->poop_type = value;
             break;
         case ccr_comment:
             break;
@@ -4837,7 +4915,7 @@ static void level_up_players_creatures_process(struct ScriptContext* context)
     SYNCDBG(19, "Finished");
 }
 
-static void use_spell_on_players_creatures_check(const struct ScriptLine* scline)
+static void use_spell_on_players_creatures_check(const struct ScriptLine *scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0]);
     long crtr_id = parse_creature_name(scline->tp[1]);
@@ -4849,47 +4927,40 @@ static void use_spell_on_players_creatures_check(const struct ScriptLine* scline
     const char *mag_name = scline->tp[2];
     short mag_id = get_rid(spell_desc, mag_name);
     short splevel = scline->np[3];
-
     if (mag_id == -1)
     {
         SCRPTERRLOG("Invalid spell: %s", mag_name);
         return;
     }
-
-    if (splevel < 1)
+    struct SpellConfig *spconf = get_spell_config(mag_id);
+    if (spconf->linked_power) // Only check for spells linked to a keeper power.
     {
-        if ((mag_id == SplK_Heal) || (mag_id == SplK_Armour) || (mag_id == SplK_Speed) || (mag_id == SplK_Disease) || (mag_id == SplK_Invisibility) || (mag_id == SplK_Chicken))
+        if (splevel < 1)
         {
             SCRPTWRNLOG("Spell %s level too low: %d, setting to 1.", mag_name, splevel);
+            splevel = 1;
         }
-        splevel = 1;
-    }
-    if (splevel > (MAGIC_OVERCHARGE_LEVELS + 1)) //Creatures cast spells from level 1 to 10, but 10=9.
-    {
-        SCRPTWRNLOG("Spell %s level too high: %d, setting to %d.", mag_name, splevel, (MAGIC_OVERCHARGE_LEVELS + 1));
-        splevel = MAGIC_OVERCHARGE_LEVELS;
+        if (splevel > (MAGIC_OVERCHARGE_LEVELS + 1)) // Creatures cast spells from level 1 to 10.
+        {
+            SCRPTWRNLOG("Spell %s level too high: %d, setting to %d.", mag_name, splevel, (MAGIC_OVERCHARGE_LEVELS + 1));
+            splevel = MAGIC_OVERCHARGE_LEVELS;
+        }
     }
     splevel--;
-    if (mag_id == -1)
-    {
-        SCRPTERRLOG("Unknown magic, '%s'", mag_name);
-        return;
-    }
     value->shorts[1] = crtr_id;
     value->shorts[2] = mag_id;
     value->shorts[3] = splevel;
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
-static void use_spell_on_players_creatures_process(struct ScriptContext* context)
+static void use_spell_on_players_creatures_process(struct ScriptContext *context)
 {
     long crmodel = context->value->shorts[1];
-    long spl_idx = context->value->shorts[2];
+    long spell_idx = context->value->shorts[2];
     long overchrg = context->value->shorts[3];
-
     for (int i = context->plr_start; i < context->plr_end; i++)
     {
-        apply_spell_effect_to_players_creatures(i, crmodel, spl_idx, overchrg);
+        apply_spell_effect_to_players_creatures(i, crmodel, spell_idx, overchrg);
     }
 }
 
@@ -6580,6 +6651,22 @@ static void set_player_modifier_process(struct ScriptContext* context)
                 SCRIPTDBG(7,"Changing Player Modifier '%s' of player %d from %d to %d.", mdfrname, (int)plyr_idx, dungeon->modifier.loyalty, mdfrval);
                 dungeon->modifier.loyalty = mdfrval;
                 break;
+            case 10: // Defense
+                SCRIPTDBG(7,"Changing Player Modifier '%s' of player %d from %d to %d.", mdfrname, (int)plyr_idx, dungeon->modifier.defense, mdfrval);
+                dungeon->modifier.defense = mdfrval;
+                break;
+            case 11: // Dexterity
+                SCRIPTDBG(7,"Changing Player Modifier '%s' of player %d from %d to %d.", mdfrname, (int)plyr_idx, dungeon->modifier.dexterity, mdfrval);
+                dungeon->modifier.dexterity = mdfrval;
+                break;
+            case 12: // Luck
+                SCRIPTDBG(7,"Changing Player Modifier '%s' of player %d from %d to %d.", mdfrname, (int)plyr_idx, dungeon->modifier.luck, mdfrval);
+                dungeon->modifier.luck = mdfrval;
+                break;
+            case 13: // Magic
+                SCRIPTDBG(7,"Changing Player Modifier '%s' of player %d from %d to %d.", mdfrname, (int)plyr_idx, dungeon->modifier.magic, mdfrval);
+                dungeon->modifier.magic = mdfrval;
+                break;
             default:
                 WARNMSG("Unsupported Player Modifier, command %d.", mdfrdesc);
                 break;
@@ -6703,6 +6790,42 @@ static void add_to_player_modifier_process(struct ScriptContext* context)
                     dungeon->modifier.loyalty = mdfradd;
                 } else {
                     SCRPTERRLOG("Player %d Modifier '%s' may not be negative. Tried to add %d to value %d", (int)plyr_idx, mdfrname, mdfrval, dungeon->modifier.loyalty);
+                }
+                break;
+            case 10: // Defense
+                mdfradd = dungeon->modifier.defense + mdfrval;
+                if (mdfradd >= 0) {
+                    SCRIPTDBG(7,"Adding %d to Player %d Modifier '%s'.", mdfrval, (int)plyr_idx, mdfrname);
+                    dungeon->modifier.defense = mdfradd;
+                } else {
+                    SCRPTERRLOG("Player %d Modifier '%s' may not be negative. Tried to add %d to value %d", (int)plyr_idx, mdfrname, mdfrval, dungeon->modifier.defense);
+                }
+                break;
+            case 11: // Dexterity
+                mdfradd = dungeon->modifier.dexterity + mdfrval;
+                if (mdfradd >= 0) {
+                    SCRIPTDBG(7,"Adding %d to Player %d Modifier '%s'.", mdfrval, (int)plyr_idx, mdfrname);
+                    dungeon->modifier.dexterity = mdfradd;
+                } else {
+                    SCRPTERRLOG("Player %d Modifier '%s' may not be negative. Tried to add %d to value %d", (int)plyr_idx, mdfrname, mdfrval, dungeon->modifier.dexterity);
+                }
+                break;
+            case 12: // Luck
+                mdfradd = dungeon->modifier.luck + mdfrval;
+                if (mdfradd >= 0) {
+                    SCRIPTDBG(7,"Adding %d to Player %d Modifier '%s'.", mdfrval, (int)plyr_idx, mdfrname);
+                    dungeon->modifier.luck = mdfradd;
+                } else {
+                    SCRPTERRLOG("Player %d Modifier '%s' may not be negative. Tried to add %d to value %d", (int)plyr_idx, mdfrname, mdfrval, dungeon->modifier.luck);
+                }
+                break;
+            case 13: // Magic
+                mdfradd = dungeon->modifier.magic + mdfrval;
+                if (mdfradd >= 0) {
+                    SCRIPTDBG(7,"Adding %d to Player %d Modifier '%s'.", mdfrval, (int)plyr_idx, mdfrname);
+                    dungeon->modifier.magic = mdfradd;
+                } else {
+                    SCRPTERRLOG("Player %d Modifier '%s' may not be negative. Tried to add %d to value %d", (int)plyr_idx, mdfrname, mdfrval, dungeon->modifier.magic);
                 }
                 break;
             default:

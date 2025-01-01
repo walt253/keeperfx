@@ -907,7 +907,8 @@ TbBool update_relative_creature_health(struct Thing* creatng)
     HitPoints health_permil = get_creature_health_permil(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     cctrl->max_health = calculate_correct_creature_max_health(creatng);
-    creatng->health = cctrl->max_health * health_permil / 1000;
+    int64_t health_scaled = cctrl->max_health * health_permil / 1000;
+    creatng->health = health_scaled;
     return true;
 }
 

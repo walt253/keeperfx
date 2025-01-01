@@ -111,7 +111,7 @@ struct TbSpriteSheet * swipe_sprites = NULL;
  * @note Dying creatures may return negative health, and in some rare cases creatures
  *  can have more health than their max.
  */
-int get_creature_health_permil(const struct Thing *thing)
+HitPoints get_creature_health_permil(const struct Thing *thing)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     HitPoints health = thing->health * 1000;
@@ -3425,13 +3425,17 @@ void set_creature_level(struct Thing *thing, long nlvl)
         nlvl = 0;
     }
     HitPoints old_max_health = calculate_correct_creature_max_health(thing);
+	JUSTLOG("%d old max health 1", old_max_health);
     if (old_max_health < 1)
     {
         old_max_health = 1;
     }
+	JUSTLOG("%d old max health 2", old_max_health);
     cctrl->explevel = nlvl;
     HitPoints max_health = calculate_correct_creature_max_health(thing);
+	JUSTLOG("%d new max health", max_health);
     cctrl->max_health = max_health;
+	JUSTLOG("%d cctrl max health", cctrl->max_health);
     set_creature_size_stuff(thing);
     if (old_max_health > 0)
     {
@@ -3441,6 +3445,7 @@ void set_creature_level(struct Thing *thing, long nlvl)
     {
         thing->health = -1;
     }
+		JUSTLOG("%d thing health", thing->health);
     creature_increase_available_instances(thing);
     add_creature_score_to_owner(thing);
 }
@@ -5309,7 +5314,7 @@ long player_list_creature_filter_needs_to_be_placed_in_room_for_job(const struct
         }
     }
 
-    int health_permil = get_creature_health_permil(thing);
+    HitPoints health_permil = get_creature_health_permil(thing);
     // If it's angry but not furious, or has lost health due to disease,
     // then should be placed in temple
     if ((anger_is_creature_angry(thing) ||

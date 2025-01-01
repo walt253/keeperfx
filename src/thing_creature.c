@@ -114,11 +114,14 @@ struct TbSpriteSheet * swipe_sprites = NULL;
 HitPoints get_creature_health_permil(const struct Thing *thing)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    HitPoints health = thing->health * 1000;
+    HitPoints health = thing->health;
     HitPoints max_health = cctrl->max_health;
     if (max_health < 1)
+    {
         max_health = 1;
-    return health/max_health;
+    }
+    uint64_t health_permil = health * 1000;
+    return health_permil / max_health;
 }
 
 TbBool thing_can_be_controlled_as_controller(struct Thing *thing)

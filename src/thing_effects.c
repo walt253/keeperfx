@@ -1351,7 +1351,6 @@ TbBool area_effect_can_affect_thing(const struct Thing *thing, HitTargetFlags hi
  * @param max_damage Damage at epicenter of the explosion.
  * @param blow_strength The strength of hitwave blowing creatures out of affected area.
  * @param hit_targets Defines which things are affected.
- * @param element_flags Type of the damage inflicted.
  */
 long explosion_affecting_map_block(struct Thing *tngsrc, const struct Map *mapblk, const struct Coord3d *pos,
     MapCoord max_dist, HitPoints max_damage, long blow_strength, HitTargetFlags hit_targets, ElementFlags element_flags)

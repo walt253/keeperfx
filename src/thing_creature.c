@@ -6257,7 +6257,6 @@ void process_creature_leave_footsteps(struct Thing *thing)
  *
  * @param thing
  * @param dmg
- * @param element_flags
  * @param inflicting_plyr_idx
  */
 HitPoints apply_damage_to_thing_and_display_health(struct Thing *thing, HitPoints dmg, PlayerNumber inflicting_plyr_idx, ElementFlags element_flags)

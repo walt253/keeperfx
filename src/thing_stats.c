@@ -331,7 +331,12 @@ HitPoints compute_creature_max_health(HitPoints base_health, unsigned short crle
     {
         crlevel = CREATURE_MAX_LEVEL-1;
     }
-    HitPoints max_health = base_health + (game.conf.crtr_conf.exp.health_increase_on_exp * base_health * (long)crlevel) / 100;
+    int64_t compute_health = (int64_t)base_health + ((int64_t)game.conf.crtr_conf.exp.health_increase_on_exp * (int64_t)base_health * (int64_t)crlevel) / 100;
+    if (compute_health >= INT32_MAX)
+    {
+        compute_health = INT32_MAX;
+    }
+    HitPoints max_health = compute_health;
     return max_health;
 }
 
@@ -706,7 +711,12 @@ HitPoints calculate_correct_creature_max_health(const struct Thing *thing)
     {
         dungeon = get_dungeon(thing->owner);
         unsigned short modifier = dungeon->modifier.health;
-        max_health = (max_health * modifier) / 100;
+        int64_t compute_health = ((int64_t)max_health * (int64_t)modifier) / 100;
+        if (compute_health >= INT32_MAX)
+        {
+            compute_health = INT32_MAX;
+        }
+        max_health = compute_health;
     }
     return max_health;
 }
@@ -1030,10 +1040,11 @@ TbBool update_creature_health_to_max(struct Thing * creatng)
  */
 TbBool update_relative_creature_health(struct Thing* creatng)
 {
-    int health_permil = get_creature_health_permil(creatng);
+    HitPoints health_permil = get_creature_health_permil(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     cctrl->max_health = calculate_correct_creature_max_health(creatng);
-    creatng->health = cctrl->max_health * health_permil / 1000;
+    int64_t health_scaled = (int64_t)cctrl->max_health * (int64_t)health_permil / 1000;
+    creatng->health = health_scaled;
     return true;
 }
 

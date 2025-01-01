@@ -3425,17 +3425,17 @@ void set_creature_level(struct Thing *thing, long nlvl)
         nlvl = 0;
     }
     HitPoints old_max_health = calculate_correct_creature_max_health(thing);
-	JUSTLOG("%d old max health 1", old_max_health);
+	JUSTLOG("%d old max health 1", (int)old_max_health);
     if (old_max_health < 1)
     {
         old_max_health = 1;
     }
-	JUSTLOG("%d old max health 2", old_max_health);
+	JUSTLOG("%d old max health 2", (int)old_max_health);
     cctrl->explevel = nlvl;
     HitPoints max_health = calculate_correct_creature_max_health(thing);
-	JUSTLOG("%d new max health", max_health);
+	JUSTLOG("%d new max health", (int)max_health);
     cctrl->max_health = max_health;
-	JUSTLOG("%d cctrl max health", cctrl->max_health);
+	JUSTLOG("%d cctrl max health", (int)cctrl->max_health);
     set_creature_size_stuff(thing);
     if (old_max_health > 0)
     {
@@ -3445,7 +3445,7 @@ void set_creature_level(struct Thing *thing, long nlvl)
     {
         thing->health = -1;
     }
-		JUSTLOG("%d thing health", thing->health);
+		JUSTLOG("%d thing health", (int)thing->health);
     creature_increase_available_instances(thing);
     add_creature_score_to_owner(thing);
 }

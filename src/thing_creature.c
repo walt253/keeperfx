@@ -120,8 +120,12 @@ HitPoints get_creature_health_permil(const struct Thing *thing)
     {
         max_health = 1;
     }
-    uint64_t health_permil = health * 1000;
-    return health_permil / max_health;
+    // Use int64_t as intermediary variable to prevent overflow during the multiplication.
+    // HitPoints is a 32-bit type, and multiplying health by 1000 could exceed its capacity.
+    // By using int64_t, we ensure that the intermediate result can hold the larger value before it's cast back to HitPoints.
+    int64_t health_scaled = (health * 1000) / max_health;
+    HitPoints health_permil = health_scaled;
+    return health_permil;
 }
 
 TbBool thing_can_be_controlled_as_controller(struct Thing *thing)

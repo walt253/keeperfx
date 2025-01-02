@@ -120,9 +120,10 @@ struct CreatureRulesConfig {
     unsigned long flee_zone_radius;
     GameTurnDelta game_turns_in_flee;
     unsigned short game_turns_unconscious;
-    long critical_health_permil;
+    HitPoints critical_health_permil;
     unsigned char stun_enemy_chance_evil;
     unsigned char stun_enemy_chance_good;
+    TbBool battle_royale;
 };
 
 struct MagicRulesConfig {

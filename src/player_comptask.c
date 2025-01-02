@@ -377,6 +377,9 @@ TbResult game_action(PlayerNumber plyr_idx, unsigned short gaction, unsigned sho
     case GA_UsePwrSpeedUp:
         thing = thing_get(param1);
         return magic_use_available_power_on_thing(plyr_idx, PwrK_SPEEDCRTR, alevel, stl_x, stl_y, thing, PwMod_Default);
+    case GA_UsePwrRage:
+        thing = thing_get(param1);
+        return magic_use_available_power_on_thing(plyr_idx, PwrK_RAGE, alevel, stl_x, stl_y, thing, PwMod_Default);
     case GA_UsePwrArmour:
         thing = thing_get(param1);
         return magic_use_available_power_on_thing(plyr_idx, PwrK_PROTECT, alevel, stl_x, stl_y, thing, PwMod_Default);
@@ -2838,12 +2841,9 @@ struct Thing *find_creature_for_defend_pickup(struct Computer2 *comp)
                             {
                                 struct PerExpLevelValues* expvalues;
                                 expvalues = &game.creature_scores[thing->model];
-                                long expval;
-                                long healthprm;
-                                long new_factor;
-                                expval = expvalues->value[cctrl->explevel];
-                                healthprm = get_creature_health_permil(thing);
-                                new_factor = healthprm * expval / 1000;
+                                long expval = expvalues->value[cctrl->explevel];
+                                HitPoints healthprm = get_creature_health_permil(thing);
+                                HitPoints new_factor = healthprm * expval / 1000;
                                 if ((new_factor > best_factor) && (healthprm > 20))
                                 {
                                     best_factor = new_factor;
@@ -3117,6 +3117,15 @@ long task_magic_speed_up(struct Computer2 *comp, struct ComputerTask *ctask)
     && !creature_is_immune_to_spell_effect(creatng, CSAfF_Speed))
     {
         if (try_game_action(comp, dungeon->owner, GA_UsePwrSpeedUp, ctask->attack_magic.splevel, 0, 0, ctask->attack_magic.target_thing_idx, 0) > Lb_OK)
+        {
+            k = 1;
+        }
+    }
+    else if (computer_able_to_use_power(comp, PwrK_RAGE, ctask->attack_magic.splevel, 1)
+    && !creature_under_spell_effect(creatng, CSAfF_Rage)
+    && !creature_is_immune_to_spell_effect(creatng, CSAfF_Rage))
+    {
+        if (try_game_action(comp, dungeon->owner, GA_UsePwrRage, ctask->attack_magic.splevel, 0, 0, ctask->attack_magic.target_thing_idx, 0) > Lb_OK)
         {
             k = 1;
         }

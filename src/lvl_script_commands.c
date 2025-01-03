@@ -3129,7 +3129,7 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
         }
     }
 
-    short value1 = 0, value2 = 0, value3 = 0;
+    long value1 = 0, value2 = 0, value3 = 0;
     if (block == CrtConf_ATTRIBUTES)
     {
         if (creatvar == 20) // ATTACKPREFERENCE
@@ -3163,12 +3163,26 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
             if (parameter_is_number(scline->tp[2]))
             {
                 value1 = atoi(scline->tp[2]);
-                value2 = -1;
             }
             else
             {
-                value1 = get_id(magic_spell_flags, scline->tp[2]) - 1;
+                value1 = get_id(magic_spell_flags, scline->tp[2]);
+            }
+            if (value1 < 0)
+            {
+                SCRPTERRLOG("SpellImmunity flag %ld is out of range or doesn't exist.", value1);
+                DEALLOCATE_SCRIPT_VALUE
+                return;
+            }
+            // value 2: 'empty' is 'set', '1' is 'add', '0' is 'clear'.
+            if (scline->tp[3][0] != '\0')
+            {
                 value2 = atoi(scline->tp[3]);
+            }
+            else
+            {
+                // tp[3] is empty, set it to UCHAR_MAX to process.
+                value2 = UCHAR_MAX;
             }
         }
         else if (creatvar == 38) // HOSTILETOWARDS
@@ -3579,9 +3593,9 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
     value->shorts[0] = scline->np[0];
     value->shorts[1] = creatvar;
     value->shorts[2] = block;
-    value->shorts[3] = value1;
-    value->shorts[4] = value2;
-    value->shorts[5] = value3;
+    value->longs[2] = value1;
+    value->longs[3] = value2;
+    value->longs[4] = value3;
 
     SCRIPTDBG(7,"Setting creature %s configuration value %d:%d to %d (%d)", creature_code_name(value->shorts[0]), value->shorts[4], value->shorts[1], value->shorts[2], value->shorts[3]);
 
@@ -3596,9 +3610,9 @@ static void set_creature_configuration_process(struct ScriptContext* context)
 
     short creature_variable = context->value->shorts[1];
     short block  = context->value->shorts[2];
-    short value  = context->value->shorts[3];
-    short value2 = context->value->shorts[4];
-    short value3 = context->value->shorts[5];
+    long value  = context->value->longs[2];
+    long value2 = context->value->longs[3];
+    long value3 = context->value->longs[4];
 
     if (block == CrtConf_ATTRIBUTES)
     {
@@ -3731,17 +3745,17 @@ static void set_creature_configuration_process(struct ScriptContext* context)
             crstat->torture_kind = value;
             break;
         case 37: // SPELLIMMUNITY
-            if (value2 < 0)
+            if (value2 == 0)
             {
-                crstat->immunity_flags = value;
+                clear_flag(crstat->immunity_flags, value);
             }
-            else if (value2 > 0)
+            else if (value2 == 1)
             {
-                set_flag(crstat->immunity_flags, to_flag(value));
+                set_flag(crstat->immunity_flags, value);
             }
             else
             {
-                clear_flag(crstat->immunity_flags, to_flag(value));
+                crstat->immunity_flags = value;
             }
             break;
         case 38: // HOSTILETOWARDS

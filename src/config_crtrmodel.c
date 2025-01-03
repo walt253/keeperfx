@@ -989,9 +989,9 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
         case 39: // LAVARECOVERY
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
-              k = atoi(word_buf);
-              crstat->lava_recovery = k;
-              n++;
+                k = atoi(word_buf);
+                crstat->lava_recovery = k;
+                n++;
             }
             if (n < 1)
             {
@@ -1002,9 +1002,9 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
         case 40: // HURTBYWATER
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
-              k = atoi(word_buf);
-              crstat->hurt_by_water = k;
-              n++;
+                k = atoi(word_buf);
+                crstat->hurt_by_water = k;
+                n++;
             }
             if (n < 1)
             {
@@ -1015,9 +1015,9 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
         case 41: // WATERRECOVERY
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
-              k = atoi(word_buf);
-              crstat->water_recovery = k;
-              n++;
+                k = atoi(word_buf);
+                crstat->water_recovery = k;
+                n++;
             }
             if (n < 1)
             {
@@ -1028,9 +1028,9 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
         case 42: // MAGIC
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
-              k = atoi(word_buf);
-              crstat->magic = k;
-              n++;
+                k = atoi(word_buf);
+                crstat->magic = k;
+                n++;
             }
             if (n < 1)
             {
@@ -1041,9 +1041,9 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
         case 43: // POOPAMOUNT
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
-              k = atoi(word_buf);
-              crstat->poop_amount = k;
-              n++;
+                k = atoi(word_buf);
+                crstat->poop_amount = k;
+                n++;
             }
             if (n < 1)
             {
@@ -1054,9 +1054,9 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
         case 44: // POOPFREQUENCY
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
-              k = atoi(word_buf);
-              crstat->poop_frequency = k;
-              n++;
+                k = atoi(word_buf);
+                crstat->poop_frequency = k;
+                n++;
             }
             if (n < 1)
             {
@@ -1067,9 +1067,9 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
         case 45: // POOPRANDOM
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
-              k = atoi(word_buf);
-              crstat->poop_random = k;
-              n++;
+                k = atoi(word_buf);
+                crstat->poop_random = k;
+                n++;
             }
             if (n < 1)
             {

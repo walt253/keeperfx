@@ -20,7 +20,6 @@
 
 #include "bflib_basics.h"
 #include "bflib_math.h"
-#include "bflib_memory.h"
 #include "config_creature.h"
 #include "config_crtrstates.h"
 #include "config_effects.h"
@@ -126,6 +125,9 @@ const char *thing_class_and_model_name(int class_id, int model)
         break;
     case TCls_Effect:
         snprintf(name_buffer[bid], sizeof(name_buffer[0]), "%s effect", effect_code_name(model));
+        break;
+    case TCls_EffectElem:
+        snprintf(name_buffer[bid], sizeof(name_buffer[0]), "%s effect element", effect_element_code_name(model));
         break;
     case TCls_EffectGen:
         snprintf(name_buffer[bid], sizeof(name_buffer[0]), "%s effectgenerator", effectgenerator_code_name(model));
@@ -329,7 +331,12 @@ HitPoints compute_creature_max_health(HitPoints base_health, unsigned short crle
     {
         crlevel = CREATURE_MAX_LEVEL-1;
     }
-    HitPoints max_health = base_health + (game.conf.crtr_conf.exp.health_increase_on_exp * base_health * (long)crlevel) / 100;
+    int64_t compute_health = (int64_t)base_health + ((int64_t)game.conf.crtr_conf.exp.health_increase_on_exp * (int64_t)base_health * (int64_t)crlevel) / 100;
+    if (compute_health >= INT32_MAX)
+    {
+        compute_health = INT32_MAX;
+    }
+    HitPoints max_health = compute_health;
     return max_health;
 }
 
@@ -704,7 +711,12 @@ HitPoints calculate_correct_creature_max_health(const struct Thing *thing)
     {
         dungeon = get_dungeon(thing->owner);
         unsigned short modifier = dungeon->modifier.health;
-        max_health = (max_health * modifier) / 100;
+        int64_t compute_health = ((int64_t)max_health * (int64_t)modifier) / 100;
+        if (compute_health >= INT32_MAX)
+        {
+            compute_health = INT32_MAX;
+        }
+        max_health = compute_health;
     }
     return max_health;
 }
@@ -1028,10 +1040,11 @@ TbBool update_creature_health_to_max(struct Thing * creatng)
  */
 TbBool update_relative_creature_health(struct Thing* creatng)
 {
-    int health_permil = get_creature_health_permil(creatng);
+    HitPoints health_permil = get_creature_health_permil(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     cctrl->max_health = calculate_correct_creature_max_health(creatng);
-    creatng->health = cctrl->max_health * health_permil / 1000;
+    int64_t health_scaled = (int64_t)cctrl->max_health * (int64_t)health_permil / 1000;
+    creatng->health = health_scaled;
     return true;
 }
 
@@ -1040,9 +1053,8 @@ TbBool set_creature_health_to_max_with_heal_effect(struct Thing* thing)
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     if (cctrl->max_health > thing->health) // 'SpcKind_HealAll' bypasses immunity.
     {
-        // apply_spell_effect_to_thing(thing, 7, 1); 7 was 'SplK_Heal' in the enum.
-        cctrl->spell_aura = TngEffElm_Heal;
-        cctrl->spell_aura_duration = 100;
+        cctrl->spell_aura = -TngEffElm_Heal;
+        cctrl->spell_aura_duration = 50;
         thing->health = cctrl->max_health;
     }
     return true;
@@ -1684,11 +1696,11 @@ const char *creature_statistic_text(const struct Thing *creatng, CreatureLiveSta
         break;
     case CrLStat_BestDamage:
         // TODO: (???) compute damage of best attack.
-        text = lbEmptyString;
+        text = "";
         break;
     default:
         ERRORLOG("Invalid statistic %d", (int)clstat_id);
-        text = lbEmptyString;
+        text = "";
         break;
     }
     return text;

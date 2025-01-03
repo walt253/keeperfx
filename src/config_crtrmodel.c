@@ -23,7 +23,6 @@
 #include "game_legacy.h"
 
 #include "bflib_basics.h"
-#include "bflib_memory.h"
 #include "bflib_math.h"
 #include "bflib_fileio.h"
 #include "bflib_dernc.h"
@@ -262,6 +261,13 @@ const struct NamedCommand creatmodel_sounds_commands[] = {
   };
 
 /******************************************************************************/
+
+void strtolower(char * str) {
+    for (; *str; ++str) {
+        *str = tolower(*str);
+    }
+}
+
 TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,const char *config_textname,unsigned short flags)
 {
   // Block name and parameter word store variables
@@ -910,128 +916,130 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
                   COMMAND_TEXT(cmd_num), block_buf, config_textname);
           }
           break;
-        case 37: // SPELLIMMUNITY
-            // Backward compatibility check.
-            TbBool unaffected_by_wind = flag_is_set(crstat->immunity_flags, CSAfF_Wind);
-            TbBool immune_to_gas = flag_is_set(crstat->immunity_flags, CSAfF_PoisonCloud);
-            TbBool never_chickens = flag_is_set(crstat->immunity_flags, CSAfF_Chicken);
-            TbBool immune_to_disease = flag_is_set(crstat->immunity_flags, CSAfF_Disease);
-            crstat->immunity_flags = 0; // Clear flags, this is necessary for partial config if modder wants to remove all flags.
-            // Backward compatibility fix.
-            if (unaffected_by_wind) {set_flag(crstat->immunity_flags, CSAfF_Wind);}
-            if (immune_to_gas) {set_flag(crstat->immunity_flags, CSAfF_PoisonCloud);}
-            if (never_chickens) {set_flag(crstat->immunity_flags, CSAfF_Chicken);}
-            if (immune_to_disease) {set_flag(crstat->immunity_flags, CSAfF_Disease);}
-            while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-                if (parameter_is_number(word_buf))
-                {
-                    k = atoi(word_buf);
-                    crstat->immunity_flags = k;
-                    n++;
-                }
-                else
-                {
-                    k = get_id(magic_spell_flags, word_buf);
-                    switch (k)
-                    {
-                        case 1: // SLOW
-                            set_flag(crstat->immunity_flags, CSAfF_Slow);
-                            n++;
-                            break;
-                        case 2: // SPEED
-                            set_flag(crstat->immunity_flags, CSAfF_Speed);
-                            n++;
-                            break;
-                        case 3: // ARMOUR
-                            set_flag(crstat->immunity_flags, CSAfF_Armour);
-                            n++;
-                            break;
-                        case 4: // REBOUND
-                            set_flag(crstat->immunity_flags, CSAfF_Rebound);
-                            n++;
-                            break;
-                        case 5: // FLYING
-                            set_flag(crstat->immunity_flags, CSAfF_Flying);
-                            n++;
-                            break;
-                        case 6: // INVISIBILITY
-                            set_flag(crstat->immunity_flags, CSAfF_Invisibility);
-                            n++;
-                            break;
-                        case 7: // SIGHT
-                            set_flag(crstat->immunity_flags, CSAfF_Sight);
-                            n++;
-                            break;
-                        case 8: // LIGHT
-                            set_flag(crstat->immunity_flags, CSAfF_Light);
-                            n++;
-                            break;
-                        case 9: // DISEASE
-                            set_flag(crstat->immunity_flags, CSAfF_Disease);
-                            n++;
-                            break;
-                        case 10: // CHICKEN
-                            set_flag(crstat->immunity_flags, CSAfF_Chicken);
-                            n++;
-                            break;
-                        case 11: // POISON_CLOUD
-                            set_flag(crstat->immunity_flags, CSAfF_PoisonCloud);
-                            n++;
-                            break;
-                        case 12: // FREEZE
-                            set_flag(crstat->immunity_flags, CSAfF_Freeze);
-                            n++;
-                            break;
-                        case 13: // MAD_KILLING
-                            set_flag(crstat->immunity_flags, CSAfF_MadKilling);
-                            n++;
-                            break;
-                        case 14: // FEAR
-                            set_flag(crstat->immunity_flags, CSAfF_Fear);
-                            n++;
-                            break;
-                        case 15: // HEAL
-                            set_flag(crstat->immunity_flags, CSAfF_Heal);
-                            n++;
-                            break;
-                        case 16: // TELEPORT
-                            set_flag(crstat->immunity_flags, CSAfF_Teleport);
-                            n++;
-                            break;
-                        case 17: // TIMEBOMB
-                            set_flag(crstat->immunity_flags, CSAfF_Timebomb);
-                            n++;
-                            break;
-                        case 18: // WIND
-                            set_flag(crstat->immunity_flags, CSAfF_Wind);
-                            n++;
-                            break;
-                        case 19: // RAGE
-                            set_flag(crstat->immunity_flags, CSAfF_Rage);
-                            n++;
-                            break;
-                        case 20: // DIVINE_SHIELD
-                            set_flag(crstat->immunity_flags, CSAfF_DivineShield);
-                            n++;
-                            break;
-                        case 21: // MAGIC_MIST
-                            set_flag(crstat->immunity_flags, CSAfF_MagicMist);
-                            n++;
-                            break;
-                        default:
-                            CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in [%s] block of %s %s file.",
-                                COMMAND_TEXT(cmd_num), word_buf, block_buf, creature_code_name(crtr_model), config_textname);
-                            break;
-                    }
-                }
-            }
-            if (n < 1)
-            {
-                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s %s file.",
-                    COMMAND_TEXT(cmd_num), block_buf, creature_code_name(crtr_model), config_textname);
-            }
-            break;
+      case 37: // SPELLIMMUNITY
+      {
+          // Backward compatibility check.
+          TbBool unaffected_by_wind = flag_is_set(crstat->immunity_flags, CSAfF_Wind);
+          TbBool immune_to_gas = flag_is_set(crstat->immunity_flags, CSAfF_PoisonCloud);
+          TbBool never_chickens = flag_is_set(crstat->immunity_flags, CSAfF_Chicken);
+          TbBool immune_to_disease = flag_is_set(crstat->immunity_flags, CSAfF_Disease);
+          crstat->immunity_flags = 0; // Clear flags, this is necessary for partial config if modder wants to remove all flags.
+          // Backward compatibility fix.
+          if (unaffected_by_wind) { set_flag(crstat->immunity_flags, CSAfF_Wind); }
+          if (immune_to_gas) { set_flag(crstat->immunity_flags, CSAfF_PoisonCloud); }
+          if (never_chickens) { set_flag(crstat->immunity_flags, CSAfF_Chicken); }
+          if (immune_to_disease) { set_flag(crstat->immunity_flags, CSAfF_Disease); }
+          while (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              if (parameter_is_number(word_buf))
+              {
+                  k = atoi(word_buf);
+                  crstat->immunity_flags = k;
+                  n++;
+              }
+              else
+              {
+                  k = get_id(magic_spell_flags, word_buf);
+                  switch (k)
+                  {
+                  case 1: // SLOW
+                      set_flag(crstat->immunity_flags, CSAfF_Slow);
+                      n++;
+                      break;
+                  case 2: // SPEED
+                      set_flag(crstat->immunity_flags, CSAfF_Speed);
+                      n++;
+                      break;
+                  case 3: // ARMOUR
+                      set_flag(crstat->immunity_flags, CSAfF_Armour);
+                      n++;
+                      break;
+                  case 4: // REBOUND
+                      set_flag(crstat->immunity_flags, CSAfF_Rebound);
+                      n++;
+                      break;
+                  case 5: // FLYING
+                      set_flag(crstat->immunity_flags, CSAfF_Flying);
+                      n++;
+                      break;
+                  case 6: // INVISIBILITY
+                      set_flag(crstat->immunity_flags, CSAfF_Invisibility);
+                      n++;
+                      break;
+                  case 7: // SIGHT
+                      set_flag(crstat->immunity_flags, CSAfF_Sight);
+                      n++;
+                      break;
+                  case 8: // LIGHT
+                      set_flag(crstat->immunity_flags, CSAfF_Light);
+                      n++;
+                      break;
+                  case 9: // DISEASE
+                      set_flag(crstat->immunity_flags, CSAfF_Disease);
+                      n++;
+                      break;
+                  case 10: // CHICKEN
+                      set_flag(crstat->immunity_flags, CSAfF_Chicken);
+                      n++;
+                      break;
+                  case 11: // POISON_CLOUD
+                      set_flag(crstat->immunity_flags, CSAfF_PoisonCloud);
+                      n++;
+                      break;
+                  case 12: // FREEZE
+                      set_flag(crstat->immunity_flags, CSAfF_Freeze);
+                      n++;
+                      break;
+                  case 13: // MAD_KILLING
+                      set_flag(crstat->immunity_flags, CSAfF_MadKilling);
+                      n++;
+                      break;
+                  case 14: // FEAR
+                      set_flag(crstat->immunity_flags, CSAfF_Fear);
+                      n++;
+                      break;
+                  case 15: // HEAL
+                      set_flag(crstat->immunity_flags, CSAfF_Heal);
+                      n++;
+                      break;
+                  case 16: // TELEPORT
+                      set_flag(crstat->immunity_flags, CSAfF_Teleport);
+                      n++;
+                      break;
+                  case 17: // TIMEBOMB
+                      set_flag(crstat->immunity_flags, CSAfF_Timebomb);
+                      n++;
+                      break;
+                  case 18: // WIND
+                      set_flag(crstat->immunity_flags, CSAfF_Wind);
+                      n++;
+                      break;
+                  case 19: // RAGE
+                      set_flag(crstat->immunity_flags, CSAfF_Rage);
+                      n++;
+                      break;
+                  case 20: // DIVINE_SHIELD
+                      set_flag(crstat->immunity_flags, CSAfF_DivineShield);
+                      n++;
+                      break;
+                  case 21: // MAGIC_MIST
+                      set_flag(crstat->immunity_flags, CSAfF_MagicMist);
+                      n++;
+                      break;
+                  default:
+                      CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in [%s] block of %s %s file.",
+                          COMMAND_TEXT(cmd_num), word_buf, block_buf, creature_code_name(crtr_model), config_textname);
+                      break;
+                  }
+              }
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, creature_code_name(crtr_model), config_textname);
+          }
+          break;
+      }
         case 38: // HOSTILETOWARDS
             for (int i = 0; i < CREATURE_TYPES_MAX; i++)
             {
@@ -2734,26 +2742,24 @@ TbBool load_creaturemodel_config_file(long crtr_model,const char *textname,const
     long len = LbFileLengthRnc(fname);
     if (len < MIN_CONFIG_FILE_SIZE)
     {
-        if ((flags & CnfLd_IgnoreErrors) == 0)
-            WARNMSG("The %s file \"%s\" doesn't exist or is too small.",textname,fname);
         return false;
     }
-    char* buf = (char*)LbMemoryAlloc(len + 256);
+    char* buf = (char*)calloc(len + 256, 1);
     if (buf == NULL)
         return false;
     // Loading file data
     len = LbFileLoadAt(fname, buf);
     TbBool result = (len > 0);
-    if ((flags & CnfLd_AcceptPartial) == 0)
+    if (!flag_is_set(flags,CnfLd_AcceptPartial))
     {
         struct CreatureStats* crstat = creature_stats_get(crtr_model);
-        LbMemorySet(crstat, '\0', sizeof(struct CreatureStats));
+        memset(crstat, '\0', sizeof(struct CreatureStats));
     }
     // Parse blocks of the config file
     if (result)
     {
         result = parse_creaturemodel_attributes_blocks(crtr_model, buf, len, fname, flags);
-        if ((flags & CnfLd_AcceptPartial) != 0)
+        if (flag_is_set(flags, CnfLd_AcceptPartial))
             result = true;
         if (!result)
             WARNMSG("Parsing %s file \"%s\" attributes blocks failed.",textname,fname);
@@ -2761,7 +2767,7 @@ TbBool load_creaturemodel_config_file(long crtr_model,const char *textname,const
     if (result)
     {
         result = parse_creaturemodel_attraction_blocks(crtr_model, buf, len, fname, flags);
-        if ((flags & CnfLd_AcceptPartial) != 0)
+        if (flag_is_set(flags, CnfLd_AcceptPartial))
             result = true;
         if (!result)
             WARNMSG("Parsing %s file \"%s\" attraction blocks failed.",textname,fname);
@@ -2769,7 +2775,7 @@ TbBool load_creaturemodel_config_file(long crtr_model,const char *textname,const
     if (result)
     {
         result = parse_creaturemodel_annoyance_blocks(crtr_model, buf, len, fname, flags);
-        if ((flags & CnfLd_AcceptPartial) != 0)
+        if (flag_is_set(flags, CnfLd_AcceptPartial))
             result = true;
         if (!result)
             WARNMSG("Parsing %s file \"%s\" annoyance blocks failed.",textname,fname);
@@ -2777,7 +2783,7 @@ TbBool load_creaturemodel_config_file(long crtr_model,const char *textname,const
     if (result)
     {
         result = parse_creaturemodel_senses_blocks(crtr_model, buf, len, fname, flags);
-        if ((flags & CnfLd_AcceptPartial) != 0)
+        if (flag_is_set(flags, CnfLd_AcceptPartial))
             result = true;
         if (!result)
             WARNMSG("Parsing %s file \"%s\" senses blocks failed.",textname,fname);
@@ -2785,7 +2791,7 @@ TbBool load_creaturemodel_config_file(long crtr_model,const char *textname,const
     if (result)
     {
         result = parse_creaturemodel_appearance_blocks(crtr_model, buf, len, fname, flags);
-        if ((flags & CnfLd_AcceptPartial) != 0)
+        if (flag_is_set(flags, CnfLd_AcceptPartial))
             result = true;
         if (!result)
             WARNMSG("Parsing %s file \"%s\" appearance blocks failed.",textname,fname);
@@ -2793,7 +2799,7 @@ TbBool load_creaturemodel_config_file(long crtr_model,const char *textname,const
     if (result)
     {
         result = parse_creaturemodel_experience_blocks(crtr_model, buf, len, fname, flags);
-        if ((flags & CnfLd_AcceptPartial) != 0)
+        if (flag_is_set(flags, CnfLd_AcceptPartial))
             result = true;
         if (!result)
             WARNMSG("Parsing %s file \"%s\" experience blocks failed.",textname,fname);
@@ -2801,7 +2807,7 @@ TbBool load_creaturemodel_config_file(long crtr_model,const char *textname,const
     if (result)
     {
         result = parse_creaturemodel_jobs_blocks(crtr_model, buf, len, fname, flags);
-        if ((flags & CnfLd_AcceptPartial) != 0)
+        if (flag_is_set(flags, CnfLd_AcceptPartial))
             result = true;
         if (!result)
             WARNMSG("Parsing %s file \"%s\" jobs blocks failed.",textname,fname);
@@ -2809,7 +2815,7 @@ TbBool load_creaturemodel_config_file(long crtr_model,const char *textname,const
     if (result)
     {
         result = parse_creaturemodel_sprites_blocks(crtr_model, buf, len, fname, flags);
-        if ((flags & CnfLd_AcceptPartial) != 0)
+        if (flag_is_set(flags, CnfLd_AcceptPartial))
             result = true;
         if (!result)
             WARNMSG("Parsing %s file \"%s\" sprites blocks failed.",textname,fname);
@@ -2817,13 +2823,13 @@ TbBool load_creaturemodel_config_file(long crtr_model,const char *textname,const
     if (result)
     {
         result = parse_creaturemodel_sounds_blocks(crtr_model, buf, len, fname, flags);
-        if ((flags & CnfLd_AcceptPartial) != 0)
+        if (flag_is_set(flags, CnfLd_AcceptPartial))
             result = true;
         if (!result)
             WARNMSG("Parsing %s file \"%s\" sounds blocks failed.",textname,fname);
     }
     // Freeing and exiting
-    LbMemoryFree(buf);
+    free(buf);
     return result;
 }
 
@@ -2833,7 +2839,8 @@ TbBool load_creaturemodel_config(ThingModel crmodel, unsigned short flags)
     static const char config_campgn_textname[] = "campaign creature model config";
     static const char config_level_textname[] = "level creature model config";
     char conf_fnstr[COMMAND_WORD_LEN];
-    LbStringToLowerCopy(conf_fnstr,get_conf_parameter_text(creature_desc,crmodel),COMMAND_WORD_LEN);
+    snprintf(conf_fnstr, COMMAND_WORD_LEN, "%s", get_conf_parameter_text(creature_desc,crmodel));
+    strtolower(conf_fnstr);
     if (strlen(conf_fnstr) == 0)
     {
         WARNMSG("Cannot get config file name for creature %d.",crmodel);
@@ -2841,17 +2848,28 @@ TbBool load_creaturemodel_config(ThingModel crmodel, unsigned short flags)
     }
     char* fname = prepare_file_fmtpath(FGrp_CrtrData, "%s.cfg", conf_fnstr);
     TbBool result = load_creaturemodel_config_file(crmodel, config_global_textname, fname, flags);
+    if (result)
+    {
+        set_flag(flags, (CnfLd_AcceptPartial | CnfLd_IgnoreErrors));
+    }
     fname = prepare_file_fmtpath(FGrp_CmpgCrtrs,"%s.cfg",conf_fnstr);
     if (strlen(fname) > 0)
     {
-        load_creaturemodel_config_file(crmodel,config_campgn_textname,fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
+        result |= load_creaturemodel_config_file(crmodel,config_campgn_textname,fname,flags);
+        if (result)
+        {
+            set_flag(flags, (CnfLd_AcceptPartial | CnfLd_IgnoreErrors));
+        }
     }
     fname = prepare_file_fmtpath(FGrp_CmpgLvls, "map%05lu.%s.cfg", get_selected_level_number(), conf_fnstr);
     if (strlen(fname) > 0)
     {
-        load_creaturemodel_config_file(crmodel,config_level_textname,fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
+        result |= load_creaturemodel_config_file(crmodel,config_level_textname,fname,flags);
     }
-    //Freeing and exiting
+    if (!result)
+    {
+        ERRORLOG("Unable to load a complete '%s' creature model config file.", creature_code_name(crmodel));
+    }
     return result;
 }
 
@@ -2861,7 +2879,8 @@ TbBool swap_creaturemodel_config(ThingModel nwcrmodel, ThingModel crmodel, unsig
     static const char config_campgn_textname[] = "campaing creature model config";
     static const char config_level_textname[] = "level creature model config";
     char conf_fnstr[COMMAND_WORD_LEN];
-    LbStringToLowerCopy(conf_fnstr, get_conf_parameter_text(creature_desc, nwcrmodel), COMMAND_WORD_LEN);
+    snprintf(conf_fnstr, COMMAND_WORD_LEN, "%s", get_conf_parameter_text(creature_desc, nwcrmodel));
+    strtolower(conf_fnstr);
     if (strlen(conf_fnstr) == 0)
     {
         WARNMSG("Cannot get config file name for creature %d.", crmodel);

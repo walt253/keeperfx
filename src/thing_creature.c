@@ -22,7 +22,6 @@
 #include "thing_creature.h"
 #include "globals.h"
 
-#include "bflib_memory.h"
 #include "bflib_math.h"
 #include "bflib_filelst.h"
 #include "bflib_sprite.h"
@@ -112,14 +111,21 @@ struct TbSpriteSheet * swipe_sprites = NULL;
  * @note Dying creatures may return negative health, and in some rare cases creatures
  *  can have more health than their max.
  */
-int get_creature_health_permil(const struct Thing *thing)
+HitPoints get_creature_health_permil(const struct Thing *thing)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    HitPoints health = thing->health * 1000;
+    HitPoints health = thing->health;
     HitPoints max_health = cctrl->max_health;
     if (max_health < 1)
+    {
         max_health = 1;
-    return health/max_health;
+    }
+    // Use int64_t as intermediary variable to prevent overflow during the multiplication.
+    // HitPoints is a 32-bit type, and multiplying health by 1000 could exceed its capacity.
+    // By using int64_t, we ensure that the intermediate result can hold the larger value before it's cast back to HitPoints.
+    int64_t health_scaled = ((int64_t)health * 1000) / (int64_t)max_health;
+    HitPoints health_permil = health_scaled;
+    return health_permil;
 }
 
 TbBool thing_can_be_controlled_as_controller(struct Thing *thing)
@@ -2292,15 +2298,7 @@ void creature_cast_spell(struct Thing *castng, SpellKind spl_idx, long shot_lvl,
     {
         thing_summon_temporary_creature(castng, spconf->crtr_summon_model, spconf->crtr_summon_level, spconf->crtr_summon_amount, spconf->duration, spl_idx);
     }
-    // Check if the spell has an effect associated
-    if (spconf->cast_effect_model != 0)
-    {
-        struct Thing* efthing = create_used_effect_or_element(&castng->mappos, spconf->cast_effect_model, castng->owner);
-        if (!thing_is_invalid(efthing))
-        {
-            efthing->parent_idx = castng->index;
-        }
-    }
+    create_used_effect_or_element(&castng->mappos, spconf->cast_effect_model, castng->owner, castng->index);
 }
 
 void update_creature_count(struct Thing *creatng)
@@ -3770,7 +3768,7 @@ void thing_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot
         shotng = create_thing(&pos2, TCls_Shot, shot_model, firing->owner, -1);
         if (thing_is_invalid(shotng))
             return;
-        draw_flame_breath(&pos1, &pos2, shotst->effect_spacing, shotst->effect_amount,shotst->effect_id);
+        draw_flame_breath(&pos1, &pos2, shotst->effect_spacing, shotst->effect_amount, shotst->effect_id, shotng->index);
         shotng->health = shotst->health;
         shotng->shot.damage = damage;
         shotng->parent_idx = firing->index;
@@ -3893,23 +3891,9 @@ void set_creature_level(struct Thing *thing, long nlvl)
         ERRORLOG("Level %d too low, bounding", (int)nlvl);
         nlvl = 0;
     }
-    HitPoints old_max_health = calculate_correct_creature_max_health(thing);
-    if (old_max_health < 1)
-    {
-        old_max_health = 1;
-    }
     cctrl->explevel = nlvl;
-    HitPoints max_health = calculate_correct_creature_max_health(thing);
-    cctrl->max_health = max_health;
     set_creature_size_stuff(thing);
-    if (old_max_health > 0)
-    {
-        thing->health = ((thing->health * max_health) / old_max_health);
-    }
-    else
-    {
-        thing->health = -1;
-    }
+    update_relative_creature_health(thing);
     creature_increase_available_instances(thing);
     add_creature_score_to_owner(thing);
 }
@@ -4370,7 +4354,7 @@ void draw_creature_view(struct Thing *thing)
   TbGraphicsWindow grwnd;
   LbScreenStoreGraphicsWindow(&grwnd);
   // Prepare new settings
-  LbMemorySet(scrmem, 0, eye_lens_width*eye_lens_height*sizeof(TbPixel));
+  memset(scrmem, 0, eye_lens_width*eye_lens_height*sizeof(TbPixel));
   lbDisplay.WScreen = scrmem;
   lbDisplay.GraphicsScreenHeight = eye_lens_height;
   lbDisplay.GraphicsScreenWidth = eye_lens_width;
@@ -5853,7 +5837,7 @@ long player_list_creature_filter_needs_to_be_placed_in_room_for_job(const struct
         }
     }
 
-    int health_permil = get_creature_health_permil(thing);
+    HitPoints health_permil = get_creature_health_permil(thing);
     // If it's angry but not furious, or has lost health due to disease, then should be placed in temple.
     if ((anger_is_creature_angry(thing)
     || (creature_under_spell_effect(thing, CSAfF_Disease) && (health_permil <= (game.conf.rules.computer.disease_to_temple_pct * 10))))
@@ -6273,7 +6257,6 @@ void process_creature_leave_footsteps(struct Thing *thing)
  *
  * @param thing
  * @param dmg
- * @param element_flags
  * @param inflicting_plyr_idx
  */
 HitPoints apply_damage_to_thing_and_display_health(struct Thing *thing, HitPoints dmg, PlayerNumber inflicting_plyr_idx, ElementFlags element_flags)
@@ -7410,7 +7393,7 @@ TbBool creature_stats_debug_dump(void)
 void create_light_for_possession(struct Thing *creatng)
 {
     struct InitLight ilght;
-    LbMemorySet(&ilght, 0, sizeof(struct InitLight));
+    memset(&ilght, 0, sizeof(struct InitLight));
     ilght.mappos.x.val = creatng->mappos.x.val;
     ilght.mappos.y.val = creatng->mappos.y.val;
     ilght.mappos.z.val = creatng->mappos.z.val;

@@ -331,15 +331,20 @@ TbBool instance_is_ranged_weapon_vs_objects(CrInstance inum)
     return (((inst_inf->instance_property_flags & InstPF_RangedAttack) != 0) && ((inst_inf->instance_property_flags & InstPF_Destructive) != 0) && !(inst_inf->instance_property_flags & InstPF_Dangerous));
 }
 
-/**
- * Informs whether the creature has an instance which can be used when going postal.
- * Going Postal is the behavior where creatures attack others at their job, like warlocks in the library
-  * @return True if it has a postal_priority value > 0.
- */
+/* Informs whether the creature has an instance which can be used when going postal.
+ * Going Postal is the behavior where creatures attack others at their job, like warlocks in the library.
+ * @return True if it has a postal_priority value > 0. */
 TbBool instance_is_used_for_going_postal(CrInstance inum)
 {
     struct InstanceInfo* inst_inf = creature_instance_info_get(inum);
-    return (inst_inf->postal_priority > 0);
+    if ((!flag_is_set(inst_inf->instance_property_flags, InstPF_Dangerous))
+    || (!flag_is_set(inst_inf->instance_property_flags, InstPF_RangedDebuff))
+    || (!flag_is_set(inst_inf->instance_property_flags, InstPF_RangedBuff))
+    || (!flag_is_set(inst_inf->instance_property_flags, InstPF_SelfBuff)))
+    {
+        return true;
+    }
+    return false;
 }
 
 TbBool instance_is_melee_attack(CrInstance inum)
@@ -651,6 +656,24 @@ CrInstance process_creature_ranged_buff_spell_casting(struct Thing* creatng)
     return (i < game.conf.crtr_conf.instances_count) ? i : CrInst_NULL;
 }
 
+TbBool process_creature_use_instance(struct Thing* creatng)
+{
+    TRACE_THING(creatng);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    if (((creatng->alloc_flags & TAlF_IsControlled) != 0) || (cctrl->conscious_back_turns != 0) || ((cctrl->stateblock_flags & CCSpl_Freeze) != 0)) {
+        return false;
+    }
+    if (cctrl->instance_id != CrInst_NULL) {
+        return false;
+    }
+    long inst_idx = get_instance_casting(creatng);
+    if (inst_idx == CrInst_NULL) {
+        return false;
+    }
+    set_creature_instance(creatng, inst_idx, creatng->index, 0);
+    return true;
+}
+
 long instf_dig(struct Thing *creatng, long *param)
 {
     long stl_x;
@@ -882,7 +905,8 @@ long instf_eat(struct Thing *creatng, long *param)
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     if (cctrl->hunger_amount > 0)
         cctrl->hunger_amount--;
-    apply_health_to_thing_and_display_health(creatng, game.conf.rules.health.food_health_gain);
+    HitPoints food_health_gain = (calculate_correct_creature_max_health(creatng) * game.conf.rules.health.food_health_gain) / 100;
+    apply_health_to_thing_and_display_health(creatng, food_health_gain);
     cctrl->hunger_level = 0;
     return 1;
 }
@@ -1194,8 +1218,8 @@ TbBool validate_source_basic
 
     if (!creature_instance_is_available(source, inst_idx) ||
         !creature_instance_has_reset(source, inst_idx) ||
-        ((cctrl->stateblock_flags & CCSpl_Freeze) != 0) ||
-        creature_is_fleeing_combat(source) || creature_affected_by_spell(source, SplK_Chicken) ||
+        creature_under_spell_effect(source, CSAfF_Freeze) ||
+        creature_is_fleeing_combat(source) || creature_under_spell_effect(source, CSAfF_Chicken) ||
         creature_is_being_unconscious(source) || creature_is_dying(source) ||
         thing_is_picked_up(source) || creature_is_being_dropped(source) ||
         creature_is_being_sacrificed(source) || creature_is_being_summoned(source))
@@ -1330,9 +1354,11 @@ TbBool validate_target_non_idle(struct Thing* source, struct Thing* target, CrIn
         return false;
     }
     struct InstanceInfo* inst_inf = creature_instance_info_get(inst_idx);
-    SpellKind spl_idx = inst_inf->func_params[0];
+    struct SpellConfig *spconf = get_spell_config(inst_inf->func_params[0]);
     long state_type = get_creature_state_type(target);
-    if ((state_type != CrStTyp_Idle) && !creature_affected_by_spell(target, spl_idx))
+    if ((state_type != CrStTyp_Idle)
+    && !creature_under_spell_effect(target, spconf->spell_flags)
+    && !creature_is_immune_to_spell_effect(target, spconf->spell_flags))
     {
         return true;
     }
@@ -1366,9 +1392,10 @@ TbBool validate_target_even_in_prison
     }
 
     struct InstanceInfo* inst_inf = creature_instance_info_get(inst_idx);
-    SpellKind spl_idx = inst_inf->func_params[0];
-    struct SpellConfig* spconf = get_spell_config(spl_idx);
-    if (spell_config_is_invalid(spconf) || creature_affected_by_spell(target, spl_idx))
+    struct SpellConfig *spconf = get_spell_config(inst_inf->func_params[0]);
+    if (spell_config_is_invalid(spconf)
+    || creature_under_spell_effect(target, spconf->spell_flags)
+    || creature_is_immune_to_spell_effect(target, spconf->spell_flags))
     {
         // If this instance has wrong spell, or the target has been affected by this spell, return false.
         SYNCDBG(12, "%s(%d) is not a valid target for %s because it has been affected by the spell.",
@@ -1578,7 +1605,7 @@ TbBool validate_target_benefits_from_wind
         ERRORLOG("Invalid creature control");
         return false;
     }
-    if ((cctrl->spell_flags & CSAfF_PoisonCloud) != 0)
+    if (creature_under_spell_effect(target, CSAfF_PoisonCloud))
     {
         return true;
     }
@@ -1613,7 +1640,7 @@ TbBool validate_target_takes_gas_damage(struct Thing* source, struct Thing* targ
         ERRORLOG("Invalid creature control");
         return false;
     }
-    if ((cctrl->spell_flags & CSAfF_PoisonCloud) != 0)
+    if (creature_under_spell_effect(target, CSAfF_PoisonCloud))
     {
         return true;
     }

@@ -47,22 +47,20 @@ enum CreatureModelFlags {
     CMF_IsLordOfLand     = 0x000008, // Simply, Knight and Avatar.
     CMF_IsSpectator      = 0x000010, // Simply, Floating Spirit.
     CMF_IsEvil           = 0x000020, // All evil creatures.
-    CMF_NeverChickens    = 0x000040, // Cannot be affected by Chicken (for Avatar).
-    CMF_ImmuneToBoulder  = 0x000080, // Boulder traps are destroyed at the moment they touch the creature.
-    CMF_NoCorpseRotting  = 0x000100, // Corpse cannot rot in graveyard.
-    CMF_NoEnmHeartAttack = 0x000200, // Creature will not attack enemy heart on sight.
-    CMF_Trembling        = 0x000400, // Creature causes ground to tremble when dropped.
+    CMF_ImmuneToBoulder  = 0x000040, // Boulder traps are destroyed at the moment they touch the creature.
+    CMF_NoCorpseRotting  = 0x000080, // Corpse cannot rot in graveyard.
+    CMF_NoEnmHeartAttack = 0x000100, // Creature will not attack enemy heart on sight.
+    CMF_Trembling        = 0x000200, // Creature causes ground to tremble when dropped.
+    CMF_Fat              = 0x000400, // Creature too fat to walk a full animation.
     CMF_Female           = 0x000800, // Creature is female.
     CMF_Insect           = 0x001000, // Creature is kind of insect.
     CMF_OneOfKind        = 0x002000, // Only one creature of that kind may exist on one level. Unit name is type name.
     CMF_NoImprisonment   = 0x004000, // Creature will not faint.
-    CMF_NeverSick        = 0x008000, // Creature will not get disease.
-    CMF_NoResurrect      = 0x010000, // Creature will not resurrect.
-    CMF_NoTransfer       = 0x020000, // Creature cannot be transferred.
-    CMF_Fat              = 0x040000, // Creature too fat to walk a full animation.
-    CMF_NoStealHero      = 0x080000, // Prevent the creature from being stolen with the Steal Hero special.
-    CMF_PreferSteal      = 0x100000, // The creature can be generated from Steal Hero special if there's nothing to steal.
-    CMF_EventfulDeath   = 0x200000, // The LAST_DEATH_EVENT[] script location is updated on death.
+    CMF_NoResurrect      = 0x008000, // Creature will not resurrect.
+    CMF_NoTransfer       = 0x010000, // Creature cannot be transferred.
+    CMF_NoStealHero      = 0x020000, // Prevent the creature from being stolen with the Steal Hero special.
+    CMF_PreferSteal      = 0x040000, // The creature can be generated from Steal Hero special if there's nothing to steal.
+    CMF_EventfulDeath    = 0x080000, // The LAST_DEATH_EVENT[] script location is updated on death.
 };
 
 enum CreatureJobFlags {
@@ -140,19 +138,28 @@ enum JobKindFlags {
 };
 
 enum InstancePropertiesFlags {
-    InstPF_None               = 0x0000,
-    InstPF_RepeatTrigger      = 0x0001,
-    InstPF_RangedAttack       = 0x0002,
-    InstPF_MeleeAttack        = 0x0004,
-    InstPF_SelfBuff           = 0x0008,
-    InstPF_RangedDebuff       = 0x0010,
-    InstPF_Dangerous          = 0x0020,
-    InstPF_Destructive        = 0x0040,
-    InstPF_Unused             = 0x0080, //Quick
-    InstPF_Disarming          = 0x0100,
-    InstPF_UsesSwipe          = 0x0200,
-    InstPF_RangedBuff         = 0x0400,
-    InstPF_NeedsTarget        = 0x0800,
+    InstPF_None                = 0x000000,
+    InstPF_RepeatTrigger       = 0x000001,
+    InstPF_RangedAttack        = 0x000002,
+    InstPF_MeleeAttack         = 0x000004,
+    InstPF_SelfBuff            = 0x000008,
+    InstPF_RangedDebuff        = 0x000010,
+    InstPF_Dangerous           = 0x000020,
+    InstPF_Destructive         = 0x000040,
+    InstPF_Unused              = 0x000080, // Was previously InstPF_Quick.
+    InstPF_Disarming           = 0x000100,
+    InstPF_UsesSwipe           = 0x000200,
+    InstPF_RangedBuff          = 0x000400,
+    InstPF_NeedsTarget         = 0x000800,
+    InstPF_DiggerTask          = 0x001000,
+    InstPF_OutOfBattle         = 0x002000,
+    InstPF_Waiting             = 0x004000,
+    InstPF_WhileImprisoned     = 0x008000,
+    InstPF_OnlyInjured         = 0x010000,
+    InstPF_OnlyUnderGas        = 0x020000,
+    InstPF_OnToxicTerrain      = 0x040000,
+    InstPF_AgainstDoor         = 0x080000,
+    InstPF_AgainstObject       = 0x100000,
 };
 
 enum CreatureDeathKind {

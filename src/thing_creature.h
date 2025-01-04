@@ -131,7 +131,7 @@ void food_eaten_by_creature(struct Thing *foodtng, struct Thing *creatng);
 short creature_take_wage_from_gold_pile(struct Thing *crthing,struct Thing *obthing);
 void anger_apply_anger_to_creature_f(struct Thing *thing, long anger, AnnoyMotive reason, long a3, const char *func_name);
 #define anger_apply_anger_to_creature(thing, anger, reason, a3) anger_apply_anger_to_creature_f(thing, anger, reason, a3, __func__)
-HitPoints apply_damage_to_thing_and_display_health(struct Thing *thing, HitPoints dmg, PlayerNumber inflicting_plyr_idx);
+HitPoints apply_damage_to_thing_and_display_health(struct Thing *thing, HitPoints dmg, PlayerNumber inflicting_plyr_idx, ElementFlags element_flags);
 void process_creature_standing_on_corpses_at(struct Thing *thing, struct Coord3d *pos);
 long creature_instance_has_reset(const struct Thing *thing, long a2);
 void set_creature_instance(struct Thing *thing, CrInstance inst_idx, long targtng_idx, const struct Coord3d *pos);
@@ -199,6 +199,7 @@ long project_melee_damage(const struct Thing *thing);
 long calculate_shot_damage(struct Thing *thing, ThingModel shot_model);
 long project_creature_shot_damage(const struct Thing *thing, ThingModel shot_model);
 
+void transfer_creature_data_and_gold(struct Thing *oldtng, struct Thing *newtng);
 long update_creature_levels(struct Thing *thing);
 TngUpdateRet update_creature(struct Thing *thing);
 TbBool creature_stats_debug_dump(void);
@@ -231,7 +232,7 @@ TbBool creature_is_slappable(const struct Thing *thing, PlayerNumber plyr_idx);
 TbBool creature_is_invisible(const struct Thing *thing);
 TbBool creature_can_see_invisible(const struct Thing *thing);
 TbBool creature_can_be_transferred(const struct Thing* thing);
-int get_creature_health_permil(const struct Thing *thing);
+HitPoints get_creature_health_permil(const struct Thing *thing);
 /******************************************************************************/
 struct Thing *script_create_new_creature(PlayerNumber plyr_idx, ThingModel crmodel, TbMapLocation location, long carried_gold, CrtrExpLevel crtr_level);
 struct Thing *script_create_creature_at_location(PlayerNumber plyr_idx, ThingModel crmodel, TbMapLocation location);

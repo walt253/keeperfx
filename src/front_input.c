@@ -559,160 +559,177 @@ short get_screen_control_inputs(void)
 
 short get_global_inputs(void)
 {
-  if (game_is_busy_doing_gui_string_input())
-    return false;
-  struct PlayerInfo* player = get_my_player();
-  long keycode;
-  if ((player->allocflags & PlaF_NewMPMessage) != 0)
-  {
-    get_players_message_inputs();
-    return true;
-  }
-  if (((player->view_type == PVT_DungeonTop) || (player->view_type == PVT_CreatureContrl))
-  && (((game.system_flags & GSF_NetworkActive) != 0) ||
-     ((game.flags_gui & GGUI_SoloChatEnabled) != 0)))
-  {
-      if (is_key_pressed(KC_RETURN,KMod_NONE))
-      {
-          if (menu_is_active(GMnu_QUIT))
-          {
-              set_players_packet_action(player, PckA_Unknown001, 0, 0, 0, 0);
-              clear_key_pressed(KC_RETURN);
-              return true;
-          }
-        set_players_packet_action(player, PckA_PlyrMsgBegin, 0, 0, 0, 0);
-        clear_key_pressed(KC_RETURN);
+    if (game_is_busy_doing_gui_string_input())
+    {
+        return false;
+    }
+    struct PlayerInfo* player = get_my_player();
+    long keycode;
+    if ((player->allocflags & PlaF_NewMPMessage) != 0)
+    {
+        get_players_message_inputs();
         return true;
-      }
-  }
-  // Code for debugging purposes
-  if ( is_key_pressed(KC_D,KMod_ALT) )
-  {
-    JUSTMSG("REPORT for gameturn %lu",game.play_gameturn);
-    // Timing report
-    JUSTMSG("Now time is %ld, last loop time was %ld, clock is %ld, requested fps is %ld",
-        LbTimerClock(),last_loop_time,clock(),game_num_fps);
-    test_variable = !test_variable;
-  }
-
-  for (int idx = KC_F1; idx <= KC_F8; idx++)
-  {
-      if ( is_key_pressed(idx,KMod_CONTROL) )
-      {
-        set_players_packet_action(player, PckA_PlyrFastMsg, idx-KC_F1, 0, 0, 0);
-        clear_key_pressed(idx);
-        return true;
-      }
-  }
-  if ((player->instance_num != PI_MapFadeTo) &&
-      (player->instance_num != PI_MapFadeFrom) &&
-      (!game_is_busy_doing_gui_string_input()))
-  {
-      if ( is_game_key_pressed(Gkey_TogglePause, &keycode, false) )
-      {
-        long grab_check_flags = (((game.operation_flags & GOF_Paused) == 0) ? MG_OnPauseEnter : MG_OnPauseLeave);// the paused flag is currently set to the current pause state, not the state we are about to enter
-        LbGrabMouseCheck(grab_check_flags);
-        if (pause_music_when_game_paused())
+    }
+    if (((player->view_type == PVT_DungeonTop) || (player->view_type == PVT_CreatureContrl) || (player->view_type == PVT_CreatureTop))
+    && (((game.system_flags & GSF_NetworkActive) != 0) || ((game.flags_gui & GGUI_SoloChatEnabled) != 0)))
+    {
+        if (is_key_pressed(KC_RETURN, KMod_NONE))
         {
-            // only pause music, rather than pause all audio, because otherwise announcer messages will be lost (it continues to play while muted, it needs a new feature)
-            pause_music(((grab_check_flags & MG_OnPauseEnter) != 0));
-        }
-        if (((grab_check_flags & MG_OnPauseEnter) != 0))
-        {
-            for (int i = 0; i < PLAYER_NEUTRAL; i++)
+            if (menu_is_active(GMnu_QUIT))
             {
-                stop_thing_playing_sample(find_players_dungeon_heart(i), 93);
+                set_players_packet_action(player, PckA_Unknown001, 0, 0, 0, 0);
+                clear_key_pressed(KC_RETURN);
+                return true;
+            }
+            set_players_packet_action(player, PckA_PlyrMsgBegin, 0, 0, 0, 0);
+            clear_key_pressed(KC_RETURN);
+            return true;
+        }
+    }
+    // Code for debugging purposes.
+    if (is_key_pressed(KC_D, KMod_ALT))
+    {
+        JUSTMSG("REPORT for gameturn %lu", game.play_gameturn);
+        // Timing report.
+        JUSTMSG("Now time is %ld, last loop time was %ld, clock is %ld, requested fps is %ld", LbTimerClock(), last_loop_time, clock(), game_num_fps);
+        test_variable = !test_variable;
+    }
+    for (int idx = KC_F1; idx <= KC_F8; idx++)
+    {
+        if (is_key_pressed(idx, KMod_CONTROL))
+        {
+            set_players_packet_action(player, PckA_PlyrFastMsg, idx - KC_F1, 0, 0, 0);
+            clear_key_pressed(idx);
+            return true;
+        }
+    }
+    if ((player->instance_num != PI_MapFadeTo)
+    && (player->instance_num != PI_MapFadeFrom)
+    && (!game_is_busy_doing_gui_string_input()))
+    {
+        if (is_game_key_pressed(Gkey_TogglePause, &keycode, false))
+        {
+            long grab_check_flags = (((game.operation_flags & GOF_Paused) == 0) ? MG_OnPauseEnter : MG_OnPauseLeave); // The paused flag is currently set to the current pause state, not the state we are about to enter.
+            LbGrabMouseCheck(grab_check_flags);
+            if (pause_music_when_game_paused())
+            {
+                // Only pause music, rather than pause all audio, because otherwise announcer messages will be lost. It continues to play while muted, it needs a new feature.
+                pause_music(((grab_check_flags & MG_OnPauseEnter) != 0));
+            }
+            if (((grab_check_flags & MG_OnPauseEnter) != 0))
+            {
+                for (int i = 0; i < PLAYER_NEUTRAL; i++)
+                {
+                    stop_thing_playing_sample(find_players_dungeon_heart(i), 93);
+                }
+            }
+            set_packet_pause_toggle();
+            clear_key_pressed(keycode);
+            return true;
+        }
+        else if (flag_is_set(game.operation_flags, GOF_Paused) && flag_is_set(start_params.debug_flags, DFlg_FrameStep))
+        {
+            if (is_key_pressed(KC_PERIOD, KMOD_NONE))
+            {
+                game.frame_step = true;
+                set_packet_pause_toggle();
+                clear_key_pressed(KC_PERIOD);
             }
         }
-        set_packet_pause_toggle();
+    }
+    if ((game.operation_flags & GOF_Paused) != 0)
+    {
+        return true;
+    }
+    if (get_speed_control_inputs())
+    {
+        return true;
+    }
+    if (get_minimap_control_inputs())
+    {
+        return true;
+    }
+    if (get_screen_control_inputs())
+    {
+        return true;
+    }
+    if (get_screen_capture_inputs())
+    {
+        return true;
+    }
+    if (is_key_pressed(KC_SPACE, KMod_NONE))
+    {
+        if (player->victory_state != VicS_Undecided)
+        {
+            if (timer_enabled())
+            {
+                update_time();
+                struct GameTime GameT = get_game_time(game.play_gameturn, game_num_fps);
+                SYNCMSG("Finished level %d. Total turns taken: %lu (%02u:%02u:%02u at %ld fps). Real time elapsed: %02u:%02u:%02u:%03u.", game.loaded_level_number, game.play_gameturn, GameT.Hours, GameT.Minutes, GameT.Seconds, game_num_fps, Timer.Hours, Timer.Minutes, Timer.Seconds, Timer.MSeconds);
+            }
+            set_players_packet_action(player, PckA_FinishGame, 0, 0, 0, 0);
+            clear_key_pressed(KC_SPACE);
+            return true;
+        }
+    }
+    if (is_game_key_pressed(Gkey_DumpToOldPos, &keycode, false))
+    {
+        set_players_packet_action(player, PckA_DumpHeldThingToOldPos, 0, 0, 0, 0);
         clear_key_pressed(keycode);
-        return true;
-      }
-      else if( flag_is_set(game.operation_flags, GOF_Paused) && flag_is_set(start_params.debug_flags, DFlg_FrameStep) )
-      {
-        if( is_key_pressed(KC_PERIOD, KMOD_NONE) )
-        {
-            game.frame_step = true;
-            set_packet_pause_toggle();
-            clear_key_pressed(KC_PERIOD);
-        }
-      }
-  }
-  if ((game.operation_flags & GOF_Paused) != 0)
-      return true;
-  if (get_speed_control_inputs())
-      return true;
-  if (get_minimap_control_inputs())
-      return true;
-  if (get_screen_control_inputs())
-      return true;
-  if (get_screen_capture_inputs())
-      return true;
-  if (is_key_pressed(KC_SPACE,KMod_NONE))
-  {
-      if (player->victory_state != VicS_Undecided)
-      {
-        if ( timer_enabled() )
-        {
-            update_time();
-            struct GameTime GameT = get_game_time(game.play_gameturn, game_num_fps);
-            SYNCMSG("Finished level %d. Total turns taken: %lu (%02u:%02u:%02u at %ld fps). Real time elapsed: %02u:%02u:%02u:%03u.",
-                game.loaded_level_number, game.play_gameturn, GameT.Hours, GameT.Minutes, GameT.Seconds, game_num_fps, Timer.Hours, Timer.Minutes, Timer.Seconds, Timer.MSeconds);
-        }
-        set_players_packet_action(player, PckA_FinishGame, 0, 0, 0, 0);
-        clear_key_pressed(KC_SPACE);
-        return true;
-      }
-  }
-  if ( is_game_key_pressed(Gkey_DumpToOldPos, &keycode, false) )
-  {
-      set_players_packet_action(player, PckA_DumpHeldThingToOldPos, 0, 0, 0, 0);
-      clear_key_pressed(keycode);
-  }
-  if (is_key_pressed(KC_GRAVE, KMod_DONTCARE)) {
-    debug_display_consolelog = !debug_display_consolelog;
-    clear_key_pressed(KC_GRAVE);
-  }
-  return false;
+    }
+    if (is_key_pressed(KC_GRAVE, KMod_DONTCARE))
+    {
+        debug_display_consolelog = !debug_display_consolelog;
+        clear_key_pressed(KC_GRAVE);
+    }
+    return false;
 }
 
 TbBool get_level_lost_inputs(void)
 {
     long keycode;
-    SYNCDBG(6,"Starting");
+    SYNCDBG(6, "Starting");
     struct PlayerInfo* player = get_my_player();
     if ((player->allocflags & PlaF_NewMPMessage) != 0)
     {
-      get_players_message_inputs();
-      return true;
+        get_players_message_inputs();
+        return true;
     }
     if ((game.system_flags & GSF_NetworkActive) != 0)
     {
-      if (is_key_pressed(KC_RETURN,KMod_NONE))
-      {
-        set_players_packet_action(player, PckA_PlyrMsgBegin, 0,0,0,0);
-        clear_key_pressed(KC_RETURN);
-        return true;
-      }
+        if (is_key_pressed(KC_RETURN, KMod_NONE))
+        {
+            set_players_packet_action(player, PckA_PlyrMsgBegin, 0, 0, 0, 0);
+            clear_key_pressed(KC_RETURN);
+            return true;
+        }
     }
     if (get_speed_control_inputs())
-        return true;
-    if (get_minimap_control_inputs())
-        return true;
-    if (get_screen_control_inputs())
-        return true;
-    if (get_screen_capture_inputs())
-        return true;
-    if (is_key_pressed(KC_SPACE,KMod_NONE))
     {
-        set_players_packet_action(player, PckA_FinishGame, 0,0,0,0);
+        return true;
+    }
+    if (get_minimap_control_inputs())
+    {
+        return true;
+    }
+    if (get_screen_control_inputs())
+    {
+        return true;
+    }
+    if (get_screen_capture_inputs())
+    {
+        return true;
+    }
+    if (is_key_pressed(KC_SPACE, KMod_NONE))
+    {
+        set_players_packet_action(player, PckA_FinishGame, 0, 0, 0, 0);
         clear_key_pressed(KC_SPACE);
     }
     if (player->view_type == PVT_MapScreen)
     {
         long mouse_x = GetMouseX();
         long mouse_y = GetMouseY();
-        // Position on the parchment map on which we're doing action
+        // Position on the parchment map on which we're doing action.
         long map_x;
         long map_y;
         TbBool map_valid = point_to_overhead_map(player->acamera, mouse_x / pixel_size, mouse_y / pixel_size, &map_x, &map_y);
@@ -720,149 +737,164 @@ TbBool get_level_lost_inputs(void)
         {
             lbKeyOn[keycode] = 0;
             zoom_from_patchment_map();
-        } else
-        if ( right_button_released )
+        }
+        else if (right_button_released)
         {
             right_button_released = 0;
             zoom_from_patchment_map();
-        } else
-        if ( left_button_released )
+        }
+        else if (left_button_released)
         {
-            if  ( map_valid ) {
+            if (map_valid)
+            {
                 MapSubtlCoord stl_x = coord_subtile(map_x);
                 MapSubtlCoord stl_y = coord_subtile(map_y);
                 set_players_packet_action(player, PckA_ZoomFromMap, stl_x, stl_y, 0, 0);
                 left_button_released = 0;
             }
         }
-    } else
-    if (player->view_type == PVT_DungeonTop)
+    }
+    else if (player->view_type == PVT_DungeonTop)
     {
-      if (is_key_pressed(KC_TAB,KMod_DONTCARE))
-      {
-          if (
-            player->view_mode == PVM_IsoWibbleView ||
-            player->view_mode == PVM_FrontView ||
-            player->view_mode == PVM_IsoStraightView
-          ) {
-            clear_key_pressed(KC_TAB);
-            toggle_gui();
-          }
-      } else
-      if (is_game_key_pressed(Gkey_SwitchToMap, &keycode, false))
-      {
-        lbKeyOn[keycode] = 0;
-        if (player->view_mode != PVM_ParchFadeOut)
+        if (is_key_pressed(KC_TAB, KMod_DONTCARE))
         {
-          turn_off_all_window_menus();
-          set_flag_value(game.operation_flags, GOF_ShowPanel, (game.operation_flags & GOF_ShowGui) != 0);
-          if (((game.system_flags & GSF_NetworkActive) != 0)
-            || (lbDisplay.PhysicalScreenWidth > 320))
-          {
-                if (toggle_status_menu(0))
-                  set_flag(game.operation_flags, GOF_ShowPanel);
-                else
-                  clear_flag(game.operation_flags, GOF_ShowPanel);
-                set_players_packet_action(player, PckA_SaveViewType, PVT_MapScreen, 0,0,0);
-          } else
-          {
-                set_players_packet_action(player, PckA_SetViewType, PVT_MapFadeIn, 0,0,0);
-          }
-          turn_off_roaming_menus();
+            if (player->view_mode == PVM_IsoWibbleView || player->view_mode == PVM_FrontView || player->view_mode == PVM_IsoStraightView)
+            {
+                clear_key_pressed(KC_TAB);
+                toggle_gui();
+            }
         }
-      }
+        else if (is_game_key_pressed(Gkey_SwitchToMap, &keycode, false))
+        {
+            lbKeyOn[keycode] = 0;
+            if (player->view_mode != PVM_ParchFadeOut)
+            {
+                turn_off_all_window_menus();
+                set_flag_value(game.operation_flags, GOF_ShowPanel, (game.operation_flags & GOF_ShowGui) != 0);
+                if (((game.system_flags & GSF_NetworkActive) != 0) || (lbDisplay.PhysicalScreenWidth > 320))
+                {
+                    if (toggle_status_menu(0))
+                    {
+                        set_flag(game.operation_flags, GOF_ShowPanel);
+                    }
+                    else
+                    {
+                        clear_flag(game.operation_flags, GOF_ShowPanel);
+                    }
+                    set_players_packet_action(player, PckA_SaveViewType, PVT_MapScreen, 0, 0, 0);
+                }
+                else
+                {
+                    set_players_packet_action(player, PckA_SetViewType, PVT_MapFadeIn, 0, 0, 0);
+                }
+                turn_off_roaming_menus();
+            }
+        }
     }
-    if (is_key_pressed(KC_ESCAPE,KMod_DONTCARE))
+    if (is_key_pressed(KC_ESCAPE, KMod_DONTCARE))
     {
-      clear_key_pressed(KC_ESCAPE);
-      if ( a_menu_window_is_active() )
-      {
-        turn_off_all_window_menus();
-      }
-      else
-      {
-          if (menu_is_active(GMnu_MAIN))
-          {
-            fake_button_click(BID_OPTIONS);
-          }
-        turn_on_menu(GMnu_OPTIONS);
-      }
+        clear_key_pressed(KC_ESCAPE);
+        if (a_menu_window_is_active())
+        {
+            turn_off_all_window_menus();
+        }
+        else
+        {
+            if (menu_is_active(GMnu_MAIN))
+            {
+                fake_button_click(BID_OPTIONS);
+            }
+            turn_on_menu(GMnu_OPTIONS);
+        }
     }
-    TbBool inp_done=false;
+    TbBool inp_done = false;
     switch (player->view_type)
     {
-      case PVT_DungeonTop:
+    case PVT_DungeonTop:
         inp_done = menu_is_active(GMnu_SPELL_LOST);
-        if ( !inp_done )
+        if (!inp_done)
         {
-          if ((game.operation_flags & GOF_ShowGui) != 0)
-          {
-            initialise_tab_tags_and_menu(GMnu_SPELL);
-            turn_off_all_panel_menus();
-            turn_on_menu(GMnu_SPELL_LOST);
-          }
+            if ((game.operation_flags & GOF_ShowGui) != 0)
+            {
+                initialise_tab_tags_and_menu(GMnu_SPELL);
+                turn_off_all_panel_menus();
+                turn_on_menu(GMnu_SPELL_LOST);
+            }
         }
         inp_done = get_gui_inputs(1);
-        if ( !inp_done )
+        if (!inp_done)
         {
-          if ( (player->work_state == PSt_CreatrInfo) || (player->work_state == PSt_CreatrInfoAll) )
-          {
-              set_player_instance(player, PI_UnqueryCrtr, 0);
-          } else
-          {
-              int mm_units_per_px;
-              {
-                  int mnu_num;
-                  mnu_num = menu_id_to_number(GMnu_MAIN);
-                  struct GuiMenu *gmnu;
-                  gmnu = get_active_menu(mnu_num);
-                  mm_units_per_px = (gmnu->width * 16 + 140/2) / 140;
-                  if (mm_units_per_px < 1)
-                      mm_units_per_px = 1;
-              }
-              long mmzoom;
-              if (16/mm_units_per_px < 3)
-                  mmzoom = (player->minimap_zoom) / (3-16/mm_units_per_px);
-              else
-                  mmzoom = (player->minimap_zoom);
-              inp_done = get_small_map_inputs(player->minimap_pos_x*mm_units_per_px/16, player->minimap_pos_y*mm_units_per_px/16, mmzoom);
-              if ( !inp_done )
-                get_bookmark_inputs();
-              get_dungeon_control_nonaction_inputs();
-          }
+            if ((player->work_state == PSt_CreatrInfo) || (player->work_state == PSt_CreatrInfoAll))
+            {
+                set_player_instance(player, PI_UnqueryCrtr, 0);
+            }
+            else
+            {
+                int mm_units_per_px;
+                {
+                    int mnu_num;
+                    mnu_num = menu_id_to_number(GMnu_MAIN);
+                    struct GuiMenu *gmnu;
+                    gmnu = get_active_menu(mnu_num);
+                    mm_units_per_px = (gmnu->width * 16 + 140 / 2) / 140;
+                    if (mm_units_per_px < 1)
+                    {
+                        mm_units_per_px = 1;
+                    }
+                }
+                long mmzoom;
+                if (16 / mm_units_per_px < 3)
+                {
+                    mmzoom = (player->minimap_zoom) / (3 - 16 / mm_units_per_px);
+                }
+                else
+                {
+                    mmzoom = (player->minimap_zoom);
+                }
+                inp_done = get_small_map_inputs(player->minimap_pos_x * mm_units_per_px / 16, player->minimap_pos_y * mm_units_per_px / 16, mmzoom);
+                if (!inp_done)
+                {
+                    get_bookmark_inputs();
+                }
+                get_dungeon_control_nonaction_inputs();
+            }
         }
         break;
-      case PVT_CreatureContrl:
-      {
-          struct Thing* thing = thing_get(player->controlled_thing_idx);
-          TRACE_THING(thing);
-          if (thing->class_id == TCls_Creature)
-          {
-              struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-              if ((cctrl->flgfield_2 & TF2_Spectator) == 0)
-              {
-                  set_players_packet_action(player, PckA_DirectCtrlExit, player->controlled_thing_idx, 0, 0, 0);
-                  inp_done = true;
-              }
-          } else
+    case PVT_CreatureContrl:
+    case PVT_CreatureTop:
+    {
+        struct Thing* thing = thing_get(player->controlled_thing_idx);
+        TRACE_THING(thing);
+        if (thing->class_id == TCls_Creature)
         {
-          set_players_packet_action(player, PckA_DirectCtrlExit, player->controlled_thing_idx,0,0,0);
-          inp_done = true;
+            struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+            if ((cctrl->flgfield_2 & TF2_Spectator) == 0)
+            {
+                set_players_packet_action(player, PckA_DirectCtrlExit, player->controlled_thing_idx, 0, 0, 0);
+                inp_done = true;
+            }
+        }
+        else
+        {
+            set_players_packet_action(player, PckA_DirectCtrlExit, player->controlled_thing_idx, 0, 0, 0);
+            inp_done = true;
         }
         break;
-      }
-      case PVT_CreaturePasngr:
-        set_players_packet_action(player, PckA_PasngrCtrlExit, player->controlled_thing_idx,0,0,0);
+    }
+    case PVT_CreaturePasngr:
+        set_players_packet_action(player, PckA_PasngrCtrlExit, player->controlled_thing_idx, 0, 0, 0);
         break;
-      case PVT_MapScreen:
+    case PVT_MapScreen:
         if (menu_is_active(GMnu_SPELL_LOST))
         {
-          if ((game.operation_flags & GOF_ShowGui) != 0)
-            turn_off_menu(GMnu_SPELL_LOST);
+            if ((game.operation_flags & GOF_ShowGui) != 0)
+            {
+                turn_off_menu(GMnu_SPELL_LOST);
+            }
         }
         break;
-      default:
-          break;
+    default:
+        break;
     }
     return inp_done;
 }
@@ -2620,14 +2652,12 @@ TbBool active_menu_functions_while_paused()
          || menu_is_active(GMnu_VIDEO) || menu_is_active(GMnu_SOUND) || menu_is_active(GMnu_ERROR_BOX) || menu_is_active(GMnu_AUTOPILOT));
 }
 
-
-/** Fill packet struct with game action information.
- */
+/* Fill packet struct with game action information. */
 short get_inputs(void)
 {
     if ((game.flags_cd & MFlg_IsDemoMode) != 0)
     {
-        SYNCDBG(5,"Starting for demo mode");
+        SYNCDBG(5, "Starting for demo mode");
         load_packets_for_turn(game.pckt_gameturn);
         game.pckt_gameturn++;
         get_packet_load_demo_inputs();
@@ -2635,14 +2665,14 @@ short get_inputs(void)
     }
     if (game.packet_load_enable)
     {
-        SYNCDBG(5,"Loading packet inputs");
+        SYNCDBG(5, "Loading packet inputs");
         return get_packet_load_game_inputs();
     }
     struct PlayerInfo* player = get_my_player();
     if ((player->allocflags & PlaF_MouseInputDisabled) != 0)
     {
-        SYNCDBG(5,"Starting for creature fade");
-        set_players_packet_position(get_packet(my_player_number), 0, 0 , 0);
+        SYNCDBG(5, "Starting for creature fade");
+        set_players_packet_position(get_packet(my_player_number), 0, 0, 0);
         if ((!game_is_busy_doing_gui_string_input()) && ((game.operation_flags & GOF_Paused) != 0))
         {
             long keycode;
@@ -2651,9 +2681,9 @@ short get_inputs(void)
                 lbKeyOn[keycode] = 0;
                 set_packet_pause_toggle();
             }
-            else if( flag_is_set(start_params.debug_flags, DFlg_FrameStep) )
+            else if (flag_is_set(start_params.debug_flags, DFlg_FrameStep))
             {
-                if( is_key_pressed(KC_PERIOD, KMOD_NONE) )
+                if (is_key_pressed(KC_PERIOD, KMOD_NONE))
                 {
                     game.frame_step = true;
                     set_packet_pause_toggle();
@@ -2663,7 +2693,7 @@ short get_inputs(void)
         }
         return false;
     }
-    SYNCDBG(5,"Starting");
+    SYNCDBG(5, "Starting");
     gui_process_inputs();
     if (player->victory_state == VicS_LostLevel)
     {
@@ -2687,35 +2717,48 @@ short get_inputs(void)
         }
     }
     TbBool inp_handled = false;
-    if (!flag_is_set(game.operation_flags,GOF_Paused) || active_menu_functions_while_paused() || flag_is_set(game.operation_flags,GOF_WorldInfluence))
+    if (!flag_is_set(game.operation_flags, GOF_Paused) || active_menu_functions_while_paused() || flag_is_set(game.operation_flags, GOF_WorldInfluence))
+    {
         inp_handled = get_gui_inputs(1);
+    }
     if (!inp_handled)
+    {
         inp_handled = get_global_inputs();
+    }
     if (game_is_busy_doing_gui_string_input())
-      return false;
+    {
+        return false;
+    }
     get_screen_capture_inputs();
-    SYNCDBG(7,"Getting inputs for view %d",(int)player->view_type);
+    SYNCDBG(7, "Getting inputs for view %d", (int)player->view_type);
     switch (player->view_type)
     {
     case PVT_DungeonTop:
         get_dungeon_control_pausable_action_inputs();
         if (!inp_handled)
+        {
             inp_handled = get_dungeon_control_action_inputs();
+        }
         get_dungeon_control_nonaction_inputs();
         get_player_gui_clicks();
         get_packet_control_mouse_clicks();
         get_dungeon_speech_inputs();
         return inp_handled;
     case PVT_CreatureContrl:
+    case PVT_CreatureTop:
         if (!inp_handled)
+        {
             inp_handled = get_creature_control_action_inputs();
+        }
         get_creature_control_nonaction_inputs();
         get_player_gui_clicks();
         get_packet_control_mouse_clicks();
         return inp_handled;
     case PVT_CreaturePasngr:
         if (!inp_handled)
+        {
             inp_handled = get_creature_passenger_action_inputs();
+        }
         get_player_gui_clicks();
         get_packet_control_mouse_clicks();
         return inp_handled;
@@ -2724,28 +2767,32 @@ short get_inputs(void)
         get_map_nonaction_inputs();
         get_player_gui_clicks();
         get_packet_control_mouse_clicks();
-        // Unset button release events if we're going to do an action; this is to avoid casting
-        // spells or doing other actions just after switch from parchment to dungeon view
+        // Unset button release events if we're going to do an action.
+        // This is to avoid casting spells or doing other actions just after switch from parchment to dungeon view.
         if (get_players_packet_action(player) != PckA_None)
+        {
             unset_players_packet_control(player, PCtr_LBtnRelease|PCtr_RBtnRelease);
+        }
         return inp_handled;
     case PVT_MapFadeIn:
         if (player->view_mode != PVM_ParchFadeIn)
         {
-          if ((game.system_flags & GSF_NetworkActive) == 0)
-            game.operation_flags &= ~GOF_Paused;
-          player->status_menu_restore = toggle_status_menu(0); // store current status menu visibility, and hide the status menu (when the map is visible) [duplicate? unneeded?]
-          set_players_packet_action(player, PckA_SetViewType, PVT_MapScreen, 0,0,0);
+            if ((game.system_flags & GSF_NetworkActive) == 0)
+            {
+                game.operation_flags &= ~GOF_Paused;
+            }
+            player->status_menu_restore = toggle_status_menu(0); // Store current status menu visibility, and hide the status menu. (when the map is visible) [duplicate? unneeded?]
+            set_players_packet_action(player, PckA_SetViewType, PVT_MapScreen, 0, 0, 0);
         }
         return false;
     case PVT_MapFadeOut:
         if (player->view_mode != PVM_ParchFadeOut)
         {
-          set_players_packet_action(player, PckA_SetViewType, PVT_DungeonTop, 0,0,0);
+            set_players_packet_action(player, PckA_SetViewType, PVT_DungeonTop, 0, 0, 0);
         }
         return false;
     default:
-        SYNCDBG(7,"Default exit");
+        SYNCDBG(7, "Default exit");
         return false;
     }
 }

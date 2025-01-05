@@ -133,52 +133,50 @@ static void draw_creature_view_icons(struct Thing* creatng)
         draw_gui_panel_sprite_left(x, y, ps_units_per_px, spridx);
         x += scale_ui_value_lofi(spr->SWidth);
     }
-    if ( (cctrl->dragtng_idx != 0) && ((creatng->alloc_flags & TAlF_IsDragged) == 0) )
+    if ((cctrl->dragtng_idx != 0) && ((creatng->alloc_flags & TAlF_IsDragged) == 0))
     {
         struct Thing* dragtng = thing_get(cctrl->dragtng_idx);
         unsigned long spr_idx;
         x = MyScreenWidth - (scale_value_by_horizontal_resolution(148) / 4);
-        switch(dragtng->class_id)
+        switch (dragtng->class_id)
         {
-            case TCls_Object:
+        case TCls_Object:
+        {
+            RoomKind rkind;
+            struct RoomConfigStats *roomst;
+            if (thing_is_workshop_crate(dragtng))
             {
-                RoomKind rkind;
-                struct RoomConfigStats *roomst;
-                if (thing_is_workshop_crate(dragtng))
-                {
-                    rkind = find_first_roomkind_with_role(RoRoF_CratesStorage);
-                }
-                else
-                {
-                    rkind = find_first_roomkind_with_role(RoRoF_PowersStorage);
-                }
-                roomst = get_room_kind_stats(rkind);
-                spr_idx = roomst->medsym_sprite_idx;
-                break;
+                rkind = find_first_roomkind_with_role(RoRoF_CratesStorage);
             }
-            case TCls_DeadCreature:
-            case TCls_Creature:
+            else
             {
-                y -= scale_value_by_horizontal_resolution(spr->SHeight / 2);
-                spr_idx = get_creature_model_graphics(dragtng->model, CGI_HandSymbol);
-                if (dragtng->class_id == TCls_DeadCreature)
-                {
-                    spr_idx++;
-                }
-                break;
+                rkind = find_first_roomkind_with_role(RoRoF_PowersStorage);
             }
-            default:
+            roomst = get_room_kind_stats(rkind);
+            spr_idx = roomst->medsym_sprite_idx;
+            break;
+        }
+        case TCls_DeadCreature:
+        case TCls_Creature:
+        {
+            y -= scale_value_by_horizontal_resolution(spr->SHeight / 2);
+            spr_idx = get_creature_model_graphics(dragtng->model, CGI_HandSymbol);
+            if (dragtng->class_id == TCls_DeadCreature)
             {
-                spr_idx = 0;
-                break;
+                spr_idx++;
             }
+            break;
+        }
+        default:
+            spr_idx = 0;
+            break;
         }
         draw_gui_panel_sprite_left(x, y, ps_units_per_px, spr_idx);
     }
     else
     {
         struct PlayerInfo* player = get_my_player();
-        if (player->view_type == PVT_CreatureContrl)
+        if ((player->view_type == PVT_CreatureContrl) || (player->view_type == PVT_CreatureTop))
         {
             if (!creature_instance_is_available(creatng, cctrl->active_instance_id))
             {
@@ -1006,19 +1004,24 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
 void process_pointer_graphic(void)
 {
     struct PlayerInfo* player = get_my_player();
-    SYNCDBG(6,"Starting for view %d, player state %s, instance %d",(int)player->view_type,player_state_code_name(player->work_state),(int)player->instance_num);
+    SYNCDBG(6, "Starting for view %d, player state %s, instance %d", (int)player->view_type, player_state_code_name(player->work_state), (int)player->instance_num);
     switch (player->view_type)
     {
     case PVT_DungeonTop:
-        // This case is complicated
+        // This case is complicated.
         process_dungeon_top_pointer_graphic(player);
         break;
     case PVT_CreatureContrl:
     case PVT_CreaturePasngr:
+    case PVT_CreatureTop:
         if (cheat_menu_is_active() || a_menu_window_is_active())
-          set_pointer_graphic(MousePG_Arrow);
+        {
+            set_pointer_graphic(MousePG_Arrow);
+        }
         else
-          set_pointer_graphic(MousePG_Invisible);
+        {
+            set_pointer_graphic(MousePG_Invisible);
+        }
         break;
     case PVT_MapScreen:
     case PVT_MapFadeIn:

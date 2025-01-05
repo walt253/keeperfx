@@ -982,8 +982,8 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
             }
             if (n < 1)
             {
-                CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s %s file.",
-                    COMMAND_TEXT(cmd_num), block_buf, creature_code_name(crtr_model), config_textname);
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file of creature %s.",
+                    COMMAND_TEXT(cmd_num), block_buf, config_textname, creature_code_name(crtr_model));
             }
             break;
         case 39: // LAVARECOVERY

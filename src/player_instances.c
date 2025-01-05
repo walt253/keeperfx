@@ -214,7 +214,7 @@ long pinstfe_hand_whip(struct PlayerInfo *player, long *n)
   case TCls_Creature:
   {
       struct Coord3d pos;
-      if (creature_affected_by_spell(thing, SplK_Freeze))
+      if (creature_under_spell_effect(thing, CSAfF_Freeze))
       {
           kill_creature(thing, INVALID_THING, thing->owner, CrDed_Default);
       } else
@@ -433,7 +433,8 @@ long pinstfe_direct_control_creature(struct PlayerInfo *player, long *n)
         load_swipe_graphic_for_creature(thing);
         if (my_player)
         {
-            if (creature_affected_by_spell(thing, SplK_Freeze)) {
+            if (creature_under_spell_effect(thing, CSAfF_Freeze))
+            {
                 PaletteSetPlayerPalette(player, blue_palette);
             }
         }
@@ -980,7 +981,7 @@ void leave_creature_as_controller(struct PlayerInfo *player, struct Thing *thing
             disband_creatures_group(thing); // Actually, why is this happening? It could be nice to at least have the option to keep them together?
         }
     }
-    if ((thing->light_id != 0) && (!crstat->illuminated) && (!creature_affected_by_spell(thing, SplK_Light)))
+    if ((thing->light_id != 0) && (!crstat->illuminated) && (!creature_under_spell_effect(thing, CSAfF_Light)))
     {
         light_delete_light(thing->light_id);
         thing->light_id = 0;

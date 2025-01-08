@@ -928,6 +928,11 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
                         n++;
                     }
                 }
+                if (strcasecmp(word_buf, "NULL") == 0)
+                {
+                    spconf->transform_model = 0;
+                    n++;
+                }
             }
             if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
             {

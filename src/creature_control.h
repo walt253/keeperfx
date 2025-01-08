@@ -135,7 +135,7 @@ struct CastedSpellData {
     GameTurnDelta duration;
     CrtrExpLevel caster_level;
     PlayerNumber caster_owner;
-    ThingModel caster_model;
+    ThingModel original_model;
 };
 
 struct CreatureControl {

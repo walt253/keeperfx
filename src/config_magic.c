@@ -921,7 +921,7 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
                 }
                 else
                 {
-                    k = get_id(creature_desc, word_buf);
+                    k = parse_creature_name(word_buf);
                     if (k >= 0)
                     {
                         spconf->transform_model = k;

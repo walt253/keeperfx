@@ -391,7 +391,7 @@ struct SpellConfig {
     unsigned long cleanse_flags;
     unsigned char properties_flags;
     ThingModel transform_model;
-    char transform_level;
+    CrtrExpLevel transform_level;
 };
 
 struct MagicStats {

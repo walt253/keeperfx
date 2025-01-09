@@ -3270,7 +3270,7 @@ struct Thing *kill_creature(struct Thing *creatng, struct Thing *killertng, Play
     }
     struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
     TbBool unconscious = creature_can_be_set_unconscious(creatng, killertng, flags);
-    if (unconscious) // 'creature_can_be_set_unconscious' involves randomness so we store its result.
+    if (unconscious) // 'creature_can_be_set_unconscious' involves randomness so we store its result for later.
     {
         // Restore original behaviour for unconscious: Must be visible and not chicken & remove Rebound for some reason.
         if (creature_under_spell_effect(creatng, CSAfF_Invisibility))

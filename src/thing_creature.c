@@ -3354,7 +3354,7 @@ struct Thing *kill_creature(struct Thing *creatng, struct Thing *killertng, Play
     {
         if (player_creature_tends_to(killertng->owner, CrTend_Imprison))
         {
-            ERRORLOG("Hero have tend to imprison");
+            ERRORLOG("Hero have tend to imprison"); // What is the point of this log error? Check if it can be removed.
         }
     }
     {

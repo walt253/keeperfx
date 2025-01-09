@@ -3361,7 +3361,7 @@ struct Thing *kill_creature(struct Thing *creatng, struct Thing *killertng, Play
         struct CreatureStats *crstat = creature_stats_get_from_thing(killertng);
         anger_apply_anger_to_creature(killertng, crstat->annoy_win_battle, AngR_Other, 1);
     }
-    if (!creature_control_invalid(cctrlgrp) && ((flags & CrDed_DiedInBattle) != 0))
+    if (!creature_control_invalid(cctrlgrp) && flag_is_set(flags, CrDed_DiedInBattle))
     {
         cctrlgrp->unknown_state.byte_9A++;
     }

@@ -1467,6 +1467,11 @@ void apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, CrtrE
         spell_lev = SPELL_MAX_LEVEL;
     }
     GameTurnDelta duration = get_spell_full_duration(spell_idx, spell_lev);
+    // Check for transforming one-time effect.
+    if (spconf->transform_model > 0 && !spell_is_continuous(spell_idx, duration))
+    {
+        
+    }
     // Check for cleansing one-time effect.
     if (spconf->cleanse_flags > 0
     && any_flag_is_set(spconf->cleanse_flags, cctrl->spell_flags))

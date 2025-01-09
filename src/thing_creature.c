@@ -3247,35 +3247,6 @@ void delete_familiars_attached_to_creature(struct Thing* sumntng)
     }
 }
 
-TbBool creature_can_be_set_unconscious(struct Thing *creatng, struct Thing *killertng, CrDeathFlags flags)
-{
-    if (flag_is_set(flags, CrDed_NoUnconscious)
-    {
-        return false;
-    }
-    if (!player_has_room_of_role(killertng->owner, RoRoF_Prison))
-    {
-        return false;
-    }
-    if (!player_creature_tends_to(killertng->owner, CrTend_Imprison))
-    {
-        return false;
-    }
-    if ((get_creature_model_flags(creatng) & CMF_IsEvil) && (CREATURE_RANDOM(creatng, 100) >= game.conf.rules.creature.stun_enemy_chance_evil))
-    {
-        return false;
-    }
-    if (!(get_creature_model_flags(creatng) & CMF_IsEvil) && (CREATURE_RANDOM(creatng, 100) >= game.conf.rules.creature.stun_enemy_chance_good))
-    {
-        return false;
-    }
-    if (get_creature_model_flags(creatng) & CMF_NoImprisonment)
-    {
-        return false;
-    }
-    return true;
-}
-
 struct Thing *kill_creature(struct Thing *creatng, struct Thing *killertng, PlayerNumber killer_plyr_idx, CrDeathFlags flags)
 {
     SYNCDBG(18, "Starting");

@@ -2624,6 +2624,30 @@ static void add_heart_health_process(struct ScriptContext *context)
     }
 }
 
+static void lock_possession_check(const struct ScriptLine* scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+    if ((scline->np[1] < 0) || (scline->np[1] > 1))
+    {
+        SCRPTERRLOG("Invalid Possession lock value (%ld), use 0 / 1 for true / false", scline->np[0]);
+    }
+    value->chars[1] = scline->np[1];
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void lock_possession_process(struct ScriptContext* context)
+{
+    struct PlayerInfo *player;
+    for (int plyridx = context->plr_start; plyridx < context->plr_end; plyridx++)
+    {
+        player = get_player(plyridx);
+        if (player_exists(player))
+        {
+            player->possession_lock = context->value->chars[1];
+        }
+    }
+}
+
 static void heart_lost_quick_objective_check(const struct ScriptLine *scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
@@ -4288,7 +4312,8 @@ static void set_creature_configuration_process(struct ScriptContext* context)
 
 static void set_object_configuration_process(struct ScriptContext *context)
 {
-    struct ObjectConfigStats* objst = &game.conf.object_conf.object_cfgstats[context->value->longs[0]];
+    ThingModel model = context->value->longs[0];
+    struct ObjectConfigStats* objst = &game.conf.object_conf.object_cfgstats[model];
     switch (context->value->shorts[4])
     {
         case 2: // GENRE
@@ -4407,7 +4432,7 @@ static void set_object_configuration_process(struct ScriptContext *context)
             WARNMSG("Unsupported Object configuration, variable %d.", context->value->shorts[4]);
             break;
     }
-    update_all_object_stats();
+    update_all_objects_of_model(model);
 }
 
 static void display_timer_check(const struct ScriptLine *scline)
@@ -6090,12 +6115,6 @@ static void set_power_configuration_check(const struct ScriptLine *scline)
             value->longs[2] = atoi(new_value);
             break;
         }
-        case 10: // SymbolSprites
-        {
-            value->longs[1] = atoi(new_value);
-            value->longs[2] = atoi(scline->tp[3]);
-            break;
-        }
         case 5: // Castability
         {
             long long j;
@@ -6140,8 +6159,7 @@ static void set_power_configuration_check(const struct ScriptLine *scline)
                 }
                 value->chars[3] = -1;
             }
-            unsigned long long *new = (unsigned long long*)&value->ulongs[1];
-            *new = number_value;
+            value->ulonglongs[1] = number_value;
             break;
         }
         case 6: // Artifact
@@ -6152,6 +6170,12 @@ static void set_power_configuration_check(const struct ScriptLine *scline)
                   number_value = k;
             }
             value->longs[2] = number_value;
+            break;
+        }
+        case 10: // SymbolSprites
+        {
+            value->longs[1] = atoi(new_value);
+            value->longs[2] = atoi(scline->tp[3]);
             break;
         }
         case 14: // Properties
@@ -6274,8 +6298,7 @@ static void set_power_configuration_process(struct ScriptContext *context)
             break;
         case 5: // Castability
         {
-            unsigned long long *value = (unsigned long long*)&context->value->ulongs[1];
-            unsigned long long flag = *value;
+            unsigned long long flag = context->value->ulonglongs[1];
             if (context->value->chars[3] == 1)
             {
                 set_flag(powerst->can_cast_flags, flag);
@@ -6352,7 +6375,6 @@ static void set_power_configuration_process(struct ScriptContext *context)
 static void set_player_colour_check(const struct ScriptLine *scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0]);
-
     long color_idx = get_rid(cmpgn_human_player_options, scline->tp[1]);
     if (color_idx == -1)
     {
@@ -6366,74 +6388,15 @@ static void set_player_colour_check(const struct ScriptLine *scline)
             return;
         }
     }
-    value->shorts[0] = color_idx;
+    value->bytes[0] = (unsigned char)color_idx;
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
 static void set_player_colour_process(struct ScriptContext *context)
 {
-    long color_idx = context->value->shorts[0];
-    struct Dungeon* dungeon;
-
     for (int plyr_idx = context->plr_start; plyr_idx < context->plr_end; plyr_idx++)
     {
-        dungeon = get_dungeon(plyr_idx);
-
-        if(dungeon->color_idx == color_idx)
-        {
-            continue;
-        }
-
-        dungeon->color_idx = color_idx;
-
-        update_panel_color_player_color(plyr_idx,color_idx);
-
-        for (MapSlabCoord slb_y=0; slb_y < gameadd.map_tiles_y; slb_y++)
-        {
-            for (MapSlabCoord slb_x=0; slb_x < gameadd.map_tiles_x; slb_x++)
-            {
-                struct SlabMap* slb = get_slabmap_block(slb_x,slb_y);
-                if (slabmap_owner(slb) == plyr_idx)
-                {
-                    redraw_slab_map_elements(slb_x,slb_y);
-                }
-
-            }
-        }
-
-        const struct StructureList *slist;
-        slist = get_list_for_thing_class(TCls_Object);
-        int k = 0;
-        unsigned long i = slist->index;
-        while (i > 0)
-        {
-            struct Thing *thing;
-            thing = thing_get(i);
-            TRACE_THING(thing);
-            if (thing_is_invalid(thing)) {
-                ERRORLOG("Jump to invalid thing detected");
-                break;
-            }
-            i = thing->next_of_class;
-            // Per-thing code
-
-            if (thing->owner == plyr_idx)
-            {
-                ThingModel base_model = get_coloured_object_base_model(thing->model);
-                if(base_model != 0)
-                {
-                    create_coloured_object(&thing->mappos, plyr_idx, thing->parent_idx,base_model);
-                    delete_thing_structure(thing, 0);
-                }
-            }
-            // Per-thing code ends
-            k++;
-            if (k > slist->count)
-            {
-                ERRORLOG("Infinite loop detected when sweeping things list");
-                break;
-            }
-        }
+         set_player_colour(plyr_idx , context->value->bytes[0]);
     }
 }
 
@@ -7772,6 +7735,7 @@ const struct CommandDesc command_desc[] = {
   {"ADD_TO_PLAYER_MODIFIER",            "PAN     ", Cmd_ADD_TO_PLAYER_MODIFIER, &add_to_player_modifier_check, &add_to_player_modifier_process},
   {"CHANGE_SLAB_TEXTURE",               "NNAa    ", Cmd_CHANGE_SLAB_TEXTURE , &change_slab_texture_check, &change_slab_texture_process},
   {"ADD_OBJECT_TO_LEVEL_AT_POS",        "ANNNpa  ", Cmd_ADD_OBJECT_TO_LEVEL_AT_POS, &add_object_to_level_at_pos_check, &add_object_to_level_at_pos_process},
+  {"LOCK_POSSESSION",                   "PN      ", Cmd_LOCK_POSSESSION, &lock_possession_check, &lock_possession_process},
   {NULL,                                "        ", Cmd_NONE, NULL, NULL},
 };
 

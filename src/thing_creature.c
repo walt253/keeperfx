@@ -3269,9 +3269,10 @@ struct Thing *kill_creature(struct Thing *creatng, struct Thing *killertng, Play
         return INVALID_THING;
     }
     struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
-    if (creature_can_be_set_unconscious(creatng, killertng, flags))
+    TbBool unconscious = creature_can_be_set_unconscious(creatng, killertng, flags);
+    if (unconscious) // 'creature_can_be_set_unconscious' involves randomness so we store its result.
     {
-        // Restore original behaviour for unconscious.
+        // Restore original behaviour for unconscious: Must be visible and not chicken & remove Rebound for some reason.
         if (creature_under_spell_effect(creatng, CSAfF_Invisibility))
         {
             clean_spell_effect(creatng, CSAfF_Invisibility);
@@ -3370,7 +3371,7 @@ struct Thing *kill_creature(struct Thing *creatng, struct Thing *killertng, Play
         dungeon->hates_player[killertng->owner] += game.conf.rules.creature.fight_hate_kill_value;
     }
     SYNCDBG(18, "Almost finished");
-    if (!creature_can_be_set_unconscious(creatng, killertng, flags))
+    if (!unconscious)
     {
         if (!flag_is_set(flags, CrDed_NoEffects))
         {

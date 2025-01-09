@@ -647,7 +647,7 @@ TbBool creature_is_being_unconscious(const struct Thing *thing)
         return false;
 }
 
-TbBool creature_can_be_set_unconscious(struct Thing *creatng, struct Thing *killertng, CrDeathFlags flags)
+TbBool creature_can_be_set_unconscious(const struct Thing *creatng, const struct Thing *killertng, CrDeathFlags flags)
 {
     if (flag_is_set(flags, CrDed_NoUnconscious))
     {

@@ -1379,7 +1379,7 @@ TbBool spell_is_continuous(SpellKind spell_idx, GameTurnDelta duration)
         struct SpellConfig *spconf = get_spell_config(spell_idx);
         if ((spconf->damage != 0 && spconf->damage_frequency > 0)
         || (spconf->aura_effect != 0 && spconf->aura_duration > 0 && spconf->aura_frequency > 0)
-        || (spconf->transform_model != 0))
+        || (spconf->transform_model > 0))
         {
             return true;
         }

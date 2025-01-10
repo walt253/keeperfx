@@ -6295,7 +6295,7 @@ void transfer_creature_data_and_gold(struct Thing *oldtng, struct Thing *newtng)
     return;
 }
 
-void transfer_relevant_control_parameters(struct Thing* thing, struct CastedSpellData* casted_spells, char paydays_advanced, unsigned char paydays_owed, long exp_points, long hunger_level, long* annoyance_level)
+void transfer_relevant_control_parameters(struct Thing *thing, struct CastedSpellData *casted_spells, char paydays_advanced, unsigned char paydays_owed, long exp_points, long hunger_level, long *annoyance_level)
 {
     struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
     cctrl->paydays_advanced = paydays_advanced;

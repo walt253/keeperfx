@@ -4131,22 +4131,22 @@ TbBool border_clip_horizontal(const NavColour *imap, long start_x, long end_x, l
     JUSTLOG("19");
     for (i++; i < end_x; i++)
     {
-        JUSTLOG("for (1) %d", int(i));
+        JUSTLOG("for (1) %ld", i);
         mapp_center = &imap[navmap_tile_number(i,start_y)];
-        JUSTLOG("for (2) %d", int(i));
+        JUSTLOG("for (2) %ld", i);
         mapp_up = &imap[navmap_tile_number(i,start_y-1)];
-        JUSTLOG("for (3) %d", int(i));
+        JUSTLOG("for (3) %ld", i);
         if ((*mapp_center != map_center) || (*mapp_up != map_up))
         {
-            JUSTLOG("for (4) %d", int(i));
+            JUSTLOG("for (4) %ld", i);
             r &= insert_point(i, start_y);
-            JUSTLOG("for (5) %d", int(i));
+            JUSTLOG("for (5) %ld", i);
             map_up = *mapp_up;
-            JUSTLOG("for (6) %d", int(i));
+            JUSTLOG("for (6) %ld", i);
             map_center = *mapp_center;
-            JUSTLOG("for (7) %d", int(i));
+            JUSTLOG("for (7) %ld", i);
         }
-        JUSTLOG("for (8) %d", int(i));
+        JUSTLOG("for (8) %ld", i);
     }
     JUSTLOG("20");
     r &= insert_point(end_x, start_y);

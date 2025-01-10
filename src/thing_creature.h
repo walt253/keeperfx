@@ -240,7 +240,8 @@ PlayerNumber get_appropriate_player_for_creature(struct Thing *creatng);
 /******************************************************************************/
 void throw_out_gold(struct Thing* thing, long amount);
 ThingModel get_random_creature_kind_with_model_flags(unsigned long model_flags);
-TbBool transfer_relevant_control_parameters(struct Thing* thing, struct CreatureControl* cctrl);
+TbBool transfer_relevant_control_parameters(struct Thing* thing, );
+void transfer_relevant_control_parameters(struct Thing* thing, char paydays_advanced, unsigned char paydays_owed, long exp_points, long hunger_level, long annoyance_level);
 /******************************************************************************/
 #ifdef __cplusplus
 }

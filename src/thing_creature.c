@@ -1470,10 +1470,27 @@ void apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, CrtrE
         spell_lev = SPELL_MAX_LEVEL;
     }
     GameTurnDelta duration = get_spell_full_duration(spell_idx, spell_lev);
-    // Check for transforming one-time effect.
-    if (spconf->transform_model > 0 && !spell_is_continuous(spell_idx, duration))
+    // Check for one-time transformation effect, as without a duration the transformation is permanent.
+    if ((spconf->transform_model > 0) && (!spell_is_continuous(spell_idx, duration)))
     {
-        
+        char paydays_advanced = cctrl->paydays_advanced;
+        unsigned char paydays_owed = cctrl->paydays_owed;
+        long exp_points = cctrl->exp_points;
+        if (spconf->transform_level != 0)
+        {
+            exp_points = 0; // Since the level is changing, the experience points are not retained.
+        }
+        long hunger_level = cctrl->hunger_level;
+        long annoyance_level[5];
+        memcpy(annoyance_level, cctrl->annoyance_level, sizeof(annoyance_level));
+        struct CastedSpellData casted_spells[CREATURE_MAX_SPELLS_CASTED_AT];
+        memcpy(casted_spells, cctrl->casted_spells, sizeof(casted_spells));
+        struct Thing *creatng = transform_creature(thing, spconf->transform_model, spconf->transform_level);
+        if (!thing_is_invalid(creatng))
+        {
+            transfer_relevant_control_parameters(creatng, casted_spells, paydays_advanced, paydays_owed, exp_points, hunger_level, annoyance_level);
+        }
+        return; // Exit the function, no continuous effect to apply.
     }
     // Check for cleansing one-time effect.
     if (spconf->cleanse_flags > 0
@@ -4728,6 +4745,7 @@ struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumbe
     crtng->ccontrol_idx = cctrl->index;
     crtng->class_id = TCls_Creature;
     crtng->model = model;
+    cctrl->original_model = crtng->model;
     crtng->parent_idx = crtng->index;
     crtng->mappos.x.val = pos->x.val;
     crtng->mappos.y.val = pos->y.val;
@@ -6277,6 +6295,18 @@ void transfer_creature_data_and_gold(struct Thing *oldtng, struct Thing *newtng)
     return;
 }
 
+void transfer_relevant_control_parameters(struct Thing* thing, struct CastedSpellData* casted_spells, char paydays_advanced, unsigned char paydays_owed, long exp_points, long hunger_level, long* annoyance_level)
+{
+    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
+    cctrl->paydays_advanced = paydays_advanced;
+    cctrl->paydays_owed = paydays_owed;
+    cctrl->exp_points = exp_points;
+    cctrl->hunger_level = hunger_level;
+    memcpy(cctrl->annoyance_level, annoyance_level, sizeof(cctrl->annoyance_level));
+    memcpy(cctrl->casted_spells, casted_spells, sizeof(cctrl->casted_spells));
+    return;
+}
+
 struct Thing *transform_creature(struct Thing *thing, ThingModel transform_model, CrtrExpLevel transform_level)
 {
     struct CreatureModelConfig *newconf;
@@ -6330,7 +6360,7 @@ struct Thing *transform_creature(struct Thing *thing, ThingModel transform_model
     }
     transfer_creature_data_and_gold(thing, newtng); // Transfer the blood type, creature name, kill count, joined age and carried gold to the new creature.
     update_creature_health_to_max(newtng);
-    cctrl->countdown = 50; // Not sure what it does, the thing is getting removed anyway.
+    cctrl->countdown = 50; // No clue what it does? The creature is bound to be removed at this point.
     external_set_thing_state(newtng, CrSt_CreatureBeHappy);
     struct PlayerInfo *player = get_player(thing->owner);
     // Switch control if this creature is possessed.

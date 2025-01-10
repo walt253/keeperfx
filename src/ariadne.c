@@ -4092,45 +4092,81 @@ static TbBool make_edge(long start_x, long start_y, long end_x, long end_y)
 
 TbBool border_clip_horizontal(const NavColour *imap, long start_x, long end_x, long start_y, long end_y)
 {
+    JUSTLOG("1");
     NavColour map_center;
+    JUSTLOG("2");
     NavColour map_up;
+    JUSTLOG("3");
     const NavColour* mapp_center;
+    JUSTLOG("4");
     const NavColour* mapp_up;
+    JUSTLOG("5");
     TbBool r;
+    JUSTLOG("6");
     long i;
+    JUSTLOG("7");
     r = true;
+    JUSTLOG("8");
     NAVIDBG(19,"Starting from (%ld,%ld) to (%ld,%ld)",start_x, start_y, end_x, end_y);
+    JUSTLOG("9");
     i = start_x;
+    JUSTLOG("10");
     {
+        JUSTLOG("11");
         mapp_center = &imap[navmap_tile_number(i,start_y)];
+        JUSTLOG("12");
         mapp_up = &imap[navmap_tile_number(i,start_y-1)];
+        JUSTLOG("13");
         {
+            JUSTLOG("14");
             r &= insert_point(i, start_y);
+            JUSTLOG("15");
             map_up = *mapp_up;
+            JUSTLOG("16");
             map_center = *mapp_center;
+            JUSTLOG("17");
         }
+        JUSTLOG("18");
     }
+    JUSTLOG("19");
     for (i++; i < end_x; i++)
     {
+        JUSTLOG("for (1) %d", int(i));
         mapp_center = &imap[navmap_tile_number(i,start_y)];
+        JUSTLOG("for (2) %d", int(i));
         mapp_up = &imap[navmap_tile_number(i,start_y-1)];
+        JUSTLOG("for (3) %d", int(i));
         if ((*mapp_center != map_center) || (*mapp_up != map_up))
         {
+            JUSTLOG("for (4) %d", int(i));
             r &= insert_point(i, start_y);
+            JUSTLOG("for (5) %d", int(i));
             map_up = *mapp_up;
+            JUSTLOG("for (6) %d", int(i));
             map_center = *mapp_center;
+            JUSTLOG("for (7) %d", int(i));
         }
+        JUSTLOG("for (8) %d", int(i));
     }
+    JUSTLOG("20");
     r &= insert_point(end_x, start_y);
+    JUSTLOG("21");
     if (!r) {
+        JUSTLOG("22");
         ERRORLOG("Couldn't insert points to make border");
+        JUSTLOG("23");
         //TODO PATHFINDING on a failure, we could release all allocated points...
         return r;
     }
+    JUSTLOG("24");
     r &= make_edge(start_x, start_y, end_x, start_y);
+    JUSTLOG("25");
     if (!r) {
+        JUSTLOG("26");
         ERRORLOG("Couldn't make edge for border");
+        JUSTLOG("27");
     }
+    JUSTLOG("28");
     return r;
 }
 

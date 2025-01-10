@@ -1378,7 +1378,8 @@ TbBool spell_is_continuous(SpellKind spell_idx, GameTurnDelta duration)
     {
         struct SpellConfig *spconf = get_spell_config(spell_idx);
         if ((spconf->damage != 0 && spconf->damage_frequency > 0)
-        || (spconf->aura_effect != 0 && spconf->aura_duration > 0 && spconf->aura_frequency > 0))
+        || (spconf->aura_effect != 0 && spconf->aura_duration > 0 && spconf->aura_frequency > 0)
+        || (spconf->transform_model != 0))
         {
             return true;
         }
@@ -6276,10 +6277,10 @@ void transfer_creature_data_and_gold(struct Thing *oldtng, struct Thing *newtng)
     return;
 }
 
-TbBool transform_creature(struct Thing *thing, ThingModel transform_model, CrtrExpLevel transform_level)
+struct Thing *transform_creature(struct Thing *thing, ThingModel transform_model, CrtrExpLevel transform_level)
 {
-    struct CreatureModelConfig* newconf;
-    struct CreatureModelConfig* oldconf = &game.conf.crtr_conf.model[thing->model];
+    struct CreatureModelConfig *newconf;
+    struct CreatureModelConfig *oldconf = &game.conf.crtr_conf.model[thing->model];
     if (transform_model == CREATURE_NOT_A_DIGGER)
     {
         while (true)
@@ -6292,20 +6293,16 @@ TbBool transform_creature(struct Thing *thing, ThingModel transform_model, CrtrE
             }
             // Exclude transforming into same creature, spectators and diggers.
             newconf = &game.conf.crtr_conf.model[transform_model];
-            if ((transform_model == thing->model)
-            || (flag_is_set(newconf->model_flags, CMF_IsSpectator))
-            || (flag_is_set(newconf->model_flags, CMF_IsSpecDigger)))
+            if ((transform_model == thing->model) || (flag_is_set(newconf->model_flags, CMF_IsSpectator)) || (flag_is_set(newconf->model_flags, CMF_IsSpecDigger)))
             {
                 continue;
             }
             // Evil transform into evil, good transform into good.
-            if ((flag_is_set(newconf->model_flags, CMF_IsEvil))
-            && (flag_is_set(oldconf->model_flags, CMF_IsEvil)))
+            if ((flag_is_set(newconf->model_flags, CMF_IsEvil)) && (flag_is_set(oldconf->model_flags, CMF_IsEvil)))
             {
                 break;
             }
-            if ((!flag_is_set(newconf->model_flags, CMF_IsEvil))
-            && (!flag_is_set(oldconf->model_flags, CMF_IsEvil)))
+            if ((!flag_is_set(newconf->model_flags, CMF_IsEvil)) && (!flag_is_set(oldconf->model_flags, CMF_IsEvil)))
             {
                 break;
             }
@@ -6314,13 +6311,13 @@ TbBool transform_creature(struct Thing *thing, ThingModel transform_model, CrtrE
     if (!creature_count_below_map_limit(1))
     {
         WARNLOG("Could not create creature to transform %s to due to creature limit", thing_model_name(thing));
-        return false;
+        return INVALID_THING;
     }
-    struct Thing* newtng = create_creature(&thing->mappos, transform_model, thing->owner);
+    struct Thing *newtng = create_creature(&thing->mappos, transform_model, thing->owner);
     if (thing_is_invalid(newtng))
     {
         ERRORLOG("Could not create creature to transform %s to", thing_model_name(thing));
-        return false;
+        return INVALID_THING;
     }
     struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
     if (transform_level == 0)
@@ -6329,13 +6326,13 @@ TbBool transform_creature(struct Thing *thing, ThingModel transform_model, CrtrE
     }
     else
     {
-        set_creature_level(newtng, transform_level-1);
+        set_creature_level(newtng, transform_level - 1);
     }
     transfer_creature_data_and_gold(thing, newtng); // Transfer the blood type, creature name, kill count, joined age and carried gold to the new creature.
     update_creature_health_to_max(newtng);
     cctrl->countdown = 50; // Not sure what it does, the thing is getting removed anyway.
     external_set_thing_state(newtng, CrSt_CreatureBeHappy);
-    struct PlayerInfo* player = get_player(thing->owner);
+    struct PlayerInfo *player = get_player(thing->owner);
     // Switch control if this creature is possessed.
     if (is_thing_directly_controlled(thing))
     {
@@ -6356,7 +6353,7 @@ TbBool transform_creature(struct Thing *thing, ThingModel transform_model, CrtrE
     // Handles picked up by player case.
     if (thing_is_picked_up_by_player(thing, thing->owner))
     {
-        struct Dungeon* dungeon = get_dungeon(thing->owner);
+        struct Dungeon *dungeon = get_dungeon(thing->owner);
         if (get_thing_in_hand_id(thing, thing->owner) >= 0)
         {
             dungeon->things_in_hand[get_thing_in_hand_id(thing, thing->owner)] = newtng->index;
@@ -6368,8 +6365,8 @@ TbBool transform_creature(struct Thing *thing, ThingModel transform_model, CrtrE
             ERRORLOG("Picked up thing is not in player hand list");
         }
     }
-    kill_creature(thing, INVALID_THING, -1, CrDed_NoEffects|CrDed_NoUnconscious|CrDed_NotReallyDying);
-    return true;
+    kill_creature(thing, INVALID_THING, -1, CrDed_NoEffects | CrDed_NoUnconscious | CrDed_NotReallyDying);
+    return newtng;
 }
 
 long update_creature_levels(struct Thing *thing)
@@ -6381,19 +6378,20 @@ long update_creature_levels(struct Thing *thing)
     }
     cctrl->exp_level_up = false;
     // If a creature is not on highest level, just update the level.
-    if (cctrl->explevel+1 < CREATURE_MAX_LEVEL)
+    if (cctrl->explevel + 1 < CREATURE_MAX_LEVEL)
     {
         remove_creature_score_from_owner(thing); // the opposite is in set_creature_level()
-        set_creature_level(thing, cctrl->explevel+1);
+        set_creature_level(thing, cctrl->explevel + 1);
         return 1;
     }
     // If it is highest level, check if the creature can grow up.
-    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    struct CreatureStats *crstat = creature_stats_get_from_thing(thing);
     if (crstat->grow_up == 0)
     {
         return 0;
     }
-    if (!transform_creature(thing, crstat->grow_up, crstat->grow_up_level))
+    struct Thing *creatng = transform_creature(thing, crstat->grow_up, crstat->grow_up_level);
+    if (thing_is_invalid(creatng))
     {
         return 0;
     }

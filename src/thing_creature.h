@@ -200,6 +200,7 @@ long calculate_shot_damage(struct Thing *thing, ThingModel shot_model);
 long project_creature_shot_damage(const struct Thing *thing, ThingModel shot_model);
 
 long update_creature_levels(struct Thing *thing);
+TbBool grow_up_creature(struct Thing *thing, ThingModel grow_up_model, CrtrExpLevel grow_up_level);
 TngUpdateRet update_creature(struct Thing *thing);
 TbBool creature_stats_debug_dump(void);
 

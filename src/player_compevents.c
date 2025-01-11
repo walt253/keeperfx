@@ -479,10 +479,25 @@ long computer_event_attack_magic_foe(struct Computer2 *comp, struct ComputerEven
     struct ComputerSpells* caspl = &computer_attack_spells[cevent->param3];
     int repeat_num = caspl->repeat_num;
     if (repeat_num < 0)
-      repeat_num = cevent->param2;
+    {
+        repeat_num = cevent->param2;
+    }
     CrtrExpLevel splevel = caspl->pwlevel;
-    if (splevel < 0)
-      repeat_num = cevent->param1;
+    /* if (splevel < 0)
+    {
+        repeat_num = cevent->param1; <- Did this ever happen? What is it supposed to do?
+        But splevel couldn't be < 0 anyway regardless of the type change:
+        struct ComputerSpells computer_attack_spells[] = {
+          {PwrK_DISEASE,   GA_UsePwrDisease,   1,  1, 2, 4},
+          {PwrK_LIGHTNING, GA_UsePwrLightning, 0,  1, 8, 2},
+          {PwrK_CHICKEN,   GA_UsePwrChicken,   1,  1, 2, 1},
+          {PwrK_FREEZE,    GA_UsePwrFreeze,    1,  1, 1, 1},
+          {PwrK_SLOW,      GA_UsePwrSlow,      1,  1, 1, 1},
+          {PwrK_LIGHTNING, GA_UsePwrLightning, 0, -1, 1, 1},
+          {PwrK_None,      GA_None,            0,  0, 0, 0},
+        };
+        ^->According to this 'caspl->pwlevel' is either 0, 1, 2 or 8.
+    } */
     int gaction = caspl->gaction;
     if (!is_task_in_progress(comp, CTT_AttackMagic))
     {

@@ -6280,10 +6280,10 @@ long update_creature_levels(struct Thing *thing)
     }
     cctrl->exp_level_up = false;
     // If a creature is not on highest level, just update the level.
-    if (cctrl->explevel + 1 < CREATURE_MAX_LEVEL)
+    if (cctrl->explevel+1 < CREATURE_MAX_LEVEL)
     {
         remove_creature_score_from_owner(thing); // the opposite is in set_creature_level()
-        set_creature_level(thing, cctrl->explevel + 1);
+        set_creature_level(thing, cctrl->explevel+1);
         return 1;
     }
     // If it is highest level, check if the creature can grow up.
@@ -7543,7 +7543,7 @@ ThingModel get_random_creature_kind_with_model_flags(unsigned long model_flags)
 }
 
 /* Returns a random creature kind, excluding spectators and diggers.
- * Appropriate means evil and good creatures randomize within their respective classes. */
+ * Appropriate means evil and good creatures randomise within their respective classes. */
 ThingModel get_random_appropriate_creature_kind(ThingModel original_model)
 {
     struct CreatureModelConfig *newconf;
@@ -7557,13 +7557,13 @@ ThingModel get_random_appropriate_creature_kind(ThingModel original_model)
         {
             continue;
         }
-        // Exclude transforming into same creature, spectators and diggers.
+        // Exclude same creature kind, spectators and diggers.
         newconf = &game.conf.crtr_conf.model[random_model];
         if ((random_model == original_model) || (flag_is_set(newconf->model_flags, CMF_IsSpectator)) || (flag_is_set(newconf->model_flags, CMF_IsSpecDigger)))
         {
             continue;
         }
-        // Evil transform into evil, good transform into good.
+        // Evil randomise into evil, good randomise into good.
         if ((flag_is_set(newconf->model_flags, CMF_IsEvil)) && (flag_is_set(oldconf->model_flags, CMF_IsEvil)))
         {
             break;

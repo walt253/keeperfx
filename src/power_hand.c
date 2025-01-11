@@ -1318,7 +1318,7 @@ long prepare_thing_for_power_hand(unsigned short tng_idx, PlayerNumber plyr_idx)
     return 1;
 }
 
-void add_creature_to_sacrifice_list(PlayerNumber plyr_idx, long model, long explevel)
+void add_creature_to_sacrifice_list(PlayerNumber plyr_idx, long model, CrtrExpLevel explevel)
 {
   struct Dungeon *dungeon;
   SYNCLOG("Player %d sacrificed %s exp level %ld",(int)plyr_idx,thing_class_and_model_name(TCls_Creature, model),explevel);

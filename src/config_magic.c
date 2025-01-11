@@ -931,7 +931,7 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
                 if (strcasecmp(word_buf, "ANY_CREATURE") == 0)
                 {
                     spconf->transform_model = CREATURE_NOT_A_DIGGER;
-                    n++
+                    n++;
                 }
                 if (strcasecmp(word_buf, "NULL") == 0)
                 {

@@ -1129,7 +1129,6 @@ long melee_shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, stru
     struct ShotConfigStats* shotst = get_shot_model_stats(shotng->model);
     long throw_strength = shotst->push_on_hit;
     int adjusted_throw_strength;
-    long n;
     if (trgtng->health < 0)
         return 0;
     struct Thing* shooter = INVALID_THING;

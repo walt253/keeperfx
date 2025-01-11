@@ -3797,11 +3797,6 @@ void set_creature_level(struct Thing *thing, CrtrExpLevel nlvl)
         ERRORLOG("Level %d too high, bounding", (int)nlvl);
         nlvl = CREATURE_MAX_LEVEL - 1;
     }
-    if (nlvl < 0)
-    {
-        ERRORLOG("Level %d too low, bounding", (int)nlvl);
-        nlvl = 0;
-    }
     cctrl->explevel = nlvl;
     set_creature_size_stuff(thing);
     update_relative_creature_health(thing);

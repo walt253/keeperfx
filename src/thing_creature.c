@@ -7594,7 +7594,7 @@ TbBool grow_up_creature(struct Thing *thing, ThingModel grow_up_model, CrtrExpLe
         return false;
     }
     struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
-    // Randomise new level if 'grow_up_level' is set to 0 in the config.
+    // Randomise new level if 'grow_up_level' was set to 0 on the creature config.
     if (grow_up_level == 0)
     {
         set_creature_level(newtng, GAME_RANDOM(CREATURE_MAX_LEVEL));

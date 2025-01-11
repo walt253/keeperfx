@@ -6477,98 +6477,6 @@ TngUpdateRet update_creature(struct Thing *thing)
     return TUFRet_Modified;
 }
 
-TbBool grow_up_creature(struct Thing *thing, ThingModel grow_up_model, CrtrExpLevel grow_up_level)
-{
-    struct CreatureModelConfig *newconf;
-    struct CreatureModelConfig *oldconf = &game.conf.crtr_conf.model[thing->model];
-    if (grow_up_model == CREATURE_NOT_A_DIGGER)
-    {
-        while (true)
-        {
-            grow_up_model = GAME_RANDOM(game.conf.crtr_conf.model_count) + 1;
-            // Exclude out-of-bounds model number.
-            if (grow_up_model >= game.conf.crtr_conf.model_count)
-            {
-                continue;
-            }
-            // Exclude transforming into same creature, spectators and diggers.
-            newconf = &game.conf.crtr_conf.model[grow_up_model];
-            if ((grow_up_model == thing->model) || (flag_is_set(newconf->model_flags, CMF_IsSpectator)) || (flag_is_set(newconf->model_flags, CMF_IsSpecDigger)))
-            {
-                continue;
-            }
-            // Evil transform into evil, good transform into good.
-            if ((flag_is_set(newconf->model_flags, CMF_IsEvil)) && (flag_is_set(oldconf->model_flags, CMF_IsEvil)))
-            {
-                break;
-            }
-            if ((!flag_is_set(newconf->model_flags, CMF_IsEvil)) && (!flag_is_set(oldconf->model_flags, CMF_IsEvil)))
-            {
-                break;
-            }
-        }
-    }
-    if (!creature_count_below_map_limit(1))
-    {
-        WARNLOG("Could not create creature to transform %s to due to creature limit", thing_model_name(thing));
-        return false;
-    }
-    struct Thing *newtng = create_creature(&thing->mappos, grow_up_model, thing->owner);
-    if (thing_is_invalid(newtng))
-    {
-        ERRORLOG("Could not create creature to transform %s to", thing_model_name(thing));
-        return false;
-    }
-    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
-    if (grow_up_level == 0)
-    {
-        set_creature_level(newtng, cctrl->explevel);
-    }
-    else
-    {
-        set_creature_level(newtng, grow_up_level - 1);
-    }
-    transfer_creature_data_and_gold(thing, newtng); // Transfer the blood type, creature name, kill count, joined age and carried gold to the new creature.
-    update_creature_health_to_max(newtng);
-    cctrl->countdown = 50; // No clue what it does? The creature is bound to be removed at this point.
-    external_set_thing_state(newtng, CrSt_CreatureBeHappy);
-    struct PlayerInfo *player = get_player(thing->owner);
-    // Switch control if this creature is possessed.
-    if (is_thing_directly_controlled(thing))
-    {
-        leave_creature_as_controller(player, thing);
-        control_creature_as_controller(player, newtng);
-    }
-    if (is_thing_passenger_controlled(thing))
-    {
-        leave_creature_as_passenger(player, thing);
-        control_creature_as_passenger(player, newtng);
-    }
-    // If not directly nor passenger controlled, but still player is doing something with it.
-    if (thing->index == player->controlled_thing_idx)
-    {
-        set_selected_creature(player, newtng);
-    }
-    remove_creature_score_from_owner(thing); // kill_creature() doesn't call this.
-    // Handles picked up by player case.
-    if (thing_is_picked_up_by_player(thing, thing->owner))
-    {
-        struct Dungeon *dungeon = get_dungeon(thing->owner);
-        if (get_thing_in_hand_id(thing, thing->owner) >= 0)
-        {
-            dungeon->things_in_hand[get_thing_in_hand_id(thing, thing->owner)] = newtng->index;
-            remove_thing_from_limbo(thing);
-            place_thing_in_limbo(newtng);
-        }
-        else
-        {
-            ERRORLOG("Picked up thing is not in player hand list");
-        }
-    }
-    kill_creature(thing, INVALID_THING, -1, CrDed_NoEffects | CrDed_NoUnconscious | CrDed_NotReallyDying);
-    return true;
-}
-
 TbBool creature_is_slappable(const struct Thing *thing, PlayerNumber plyr_idx)
 {
     struct Room *room;
@@ -7632,6 +7540,107 @@ ThingModel get_random_creature_kind_with_model_flags(unsigned long model_flags)
     }
     // Return -1 if no suitable creature kind is found.
     return -1;
+}
+
+/* Returns a random creature kind, excluding spectators and diggers.
+ * Appropriate means evil and good creatures randomize within their respective classes. */
+ThingModel get_random_appropriate_creature_kind(ThingModel original_model)
+{
+    struct CreatureModelConfig *newconf;
+    struct CreatureModelConfig *oldconf = &game.conf.crtr_conf.model[original_model];
+    ThingModel random_model;
+    while (true)
+    {
+        random_model = GAME_RANDOM(game.conf.crtr_conf.model_count) + 1;
+        // Exclude out-of-bounds model number.
+        if (random_model >= game.conf.crtr_conf.model_count)
+        {
+            continue;
+        }
+        // Exclude transforming into same creature, spectators and diggers.
+        newconf = &game.conf.crtr_conf.model[random_model];
+        if ((random_model == original_model) || (flag_is_set(newconf->model_flags, CMF_IsSpectator)) || (flag_is_set(newconf->model_flags, CMF_IsSpecDigger)))
+        {
+            continue;
+        }
+        // Evil transform into evil, good transform into good.
+        if ((flag_is_set(newconf->model_flags, CMF_IsEvil)) && (flag_is_set(oldconf->model_flags, CMF_IsEvil)))
+        {
+            break;
+        }
+        if ((!flag_is_set(newconf->model_flags, CMF_IsEvil)) && (!flag_is_set(oldconf->model_flags, CMF_IsEvil)))
+        {
+            break;
+        }
+    }
+    return random_model;
+}
+
+TbBool grow_up_creature(struct Thing *thing, ThingModel grow_up_model, CrtrExpLevel grow_up_level)
+{
+    if (grow_up_model == CREATURE_NOT_A_DIGGER)
+    {
+        grow_up_model = get_random_appropriate_creature_kind(thing->model);
+    }
+    if (!creature_count_below_map_limit(1))
+    {
+        WARNLOG("Could not create creature to transform %s to due to creature limit", thing_model_name(thing));
+        return false;
+    }
+    struct Thing *newtng = create_creature(&thing->mappos, grow_up_model, thing->owner);
+    if (thing_is_invalid(newtng))
+    {
+        ERRORLOG("Could not create creature to transform %s to", thing_model_name(thing));
+        return false;
+    }
+    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
+    if (grow_up_level == 0)
+    {
+        set_creature_level(newtng, cctrl->explevel);
+    }
+    else
+    {
+        set_creature_level(newtng, grow_up_level - 1);
+    }
+    transfer_creature_data_and_gold(thing, newtng); // Transfer the blood type, creature name, kill count, joined age and carried gold to the new creature.
+    update_creature_health_to_max(newtng);
+    cctrl->countdown = 50; // No clue what it does? The creature is bound to be removed at this point.
+    external_set_thing_state(newtng, CrSt_CreatureBeHappy);
+    struct PlayerInfo *player = get_player(thing->owner);
+    // Switch control if this creature is possessed.
+    if (is_thing_directly_controlled(thing))
+    {
+        leave_creature_as_controller(player, thing);
+        control_creature_as_controller(player, newtng);
+    }
+    if (is_thing_passenger_controlled(thing))
+    {
+        leave_creature_as_passenger(player, thing);
+        control_creature_as_passenger(player, newtng);
+    }
+    // If not directly nor passenger controlled, but still player is doing something with it.
+    if (thing->index == player->controlled_thing_idx)
+    {
+        set_selected_creature(player, newtng);
+    }
+    remove_creature_score_from_owner(thing); // kill_creature() doesn't call this.
+    // Handles picked up by player case.
+    if (thing_is_picked_up_by_player(thing, thing->owner))
+    {
+        struct Dungeon *dungeon = get_dungeon(thing->owner);
+        if (get_thing_in_hand_id(thing, thing->owner) >= 0)
+        {
+            dungeon->things_in_hand[get_thing_in_hand_id(thing, thing->owner)] = newtng->index;
+            remove_thing_from_limbo(thing);
+            place_thing_in_limbo(newtng);
+        }
+        else
+        {
+            ERRORLOG("Picked up thing is not in player hand list");
+        }
+    }
+    kill_creature(thing, INVALID_THING, -1, CrDed_NoEffects | CrDed_NoUnconscious | CrDed_NotReallyDying);
+    return true;
 }
 
 /******************************************************************************/

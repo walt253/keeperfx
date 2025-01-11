@@ -1184,8 +1184,6 @@ TbBool computer_able_to_use_power(struct Computer2 *comp, PowerKind pwkind, Crtr
     }
     if (pwlevel >= MAGIC_OVERCHARGE_LEVELS)
         pwlevel = MAGIC_OVERCHARGE_LEVELS;
-    if (pwlevel < 0)
-        pwlevel = 0;
     GoldAmount money = get_computer_money_less_cost(comp);
     GoldAmount price = compute_power_price(dungeon->owner, pwkind, pwlevel);
     if ((price > 0) && (amount * price > money)) {

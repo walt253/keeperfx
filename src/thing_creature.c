@@ -7657,6 +7657,7 @@ TbBool grow_up_creature(struct Thing *thing, ThingModel grow_up_model, CrtrExpLe
     }
     kill_creature(thing, INVALID_THING, -1, CrDed_NoEffects | CrDed_NoUnconscious | CrDed_NotReallyDying);
     return true;
+}
 
 void transform_creature(struct Thing *thing, ThingModel transform_model, GameTurnDelta duration)
 {

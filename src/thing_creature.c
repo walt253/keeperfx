@@ -852,6 +852,7 @@ TbBool fill_spell_slot(struct Thing *thing, SpellKind spell_idx, GameTurnDelta s
     cspell->duration = spell_power;
     cspell->caster_level = spell_lev;
     cspell->caster_owner = plyr_idx;
+    cspell->original_model = cctrl->original_model;
     return true;
 }
 
@@ -867,6 +868,7 @@ TbBool free_spell_slot(struct Thing *thing, int slot_idx)
     cspell->duration = 0;
     cspell->caster_level = 0;
     cspell->caster_owner = 0;
+    cspell->original_model = 0;
     return true;
 }
 
@@ -1380,7 +1382,8 @@ TbBool spell_is_continuous(SpellKind spell_idx, GameTurnDelta duration)
     {
         struct SpellConfig *spconf = get_spell_config(spell_idx);
         if ((spconf->damage != 0 && spconf->damage_frequency > 0)
-        || (spconf->aura_effect != 0 && spconf->aura_duration > 0 && spconf->aura_frequency > 0))
+        || (spconf->aura_effect != 0 && spconf->aura_duration > 0 && spconf->aura_frequency > 0)
+        || (spconf->transform_model > 0))
         {
             return true;
         }
@@ -1437,6 +1440,7 @@ void reapply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, Crt
         cspell->duration = duration;
         cspell->caster_level = spell_lev;
         cspell->caster_owner = plyr_idx;
+        cspell->original_model = cctrl->original_model;
         update_aura_effect_to_thing(thing, spell_idx);
     }
     return;
@@ -1469,6 +1473,11 @@ void apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, CrtrE
         spell_lev = SPELL_MAX_LEVEL;
     }
     GameTurnDelta duration = get_spell_full_duration(spell_idx, spell_lev);
+    // Check for transformation effect.
+    if (spconf->transform_model > 0)
+    {
+        transform_creature(thing, spconf->transform_model, duration);
+    }
     // Check for cleansing one-time effect.
     if (spconf->cleanse_flags > 0
     && any_flag_is_set(spconf->cleanse_flags, cctrl->spell_flags))
@@ -4722,6 +4731,7 @@ struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumbe
     crtng->ccontrol_idx = cctrl->index;
     crtng->class_id = TCls_Creature;
     crtng->model = model;
+    cctrl->original_model = crtng->model;
     crtng->parent_idx = crtng->index;
     crtng->mappos.x.val = pos->x.val;
     crtng->mappos.y.val = pos->y.val;
@@ -7622,6 +7632,25 @@ ThingModel get_random_creature_kind_with_model_flags(unsigned long model_flags)
     }
     // Return -1 if no suitable creature kind is found.
     return -1;
+}
+
+void transform_creature(struct Thing *thing, ThingModel transform_model, GameTurnDelta duration)
+{
+    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
+    // Without a duration the transformation is permanent.
+    if (duration == 0)
+    {
+        cctrl->original_model = transform_model;
+    }
+    remove_creature_score_from_owner(thing);
+    remove_available_instances(thing);
+    HitPoints health_permil = get_creature_health_permil(thing);
+    thing->model = transform_model;
+    creature_increase_available_instances(thing);
+    cctrl->max_health = calculate_correct_creature_max_health(thing);
+    thing->health = cctrl->max_health * health_permil / 1000;
+    add_creature_score_to_owner(thing);
+    return;
 }
 
 /******************************************************************************/

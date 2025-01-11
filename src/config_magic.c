@@ -928,6 +928,11 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
                         n++;
                     }
                 }
+                if (strcasecmp(word_buf, "ANY_CREATURE") == 0)
+                {
+                    spconf->transform_model = CREATURE_NOT_A_DIGGER;
+                    n++
+                }
                 if (strcasecmp(word_buf, "NULL") == 0)
                 {
                     spconf->transform_model = 0;

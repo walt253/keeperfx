@@ -6235,9 +6235,7 @@ long get_creature_thing_score(const struct Thing *thing)
         crmodel = 0;
     CrtrExpLevel exp = cctrl->explevel;
     if (exp >= CREATURE_MAX_LEVEL)
-        exp = 0;
-    if (exp < 0)
-        exp = 0;
+        exp = CREATURE_MAX_LEVEL;
     return game.creature_scores[crmodel].value[exp];
 }
 

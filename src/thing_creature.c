@@ -852,6 +852,7 @@ TbBool fill_spell_slot(struct Thing *thing, SpellKind spell_idx, GameTurnDelta s
     cspell->duration = spell_power;
     cspell->caster_level = spell_lev;
     cspell->caster_owner = plyr_idx;
+    cspell->original_model = cctrl->original_model;
     return true;
 }
 
@@ -1470,27 +1471,10 @@ void apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, CrtrE
         spell_lev = SPELL_MAX_LEVEL;
     }
     GameTurnDelta duration = get_spell_full_duration(spell_idx, spell_lev);
-    // Check for one-time transformation effect, as without a duration the transformation is permanent.
-    if ((spconf->transform_model > 0) && (!spell_is_continuous(spell_idx, duration)))
+    // Check for transformation effect.
+    if (spconf->transform_model > 0)
     {
-        char paydays_advanced = cctrl->paydays_advanced;
-        unsigned char paydays_owed = cctrl->paydays_owed;
-        long exp_points = cctrl->exp_points;
-        if (spconf->transform_level != 0)
-        {
-            exp_points = 0; // Since the level is changing, the experience points are not retained.
-        }
-        long hunger_level = cctrl->hunger_level;
-        long annoyance_level[5];
-        memcpy(annoyance_level, cctrl->annoyance_level, sizeof(annoyance_level));
-        struct CastedSpellData casted_spells[CREATURE_MAX_SPELLS_CASTED_AT];
-        memcpy(casted_spells, cctrl->casted_spells, sizeof(casted_spells));
-        struct Thing *creatng = transform_creature(thing, spconf->transform_model, spconf->transform_level);
-        if (!thing_is_invalid(creatng))
-        {
-            transfer_relevant_control_parameters(creatng, casted_spells, paydays_advanced, paydays_owed, exp_points, hunger_level, annoyance_level);
-        }
-        return; // Exit the function, no continuous effect to apply.
+        transform_creature(thing, spconf->transform_model, spconf->transform_level, duration);
     }
     // Check for cleansing one-time effect.
     if (spconf->cleanse_flags > 0
@@ -6295,35 +6279,23 @@ void transfer_creature_data_and_gold(struct Thing *oldtng, struct Thing *newtng)
     return;
 }
 
-void transfer_relevant_control_parameters(struct Thing *thing, struct CastedSpellData *casted_spells, char paydays_advanced, unsigned char paydays_owed, long exp_points, long hunger_level, long *annoyance_level)
-{
-    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
-    cctrl->paydays_advanced = paydays_advanced;
-    cctrl->paydays_owed = paydays_owed;
-    cctrl->exp_points = exp_points;
-    cctrl->hunger_level = hunger_level;
-    memcpy(cctrl->annoyance_level, annoyance_level, sizeof(cctrl->annoyance_level));
-    memcpy(cctrl->casted_spells, casted_spells, sizeof(cctrl->casted_spells));
-    return;
-}
-
-struct Thing *transform_creature(struct Thing *thing, ThingModel transform_model, CrtrExpLevel transform_level)
+TbBool grow_up_creature(struct Thing *thing, ThingModel grow_up_model, CrtrExpLevel grow_up_level)
 {
     struct CreatureModelConfig *newconf;
     struct CreatureModelConfig *oldconf = &game.conf.crtr_conf.model[thing->model];
-    if (transform_model == CREATURE_NOT_A_DIGGER)
+    if (grow_up_model == CREATURE_NOT_A_DIGGER)
     {
         while (true)
         {
-            transform_model = GAME_RANDOM(game.conf.crtr_conf.model_count) + 1;
+            grow_up_model = GAME_RANDOM(game.conf.crtr_conf.model_count) + 1;
             // Exclude out-of-bounds model number.
-            if (transform_model >= game.conf.crtr_conf.model_count)
+            if (grow_up_model >= game.conf.crtr_conf.model_count)
             {
                 continue;
             }
             // Exclude transforming into same creature, spectators and diggers.
-            newconf = &game.conf.crtr_conf.model[transform_model];
-            if ((transform_model == thing->model) || (flag_is_set(newconf->model_flags, CMF_IsSpectator)) || (flag_is_set(newconf->model_flags, CMF_IsSpecDigger)))
+            newconf = &game.conf.crtr_conf.model[grow_up_model];
+            if ((grow_up_model == thing->model) || (flag_is_set(newconf->model_flags, CMF_IsSpectator)) || (flag_is_set(newconf->model_flags, CMF_IsSpecDigger)))
             {
                 continue;
             }
@@ -6341,22 +6313,22 @@ struct Thing *transform_creature(struct Thing *thing, ThingModel transform_model
     if (!creature_count_below_map_limit(1))
     {
         WARNLOG("Could not create creature to transform %s to due to creature limit", thing_model_name(thing));
-        return INVALID_THING;
+        return false;
     }
-    struct Thing *newtng = create_creature(&thing->mappos, transform_model, thing->owner);
+    struct Thing *newtng = create_creature(&thing->mappos, grow_up_model, thing->owner);
     if (thing_is_invalid(newtng))
     {
         ERRORLOG("Could not create creature to transform %s to", thing_model_name(thing));
-        return INVALID_THING;
+        return false;
     }
     struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
-    if (transform_level == 0)
+    if (grow_up_level == 0)
     {
         set_creature_level(newtng, cctrl->explevel);
     }
     else
     {
-        set_creature_level(newtng, transform_level - 1);
+        set_creature_level(newtng, grow_up_level - 1);
     }
     transfer_creature_data_and_gold(thing, newtng); // Transfer the blood type, creature name, kill count, joined age and carried gold to the new creature.
     update_creature_health_to_max(newtng);
@@ -6396,7 +6368,7 @@ struct Thing *transform_creature(struct Thing *thing, ThingModel transform_model
         }
     }
     kill_creature(thing, INVALID_THING, -1, CrDed_NoEffects | CrDed_NoUnconscious | CrDed_NotReallyDying);
-    return newtng;
+    return true;
 }
 
 long update_creature_levels(struct Thing *thing)
@@ -6420,8 +6392,7 @@ long update_creature_levels(struct Thing *thing)
     {
         return 0;
     }
-    struct Thing *creatng = transform_creature(thing, crstat->grow_up, crstat->grow_up_level);
-    if (thing_is_invalid(creatng))
+    if (!grow_up_creature(thing, crstat->grow_up, crstat->grow_up_level))
     {
         return 0;
     }
@@ -7669,6 +7640,28 @@ ThingModel get_random_creature_kind_with_model_flags(unsigned long model_flags)
     }
     // Return -1 if no suitable creature kind is found.
     return -1;
+}
+
+void transform_creature(struct Thing *thing, ThingModel transform_model, CrtrExpLevel transform_level, GameTurnDelta duration)
+{
+    HitPoints health_permil = get_creature_health_permil(thing);
+    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
+    // Without a duration the transformation is permanent.
+    if (duration == 0)
+    {
+        cctrl->original_model = transform_model;
+    }
+    // Level is changing: reset the experience points.
+    if (transform_level != 0)
+    {
+        cctrl->exp_points = 0;
+    }
+    thing->model = transform_model;
+    cctrl->max_health = calculate_correct_creature_max_health(thing);
+    thing->health = cctrl->max_health * health_permil / 1000;
+    remove_available_instances(thing);
+    set_creature_level(thing, transform_level);
+    return;
 }
 
 /******************************************************************************/

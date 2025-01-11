@@ -864,6 +864,11 @@ TbBool free_spell_slot(struct Thing *thing, int slot_idx)
     if (creature_control_invalid(cctrl))
         return false;
     struct CastedSpellData* cspell = &cctrl->casted_spells[slot_idx];
+    // Revert transformation.
+    if (cspell->original_model > 0)
+    {
+        transform_creature(thing, cspell->original_model, 1);
+    }
     cspell->spkind = 0;
     cspell->duration = 0;
     cspell->caster_level = 0;
@@ -953,7 +958,7 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, SpellKind spell_idx, GameTur
         if (!creature_under_spell_effect(thing, CSAfF_Flying))
         {
             set_flag(cctrl->spell_flags, CSAfF_Flying);
-            thing->movement_flags |= TMvF_Flying;
+            set_flag(thing->movement_flags, TMvF_Flying);
         }
         affected = true;
     }
@@ -1059,7 +1064,7 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, SpellKind spell_idx, GameTur
         {
             set_flag(cctrl->spell_flags, CSAfF_Freeze);
             set_flag(cctrl->stateblock_flags, CCSpl_Freeze);
-            if ((thing->movement_flags & TMvF_Flying) != 0)
+            if (flag_is_set(thing->movement_flags, TMvF_Flying))
             {
                 set_flag(thing->movement_flags, TMvF_Grounded);
                 clear_flag(thing->movement_flags, TMvF_Flying);
@@ -1213,8 +1218,8 @@ TbBool clear_thing_spell_flags_f(struct Thing *thing, unsigned long spell_flags,
     && (creature_under_spell_effect(thing, CSAfF_Flying)))
     {
         clear_flag(cctrl->spell_flags, CSAfF_Flying);
-        // TODO: Strange condition regarding the fly, check why it's here?
-        if (!flag_is_set(game.conf.crtr_conf.model[thing->model].model_flags, CMF_IsDiptera))
+        // Clear 'TMvF_Flying' only if the creature isn't innately able to fly.
+        if (!crstat->flying)
         {
             clear_flag(thing->movement_flags, TMvF_Flying);
         }
@@ -1473,7 +1478,7 @@ void apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, CrtrE
         spell_lev = SPELL_MAX_LEVEL;
     }
     GameTurnDelta duration = get_spell_full_duration(spell_idx, spell_lev);
-    // Check for transformation effect.
+    // Apply transformation.
     if (spconf->transform_model > 0)
     {
         transform_creature(thing, spconf->transform_model, duration);
@@ -7642,14 +7647,101 @@ void transform_creature(struct Thing *thing, ThingModel transform_model, GameTur
     {
         cctrl->original_model = transform_model;
     }
+    struct CreatureStats *oldstat = creature_stats_get_from_thing(thing);
+    // Update the creature's properties, score and available instances.
     remove_creature_score_from_owner(thing);
     remove_available_instances(thing);
     HitPoints health_permil = get_creature_health_permil(thing);
     thing->model = transform_model;
     creature_increase_available_instances(thing);
+    cctrl->active_instance_id = creature_choose_first_available_instance(thing);
+    cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
     cctrl->max_health = calculate_correct_creature_max_health(thing);
     thing->health = cctrl->max_health * health_permil / 1000;
     add_creature_score_to_owner(thing);
+    struct CreatureStats *newstat = creature_stats_get_from_thing(thing);
+    thing->clipbox_size_xy = newstat->size_xy;
+    thing->clipbox_size_z = newstat->size_z;
+    thing->solid_size_xy = newstat->thing_size_xy;
+    thing->solid_size_z = newstat->thing_size_z;
+    cctrl->shot_shift_x = newstat->shot_shift_x;
+    cctrl->shot_shift_y = newstat->shot_shift_y;
+    cctrl->shot_shift_z = newstat->shot_shift_z;
+    // Check if the flying state has changed, and update accordingly.
+    if (newstat->flying != oldstat->flying)
+    {
+        if (creature_under_spell_effect(thing, CSAfF_Freeze))
+        {
+            if (newstat->flying)
+            {
+                set_flag(thing->movement_flags, TMvF_Grounded);
+            }
+            else if (oldstat->flying)
+            {
+                clear_flag(thing->movement_flags, TMvF_Grounded);
+            }
+        }
+        else
+        {
+            if (newstat->flying)
+            {
+                set_flag(thing->movement_flags, TMvF_Flying);
+            }
+            else if (oldstat->flying)
+            {
+                clear_flag(thing->movement_flags, TMvF_Flying);
+            }
+        }
+    }
+    // Check if the illumination state has changed, and update accordingly.
+    if (newstat->illuminated != oldstat->illuminated)
+    {
+        if (newstat->illuminated)
+        {
+            if (creature_under_spell_effect(thing, CSAfF_Light))
+            {
+                clean_spell_effect(thing, CSAfF_Light);
+            }
+            illuminate_creature(thing);
+        }
+        else if (oldstat->illuminated)
+        {
+            if (thing->light_id != 0)
+            {
+                if (flag_is_set(thing->rendering_flags, TRF_Invisible))
+                {
+                    light_set_light_intensity(thing->light_id, (light_get_light_intensity(thing->light_id) - 20));
+                    struct Light *lgt = &game.lish.lights[thing->light_id];
+                    lgt->radius = 2560;
+                }
+                else
+                {
+                    light_delete_light(thing->light_id);
+                    thing->light_id = 0;
+                }
+            }
+        }
+    }
+    // Check if the lenses have changed, and update only if the creature is under player influence.
+    if (newstat->eye_effect != oldstat->eye_effect)
+    {
+        PlayerNumber plyr_idx = get_my_player();
+        if (plyr_idx->influenced_thing_idx == thing->index)
+        {
+            struct LensConfig* lenscfg = get_lens_config(newstat->eye_effect);
+            initialise_eye_lenses();
+            if (flag_is_set(lenscfg->flags, LCF_HasPalette))
+            {
+                PaletteSetPlayerPalette(plyr_idx, lenscfg->palette);
+            }
+            else
+            {
+                PaletteSetPlayerPalette(plyr_idx, engine_palette);
+            }
+            setup_eye_lens(newstat->eye_effect);
+        }
+    }
+    // set_thing_draw(thing, get_creature_anim(thing, CGI_Stand), 256, game.conf.crtr_conf.sprite_size, 0, 0, ODC_Default);
     return;
 }
 

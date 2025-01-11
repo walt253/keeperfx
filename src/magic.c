@@ -875,8 +875,6 @@ TbBool pay_for_spell(PlayerNumber plyr_idx, PowerKind pwkind, CrtrExpLevel pwlev
         return false;
     if (pwlevel >= MAGIC_OVERCHARGE_LEVELS)
         pwlevel = MAGIC_OVERCHARGE_LEVELS;
-    if (pwlevel < 0)
-        pwlevel = 0;
     price = compute_power_price(plyr_idx, pwkind, pwlevel);
     // Try to take money
     if (take_money_from_dungeon(plyr_idx, price, 1) >= 0)
@@ -1367,8 +1365,6 @@ static TbResult magic_use_power_lightning(PowerKind power_kind, PlayerNumber ply
     // make sure the spell level is correct
     if (splevel >= MAGIC_OVERCHARGE_LEVELS)
         splevel = MAGIC_OVERCHARGE_LEVELS-1;
-    if (splevel < 0)
-        splevel = 0;
     if ((mod_flags & PwMod_CastForFree) == 0)
     {
         // If we can't afford the spell, fail

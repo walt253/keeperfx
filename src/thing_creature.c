@@ -7663,6 +7663,11 @@ TbBool grow_up_creature(struct Thing *thing, ThingModel grow_up_model, CrtrExpLe
 void transform_creature(struct Thing *thing, ThingModel transform_model, GameTurnDelta duration)
 {
     struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
+    // If 'ANY_CREATURE' was set on the spell config: randomise an appropriate model.
+    if (transform_model == CREATURE_NOT_A_DIGGER)
+    {
+        transform_model = get_random_appropriate_creature_kind(thing->model);
+    }
     // Without a duration the transformation is permanent.
     if (duration == 0)
     {

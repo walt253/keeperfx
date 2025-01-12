@@ -864,8 +864,9 @@ TbBool free_spell_slot(struct Thing *thing, int slot_idx)
     if (creature_control_invalid(cctrl))
         return false;
     struct CastedSpellData* cspell = &cctrl->casted_spells[slot_idx];
+    struct SpellConfig *spconf = get_spell_config(cspell->spkind);
     // Revert transformation.
-    if (cspell->original_model > 0)
+    if (spconf->transform_model > 0)
     {
         transform_creature(thing, cspell->original_model, 1);
     }
@@ -7745,18 +7746,17 @@ void transform_creature(struct Thing *thing, ThingModel transform_model, GameTur
     // Check if the lenses have changed, and update only if the creature is under player influence.
     if (newstat->eye_effect != oldstat->eye_effect)
     {
-        PlayerNumber plyr_idx = get_my_player();
-        if (plyr_idx->influenced_thing_idx == thing->index)
+        if (get_my_player()->influenced_thing_idx == thing->index)
         {
             struct LensConfig* lenscfg = get_lens_config(newstat->eye_effect);
             initialise_eye_lenses();
             if (flag_is_set(lenscfg->flags, LCF_HasPalette))
             {
-                PaletteSetPlayerPalette(plyr_idx, lenscfg->palette);
+                PaletteSetPlayerPalette(get_my_player(), lenscfg->palette);
             }
             else
             {
-                PaletteSetPlayerPalette(plyr_idx, engine_palette);
+                PaletteSetPlayerPalette(get_my_player(), engine_palette);
             }
             setup_eye_lens(newstat->eye_effect);
         }

@@ -7685,7 +7685,6 @@ void transform_creature(struct Thing *thing, ThingModel transform_model, GameTur
     HitPoints health_permil = get_creature_health_permil(thing);
     thing->model = transform_model;
     creature_increase_available_instances(thing);
-    cctrl->active_instance_id = creature_choose_first_available_instance(thing);
     cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
     cctrl->max_health = calculate_correct_creature_max_health(thing);
     thing->health = cctrl->max_health * health_permil / 1000;
@@ -7771,7 +7770,9 @@ void transform_creature(struct Thing *thing, ThingModel transform_model, GameTur
             setup_eye_lens(newstat->eye_effect);
         }
     }
-    // set_thing_draw(thing, get_creature_anim(thing, CGI_Stand), 256, game.conf.crtr_conf.sprite_size, 0, 0, ODC_Default);
+    struct InstanceInfo *inst_inf = creature_instance_info_get(cctrl->active_instance_id);
+    set_thing_draw(thing, get_creature_anim(thing, inst_inf->graphics_idx), 256, game.conf.crtr_conf.sprite_size, 0, 0, ODC_Default);
+    cctrl->active_instance_id = creature_choose_first_available_instance(thing);
     return;
 }
 

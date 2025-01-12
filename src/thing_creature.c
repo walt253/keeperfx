@@ -3150,7 +3150,7 @@ struct Thing* cause_creature_death(struct Thing *thing, CrDeathFlags flags)
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     anger_set_creature_anger_all_types(thing, 0);
     remove_parent_thing_from_things_in_list(&game.thing_lists[TngList_Shots],thing->index);
-    ThingModel crmodel = thing->model;
+    ThingModel crmodel = cctrl->original_model;
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     if (!thing_exists(thing)) 
     {

@@ -24,6 +24,8 @@
 #include "game_legacy.h"
 #include "config.h"
 #include "config_cubes.h"
+#include "config_magic.h"
+#include "console_cmd.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus

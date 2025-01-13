@@ -40,8 +40,9 @@ const struct NamedCommand cubes_cube_commands[] = {
     {"OwnershipGroup", 3},
     {"Owner",          4},
     {"SpellEffect",    5},
-    {"Target",         6},
-    {"Properties",     7},
+    {"SpellLevel",     6},
+    {"Target",         7},
+    {"Properties",     8},
     {NULL,             0},
 };
 
@@ -88,6 +89,7 @@ TbBool parse_cubes_cube_blocks(char *buf, long len, const char *config_textname,
             cubest = &game.conf.cube_conf.cube_cfgstats[i];
             memset(cubest->code_name, 0, COMMAND_WORD_LEN);
             cubest->spell_effect = 0;
+            cubest->spell_level = 0;
             cubest->target = 0;
             cubest->properties_flags = 0;
             cube_desc[i].name = cubest->code_name;
@@ -227,7 +229,23 @@ TbBool parse_cubes_cube_blocks(char *buf, long len, const char *config_textname,
                         COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
                 }
                 break;
-            case 6: // Target
+            case 6: // SpellLevel
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    k = atoi(word_buf);
+                    if (k >= 0)
+                    {
+                        cubed->spell_level = k;
+                        n++;             
+                    }
+                }
+                if (n < 1)
+                {
+                    CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+                }
+                break;
+            case 7: // Target
                 if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {
                     k = get_id(cubes_target, word_buf);
@@ -243,7 +261,7 @@ TbBool parse_cubes_cube_blocks(char *buf, long len, const char *config_textname,
                         COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
                 }
                 break;
-            case 7: // Properties
+            case 8: // Properties
                 cubed->properties_flags = 0;
                 while (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {

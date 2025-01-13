@@ -52,6 +52,7 @@ struct CubeConfigStats {
     unsigned char ownershipGroup;
     PlayerNumber owner;
     SpellKind spell_effect;
+    CrtrExpLevel spell_level;
     unsigned char target;
     unsigned char properties_flags;
 };

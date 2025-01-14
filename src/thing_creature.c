@@ -6122,7 +6122,7 @@ void process_magic_fall_effect(struct Thing *thing)
     }
 }
 
-TbBool cube_castability_can_target_creature(struct Thing *thing, PlayerNumber plyr_idx, unsigned char castability_flags)
+TbBool cube_castability_can_target_creature(struct Thing *thing, PlayerNumber plyr_idx, unsigned short castability_flags)
 {
     // Exclude spectators immediately.
     if (flag_is_set(get_creature_model_flags(thing), CMF_IsSpectator))
@@ -6144,6 +6144,21 @@ TbBool cube_castability_can_target_creature(struct Thing *thing, PlayerNumber pl
             return false;
         }
     }
+    // Handle evil-related flags.
+    if (flag_is_set(get_creature_model_flags(thing), CMF_IsEvil))
+    {
+        if (flag_is_set(castability_flags, CCF_NotEvil))
+        {
+            return false;
+        }
+    }
+    else
+    {
+        if (flag_is_set(castability_flags, CCF_OnlyEvil))
+        {
+            return false;
+        }
+    }
     // Handle flying-related flags.
     if (flag_is_set(thing->movement_flags, TMvF_Flying))
     {
@@ -6160,13 +6175,29 @@ TbBool cube_castability_can_target_creature(struct Thing *thing, PlayerNumber pl
         }
     }
     // Handle owner-related flags.
-    if (flag_is_set(castability_flags, CCF_Friendly) && players_are_mutual_allies(thing->owner, plyr_idx))
+    if (!is_neutral_thing(thing))
     {
-        return true;
+        if (players_are_mutual_allies(thing->owner, plyr_idx))
+        {
+            if (flag_is_set(castability_flags, CCF_Friendly))
+            {
+                return true;
+            }
+        }
+        else
+        {
+            if (flag_is_set(castability_flags, CCF_Hostile))
+            {
+                return true;
+            }
+        }
     }
-    if (flag_is_set(castability_flags, CCF_Hostile) && !players_are_mutual_allies(thing->owner, plyr_idx))
+    else
     {
-        return true;
+        if (flag_is_set(castability_flags, CCF_Neutral))
+        {
+            return true;
+        }
     }
     // Exclude target by default if no flags match.
     return false;

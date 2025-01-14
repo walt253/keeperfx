@@ -6225,7 +6225,14 @@ void process_landscape_affecting_creature(struct Thing *thing)
                     {
                         thing_play_sample(thing, spconf->caster_affect_sound + UNSYNC_RANDOM(spconf->caster_sounds_count), NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
                     }
-                    apply_spell_effect_to_thing(thing, cubest->spell_effect, cubest->spell_level, plyr_idx);
+                    if (cubest->spell_level > 0)
+                    {
+                        apply_spell_effect_to_thing(thing, cubest->spell_effect, cubest->spell_level-1, plyr_idx);
+                    }
+                    else
+                    {
+                        apply_spell_effect_to_thing(thing, cubest->spell_effect, cctrl->explevel, plyr_idx);
+                    }
                 }
             }
         }

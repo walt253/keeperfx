@@ -45,12 +45,12 @@ enum CubeCastabilityFlags {
     CCF_Friendly =           0x001,
     CCF_Hostile =            0x002,
     CCF_Neutral =            0x004,
-    CCF_OnlyEvil =           0x008,
-    CCF_NotEvil =            0x010,
-    CCF_OnlyFlying =         0x020,
-    CCF_NotFlying =          0x040,
-    CCF_OnlyDigger =         0x080,
-    CCF_NotDigger =          0x100,
+    CCF_OnlyDigger =         0x008,
+    CCF_NotDigger =          0x010,
+    CCF_OnlyEvil =           0x020,
+    CCF_NotEvil =            0x040,
+    CCF_OnlyFlying =         0x080,
+    CCF_NotFlying =          0x100,
 };
 
 struct CubeConfigStats {

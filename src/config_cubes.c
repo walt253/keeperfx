@@ -57,6 +57,9 @@ const struct NamedCommand cubes_properties_flags[] = {
 const struct NamedCommand cubes_castability_flags[] = {
     {"FRIENDLY",    CCF_Friendly},
     {"HOSTILE",     CCF_Hostile},
+    {"NEUTRAL",     CCF_Neutral},
+    {"ONLY_EVIL",   CCF_OnlyEvil},
+    {"NOT_EVIL",    CCF_NotEvil},
     {"ONLY_FLYING", CCF_OnlyFlying},
     {"NOT_FLYING",  CCF_NotFlying},
     {"ONLY_DIGGER", CCF_OnlyDigger},
@@ -93,7 +96,7 @@ TbBool parse_cubes_cube_blocks(char *buf, long len, const char *config_textname,
             memset(cubest->code_name, 0, COMMAND_WORD_LEN);
             cubest->spell_effect = 0;
             cubest->spell_level = 0;
-            cubest->target = 0;
+            cubest->castability_flags = 0;
             cubest->properties_flags = 0;
             cube_desc[i].name = cubest->code_name;
             cube_desc[i].num = i;

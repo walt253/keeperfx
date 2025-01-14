@@ -40,10 +40,14 @@ enum CubePropertiesFlags {
     CPF_IsUnclaimedPath =     0x08,
 };
 
-enum CubeTarget {
-    CT_Neutral,
-    CT_Friendly,
-    CT_Hostile,
+enum CubeCastabilityFlags {
+    CCF_None =                0x00,
+    CCF_Friendly =            0x01,
+    CCF_Hostile =             0x02,
+    CCF_OnlyFlying =          0x04,
+    CCF_NotFlying =           0x08,
+    CCF_OnlyDiggers =         0x10,
+    CCF_NotDiggers =          0x20,
 };
 
 struct CubeConfigStats {
@@ -53,7 +57,7 @@ struct CubeConfigStats {
     PlayerNumber owner;
     SpellKind spell_effect;
     CrtrExpLevel spell_level;
-    unsigned char target;
+    unsigned char castability_flags;
     unsigned char properties_flags;
 };
 

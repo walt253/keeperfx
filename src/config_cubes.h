@@ -41,13 +41,16 @@ enum CubePropertiesFlags {
 };
 
 enum CubeCastabilityFlags {
-    CCF_None =                0x00,
-    CCF_Friendly =            0x01,
-    CCF_Hostile =             0x02,
-    CCF_OnlyFlying =          0x04,
-    CCF_NotFlying =           0x08,
-    CCF_OnlyDigger =          0x10,
-    CCF_NotDigger =           0x20,
+    CCF_None =               0x000,
+    CCF_Friendly =           0x001,
+    CCF_Hostile =            0x002,
+    CCF_Neutral =            0x004,
+    CCF_OnlyEvil =           0x008,
+    CCF_NotEvil =            0x010,
+    CCF_OnlyFlying =         0x020,
+    CCF_NotFlying =          0x040,
+    CCF_OnlyDigger =         0x080,
+    CCF_NotDigger =          0x100,
 };
 
 struct CubeConfigStats {
@@ -57,7 +60,7 @@ struct CubeConfigStats {
     PlayerNumber owner;
     SpellKind spell_effect;
     CrtrExpLevel spell_level;
-    unsigned char castability_flags;
+    unsigned short castability_flags;
     unsigned char properties_flags;
 };
 

@@ -61,7 +61,7 @@ const struct NamedCommand cubes_castability_flags[] = {
     {"NOT_FLYING",   CCF_NotFlying},
     {"ONLY_DIGGERS", CCF_OnlyDiggers},
     {"NOT_DIGGERS",  CCF_NotDiggers},
-    {NULL,       0},
+    {NULL,           0},
 };
 
 /******************************************************************************/

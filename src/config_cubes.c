@@ -55,13 +55,13 @@ const struct NamedCommand cubes_properties_flags[] = {
 };
 
 const struct NamedCommand cubes_castability_flags[] = {
-    {"FRIENDLY",     CCF_Friendly},
-    {"HOSTILE",      CCF_Hostile},
-    {"ONLY_FLYING",  CCF_OnlyFlying},
-    {"NOT_FLYING",   CCF_NotFlying},
-    {"ONLY_DIGGERS", CCF_OnlyDiggers},
-    {"NOT_DIGGERS",  CCF_NotDiggers},
-    {NULL,           0},
+    {"FRIENDLY",    CCF_Friendly},
+    {"HOSTILE",     CCF_Hostile},
+    {"ONLY_FLYING", CCF_OnlyFlying},
+    {"NOT_FLYING",  CCF_NotFlying},
+    {"ONLY_DIGGER", CCF_OnlyDigger},
+    {"NOT_DIGGER",  CCF_NotDigger},
+    {NULL,          0},
 };
 
 /******************************************************************************/

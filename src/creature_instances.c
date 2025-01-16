@@ -1545,6 +1545,7 @@ TbBool validate_target_benefits_from_offensive
         ERRORLOG("Invalid creature control");
         return false;
     }
+    JUSTLOG("%d", (int)cctrl->combat_flags);
     if (cctrl->combat_flags != 0)
     {
         return true; // In any combat.

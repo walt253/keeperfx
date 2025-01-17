@@ -135,7 +135,7 @@ struct CastedSpellData {
     GameTurnDelta duration;
     CrtrExpLevel caster_level;
     PlayerNumber caster_owner;
-    ThingModel original_model;
+    ThingModel transform_model;
 };
 
 struct CreatureControl {
@@ -410,7 +410,7 @@ unsigned char sound_flag;
     SpellKind active_disease_spell;
     SpellKind active_teleport_spell;
     SpellKind active_timebomb_spell;
-    ThingModel original_model;
+    ThingModel transform_model;
 };
 
 struct CreatureStats { // These stats are not compatible with original DK - they have more fields

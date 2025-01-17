@@ -126,8 +126,8 @@ void get_keepsprite_unscaled_dimensions(long kspr_anim, long angle, long frame, 
 long get_lifespan_of_animation(long ani, long speed);
 short get_creature_anim(struct Thing *thing, unsigned short frame);
 TbBool update_creature_anim(struct Thing *thing, long speed, long seq_idx);
-short get_creature_model_graphics(long crmodel, unsigned short frame);
-void set_creature_model_graphics(long crmodel, unsigned short frame, unsigned long val);
+short get_creature_model_graphics(ThingModel crmodel, unsigned short frame);
+void set_creature_model_graphics(ThingModel crmodel, unsigned short frame, unsigned long val);
 void set_creature_graphic(struct Thing *thing);
 void update_creature_rendering_flags(struct Thing *thing);
 

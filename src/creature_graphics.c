@@ -302,7 +302,7 @@ void get_keepsprite_unscaled_dimensions(long kspr_anim, long angle, long frame, 
 
 }
 
-short get_creature_model_graphics(long crmodel, unsigned short seq_idx)
+short get_creature_model_graphics(ThingModel crmodel, unsigned short seq_idx)
 {
     if (seq_idx >= CREATURE_GRAPHICS_INSTANCES)
     {
@@ -326,7 +326,7 @@ short get_creature_model_graphics(long crmodel, unsigned short seq_idx)
     return game.conf.crtr_conf.creature_graphics[crmodel][seq_idx];
 }
 
-void set_creature_model_graphics(long crmodel, unsigned short seq_idx, unsigned long val)
+void set_creature_model_graphics(ThingModel crmodel, unsigned short seq_idx, unsigned long val)
 {
     if (seq_idx >= CREATURE_GRAPHICS_INSTANCES)
     {

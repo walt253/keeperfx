@@ -433,7 +433,7 @@ void update_creature_graphic_anim(struct Thing *thing)
 
     TRACE_THING(thing);
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    struct CreatureStats* crstat = creature_stats_get(cctrl->transform_model);
 
     if ((thing->size_change & TSC_ChangeSize) != 0)
     {

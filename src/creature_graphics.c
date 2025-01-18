@@ -159,10 +159,8 @@ static const unsigned short creature_list[CREATURE_FRAMELIST_LENGTH] = {
 /******************************************************************************/
 struct CreaturePickedUpOffset *get_creature_picked_up_offset(struct Thing *thing)
 {
-    ThingModel crmodel = thing->model;
-    if ((crmodel < 1) || (crmodel >= game.conf.crtr_conf.model_count))
-        crmodel = 0;
-    struct CreatureStats* crstat = creature_stats_get(crmodel);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    struct CreatureStats* crstat = creature_stats_get(cctrl->transform_model);
     return &crstat->creature_picked_up_offset;
 }
 
@@ -361,7 +359,7 @@ void tint_thing(struct Thing *thing, TbPixel colour, unsigned char tint)
 
 TbBool update_creature_anim(struct Thing *thing, long speed, long seq_idx)
 {
-    ThingModel i = get_creature_anim(thing, seq_idx);
+    unsigned long i = get_creature_anim(thing, seq_idx);
     if (i != thing->anim_sprite)
     {
         set_thing_draw(thing, i, speed, -1, -1, 0, ODC_Default);
@@ -372,7 +370,7 @@ TbBool update_creature_anim(struct Thing *thing, long speed, long seq_idx)
 
 TbBool update_creature_anim_td(struct Thing *thing, long speed, long td_idx)
 {
-    ThingModel i = convert_td_iso(td_idx);
+    unsigned long i = convert_td_iso(td_idx);
     if (i != thing->anim_sprite)
     {
         set_thing_draw(thing, i, speed, -1, -1, 0, ODC_Default);
@@ -394,7 +392,8 @@ void update_creature_rendering_flags(struct Thing *thing)
     }
     if (thing_is_creature(thing))
     {
-        struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+        struct CreatureStats* crstat = creature_stats_get(cctrl->transform_model);
         if (crstat->transparency_flags != 0)
         {
             set_flag(thing->rendering_flags, crstat->transparency_flags);

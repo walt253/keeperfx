@@ -196,13 +196,14 @@ TbBool creature_instance_is_available(const struct Thing *thing, CrInstance inst
 TbBool creature_choose_first_available_instance(struct Thing *thing)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    struct CreatureStats* crstat = creature_stats_get(cctrl->transform_model);
     for (long i = 0; i < LEARNED_INSTANCES_COUNT; i++)
     {
         long k = crstat->learned_instance_id[i];
         if (k > 0)
         {
-            if (cctrl->instance_available[k]) {
+            if (cctrl->instance_available[k])
+            {
                 cctrl->active_instance_id = k;
                 return true;
             }
@@ -214,8 +215,8 @@ TbBool creature_choose_first_available_instance(struct Thing *thing)
 
 void creature_increase_available_instances(struct Thing *thing)
 {
-    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    struct CreatureStats* crstat = creature_stats_get(cctrl->transform_model);
     for (int i = 0; i < LEARNED_INSTANCES_COUNT; i++)
     {
         int k = crstat->learned_instance_id[i];
@@ -235,8 +236,8 @@ void creature_increase_available_instances(struct Thing *thing)
 
 void remove_available_instances(struct Thing *thing)
 {
-    struct CreatureStats *crstat = creature_stats_get_from_thing(thing);
-    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    struct CreatureStats* crstat = creature_stats_get(cctrl->transform_model);
     int j;
     for (int i = 0; i < LEARNED_INSTANCES_COUNT; i++)
     {
@@ -257,14 +258,16 @@ void remove_available_instances(struct Thing *thing)
  */
 int creature_instance_get_available_pos_for_id(struct Thing *thing, CrInstance req_inst_id)
 {
-    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    struct CreatureStats* crstat = creature_stats_get(cctrl->transform_model);
     int avail_pos = 0;
     for (int avail_num = 0; avail_num < LEARNED_INSTANCES_COUNT; avail_num++)
     {
         CrInstance inst_id = crstat->learned_instance_id[avail_num];
         if (creature_instance_is_available(thing, inst_id))
         {
-            if (inst_id == req_inst_id) {
+            if (inst_id == req_inst_id)
+            {
                 return avail_pos;
             }
             avail_pos++;
@@ -282,14 +285,16 @@ int creature_instance_get_available_pos_for_id(struct Thing *thing, CrInstance r
  */
 int creature_instance_get_available_number_for_pos(struct Thing *thing, int req_avail_pos)
 {
-    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    struct CreatureStats* crstat = creature_stats_get(cctrl->transform_model);
     int avail_pos = 0;
     for (int avail_num = 0; avail_num < LEARNED_INSTANCES_COUNT; avail_num++)
     {
         CrInstance inst_id = crstat->learned_instance_id[avail_num];
         if (creature_instance_is_available(thing, inst_id))
         {
-            if (avail_pos == req_avail_pos) {
+            if (avail_pos == req_avail_pos)
+            {
                 return avail_num;
             }
             avail_pos++;
@@ -307,14 +312,16 @@ int creature_instance_get_available_number_for_pos(struct Thing *thing, int req_
  */
 CrInstance creature_instance_get_available_id_for_pos(struct Thing *thing, int req_avail_pos)
 {
-    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    struct CreatureStats* crstat = creature_stats_get(cctrl->transform_model);
     int avail_pos = 0;
     for (int avail_num = 0; avail_num < LEARNED_INSTANCES_COUNT; avail_num++)
     {
         CrInstance inst_id = crstat->learned_instance_id[avail_num];
         if (creature_instance_is_available(thing, inst_id))
         {
-            if (avail_pos == req_avail_pos) {
+            if (avail_pos == req_avail_pos)
+            {
                 return inst_id;
             }
             avail_pos++;
@@ -1601,7 +1608,7 @@ TbBool validate_target_benefits_from_wind
     {
         return true;
     }
-    struct CreatureStats* stats = creature_stats_get_from_thing(target);
+    struct CreatureStats* stats = creature_stats_get(cctrl->transform_model);
     if (stats->attack_preference == AttckT_Ranged && cctrl->opponents_melee_count >= 2)
     {
         // Surrounded by 2+ enemies. This could be definitely smarter but not now.

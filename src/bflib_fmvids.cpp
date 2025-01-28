@@ -296,7 +296,9 @@ struct movie_t {
 		setup_video();
 		make_packet();
 		make_frame();
-		make_resampler();
+		if (m_audio_context) {
+			make_resampler();
+		}
 		m_time_base = m_format_context->streams[m_video_index]->time_base;
 	}
 
@@ -605,7 +607,7 @@ struct movie_t {
 
 	void play() {
 		while (read_frame()) {
-			if (m_packet->stream_index == m_audio_index) {
+			if (m_packet->stream_index == m_audio_index && m_audio_context) {
 				if (!decode_audio()) {
 					break;
 				}
@@ -615,7 +617,9 @@ struct movie_t {
 				}
 			}
 		}
-		flush_audio();
+		if (m_audio_context) {
+			flush_audio();
+		}
 		flush_video();
 	}
 };

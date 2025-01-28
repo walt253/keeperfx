@@ -505,6 +505,9 @@ struct movie_t {
 		av_freep(&buffer);
 	}
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+
 	void output_video_frame() {
 		if (m_frame->palette_has_changed) {
 			JUSTLOG("palette changed");
@@ -528,6 +531,8 @@ struct movie_t {
 		LbScreenUnlock();
 		LbScreenSwap();
 	}
+
+#pragma GCC diagnostic pop
 
 	bool output_audio_frames() {
 		while (true) {

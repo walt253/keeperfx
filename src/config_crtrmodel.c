@@ -135,15 +135,16 @@ const struct NamedCommand creatmodel_properties_commands[] = {
   {"NO_STEAL_HERO",     32},
   {"PREFER_STEAL",      33},
   {"EVENTFUL_DEATH",    34},
-  {"IMMUNE_TO_CHARM",   35},
-  {"SELF_RECOVERY",     36},
-  {"RESIST_TO_MAGIC",   37},
-  {"MECHANICAL",        38},
-  {"UNDEAD",            39},
-  {"THIEF",             40},
-  {"ETHEREAL",          41},
-  {"HOARFROST",         42},
-  {"BOSS",              43},
+  {"DIGGING_CREATURE",  35},
+  {"IMMUNE_TO_CHARM",   36},
+  {"SELF_RECOVERY",     37},
+  {"RESIST_TO_MAGIC",   38},
+  {"MECHANICAL",        39},
+  {"UNDEAD",            40},
+  {"THIEF",             41},
+  {"ETHEREAL",          42},
+  {"HOARFROST",         43},
+  {"BOSS",              44},
   {NULL,                 0},
 };
 
@@ -775,39 +776,43 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
                 crconf->model_flags |= CMF_EventfulDeath;
                 n++;
                 break;
-            case 35: // IMMUNE_TO_CHARM
+            case 35: // DIGGING_CREATURE
+                crconf->model_flags |= CMF_IsDiggingCreature;
+                n++;
+                break;
+            case 36: // IMMUNE_TO_CHARM
                 crstat->immune_to_charm = true;
                 n++;
                 break;
-            case 36: // SELF_RECOVERY
+            case 37: // SELF_RECOVERY
                 crstat->self_recovery = true;
                 n++;
                 break;
-            case 37: // RESIST_TO_MAGIC
+            case 38: // RESIST_TO_MAGIC
                 crstat->resist_to_magic = true;
                 n++;
                 break;
-            case 38: // MECHANICAL
+            case 39: // MECHANICAL
                 crstat->is_mechanical = true;
                 n++;
                 break;
-            case 39: // UNDEAD
+            case 40: // UNDEAD
                 crstat->is_undead = true;
                 n++;
                 break;
-            case 40: // THIEF
+            case 41: // THIEF
                 crstat->is_thief = true;
                 n++;
                 break;
-            case 41: // ETHEREAL
+            case 42: // ETHEREAL
                 crstat->ethereal = true;
                 n++;
                 break;
-            case 42: // HOARFROST
+            case 43: // HOARFROST
                 crstat->hoarfrost = true;
                 n++;
                 break;
-            case 43: // BOSS
+            case 44: // BOSS
                 crstat->boss = true;
                 n++;
                 break;
@@ -1106,7 +1111,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
   }
 #undef COMMAND_TEXT
   // If the creature is a special breed, then update an attribute in CreatureConfig struct
-  if ((crconf->model_flags & CMF_IsSpecDigger) != 0)
+  if ((crconf->model_flags & (CMF_IsSpecDigger|CMF_IsDiggingCreature)) != 0)
   {
       if ((crconf->model_flags & CMF_IsEvil) != 0) {
           game.conf.crtr_conf.special_digger_evil = crtr_model;
@@ -1119,7 +1124,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
       game.conf.crtr_conf.spectator_breed = crtr_model;
   }
   // Set creature start states based on the flags
-  if ((crconf->model_flags & CMF_IsSpecDigger) != 0)
+  if ((crconf->model_flags & (CMF_IsSpecDigger|CMF_IsDiggingCreature)) != 0)
   {
       crstat->evil_start_state = CrSt_ImpDoingNothing;
       crstat->good_start_state = CrSt_TunnellerDoingNothing;

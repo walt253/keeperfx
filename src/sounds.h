@@ -31,6 +31,7 @@ extern "C" {
 
 #define FULL_LOUDNESS 256
 #define NORMAL_PITCH 100
+#define MIX_SPEECH_CHANNEL 0
 
 /******************************************************************************/
 #pragma pack(1)
@@ -63,7 +64,6 @@ enum SoundSettingsFlags {
 
 extern int atmos_sound_frequency;
 extern int sdl_flags;
-extern Mix_Chunk* streamed_sample;
 
 #pragma pack()
 
@@ -84,16 +84,14 @@ TbBool ambient_sound_stop(void);
 struct Thing *create_ambient_sound(const struct Coord3d *pos, ThingModel model, PlayerNumber owner);
 
 void mute_audio(TbBool mute);
-void pause_music(TbBool pause);
 
 void update_first_person_object_ambience(struct Thing *thing);
 
 int InitialiseSDLAudio();
 void ShutDownSDLAudio();
-void free_sound_chunks();
-void play_external_sound_sample(unsigned char smpl_id);
-TbBool play_streamed_sample(char* fname, int volume, int loops);
-void stop_streamed_sample();
+TbBool play_streamed_sample(const char * fname, SoundVolume);
+void set_streamed_sample_volume(SoundVolume);
+void stop_streamed_samples();
 /******************************************************************************/
 #ifdef __cplusplus
 }

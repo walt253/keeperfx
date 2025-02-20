@@ -260,7 +260,6 @@ obj/map_events.o \
 obj/map_locations.o \
 obj/map_utils.o \
 obj/moonphase.o \
-obj/music_player.o \
 obj/net_game.o \
 obj/net_sync.o \
 obj/packets.o \
@@ -598,7 +597,6 @@ src/moonphase.c: deps/astronomy/include/astronomy.h
 deps/centitoml/toml_api.c: deps/centijson/include/json.h
 deps/centitoml/toml_conv.c: deps/centijson/include/json.h
 src/bflib_fmvids.cpp: deps/ffmpeg/libavformat/avformat.h
-obj/std/bflib_fmvids.o obj/hvlog/bflib_fmvids.o: CXXFLAGS += -Wno-error=deprecated-declarations
 src/bflib_sndlib.cpp: deps/openal/AL/al.h
 
 deps/enet-mingw32.tar.gz:

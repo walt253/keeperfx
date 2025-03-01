@@ -590,7 +590,7 @@ EventIndex update_cannot_find_room_of_role_wth_spare_capacity_event(PlayerNumber
                 break;
             }
             if (evidx > 0) {
-                output_message_room_related_from_computer_or_player_action(plyr_idx, find_first_roomkind_with_role(rrole), OMsg_RoomTooSmall);
+                output_room_message(plyr_idx, find_first_roomkind_with_role(rrole), OMsg_RoomTooSmall);
             }
         } else
         {
@@ -599,7 +599,7 @@ EventIndex update_cannot_find_room_of_role_wth_spare_capacity_event(PlayerNumber
             evidx = event_create_event_or_update_nearby_existing_event(
                 creatng->mappos.x.val, creatng->mappos.y.val, EvKind_WorkRoomUnreachable, plyr_idx, rkind);
             if (evidx > 0) {
-                output_message_room_related_from_computer_or_player_action(plyr_idx, rkind, OMsg_RoomNoRoute);
+                output_room_message(plyr_idx, rkind, OMsg_RoomNoRoute);
             }
         }
     } else
@@ -622,7 +622,7 @@ EventIndex update_cannot_find_room_of_role_wth_spare_capacity_event(PlayerNumber
                 break;
             }
             if (evidx > 0) {
-                output_message_room_related_from_computer_or_player_action(plyr_idx, find_first_roomkind_with_role(rrole), OMsg_RoomNeeded);
+                output_room_message(plyr_idx, find_first_roomkind_with_role(rrole), OMsg_RoomNeeded);
             }
         }
     }

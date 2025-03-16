@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>Snake Wars Evolution</title>
+	<style>
+		body {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			min-height: 100vh;
+			margin: 0;
+			background: #1a1a1a;
+			color: #e0e0e0;
+		}
+
+		canvas {
+			border: 2px solid #444;
+			box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+		}
+	</style>
+</head>
+
+<body>
+	<canvas id="gameCanvas"></canvas>
+	<script>
+		const canvas = document.getElementById('gameCanvas');
+		const ctx = canvas.getContext('2d');
+		const GRID_SIZE = 48;
+		const TILE_SIZE = 10;
+		canvas.width = GRID_SIZE * TILE_SIZE;
+		canvas.height = GRID_SIZE * TILE_SIZE;
+		const SNAKE_COLORS = [
+			['#ff6666', '#880000'], ['#6666ff', '#000088'],
+			['#66ff66', '#008800'], ['#ffff66', '#888800'],
+			['#a400e3', '#4b0082'], ['#ff9966', '#884400'],
+			['#66ffff', '#008888'], ['#ff69b4', '#c71585']
+		];
+		const CORPSE_FOOD_LIFESPAN = 2500;
+		let snakes = [];
+		let foods = [];
+		let corpseFood = [];
+		const INITIAL_FOOD_COUNT = 16;
+		const TRAIL_DURATION = 250;
+		let pulsePhase = 0;
+		let particles = [];
+
+		class Snake
+		{
+			constructor (id, startX, startY, colorPair)
+			{
+				this.id = id;
+				this.body = [{x: startX, y: startY}];
+				this.direction = {x: 1, y: 0};
+				this.colorPair = colorPair;
+				this.dead = false;
+				this.deathTimer = 0;
+				this.corpseFoodEaten = 0;
+				this.trail = [];
+				this.isInitialSpawn = true;
+			}
+			reset()
+			{
+				if (this.isInitialSpawn)
+				{
+					const spawnMargin = Math.ceil(GRID_SIZE * 0.1);
+					const centerCoord = Math.floor(GRID_SIZE / 2);
+					const maxCoord = GRID_SIZE - 1;
+					const SPAWN_POINTS = [
+						{x: centerCoord, y: spawnMargin},
+						{x: centerCoord, y: maxCoord - spawnMargin},
+						{x: maxCoord - spawnMargin, y: centerCoord},
+						{x: spawnMargin, y: centerCoord},
+						{x: maxCoord - spawnMargin, y: spawnMargin},
+						{x: spawnMargin, y: spawnMargin},
+						{x: maxCoord - spawnMargin, y: maxCoord - spawnMargin},
+						{x: spawnMargin, y: maxCoord - spawnMargin}
+					];
+					this.body = [SPAWN_POINTS[this.id]];
+					this.isInitialSpawn = false;
+				} else
+				{
+					let newSpawn;
+					do
+					{
+						newSpawn = {
+							x: Math.floor(Math.random() * GRID_SIZE),
+							y: Math.floor(Math.random() * GRID_SIZE)
+						};
+					} while (isOccupied(newSpawn.x, newSpawn.y));
+					this.body = [newSpawn];
+				}
+				this.direction = {x: 1, y: 0};
+				this.dead = false;
+				this.deathTimer = 0;
+				this.corpseFoodEaten = 0;
+				this.trail = [];
+			}
+		}
+
+		function init()
+		{
+			snakes = SNAKE_COLORS.map((color, index) =>
+				new Snake(index, 0, 0, color)
+			);
+			snakes.forEach(snake => snake.reset());
+			foods = [];
+			corpseFood = [];
+			particles = [];
+			for (let i = 0; i < INITIAL_FOOD_COUNT; i++)
+			{
+				generateFood();
+			}
+		}
+
+		function generateFood()
+		{
+			let newFood;
+			do
+			{
+				newFood = {
+					x: Math.floor(Math.random() * GRID_SIZE),
+					y: Math.floor(Math.random() * GRID_SIZE)
+				};
+			} while (isOccupied(newFood.x, newFood.y));
+			foods.push(newFood);
+		}
+
+		function isOccupied(x, y)
+		{
+			return snakes.some(snake =>
+				snake.body.some(segment =>
+					segment.x === x && segment.y === y
+				)
+			) || foods.some(food =>
+				food.x === x && food.y === y
+			) || corpseFood.some(food =>
+				food.x === x && food.y === y
+			);
+		}
+
+		function wrapCoordinate(coord)
+		{
+			return (coord + GRID_SIZE) % GRID_SIZE;
+		}
+
+		const DIRECTIONS = [
+			{x: 1, y: 0}, {x: -1, y: 0},
+			{x: 0, y: 1}, {x: 0, y: -1}
+		];
+
+		function aiControl(snake)
+		{
+			const head = snake.body[0];
+			let closestFood = null;
+			let closestDistance = Infinity;
+			[...foods, ...corpseFood].forEach(food =>
+			{
+				const dx = Math.min(
+					Math.abs(food.x - head.x),
+					GRID_SIZE - Math.abs(food.x - head.x)
+				);
+				const dy = Math.min(
+					Math.abs(food.y - head.y),
+					GRID_SIZE - Math.abs(food.y - head.y)
+				);
+				const distance = Math.sqrt(dx * dx + dy * dy);
+				if (distance < closestDistance)
+				{
+					closestDistance = distance;
+					closestFood = food;
+				}
+			});
+			if (!closestFood) return snake.direction;
+			const dx = Math.min(
+				Math.abs(closestFood.x - head.x),
+				GRID_SIZE - Math.abs(closestFood.x - head.x)
+			);
+			const dy = Math.min(
+				Math.abs(closestFood.y - head.y),
+				GRID_SIZE - Math.abs(closestFood.y - head.y)
+			);
+			const distance = Math.sqrt(dx * dx + dy * dy);
+			if (distance <= Math.sqrt(2))
+			{
+				for (const dir of DIRECTIONS)
+				{
+					if (isOppositeDirection(dir, snake.direction)) continue;
+					const simulatedHead = {
+						x: wrapCoordinate(head.x + dir.x),
+						y: wrapCoordinate(head.y + dir.y)
+					};
+					if (simulatedHead.x === closestFood.x && simulatedHead.y === closestFood.y)
+					{
+						const newBody = [simulatedHead, ...snake.body];
+						if (hasSafeMoves(simulatedHead, newBody, snake))
+						{
+							return dir;
+						}
+					}
+				}
+			}
+			const possibleDirs = DIRECTIONS.filter(dir =>
+				!isOppositeDirection(dir, snake.direction)
+			).sort((a, b) =>
+			{
+				const aHead = getWrappedHead(head, a);
+				const bHead = getWrappedHead(head, b);
+				const aDist = getDistance(aHead, closestFood);
+				const bDist = getDistance(bHead, closestFood);
+				return aDist !== bDist ? aDist - bDist :
+					getAvailableDirections(bHead) - getAvailableDirections(aHead);
+			});
+			for (const dir of possibleDirs)
+			{
+				const wrappedHead = getWrappedHead(head, dir);
+				if (!checkCollision(wrappedHead, snake))
+				{
+					return dir;
+				}
+			}
+			return possibleDirs[0] || snake.direction;
+		}
+
+		function isOppositeDirection(dir, currentDir)
+		{
+			return dir.x === -currentDir.x && dir.y === -currentDir.y;
+		}
+
+		function getWrappedHead(head, dir)
+		{
+			return {
+				x: wrapCoordinate(head.x + dir.x),
+				y: wrapCoordinate(head.y + dir.y)
+			};
+		}
+
+		function getDistance(a, b)
+		{
+			const dx = Math.min(Math.abs(a.x - b.x), GRID_SIZE - Math.abs(a.x - b.x));
+			const dy = Math.min(Math.abs(a.y - b.y), GRID_SIZE - Math.abs(a.y - b.y));
+			return Math.sqrt(dx * dx + dy * dy);
+		}
+
+		function hasSafeMoves(head, newBody, currentSnake)
+		{
+			return DIRECTIONS.some(dir =>
+			{
+				const nextHead = {
+					x: wrapCoordinate(head.x + dir.x),
+					y: wrapCoordinate(head.y + dir.y)
+				};
+				return !checkCollision(nextHead, currentSnake, newBody);
+			});
+		}
+
+		function getAvailableDirections(head)
+		{
+			return DIRECTIONS.reduce((count, dir) =>
+			{
+				const nextHead = getWrappedHead(head, dir);
+				return count + (!checkCollision(nextHead) ? 1 : 0);
+			}, 0);
+		}
+
+		function checkCollision(head, currentSnake, simulatedBody = null)
+		{
+			const wrappedHead = {
+				x: wrapCoordinate(head.x),
+				y: wrapCoordinate(head.y)
+			};
+			for (const snake of snakes)
+			{
+				if (snake.dead) continue;
+				const bodyToCheck = simulatedBody || snake.body;
+				for (let i = 1; i < bodyToCheck.length; i++)
+				{
+					const segment = bodyToCheck[i];
+					if (segment.x === wrappedHead.x && segment.y === wrappedHead.y)
+					{
+						return true;
+					}
+				}
+				if (snake !== currentSnake)
+				{
+					const otherHead = snake.body[0];
+					if (otherHead.x === wrappedHead.x && otherHead.y === wrappedHead.y)
+					{
+						return true;
+					}
+				}
+			}
+			return false;
+		}
+
+		function update()
+		{
+			snakes.forEach(snake =>
+			{
+				if (snake.dead) return;
+				snake.direction = aiControl(snake);
+				let newHead = getWrappedHead(snake.body[0], snake.direction);
+				if (checkCollision(newHead, snake))
+				{
+					snake.dead = true;
+					snake.deathTimer = 30;
+
+					// Create particle explosion
+					const headPos = snake.body[0];
+					const centerX = headPos.x * TILE_SIZE + TILE_SIZE / 2;
+					const centerY = headPos.y * TILE_SIZE + TILE_SIZE / 2;
+					const color = snake.colorPair[1];
+
+					for (let i = 0; i < 20; i++)
+					{
+						const angle = Math.random() * Math.PI * 2;
+						const speed = Math.random() * 2 + 1;
+						particles.push({
+							x: centerX,
+							y: centerY,
+							vx: Math.cos(angle) * speed,
+							vy: Math.sin(angle) * speed,
+							color: color,
+							life: 1
+						});
+					}
+
+					for (let i = 1; i < snake.body.length; i += 2)
+					{
+						corpseFood.push({
+							x: snake.body[i].x,
+							y: snake.body[i].y,
+							time: Date.now(),
+							color: snake.colorPair[1]
+						});
+					}
+					return;
+				}
+				snake.body.unshift(newHead);
+				const foodIndex = getFoodIndex(newHead);
+				const corpseIndex = getCorpseIndex(newHead);
+				if (foodIndex >= 0)
+				{
+					foods.splice(foodIndex, 1);
+					generateFood();
+				} else if (corpseIndex >= 0)
+				{
+					corpseFood.splice(corpseIndex, 1);
+					snake.corpseFoodEaten = (snake.corpseFoodEaten + 1) % 2;
+				} else
+				{
+					const removedSegment = snake.body.pop();
+					if (removedSegment)
+					{
+						snake.trail.push({x: removedSegment.x, y: removedSegment.y, time: Date.now()});
+					}
+				}
+			});
+
+			const now = Date.now();
+			snakes.forEach(snake =>
+			{
+				snake.trail = snake.trail.filter(entry => now - entry.time <= TRAIL_DURATION);
+				if (snake.dead && snake.deathTimer-- <= 0)
+				{
+					snake.reset();
+				}
+			});
+
+			corpseFood = corpseFood.filter(food => now - food.time <= CORPSE_FOOD_LIFESPAN);
+
+			// Update particles
+			particles.forEach(particle =>
+			{
+				particle.x += particle.vx;
+				particle.y += particle.vy;
+				particle.life -= 0.02;
+			});
+			particles = particles.filter(p => p.life > 0);
+		}
+
+		function getFoodIndex(position)
+		{
+			return foods.findIndex(food =>
+				food.x === position.x && food.y === position.y
+			);
+		}
+
+		function getCorpseIndex(position)
+		{
+			return corpseFood.findIndex(food =>
+				food.x === position.x && food.y === position.y
+			);
+		}
+
+		function draw()
+		{
+			ctx.fillStyle = '#1a1a1a';
+			ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+			// Animated grid overlay
+			ctx.strokeStyle = 'rgba(51, 51, 51, 0.25)';
+			ctx.lineWidth = 0.5;
+			for (let x = 0; x <= canvas.width; x += TILE_SIZE)
+			{
+				ctx.beginPath();
+				ctx.moveTo(x + 0.5, 0);
+				ctx.lineTo(x + 0.5, canvas.height);
+				ctx.stroke();
+			}
+			for (let y = 0; y <= canvas.height; y += TILE_SIZE)
+			{
+				ctx.beginPath();
+				ctx.moveTo(0.5, y + 0.5);
+				ctx.lineTo(canvas.width, y + 0.5);
+				ctx.stroke();
+			}
+
+			// Draw trails
+			snakes.forEach(snake =>
+			{
+				if (snake.dead) return;
+				snake.trail.forEach(entry =>
+				{
+					const age = Date.now() - entry.time;
+					if (age > TRAIL_DURATION) return;
+					const opacity = 1 - (age / TRAIL_DURATION);
+					const alpha = Math.floor(opacity * 255).toString(16).padStart(2, '0');
+					ctx.fillStyle = snake.colorPair[1] + alpha;
+					ctx.fillRect(
+						entry.x * TILE_SIZE,
+						entry.y * TILE_SIZE,
+						TILE_SIZE,
+						TILE_SIZE
+					);
+				});
+			});
+
+			snakes.forEach(snake =>
+			{
+				if (snake.dead) return;
+				ctx.fillStyle = snake.colorPair[1];
+				ctx.strokeStyle = '#222';
+				ctx.lineWidth = 1;
+				snake.body.slice(1).forEach(segment =>
+				{
+					ctx.fillRect(
+						segment.x * TILE_SIZE,
+						segment.y * TILE_SIZE,
+						TILE_SIZE,
+						TILE_SIZE
+					);
+					ctx.strokeRect(
+						segment.x * TILE_SIZE,
+						segment.y * TILE_SIZE,
+						TILE_SIZE,
+						TILE_SIZE
+					);
+				});
+
+				// Circular head with glowing outline
+				const head = snake.body[0];
+				const centerX = head.x * TILE_SIZE + TILE_SIZE / 2;
+				const centerY = head.y * TILE_SIZE + TILE_SIZE / 2;
+				const radius = TILE_SIZE / 2;
+				const gradient = ctx.createRadialGradient(
+					centerX,
+					centerY,
+					0,
+					centerX,
+					centerY,
+					radius
+				);
+				gradient.addColorStop(0, snake.colorPair[0]);
+				gradient.addColorStop(1, snake.colorPair[1]);
+				ctx.fillStyle = gradient;
+				ctx.beginPath();
+				ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+				ctx.fill();
+				ctx.save();
+				ctx.shadowColor = snake.colorPair[0];
+				ctx.shadowBlur = 15;
+				ctx.strokeStyle = snake.colorPair[0];
+				ctx.lineWidth = 3;
+				ctx.stroke();
+				ctx.restore();
+			});
+
+			// Pulsating regular food
+			ctx.strokeStyle = '#222';
+			foods.forEach(food =>
+			{
+				const centerX = food.x * TILE_SIZE + TILE_SIZE / 2;
+				const centerY = food.y * TILE_SIZE + TILE_SIZE / 2;
+				const radius = TILE_SIZE / 2 - 2;
+				const gradient = ctx.createRadialGradient(
+					centerX,
+					centerY,
+					0,
+					centerX,
+					centerY,
+					radius * (0.7 + 0.3 * Math.sin(pulsePhase))
+				);
+				gradient.addColorStop(0, '#00ff99');
+				gradient.addColorStop(1, '#006644');
+				ctx.fillStyle = gradient;
+				ctx.beginPath();
+				ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+				ctx.fill();
+				ctx.stroke();
+			});
+
+			// Decaying corpse food
+			ctx.lineWidth = 1;
+			corpseFood.forEach(food =>
+			{
+				const age = (Date.now() - food.time) / CORPSE_FOOD_LIFESPAN;
+				const centerX = food.x * TILE_SIZE + TILE_SIZE / 2;
+				const centerY = food.y * TILE_SIZE + TILE_SIZE / 2;
+				const radius = TILE_SIZE / 2 - 2;
+				const decayGradient = ctx.createRadialGradient(
+					centerX,
+					centerY,
+					0,
+					centerX,
+					centerY,
+					radius
+				);
+				const clampedAlpha = Math.max(0, Math.min(255, Math.floor(255 * (1 - age))));
+				const alpha = clampedAlpha.toString(16).padStart(2, '0');
+				decayGradient.addColorStop(0, `${food.color}${alpha}`);
+				decayGradient.addColorStop(1, `${shadeColor(food.color, -30)}${alpha}`);
+				ctx.fillStyle = decayGradient;
+				ctx.beginPath();
+				const scaledRadius = Math.max(0, radius * (1 - age));
+				ctx.arc(centerX, centerY, scaledRadius, 0, Math.PI * 2);
+				ctx.fill();
+				ctx.strokeStyle = shadeColor(food.color, -50);
+				ctx.setLineDash([2, 2]);
+				ctx.beginPath();
+				ctx.arc(centerX, centerY, scaledRadius, 0, Math.PI * 2);
+				ctx.stroke();
+				ctx.setLineDash([]);
+			});
+
+			// Draw particles
+			particles.forEach(particle =>
+			{
+				ctx.fillStyle = hexToRGBA(particle.color, particle.life);
+				ctx.beginPath();
+				ctx.arc(particle.x, particle.y, 2, 0, Math.PI * 2);
+				ctx.fill();
+			});
+		}
+
+		function shadeColor(color, percent)
+		{
+			let R = parseInt(color.substring(1, 3), 16);
+			let G = parseInt(color.substring(3, 5), 16);
+			let B = parseInt(color.substring(5, 7), 16);
+			R = Math.round(R * (100 + percent) / 100);
+			G = Math.round(G * (100 + percent) / 100);
+			B = Math.round(B * (100 + percent) / 100);
+			R = (R < 255) ? R : 255;
+			G = (G < 255) ? G : 255;
+			B = (B < 255) ? B : 255;
+			const RR = ((R.toString(16).length === 1) ? "0" + R.toString(16) : R.toString(16));
+			const GG = ((G.toString(16).length === 1) ? "0" + G.toString(16) : G.toString(16));
+			const BB = ((B.toString(16).length === 1) ? "0" + B.toString(16) : B.toString(16));
+			return "#" + RR + GG + BB;
+		}
+
+		function hexToRGBA(hex, alpha)
+		{
+			const r = parseInt(hex.slice(1, 3), 16);
+			const g = parseInt(hex.slice(3, 5), 16);
+			const b = parseInt(hex.slice(5, 7), 16);
+			return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+		}
+
+		(function gameLoop()
+		{
+			update();
+			draw();
+			pulsePhase += 0.1;
+			setTimeout(gameLoop, 1000 / 20);
+		})();
+		init();
+	</script>
+</body>
+
+</html>

@@ -30,24 +30,23 @@
 		const TILE_SIZE = 10;
 		canvas.width = GRID_SIZE * TILE_SIZE;
 		canvas.height = GRID_SIZE * TILE_SIZE;
-		const SNAKE_COLORS = [
-			['#ff6666', '#880000'], ['#6666ff', '#000088'],
-			['#66ff66', '#008800'], ['#ffff66', '#888800'],
-			['#a400e3', '#4b0082'], ['#ff9966', '#884400'],
-			['#66ffff', '#008888'], ['#ff69b4', '#c71585']
-		];
+		const SNAKE_COLORS = [['#ff6666', '#880000'], ['#6666ff', '#000088'], ['#66ff66', '#008800'], ['#ffff66', '#888800'], ['#a400e3', '#4b0082'], ['#ff9966', '#884400'], ['#66ffff', '#008888'], ['#ff69b4', '#c71585']];
 		const CORPSE_FOOD_LIFESPAN = 2500;
+		const INITIAL_FOOD_COUNT = 16;
+		const TRAIL_DURATION = 250;
+		const DIRECTIONS = [{x: 1, y: 0}, {x: -1, y: 0}, {x: 0, y: 1}, {x: 0, y: -1}];
 		let snakes = [];
 		let foods = [];
 		let corpseFood = [];
-		const INITIAL_FOOD_COUNT = 16;
-		const TRAIL_DURATION = 250;
-		let pulsePhase = 0;
 		let particles = [];
-		const DIRECTIONS = [
-			{x: 1, y: 0}, {x: -1, y: 0},
-			{x: 0, y: 1}, {x: 0, y: -1}
-		];
+		let pulsePhase = 0;
+
+		function getDistance(a, b)
+		{
+			const dx = Math.min(Math.abs(a.x - b.x), GRID_SIZE - Math.abs(a.x - b.x));
+			const dy = Math.min(Math.abs(a.y - b.y), GRID_SIZE - Math.abs(a.y - b.y));
+			return Math.sqrt(dx * dx + dy * dy);
+		}
 
 		class Snake
 		{
@@ -66,56 +65,55 @@
 
 			reset()
 			{
-				if (this.isInitialSpawn)
-				{
-					const spawnMargin = Math.ceil(GRID_SIZE * 0.1);
-					const centerCoord = Math.floor(GRID_SIZE / 2);
-					const maxCoord = GRID_SIZE - 1;
-					const SPAWN_POINTS = [
-						{x: centerCoord, y: spawnMargin},
-						{x: centerCoord, y: maxCoord - spawnMargin},
-						{x: maxCoord - spawnMargin, y: centerCoord},
-						{x: spawnMargin, y: centerCoord},
-						{x: maxCoord - spawnMargin, y: spawnMargin},
-						{x: spawnMargin, y: spawnMargin},
-						{x: maxCoord - spawnMargin, y: maxCoord - spawnMargin},
-						{x: spawnMargin, y: maxCoord - spawnMargin}
-					];
-					this.body = [SPAWN_POINTS[this.id]];
-					this.isInitialSpawn = false;
-				} else
-				{
-					let newSpawn;
-					do
-					{
-						newSpawn = {
-							x: Math.floor(Math.random() * GRID_SIZE),
-							y: Math.floor(Math.random() * GRID_SIZE)
-						};
-					} while (isOccupied(newSpawn.x, newSpawn.y));
-					this.body = [newSpawn];
-				}
+				this.body = [this.getSpawnPoint()];
 				this.direction = {x: 1, y: 0};
 				this.dead = false;
 				this.deathTimer = 0;
 				this.corpseFoodEaten = 0;
 				this.trail = [];
+				this.isInitialSpawn = false;
+			}
+
+			getSpawnPoint()
+			{
+				if (this.isInitialSpawn)
+				{
+					const spawnMargin = Math.ceil(GRID_SIZE * 0.1);
+					const center = Math.floor(GRID_SIZE / 2);
+					const max = GRID_SIZE - 1;
+					const SPAWN_POINTS = [
+						{x: center, y: spawnMargin}, {x: center, y: max - spawnMargin},
+						{x: max - spawnMargin, y: center}, {x: spawnMargin, y: center},
+						{x: max - spawnMargin, y: spawnMargin}, {x: spawnMargin, y: spawnMargin},
+						{x: max - spawnMargin, y: max - spawnMargin}, {x: spawnMargin, y: max - spawnMargin}
+					];
+					return SPAWN_POINTS[this.id];
+				}
+				let newSpawn;
+				do
+				{
+					newSpawn = {
+						x: Math.floor(Math.random() * GRID_SIZE),
+						y: Math.floor(Math.random() * GRID_SIZE)
+					};
+				} while (isOccupied(newSpawn.x, newSpawn.y));
+				return newSpawn;
 			}
 		}
 
 		function init()
 		{
-			snakes = SNAKE_COLORS.map((color, index) =>
-				new Snake(index, 0, 0, color)
-			);
+			snakes = SNAKE_COLORS.map((color, index) => new Snake(index, 0, 0, color));
 			snakes.forEach(snake => snake.reset());
+			resetFood();
+			particles = [];
+		}
+
+		function resetFood()
+		{
 			foods = [];
 			corpseFood = [];
-			particles = [];
-			for (let i = 0; i < INITIAL_FOOD_COUNT; i++)
-			{
-				generateFood();
-			}
+			for (let i = 0; i < INITIAL_FOOD_COUNT; i++) generateFood();
 		}
 
 		function generateFood()
@@ -133,15 +131,109 @@
 
 		function isOccupied(x, y)
 		{
-			return snakes.some(snake =>
-				snake.body.some(segment =>
-					segment.x === x && segment.y === y
-				)
-			) || foods.some(food =>
-				food.x === x && food.y === y
-			) || corpseFood.some(food =>
-				food.x === x && food.y === y
-			);
+			return snakes.some(snake => snake.body.some(seg => seg.x === x && seg.y === y)) ||
+				foods.some(food => food.x === x && food.y === y) ||
+				corpseFood.some(food => food.x === x && food.y === y);
+		}
+
+		function update()
+		{
+			updateSnakes();
+			updateTrails();
+			updateCorpseFood();
+			updateParticles();
+			pulsePhase += 0.1;
+		}
+
+		function updateSnakes()
+		{
+			snakes.forEach(snake =>
+			{
+				if (snake.dead) return;
+				snake.direction = aiControl(snake);
+				const newHead = getWrappedHead(snake.body[0], snake.direction);
+				if (checkCollision(newHead, snake))
+				{
+					handleSnakeDeath(snake);
+					return;
+				}
+				snake.body.unshift(newHead);
+				handleFoodConsumption(snake);
+			});
+		}
+
+		function handleFoodConsumption(snake)
+		{
+			const head = snake.body[0];
+			const foodIndex = foods.findIndex(food => food.x === head.x && food.y === head.y);
+			const corpseIndex = corpseFood.findIndex(food => food.x === head.x && food.y === head.y);
+			if (foodIndex >= 0)
+			{
+				foods.splice(foodIndex, 1);
+				generateFood();
+			} else if (corpseIndex >= 0)
+			{
+				corpseFood.splice(corpseIndex, 1);
+				snake.corpseFoodEaten = (snake.corpseFoodEaten + 1) % 2;
+			} else
+			{
+				const removedSegment = snake.body.pop();
+				snake.trail.push({x: removedSegment.x, y: removedSegment.y, time: Date.now()});
+			}
+		}
+
+		function handleSnakeDeath(snake)
+		{
+			snake.dead = true;
+			snake.deathTimer = 30;
+			createExplosion(snake.body[0], snake.colorPair[1]);
+			createCorpseFood(snake);
+		}
+
+		function createCorpseFood(snake)
+		{
+			snake.body.forEach(segment =>
+			{
+				corpseFood.push({
+					x: segment.x,
+					y: segment.y,
+					time: Date.now(),
+					color: snake.colorPair[1]
+				});
+			});
+		}
+
+		function updateTrails()
+		{
+			const now = Date.now();
+			snakes.forEach(snake =>
+			{
+				snake.trail = snake.trail.filter(entry => now - entry.time <= TRAIL_DURATION);
+				if (snake.dead && snake.deathTimer-- <= 0) snake.reset();
+			});
+		}
+
+		function updateCorpseFood()
+		{
+			corpseFood = corpseFood.filter(food => Date.now() - food.time <= CORPSE_FOOD_LIFESPAN);
+		}
+
+		function createExplosion(position, color)
+		{
+			const centerX = position.x * TILE_SIZE + TILE_SIZE / 2;
+			const centerY = position.y * TILE_SIZE + TILE_SIZE / 2;
+			for (let i = 0; i < 20; i++)
+			{
+				const angle = Math.random() * Math.PI * 2;
+				particles.push({
+					x: centerX,
+					y: centerY,
+					vx: Math.cos(angle) * (Math.random() * 2 + 1),
+					vy: Math.sin(angle) * (Math.random() * 2 + 1),
+					color: color,
+					life: 1
+				});
+			}
 		}
 
 		function wrapCoordinate(coord)
@@ -152,19 +244,26 @@
 		function aiControl(snake)
 		{
 			const head = snake.body[0];
+			const closestFood = findClosestFood(head);
+			if (!closestFood) return chooseBestDirection(snake, head);
+			const path = bfs(snake, head, closestFood);
+			if (path.length > 0)
+			{
+				const nextDir = path[0];
+				const simulatedHead = getWrappedHead(head, nextDir);
+				if (getAvailableDirections(simulatedHead) > 0) return nextDir;
+			}
+			return chooseBestDirection(snake, head, closestFood);
+		}
+
+		function findClosestFood(position)
+		{
 			let closestFood = null;
 			let closestDistance = Infinity;
-
 			[...foods, ...corpseFood].forEach(food =>
 			{
-				const dx = Math.min(
-					Math.abs(food.x - head.x),
-					GRID_SIZE - Math.abs(food.x - head.x)
-				);
-				const dy = Math.min(
-					Math.abs(food.y - head.y),
-					GRID_SIZE - Math.abs(food.y - head.y)
-				);
+				const dx = Math.min(Math.abs(food.x - position.x), GRID_SIZE - Math.abs(food.x - position.x));
+				const dy = Math.min(Math.abs(food.y - position.y), GRID_SIZE - Math.abs(food.y - position.y));
 				const distance = Math.sqrt(dx * dx + dy * dy);
 				if (distance < closestDistance)
 				{
@@ -172,49 +271,32 @@
 					closestFood = food;
 				}
 			});
+			return closestFood;
+		}
 
-			if (closestFood)
-			{
-				const path = bfs(snake, head, closestFood);
-				if (path.length > 0)
+		function chooseBestDirection(snake, head, target)
+		{
+			const possibleDirs = DIRECTIONS.filter(dir => !isOpposite(dir, snake.direction))
+				.sort((a, b) =>
 				{
-					const nextDir = path[0];
-					const simulatedHead = getWrappedHead(head, nextDir);
-					const available = getAvailableDirections(simulatedHead);
-					if (available > 0)
-					{
-						return nextDir;
-					}
-				}
-			}
-
-			const possibleDirs = DIRECTIONS.filter(dir =>
-				!isOppositeDirection(dir, snake.direction)
-			).sort((a, b) =>
-			{
-				const aHead = getWrappedHead(head, a);
-				const bHead = getWrappedHead(head, b);
-				const aDist = getDistance(aHead, closestFood || head);
-				const bDist = getDistance(bHead, closestFood || head);
-				return aDist !== bDist ? aDist - bDist :
-					getAvailableDirections(bHead) - getAvailableDirections(aHead);
-			});
-
+					const aHead = getWrappedHead(head, a);
+					const bHead = getWrappedHead(head, b);
+					const aDist = getDistance(aHead, target || head);
+					const bDist = getDistance(bHead, target || head);
+					return aDist !== bDist ?
+						aDist - bDist :
+						getAvailableDirections(bHead) - getAvailableDirections(aHead);
+				});
 			for (const dir of possibleDirs)
 			{
-				const wrappedHead = getWrappedHead(head, dir);
-				if (!checkCollision(wrappedHead, snake))
-				{
-					return dir;
-				}
+				if (!checkCollision(getWrappedHead(head, dir))) return dir;
 			}
-
 			return possibleDirs[0] || snake.direction;
 		}
 
-		function isOppositeDirection(dir, currentDir)
+		function isOpposite(a, b)
 		{
-			return dir.x === -currentDir.x && dir.y === -currentDir.y;
+			return a.x === -b.x && a.y === -b.y;
 		}
 
 		function getWrappedHead(head, dir)
@@ -223,13 +305,6 @@
 				x: wrapCoordinate(head.x + dir.x),
 				y: wrapCoordinate(head.y + dir.y)
 			};
-		}
-
-		function getDistance(a, b)
-		{
-			const dx = Math.min(Math.abs(a.x - b.x), GRID_SIZE - Math.abs(a.x - b.x));
-			const dy = Math.min(Math.abs(a.y - b.y), GRID_SIZE - Math.abs(a.y - b.y));
-			return Math.sqrt(dx * dx + dy * dy);
 		}
 
 		function getAvailableDirections(head)
@@ -241,145 +316,30 @@
 			}, 0);
 		}
 
-		function checkCollision(head, currentSnake, simulatedBody = null)
+		function checkCollision(position, currentSnake = null, simulatedBody = null)
 		{
-			const wrappedHead = {
-				x: wrapCoordinate(head.x),
-				y: wrapCoordinate(head.y)
-			};
-
+			const wrapped = {x: wrapCoordinate(position.x), y: wrapCoordinate(position.y)};
 			for (const snake of snakes)
 			{
-				if (snake.dead) continue;
-				const bodyToCheck = simulatedBody || snake.body;
-				for (let i = 1; i < bodyToCheck.length; i++)
+				if (snake.dead || !snake.body || snake.body.length === 0) continue;
+				const body = simulatedBody || snake.body;
+				for (let i = 1; i < body.length; i++)
 				{
-					const segment = bodyToCheck[i];
-					if (segment.x === wrappedHead.x && segment.y === wrappedHead.y)
-					{
-						return true;
-					}
+					if (body[i].x === wrapped.x && body[i].y === wrapped.y) return true;
 				}
 				if (snake !== currentSnake)
 				{
 					const otherHead = snake.body[0];
-					if (otherHead.x === wrappedHead.x && otherHead.y === wrappedHead.y)
-					{
-						return true;
-					}
+					if (otherHead.x === wrapped.x && otherHead.y === wrapped.y) return true;
 				}
 			}
 			return false;
-		}
-
-		function update()
-		{
-			snakes.forEach(snake =>
-			{
-				if (snake.dead) return;
-				snake.direction = aiControl(snake);
-				let newHead = getWrappedHead(snake.body[0], snake.direction);
-
-				if (checkCollision(newHead, snake))
-				{
-					snake.dead = true;
-					snake.deathTimer = 30;
-					createExplosion(snake.body[0], snake.colorPair[1]);
-					createCorpseFood(snake);
-					return;
-				}
-
-				snake.body.unshift(newHead);
-				const foodIndex = getFoodIndex(newHead);
-				const corpseIndex = getCorpseIndex(newHead);
-
-				if (foodIndex >= 0)
-				{
-					foods.splice(foodIndex, 1);
-					generateFood();
-				} else if (corpseIndex >= 0)
-				{
-					corpseFood.splice(corpseIndex, 1);
-					snake.corpseFoodEaten = (snake.corpseFoodEaten + 1) % 2;
-				} else
-				{
-					const removedSegment = snake.body.pop();
-					if (removedSegment)
-					{
-						snake.trail.push({
-							x: removedSegment.x,
-							y: removedSegment.y,
-							time: Date.now()
-						});
-					}
-				}
-			});
-
-			const now = Date.now();
-			snakes.forEach(snake =>
-			{
-				snake.trail = snake.trail.filter(entry => now - entry.time <= TRAIL_DURATION);
-				if (snake.dead && snake.deathTimer-- <= 0)
-				{
-					snake.reset();
-				}
-			});
-
-			corpseFood = corpseFood.filter(food => now - food.time <= CORPSE_FOOD_LIFESPAN);
-			updateParticles();
-		}
-
-		function createExplosion(position, color)
-		{
-			const centerX = position.x * TILE_SIZE + TILE_SIZE / 2;
-			const centerY = position.y * TILE_SIZE + TILE_SIZE / 2;
-			for (let i = 0; i < 20; i++)
-			{
-				const angle = Math.random() * Math.PI * 2;
-				const speed = Math.random() * 2 + 1;
-				particles.push({
-					x: centerX,
-					y: centerY,
-					vx: Math.cos(angle) * speed,
-					vy: Math.sin(angle) * speed,
-					color: color,
-					life: 1
-				});
-			}
-		}
-
-		function createCorpseFood(snake)
-		{
-			for (let i = 1; i < snake.body.length; i += 2)
-			{
-				corpseFood.push({
-					x: snake.body[i].x,
-					y: snake.body[i].y,
-					time: Date.now(),
-					color: snake.colorPair[1]
-				});
-			}
-		}
-
-		function getFoodIndex(position)
-		{
-			return foods.findIndex(food =>
-				food.x === position.x && food.y === position.y
-			);
-		}
-
-		function getCorpseIndex(position)
-		{
-			return corpseFood.findIndex(food =>
-				food.x === position.x && food.y === position.y
-			);
 		}
 
 		function draw()
 		{
 			ctx.fillStyle = '#1a1a1a';
 			ctx.fillRect(0, 0, canvas.width, canvas.height);
-
 			drawGrid();
 			drawTrails();
 			drawSnakes();
@@ -392,18 +352,15 @@
 		{
 			ctx.strokeStyle = 'rgba(51, 51, 51, 0.25)';
 			ctx.lineWidth = 0.5;
-			for (let x = 0; x <= canvas.width; x += TILE_SIZE)
+			for (let i = 0; i <= GRID_SIZE; i++)
 			{
 				ctx.beginPath();
-				ctx.moveTo(x + 0.5, 0);
-				ctx.lineTo(x + 0.5, canvas.height);
+				ctx.moveTo(i * TILE_SIZE + 0.5, 0);
+				ctx.lineTo(i * TILE_SIZE + 0.5, canvas.height);
 				ctx.stroke();
-			}
-			for (let y = 0; y <= canvas.height; y += TILE_SIZE)
-			{
 				ctx.beginPath();
-				ctx.moveTo(0.5, y + 0.5);
-				ctx.lineTo(canvas.width, y + 0.5);
+				ctx.moveTo(0, i * TILE_SIZE + 0.5);
+				ctx.lineTo(canvas.width, i * TILE_SIZE + 0.5);
 				ctx.stroke();
 			}
 		}
@@ -416,15 +373,9 @@
 				snake.trail.forEach(entry =>
 				{
 					const age = Date.now() - entry.time;
-					const opacity = 1 - (age / TRAIL_DURATION);
-					const alpha = Math.floor(opacity * 255).toString(16).padStart(2, '0');
-					ctx.fillStyle = snake.colorPair[1] + alpha;
-					ctx.fillRect(
-						entry.x * TILE_SIZE,
-						entry.y * TILE_SIZE,
-						TILE_SIZE,
-						TILE_SIZE
-					);
+					const opacity = Math.max(0, 1 - age / TRAIL_DURATION).toFixed(2);
+					ctx.fillStyle = hexToRGBA(snake.colorPair[1], opacity);
+					ctx.fillRect(entry.x * TILE_SIZE, entry.y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
 				});
 			});
 		}
@@ -437,23 +388,11 @@
 				ctx.fillStyle = snake.colorPair[1];
 				ctx.strokeStyle = '#222';
 				ctx.lineWidth = 1;
-
 				snake.body.slice(1).forEach(segment =>
 				{
-					ctx.fillRect(
-						segment.x * TILE_SIZE,
-						segment.y * TILE_SIZE,
-						TILE_SIZE,
-						TILE_SIZE
-					);
-					ctx.strokeRect(
-						segment.x * TILE_SIZE,
-						segment.y * TILE_SIZE,
-						TILE_SIZE,
-						TILE_SIZE
-					);
+					ctx.fillRect(segment.x * TILE_SIZE, segment.y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+					ctx.strokeRect(segment.x * TILE_SIZE, segment.y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
 				});
-
 				drawSnakeHead(snake);
 			});
 		}
@@ -463,22 +402,13 @@
 			const head = snake.body[0];
 			const centerX = head.x * TILE_SIZE + TILE_SIZE / 2;
 			const centerY = head.y * TILE_SIZE + TILE_SIZE / 2;
-			const radius = TILE_SIZE / 2;
-			const gradient = ctx.createRadialGradient(
-				centerX,
-				centerY,
-				0,
-				centerX,
-				centerY,
-				radius
-			);
+			const gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, TILE_SIZE / 2);
 			gradient.addColorStop(0, snake.colorPair[0]);
 			gradient.addColorStop(1, snake.colorPair[1]);
 			ctx.fillStyle = gradient;
 			ctx.beginPath();
-			ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+			ctx.arc(centerX, centerY, TILE_SIZE / 2, 0, Math.PI * 2);
 			ctx.fill();
-
 			ctx.save();
 			ctx.shadowColor = snake.colorPair[0];
 			ctx.shadowBlur = 15;
@@ -497,12 +427,8 @@
 				const centerY = food.y * TILE_SIZE + TILE_SIZE / 2;
 				const radius = TILE_SIZE / 2 - 2;
 				const gradient = ctx.createRadialGradient(
-					centerX,
-					centerY,
-					0,
-					centerX,
-					centerY,
-					radius * (0.7 + 0.3 * Math.sin(pulsePhase))
+					centerX, centerY, 0,
+					centerX, centerY, radius * (0.7 + 0.3 * Math.sin(pulsePhase))
 				);
 				gradient.addColorStop(0, '#00ff99');
 				gradient.addColorStop(1, '#006644');
@@ -522,28 +448,16 @@
 				const age = (Date.now() - food.time) / CORPSE_FOOD_LIFESPAN;
 				const centerX = food.x * TILE_SIZE + TILE_SIZE / 2;
 				const centerY = food.y * TILE_SIZE + TILE_SIZE / 2;
-				const radius = TILE_SIZE / 2 - 2;
-				const decayGradient = ctx.createRadialGradient(
-					centerX,
-					centerY,
-					0,
-					centerX,
-					centerY,
-					radius
-				);
-				const clampedAlpha = Math.max(0, Math.min(255, Math.floor(255 * (1 - age))));
-				const alpha = clampedAlpha.toString(16).padStart(2, '0');
-				decayGradient.addColorStop(0, `${food.color}${alpha}`);
-				decayGradient.addColorStop(1, `${shadeColor(food.color, -30)}${alpha}`);
+				const decayGradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, TILE_SIZE / 2);
+				const alpha = Math.max(0, 1 - age).toFixed(2);
+				decayGradient.addColorStop(0, hexToRGBA(food.color, alpha));
+				decayGradient.addColorStop(1, hexToRGBA(shadeColor(food.color, -30), alpha));
 				ctx.fillStyle = decayGradient;
 				ctx.beginPath();
-				const scaledRadius = Math.max(0, radius * (1 - age));
-				ctx.arc(centerX, centerY, scaledRadius, 0, Math.PI * 2);
+				ctx.arc(centerX, centerY, Math.max(0, (TILE_SIZE / 2 - 2) * (1 - age)), 0, Math.PI * 2);
 				ctx.fill();
-				ctx.strokeStyle = shadeColor(food.color, -50);
 				ctx.setLineDash([2, 2]);
-				ctx.beginPath();
-				ctx.arc(centerX, centerY, scaledRadius, 0, Math.PI * 2);
+				ctx.strokeStyle = shadeColor(food.color, -50);
 				ctx.stroke();
 				ctx.setLineDash([]);
 			});
@@ -571,21 +485,32 @@
 			particles = particles.filter(p => p.life > 0);
 		}
 
-		function shadeColor(color, percent)
+		function bfs(snake, start, target)
 		{
-			let R = parseInt(color.substring(1, 3), 16);
-			let G = parseInt(color.substring(3, 5), 16);
-			let B = parseInt(color.substring(5, 7), 16);
-			R = Math.round(R * (100 + percent) / 100);
-			G = Math.round(G * (100 + percent) / 100);
-			B = Math.round(B * (100 + percent) / 100);
-			R = (R < 255) ? R : 255;
-			G = (G < 255) ? G : 255;
-			B = (B < 255) ? B : 255;
-			const RR = ((R.toString(16).length === 1) ? "0" + R.toString(16) : R.toString(16));
-			const GG = ((G.toString(16).length === 1) ? "0" + G.toString(16) : G.toString(16));
-			const BB = ((B.toString(16).length === 1) ? "0" + B.toString(16) : B.toString(16));
-			return "#" + RR + GG + BB;
+			const queue = [{x: start.x, y: start.y, path: []}];
+			const visited = new Set();
+			visited.add(`${start.x},${start.y}`);
+			while (queue.length > 0)
+			{
+				const current = queue.shift();
+				if (!target) return [];
+				if (current.x === target.x && current.y === target.y)
+				{
+					return current.path;
+				}
+				for (const dir of DIRECTIONS)
+				{
+					const nextX = wrapCoordinate(current.x + dir.x);
+					const nextY = wrapCoordinate(current.y + dir.y);
+					const key = `${nextX},${nextY}`;
+					if (!visited.has(key) && !checkCollision({x: nextX, y: nextY}, snake))
+					{
+						visited.add(key);
+						queue.push({x: nextX, y: nextY, path: [...current.path, dir]});
+					}
+				}
+			}
+			return [];
 		}
 
 		function hexToRGBA(hex, alpha)
@@ -596,43 +521,24 @@
 			return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 		}
 
-		function bfs(snake, start, target)
+		function shadeColor(color, percent)
 		{
-			const queue = [{x: start.x, y: start.y, path: []}];
-			const visited = new Set();
-			visited.add(`${start.x},${start.y}`);
-
-			while (queue.length > 0)
-			{
-				const current = queue.shift();
-				if (current.x === target.x && current.y === target.y)
-				{
-					return current.path;
-				}
-
-				for (const dir of DIRECTIONS)
-				{
-					const nextX = wrapCoordinate(current.x + dir.x);
-					const nextY = wrapCoordinate(current.y + dir.y);
-					const key = `${nextX},${nextY}`;
-
-					if (!visited.has(key) && !checkCollision({x: nextX, y: nextY}, snake))
-					{
-						visited.add(key);
-						const newPath = [...current.path, dir];
-						queue.push({x: nextX, y: nextY, path: newPath});
-					}
-				}
-			}
-
-			return [];
+			let R = parseInt(color.substring(1, 3), 16);
+			let G = parseInt(color.substring(3, 5), 16);
+			let B = parseInt(color.substring(5, 7), 16);
+			R = Math.round(R * (100 + percent) / 100);
+			G = Math.round(G * (100 + percent) / 100);
+			B = Math.round(B * (100 + percent) / 100);
+			R = Math.min(255, Math.max(0, R));
+			G = Math.min(255, Math.max(0, G));
+			B = Math.min(255, Math.max(0, B));
+			return `#${R.toString(16).padStart(2, '0')}${G.toString(16).padStart(2, '0')}${B.toString(16).padStart(2, '0')}`;
 		}
 
 		(function gameLoop()
 		{
 			update();
 			draw();
-			pulsePhase += 0.1;
 			setTimeout(gameLoop, 1000 / 20);
 		})();
 
